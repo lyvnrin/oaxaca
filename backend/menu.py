@@ -1,33 +1,3 @@
-class menu:
-    def __init__(self):
-        self.items = []
-
-    def add_item(self, name, price):
-        self.items.append({'name': name, 'price': price})
-
-    def remove_item(self, name):
-        self.items = [item for item in self.items if item['name'] != name]
-
-    def update_items(self, name, price):
-        for item in self.items:
-            if item['name'] == name:
-                item['price'] = price
-                break
-
-    def get_items_available_items(self):
-        return [item for item in self.items if item.available] # returns a list of available items
-
-    def filter_items(self, vegetarian=False, gluten_free=None):
-        filtered = self.get_items_available_items()
-
-        if vegetarian is not None:
-            filtered = [i for i in filtered if i.vegetarian == vegetarian] # filters by vegetarian
-        if gluten_free is not None:
-            filtered = [i for i in filtered if i.gluten_free == gluten_free] # filters by gluten-free
-
-        return filtered
-
-
 class menuItem:
     def __init__(self, item_id: int,
                  name: str,
@@ -38,7 +8,6 @@ class menuItem:
                  vegetarian: bool,
                  gluten_free: bool,
                  available: bool = True):
-
         self.item_id = item_id
         self.name = name
         self.description = description
@@ -49,7 +18,7 @@ class menuItem:
         self.gluten_free = gluten_free
         self.available = available
 
-    def to_dict(self):
+    def to_dict(self): # converts the menu item to a dictionary
         return {
             "id": self.item_id,
             "name": self.name,
@@ -62,9 +31,44 @@ class menuItem:
             "available": self.available
         }
 
-    menu = menu()
+    def __str__(self):
+        return (
+            f"{self.name} | £{self.price:.2f} | "
+            f"{self.calories} kcal | "
+            f"{'Veg' if self.vegetarian else 'Non-veg'} | "
+            f"{'Available' if self.available else 'Unavailable'}"
+        )
 
-    menu.add_item("Burger", 8)
-    menu.add_item("Steak", 15)
-    print(menu.get_items())
-    print(menu.filter_items())
+    def __repr__(self):
+        return self.__str__()
+
+
+class menu:
+    def __init__(self):
+        self.items: list[menuItem] = []  # list to store menu items
+
+    def add_item(self, item: menuItem):
+        self.items.append(item)
+
+    def remove_item(self, name: str):
+        self.items = [item for item in self.items if item.name != name]
+
+    def get_available_items(self):
+        return [item for item in self.items if item.available]  # returns a list of available items
+
+    def filter_items(self, vegetarian=False, gluten_free=None):
+        filtered = self.get_available_items()
+
+        if vegetarian is not None:
+            filtered = [i for i in filtered if i.vegetarian == vegetarian]  # filters by vegetarian
+        if gluten_free is not None:
+            filtered = [i for i in filtered if i.gluten_free == gluten_free]  # filters by gluten-free
+
+        return filtered
+
+    def update_item(self, name: str, price: float):
+        for item in self.items:
+            if item.name == name:
+                item.price = price
+                return item
+        return None
