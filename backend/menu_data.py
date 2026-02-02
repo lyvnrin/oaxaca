@@ -24,6 +24,11 @@ menu.add_item(menuItem(
     gluten_free=True
 ))
 
-print(menu.get_available_items())
-print(menu.filter_items(vegetarian=True))
+# all test cases
+print(menu.get_available_items()) # prints all available items
+print(menu.filter_items(vegetarian=True)) # prints all available vegetarian items
+menu.remove_item("Margherita Pizza") # removes the Margherita Pizza from the menu
+print(menu.get_available_items()) # prints all available items after removal
+print(menu.update_item("Grilled Chicken Salad", 12.00)) # updates the price of Grilled Chicken Salad
+print(menu.get_available_items()) # prints all available items after price update
 
