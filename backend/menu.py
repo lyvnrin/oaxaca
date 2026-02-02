@@ -14,12 +14,18 @@ class menu:
                 item['price'] = price
                 break
 
-    def get_items(self):
-        return self.items
+    def get_items_available_items(self):
+        return [item for item in self.items if item.available] # returns a list of available items
 
-    def filter_items(self):
-        return [item for item in self.items if
-                item['price'] > 10]  # filters by price for now, need to filter by allergens
+    def filter_items(self, vegetarian=False, gluten_free=None):
+        filtered = self.get_items_available_items()
+
+        if vegetarian is not None:
+            filtered = [i for i in filtered if i.vegetarian == vegetarian] # filters by vegetarian
+        if gluten_free is not None:
+            filtered = [i for i in filtered if i.gluten_free == gluten_free] # filters by gluten-free
+
+        return filtered
 
 
 class menuItem:
