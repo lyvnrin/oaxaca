@@ -1,3 +1,18 @@
+
+from enum import Enum
+
+class OrderStatus(Enum):
+    PENDING = "Pending"
+    IN_PROGRESS = "In Progress"
+    READY = "Ready"
+    COMPLETED = "Completed"
+    CANCELLED = "Cancelled"
+
+class Role(Enum):
+    WAITER = "Waiter"
+    KITCHEN_STAFF = "Kitchen_Staff"
+
+
 class menuItem:
     def __init__(self, item_id: int,
                  name: str,
@@ -72,3 +87,15 @@ class menu:
                 item.price = price
                 return item
         return None
+
+
+class staff:
+    def __init__(self, name: str, role: Role ):
+        self.name = name
+        self.role = role
+
+    def __str__(self):
+        return f"{self.name} - {self.role}"
+
+    def __repr__(self):
+        return self.__str__()
