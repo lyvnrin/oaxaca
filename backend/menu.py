@@ -12,6 +12,11 @@ class Role(Enum):
     WAITER = "Waiter"
     KITCHEN_STAFF = "Kitchen_Staff"
 
+class AlertType(Enum):
+    HELP_NEEDED = "Help_Needed"
+    ORDER_READY = "Order_Ready"
+    PAYMENT_REQUEST = "Payment_Request"
+
 
 class menuItem:
     def __init__(self, item_id: int,
@@ -89,13 +94,18 @@ class menu:
         return None
 
 
-class staff:
+class Staff:
+    _next_id = 1
     def __init__(self, name: str, role: Role ):
+        self.staff_id = Staff.next_id
+        Staff._next_id += 1
+
         self.name = name
         self.role = role
 
+
     def __str__(self):
-        return f"{self.name} - {self.role}"
+        return f"{self.name} - {self.role.value} - ID: {self.staff_id}"
 
     def __repr__(self):
         return self.__str__()
