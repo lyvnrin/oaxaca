@@ -1,0 +1,126 @@
+.page-container {
+    width: 100%;
+}
+
+.margin {
+    width: 100%;
+    background: #444;
+    color: #fff;
+    padding: 20px 0;
+    font-family: Bahnschrift, Georgia, serif;
+}
+
+.margin-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+}
+
+.top-left {
+    font-size: 2.8rem;
+    font-weight: bold;
+}
+
+.top-center {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 1.4rem;
+}
+
+.top-right {
+    font-size: 1.2rem;
+}
+
+.top-button-row {
+    width: 100%;
+    padding: 10px 0;
+    background: transparent;
+}
+
+.top-button-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 40px;
+}
+
+.top-left-button {
+    padding: 10px 30px;
+    background: #444444;
+    border: none;
+    border-radius: 6px;
+    color: #fff;
+    cursor: pointer;
+}
+
+.top-left-button:hover {
+    background: #222222;
+}
+
+.top-button-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.top-right-buttons {
+    display: flex;
+    gap: 15px;
+}
+
+.top-right-button {
+    padding: 10px 30px;
+    background: #444444;
+    border: none;
+    border-radius: 6px;
+    color: #fff;
+    cursor: pointer;
+}
+
+.top-right-button:hover {
+    background: #222222;
+}
+
+.menu-box {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: #888888;
+    font-family: Bahnschrift, Georgia, serif;
+}
+
+.menu-title {
+    margin-bottom: 40px;
+    font-size: 2.5rem;
+    color: #f9f9f9;
+}
+
+.menu-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    align-items: center;
+}
+
+.menu-button {
+    width: 200px;
+    padding: 15px 20px;
+    border: none;
+    border-radius: 8px;
+    background: #444444;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.menu-button:hover {
+    background: #666666;
+}
