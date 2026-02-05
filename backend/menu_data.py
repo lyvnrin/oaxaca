@@ -1,7 +1,9 @@
-from menu import menu, menuItem
+from menu import menu, menuItem, restaurant, Role
 
 menu = menu()
+r = restaurant("Oaxaca", "London")
 
+# menu test
 menu.add_item(menuItem(
     item_id=1,
     name="Margherita Pizza",
@@ -30,3 +32,8 @@ print(menu.remove_item("Grilled Chicken Salad"))
 print(menu.get_available_items())
 print(menu.update_item("Margherita Pizza", 9.99))
 print(menu.get_available_items())
+
+# staff testing
+r.create_staff("Alice", "pass", Role.KITCHEN_STAFF)
+r.create_staff("Bob", "pass", Role.WAITER)
+print(r.staff)

@@ -1,5 +1,5 @@
-
 from enum import Enum
+
 
 class OrderStatus(Enum):
     PENDING = "Pending"
@@ -8,9 +8,11 @@ class OrderStatus(Enum):
     COMPLETED = "Completed"
     CANCELLED = "Cancelled"
 
+
 class Role(Enum):
     WAITER = "Waiter"
     KITCHEN_STAFF = "Kitchen_Staff"
+
 
 class AlertType(Enum):
     HELP_NEEDED = "Help_Needed"
@@ -38,7 +40,7 @@ class menuItem:
         self.gluten_free = gluten_free
         self.available = available
 
-    def to_dict(self): # converts the menu item to a dictionary
+    def to_dict(self):  # converts the menu item to a dictionary
         return {
             "id": self.item_id,
             "name": self.name,
@@ -94,18 +96,50 @@ class menu:
         return None
 
 
-class Staff:
-    _next_id = 1
-    def __init__(self, name: str, role: Role ):
-        self.staff_id = Staff.next_id
-        Staff._next_id += 1
-
+class restaurant:
+    def __init__(self, name: str, location: str):
         self.name = name
-        self.role = role
+        self.location = location
+        self.menu = menu()
 
+        self.orders: list['Order'] = []  # TODO list to store orders need to implement order system
+        self.alerts: list['Alert'] = []  # TODO list to store alerts need to implement alert system
+        self.staff: list['Staff'] = []  # list to store staff members
+
+        # ADD STAFF MEMBERS
+
+    def add_staff(self, staff_member: 'Staff'):
+        self.staff.append(staff_member)  # adds a staff member to the restaurant's staff list
+
+    def create_staff(self, username: str, password: str, role: Role) -> 'Staff':
+        staff_member = Staff(
+            username=username,
+            password=password,
+            staff_id=Staff._next_id,
+            role=role
+        )
+        Staff._next_id += 1
+        self.add_staff(staff_member)
+        return staff_member
+
+    def get_staff_by_role(self, role: Role):
+        return [s for s in self.staff if s.role == role]  # returns a list of staff members with the specified role
 
     def __str__(self):
-        return f"{self.name} - {self.role.value} - ID: {self.staff_id}"
+        return f"{self.name} - {self.location}"
+
+
+class Staff:
+    _next_id = 1
+
+    def __init__(self, username: str, password: str, staff_id: int, role: Role):
+        self.staff_id = staff_id
+        self.username = username
+        self.password = password
+        self.role = role
+
+    def __str__(self):
+        return f"{self.username} - {self.role.value} - ID: {self.staff_id}"
 
     def __repr__(self):
         return self.__str__()
