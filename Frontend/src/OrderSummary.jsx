@@ -1,8 +1,17 @@
+import { useState } from "react";
+
 function OrderSummary() {
+  const [notes, setNotes] = useState("");
+
+  const item1Price = 5;
+  const item2Price = 3;
+
+  const total = item1Price + item2Price;
+
   return (
     <div
       style={{
-        fontFamily: "Arial, sans-serif",
+        fontFamily: "Arial",
         backgroundColor: "lightgrey",
         minHeight: "100vh",
         padding: "20px"
@@ -10,13 +19,20 @@ function OrderSummary() {
     >
       <h2>ORDER SUMMARY</h2>
 
-      <p>ITEM 1 x1 £5</p>
-      <p>ITEM 2 x2 £3</p>
+      <p>ITEM 1  £{item1Price}</p>
+      <p>ITEM 2  £{item2Price}</p>
 
-      <p><strong>Total: £11</strong></p>
+      <p>
+        <b>Total: £{total}</b>
+      </p>
 
       <p>Additional Notes:</p>
-      <textarea rows="3"></textarea>
+      <textarea
+        rows="3"
+        cols="35"
+        value={notes}
+        onChange={(e) => setNotes(e.target.value)}
+      />
 
       <br /><br />
 
