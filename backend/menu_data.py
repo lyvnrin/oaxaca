@@ -26,4 +26,7 @@ menu.add_item(menuItem(
 
 print(menu.get_available_items())
 print(menu.filter_items(vegetarian=True))
-
+print(menu.remove_item("Grilled Chicken Salad"))
+print(menu.get_available_items())
+print(menu.update_item("Margherita Pizza", 9.99))
+print(menu.get_available_items())
