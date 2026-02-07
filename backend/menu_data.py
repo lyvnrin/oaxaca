@@ -36,4 +36,5 @@ print(menu.get_available_items())
 # staff testing
 r.create_staff("Alice", "pass", Role.KITCHEN_STAFF)
 r.create_staff("Bob", "pass", Role.WAITER)
+print(r.get_staff_by_role(Role.WAITER))
 print(r.staff)
