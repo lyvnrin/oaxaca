@@ -76,6 +76,19 @@ class menu:
     def remove_item(self, name: str):
         self.items = [item for item in self.items if item.name != name]
 
+    def get_item_by_id(self, item_id: int): # returns a menu item based on its ID, if not found returns None
+        for item in self.items:
+            if item.item_id == item_id:
+                return item
+        return None
+
+    def set_availability(self, name: str, available: bool): # sets the availability of a menu item based on its name, returns True if successful, False if item not found
+        item = self.get_item_by_id(name)
+        if item is None:
+            return False
+        item.available = available
+        return True
+
     def get_available_items(self):
         return [item for item in self.items if item.available]  # returns a list of available items
 
@@ -134,8 +147,34 @@ class restaurant:
         self.name = name
         self.location = location
         self.menu = menu()
-        self.orders: list['Order'] = []  # TODO list to store orders need to implement order system
+        self.orders: list['Order'] = []  # list to store orders need to implement order system
         self.staff: list['Staff'] = []  # list to store staff members
+        self._next_order_id = 1  # assigns a unique ID to each order, starts at 1 and increments for each new order
+
+    def place_order(self, table_number, items):
+        order_items = []
+        for item_id,qty in items: # search the menu for item id and quantity. if id doesn't match or not available return error
+            mi = self.menu.get_item_by_id(item_id)
+            if mi is None:
+                raise ValueError(f"Menu item with ID {item_id} not found.")
+            if not mi.available:
+                raise ValueError(f"Menu item '{mi.name}' is currently unavailable.")
+            if qty <= 0:
+                raise ValueError(f"Quantity for item '{mi.name}' must be greater than zero.")
+
+        order = Order(
+            order_id=self._next_order_id,
+            table_number=table_number,
+            items=items
+        )
+        self._next_order_id += 1
+        self.orders.append(order)
+        return order
+
+    def get_order(self, order_id): # returns an order based on its ID, if not found returns None
+        for o in self.orders:
+            if o.order_id == order_id:
+                return o
 
         # ADD STAFF MEMBERS
 
@@ -174,3 +213,26 @@ class Staff:
 
     def __repr__(self):
         return self.__str__()
+
+class waiter(Staff):
+    def __init__(self, username: str, password: str, staff_id: int):
+        super().__init__(username, password, staff_id, Role.WAITER)
+
+    def update_menu_price(self, r, name, new_price): # waiter can update the price of a menu item
+        return r.menu.update_item(name, new_price)
+
+    def set_item_availability(self, r, name, available): # waiter can set the availability of a menu item
+        return r.menu.set_availability(name, available)
+
+    def confirm_order(self, r, order_id):
+        return "Order confirmed by waiter" # implement order confirmation
+
+    def cancel_order(self, r, order_id):
+        return "Order cancelled by waiter" # implement order cancellation
+
+    def mark_completed(self, r, order_id):
+        return "Order marked as completed by waiter" # implement marking order as completed
+
+    def get_order_time_info(self, r, order_id):
+        return "Order time info retrieved by waiter" # implement retrieving order time info
+
