@@ -181,14 +181,17 @@ class restaurant:
     def add_staff(self, staff_member: 'Staff'):
         self.staff.append(staff_member)  # adds a staff member to the restaurant's staff list
 
-    def create_staff(self, username: str, password: str, role: Role) -> 'Staff':
-        staff_member = Staff(
-            username=username,
-            password=password,
-            staff_id=Staff._next_id,
-            role=role
-        )
+    def create_staff(self, username, password, role):
+        staff_id = Staff._next_id
         Staff._next_id += 1
+
+        if role == Role.WAITER:
+            staff_member = waiter(username, password, staff_id)
+        elif role == Role.KITCHEN_STAFF:
+            staff_member = KitchenStaff(username, password, staff_id)
+        else:
+            staff_member = Staff(username, password, staff_id, role)
+
         self.add_staff(staff_member)
         return staff_member
 
@@ -235,4 +238,20 @@ class waiter(Staff):
 
     def get_order_time_info(self, r, order_id):
         return "Order time info retrieved by waiter" # implement retrieving order time info
+
+class KitchenStaff(Staff):
+    def __init__(self, username: str, password: str, staff_id: int):
+        super().__init__(username, password, staff_id, Role.KITCHEN_STAFF)
+
+    def accept_order(self, r, order_id):
+        return "Order accepted by kitchen staff" # implement accepting order by kitchen staff
+
+    def mark_in_progress(self, r, order_id):
+        return "Order marked as in progress by kitchen staff" # implement marking order as in progress
+
+    def mark_ready(self, r, order_id):
+        return "Order marked as ready by kitchen staff" # implement marking order as ready
+
+    def get_kitchen_queue(self, r):
+        return "Kitchen queue retrieved by kitchen staff" # implement retrieving kitchen queue
 
