@@ -4,7 +4,7 @@ import './styles/MenuItems.css';
 const MenuItems = () => {
     const [showCartNotification, setShowCartNotification] = useState(false);
     const [notificationItem, setNotificationItem] = useState('');
-    const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+    const [ setWindowWidth] = useState(window.innerWidth);
     const [gridClass, setGridClass] = useState('menu-grid-3-col');
 
     // Update window width and grid class on resize
