@@ -13,10 +13,12 @@ function CustomerLogin() {
         <div className="page">
             <div className="login-box">
                 <h1>OAXACA</h1>
+                <div className="divider"></div>
                 <h2>Customer Login</h2>
+                <div className="divider"></div>
 
                 <div className="row">
-                    <label>Name:</label>
+                    <label>Name</label>
                     <input type="text" placeholder="Enter full name here" />
                 </div>
 
@@ -32,7 +34,7 @@ function CustomerLogin() {
                 </div>
 
                 <button onClick={goToMenu}>
-                    CONTINUE
+                    LOG IN
                 </button>
             </div>
         </div>
