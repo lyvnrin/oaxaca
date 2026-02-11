@@ -16,88 +16,125 @@ body,
     align-items: center;
     background-color: #BA3E00;
     font-family: "Times New Roman", serif;
-    color: black;
+    color: #BA3E00;
 }
 
 /* Login card */
 .login-box {
     background-color: #FFF2D8;
-    width: 340px;
-    padding: 45px;
-    border: 1px solid #aaa;
-    border-radius: 12px;
+    width: 400px;
+    padding: 20px;
+    border: 1px solid #DDC698;
+    border-radius: 30px;
     box-sizing: border-box;
 }
 
-/* OAXACA text size */
+/* OAXACA */
 .login-box h1 {
     text-align: center;
     margin: 0 0 10px;
     font-size: 50px;
+    font-weight: 100;
 }
 
-/* Customer Login text size */
+/* Customer Login */
 .login-box h2 {
     text-align: center;
-    margin: 0 0 25px;
-    font-weight: normal;
-    font-size: 28px;
+    margin: 0 0 15px;
+    font-weight: 70;
+    font-size: 25px;
+    font-family: "Inriana Sans", sans-serif;
+}
+
+/* Divider lines */
+.divider {
+    height: 1px;
+    background-color: #BA3E00;
+    width: calc(100% + 90px);
+    margin-left: -45px;
+    margin-right: -40px;
+    margin-top: 10px;
+    margin-bottom: 15px;
 }
 
 /* Rows */
+/* Rows */
 .row {
     display: flex;
-    align-items: center;
-    margin-bottom: 18px;
+    width: 90%;           /* Match the select box width */
+    margin: 30px auto 10px;  /* 30px top, auto left/right to center, 0 bottom */
 }
 
-/* Name label text size */
+/* Name label (left side of split box) */
 label {
-    width: 60px;
-    font-size: 20px; /* change label text size */
+    width: 70px;
+    padding: 5px;
+    padding-left: 12px;
+    font-size: 16px;
+    font-family: "Inriana Sans", sans-serif;
+
+    background-color: white;
+
+    border: 1.5px solid #BA3E00;
+    border-right: none;
+    border-radius: 5px 0 0 5px;
+
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
 }
 
-/* Name input text size */
+/* Name input (right side of split box) */
 input {
-    width: 180px;
-    height: 30px;
-    padding: 4px 6px;
-    box-sizing: border-box;
+    flex: 1;
+    padding: 8px;
+    font-size: 16px;
+    font-family: "Inriana Sans", sans-serif;
+
     background-color: white;
-    color: black;
-    border: 1px solid #999;
-    font-family: inherit;
-    font-size: 18px; /* change input text size */
+
+    border: 1.5px solid #BA3E00;
+    border-radius: 0 5px 5px 0;
+
+    outline: #BA3E00;
 }
 
-/* Table dropdown text size */
+/* Table dropdown */
 select {
-    width: calc(60px + 180px);
-    height: 30px;
-    padding: 4px 6px;
-    box-sizing: border-box;
+    width: 100%;
+    margin: 30px auto 10px;
+    display: block;
+    padding: 8px;
+    font-size: 16px;
+    font-family: "Inriana Sans", sans-serif;
+
     background-color: white;
-    color: black;
-    border: 1px solid #999;
-    font-family: inherit;
-    font-size: 18px; /* change dropdown text size */
+    color: #BA3E00;
+
+    border: 1.5px solid #BA3E00;
+    border-radius: 5px;
+
+    margin-top: -10px;
+    margin-bottom: 1px;
+
+    outline: none;
 }
 
-/* Continue button text size */
+/* Button */
 button {
     display: block;
     margin: 25px auto 0;
-    padding: 8px 20px;
-    font-family: inherit;
+    padding: 10px 55px;
+    font-family: "inria sans", sans-serif;
     background-color: white;
-    color: black;
-    border-radius: 25px;
-    border: 1px solid #000;
+    color: #BA3E00;
+    border-radius: 10px;
+    border: 1.5px solid #BA3E00;
     cursor: pointer;
-    font-size: 18px; /* change button text size */
+    font-size: 18px;
 }
 
-button:hover{
-    background-color: #DCC18E;
-
+button:hover {
+    background-color: #BA3E00;
+    color: #FFF2D8;
 }
