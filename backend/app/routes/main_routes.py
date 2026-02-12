@@ -1,16 +1,16 @@
-from flask import Blueprint, send_from_directory, jsonify
-import os
+from fastapi import APIRouter
+from app.services.menu_service import get_filtered_menu
 
-main = Blueprint("main", __name__)
+router = APIRouter()
 
-@main.route("/")
-def index():
-    static_dir = os.path.join(os.path.dirname(__file__), "../static")
-    return send_from_directory(static_dir, "index.html")
+@router.get("/api/menu")
+def api_menu(vegetarian: bool = None, gluten_free: bool = None):
+    return get_filtered_menu(vegetarian, gluten_free)
 
-@main.route("/health")
+@router.get("/health")
 def health():
-    return jsonify({
-        "status": "ok",
-        "service": "restaurant-backend",
-    })
+    return {
+        "status" : "ok",
+        "service" : "restaurant-backend"
+    }
+
