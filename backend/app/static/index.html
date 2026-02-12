@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Backend Menu Playground</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .filters { margin-bottom: 20px; }
+        .menu-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+        .menu-card { border: 1px solid #ccc; padding: 15px; border-radius: 8px; }
+        button { padding: 8px 12px; margin-right: 10px; }
+    </style>
+</head>
+<body>
+    <h1>Backend Menu Playground</h1>
+
+    <div class="filters">
+        <label><input type="checkbox" id="vegetarian"> Vegetarian</label>
+        <label><input type="checkbox" id="gluten_free"> Gluten Free</label>
+        <button onclick="fetchMenu()">Apply Filters</button>
+    </div>
+
+    <div class="menu-grid" id="menu"></div>
+
+    <script>
+        async function fetchMenu() {
+            const vegetarian = document.getElementById("vegetarian").checked;
+            const glutenFree = document.getElementById("gluten_free").checked;
+
+            let url = "/api/menu?";
+            if (vegetarian) url += "vegetarian=true&";
+            if (glutenFree) url += "gluten_free=true&";
+
+            const response = await fetch(url);
+            const data = await response.json();
+            renderMenu(data);
+        }
+
+        function renderMenu(items) {
+            const container = document.getElementById("menu");
+            container.innerHTML = "";
+            items.forEach(item => {
+                const card = document.createElement("div");
+                card.className = "menu-card";
+                card.innerHTML = `
+                    <h3>${item.name}</h3>
+                    <p>${item.description}</p>
+                    <p><strong>£${item.price}</strong></p>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // initial load
+        fetchMenu();
+    </script>
+</body>
+</html>
