@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './styles/MenuItems.css';
 
-const MenuItems = () => {
+const Mains = () => {
     const [showCartNotification, setShowCartNotification] = useState(false);
     const [notificationItem, setNotificationItem] = useState('');
     const [ setWindowWidth] = useState(window.innerWidth);
@@ -295,4 +295,4 @@ const MenuItems = () => {
     );
 };
 
-export default MenuItems;
+export default Mains;
