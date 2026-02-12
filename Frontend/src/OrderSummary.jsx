@@ -10,6 +10,7 @@ function OrderSummary() {
   const [item2Qty, setItem2Qty] = useState(1);
 
   const total = item1Qty * item1Price + item2Qty * item2Price;
+  const orderEmpty = total === 0;
 
   function removeItem1() {
     setItem1Qty(0);
@@ -31,7 +32,7 @@ function OrderSummary() {
       <h2>ORDER SUMMARY</h2>
 
       {item1Qty > 0 && (
-        <div>
+        <div style={{ marginBottom: "10px" }}>
           <p>
             ITEM 1 (£{item1Price}) &nbsp; Qty: {item1Qty}
           </p>
@@ -40,13 +41,15 @@ function OrderSummary() {
       )}
 
       {item2Qty > 0 && (
-        <div>
+        <div style={{ marginBottom: "10px" }}>
           <p>
             ITEM 2 (£{item2Price}) &nbsp; Qty: {item2Qty}
           </p>
           <button onClick={removeItem2}>Remove</button>
         </div>
       )}
+
+      {orderEmpty && <p>Your order is empty.</p>}
 
       <p>
         <b>Total: £{total}</b>
@@ -64,7 +67,7 @@ function OrderSummary() {
       <br />
 
       <button>CANCEL ORDER</button>
-      <button>PLACE ORDER</button>
+      <button disabled={orderEmpty}>PLACE ORDER</button>
     </div>
   );
 }
