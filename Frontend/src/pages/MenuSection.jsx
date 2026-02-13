@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './MenuSection.css';
 
-const MenuSection = () => {
+const MenuSection = ({title, items}) => {
     const [showCartNotification, setShowCartNotification] = useState(false);
     const [notificationItem, setNotificationItem] = useState('');
     const [windowWidth, setWindowWidth] = useState(window.innerWidth);
@@ -54,7 +54,7 @@ const MenuSection = () => {
 
                 {/* Control Bar - MAINS with icons */}
                 <div className="control-bar">
-                    <h2 className="mains-title">MAINS</h2>
+                    <h2 className="mains-title">{title}</h2>
                     <div className="controls">
                         <button className="call-waiter-button">
                             Call Waiter
@@ -71,7 +71,7 @@ const MenuSection = () => {
 
             {/* Menu Grid - Responsive */}
             <main className={`menu-grid ${gridClass}`}>
-                {menuItems.map((item) => (
+                {items.map((item) => (
                     <div key={item.id} className="menu-item">
                         {/* Image placeholder */}
                         <div className="image-placeholder">
@@ -97,7 +97,7 @@ const MenuSection = () => {
                             <div className="ingredients-section">
                                 <div className="section-title">Ingredients:</div>
                                 <div className="ingredients-list">
-                                    {item.ingredients.join(', ')}
+                                    {item.ingredients?.join(', ')}
                                 </div>
                             </div>
 
