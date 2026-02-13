@@ -1,7 +1,14 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import "./Menu.css";
 
 export default function Menu() {
+    const navigate = useNavigate();
+
+    const goToMenuItems = () => {
+        navigate("/menuitems");
+    };
+
     return (
         <div className="menu-box">
             {/* Top margin - 'inner' is for positioning*/}
@@ -29,7 +36,7 @@ export default function Menu() {
             <div className="menu-buttons">
                 <button className="menu-button">Drinks</button>
                 <button className="menu-button">Starters</button>
-                <button className="menu-button">Mains</button>
+                <button className="menu-button" onClick={goToMenuItems}>Mains</button>
                 <button className="menu-button">Desserts</button>
             </div>
         </div>
