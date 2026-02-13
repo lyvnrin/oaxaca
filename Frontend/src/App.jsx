@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import CustomerLogin from "./pages/CustomerLogin";
 import Menu from "./pages/Menu";
-import MenuItems from "./pages/MenuItems.jsx";
+`import MenuItems from "./pages/MenuItems.jsx";`
 
 function App() {
     return (
