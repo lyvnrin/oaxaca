@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import './styles/MenuItems.css';
+import './MenuItems.css';
 
 const Mains = () => {
     const [showCartNotification, setShowCartNotification] = useState(false);
     const [notificationItem, setNotificationItem] = useState('');
-    const [ setWindowWidth] = useState(window.innerWidth);
+    const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+
     const [gridClass, setGridClass] = useState('menu-grid-3-col');
 
     // Update window width and grid class on resize
