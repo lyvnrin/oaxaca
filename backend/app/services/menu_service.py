@@ -1,7 +1,7 @@
 from restaurant import restaurant, menuItem, Role
 
 '''
-This file sets up a simple FastAPI-compatible backend for the frontend testing page. Included:
+Sets up a simple FastAPI-compatible backend for the frontend testing page. Included:
 - Creates a restaurant instance for "Oaxaca" in London
 - Seeds the restaurant menu with sample items - you can add more items here for testing
 - Seeds sample staff members - you can add more staff using r.create_staff.
