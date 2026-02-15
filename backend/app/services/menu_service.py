@@ -4,6 +4,8 @@ r = restaurant("Oaxaca", "London")
 
 # seed menu
 r.menu.add_item(menuItem(1, "Margherita Pizza", "Classic pizza...", 8.99, 800, ["gluten","dairy"], True, False))
+r.menu.add_item(menuItem(1, "Margherita Pizza", "Classic pizza...", 8.99, 800, ["gluten","dairy"], True, False))
+r.menu.add_item(menuItem(2, "Grilled Chicken Salad", "Fresh salad...", 11.50, 450, [], False, True))
 r.menu.add_item(menuItem(2, "Grilled Chicken Salad", "Fresh salad...", 11.50, 450, [], False, True))
 
 # seed staff

@@ -17,9 +17,9 @@ def create_app():
 
     # API routes
     app.include_router(router)
-
     app.mount("/static", StaticFiles(directory="app/static"), name="static")
 
+    # add other linked routes here with /page-name
     # redirect / to static/index.html
     @app.get("/")
     def root():
