@@ -8,7 +8,7 @@ class Order:
         self.item_ids = item_ids
         
 	# Status and timestamp used for logic of Kitchen Staff and Payment
-        self.status = "pending"           
+        self.status = "pending"  # pending, cooking, ready, delivered, cancelled
         self.timestamp = datetime.now()
 
     def to_dict(self):
@@ -35,4 +35,5 @@ class OrderManager:
     def get_all_orders(self):
         return self.orders
 
+# Create a single instance for the app to use
 order_manager = OrderManager()
