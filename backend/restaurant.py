@@ -231,16 +231,66 @@ class waiter(Staff):
         return r.menu.set_availability(item_id, available)
 
     def confirm_order(self, r, order_id):
-        return "Order confirmed by waiter" # implement order confirmation
+        order = r.get_order(order_id)
+        if order is None:
+            raise ValueError(f"Order {order_id} was not found")
+        
+        if order.status != OrderStatus.PENDING:
+            raise ValueError(f"Order {order_id} cannot be confirmed yet")
+        
+        order.status = OrderStatus.IN_PROGRESS
+        order.started_at = datetime.now()
+        
+        return order # implemented order confirmation
 
     def cancel_order(self, r, order_id):
-        return "Order cancelled by waiter" # implement order cancellation
+        order = r.get_order(order_id)
+        if order is None:
+            raise ValueError(f"Order {order_id} was not found")
+        
+        if order.status in (OrderStatus.COMPLETED, OrderStatus.CANCELLED):
+            raise ValueError(f"Order {order_id} cannot be cancelled")
+        
+        order.status = OrderStatus.CANCELLED
+        order.cancelled_at = datetime.now()
+
+        return order # implemented order cancellation
 
     def mark_completed(self, r, order_id):
-        return "Order marked as completed by waiter" # implement marking order as completed
+        order = r.get_order(order_id)
+        if order is None:
+            raise ValueError(f"Order {order_id} was not found")
+        
+        if order.status != OrderStatus.READY:
+            raise ValueError(f"Order {order_id} cannot be completed yet")
+        
+        order.status = OrderStatus.COMPLETED
+        order.completed_at = datetime.now()
+
+        return order # implemented marking order as completed
 
     def get_order_time_info(self, r, order_id):
-        return "Order time info retrieved by waiter" # implement retrieving order time info
+        order = r.get_order(order_id)
+        if order is None:
+            raise ValueError(f"Order {order_id} was not found")
+        
+        time_info = {
+            "Order was created at " : order.created_at
+        }
+
+        if order.started_at is not None:
+            time_info["Order was started at "] = order.started_at
+
+        if order.ready_at is not None:
+            time_info["Order ready at "] = order.ready_at
+
+        if order.completed_at is not None:
+            time_info["Order completed at "] = order.completed_at
+
+        if order.cancelled_at is not None:
+            time_info["Order cancelled at "] = order.cancelled_at
+
+        return time_info # implemented retrieving order time info
 
 class KitchenStaff(Staff):
     def __init__(self, username: str, password: str, staff_id: int):
