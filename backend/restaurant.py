@@ -296,15 +296,22 @@ class KitchenStaff(Staff):
     def __init__(self, username: str, password: str, staff_id: int):
         super().__init__(username, password, staff_id, Role.KITCHEN_STAFF)
 
-    def accept_order(self, r, order_id):
-        return "Order accepted by kitchen staff" # implement accepting order by kitchen staff
-
     def mark_in_progress(self, r, order_id):
-        return "Order marked as in progress by kitchen staff" # implement marking order as in progress
+        order = r.get_order(order_id)
+        if order is None:
+            raise ValueError(f"Order {order_id} was not found")
+        
+        if order.status != OrderStatus.PENDING:
+            raise ValueError(f"Order {order_id} cannot be accepted yet")
+        
+        order.status = OrderStatus.IN_PROGRESS
+        order.started_at = datetime.now()
+        
+        return order # implement marking order as in progress
 
     def mark_ready(self, r, order_id):
-        return "Order marked as ready by kitchen staff" # implement marking order as ready
+        return #order # implement marking order as ready
 
     def get_kitchen_queue(self, r):
-        return "Kitchen queue retrieved by kitchen staff" # implement retrieving kitchen queue
+        return #order_queue # implement retrieving kitchen queue
 
