@@ -307,7 +307,7 @@ class KitchenStaff(Staff):
         order.status = OrderStatus.IN_PROGRESS
         order.started_at = datetime.now()
         
-        return order # implement marking order as in progress
+        return order # implemented marking order as in progress
 
     def mark_ready(self, r, order_id):
         order = r.get_order(order_id)
@@ -315,13 +315,29 @@ class KitchenStaff(Staff):
             raise ValueError(f"Order {order_id} was not found")
         
         if order.status != OrderStatus.IN_PROGRESS:
-            raise ValueError(f"Order {order_id} cannot be accepted yet")
+            raise ValueError(f"Order {order_id} cannot be marked as ready yet")
         
         order.status = OrderStatus.READY
         order.ready_at = datetime.now()
 
-        return order # implement marking order as ready
+        return order # implemented marking order as ready
 
     def get_kitchen_queue(self, r):
-        return #order_queue # implement retrieving kitchen queue
+        order_queue = []
+
+        for i in r.orders:
+            if i.status == OrderStatus.PENDING or i.status == OrderStatus.IN_PROGRESS:
+                
+                waiting_time = datetime.now() - i.created_at
+
+                order_info = {
+                    "order id: " : i.order_id,
+                    "order status: " : i.status,
+                    "order created at: " : i.created_at,
+                    "time waiting for order: " : waiting_time
+                }
+
+                order_queue.append(order_info)
+
+        return order_queue # implemented retrieving kitchen queue
 
