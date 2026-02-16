@@ -308,3 +308,44 @@ class KitchenStaff(Staff):
     def get_kitchen_queue(self, r):
         return "Kitchen queue retrieved by kitchen staff" # implement retrieving kitchen queue
 
+class table:
+    def __init__(self, table_number: int, capacity: int):
+        self.table_number = table_number
+        self.capacity = capacity
+        self.occupied = False
+        self.current_customer = None
+
+    def assign_customer(self):
+        if self.occupied:
+            raise ValueError(f"Table {self.table_number} is already occupied.")
+
+        self.current_customer = customer # assigns a customer to a table
+        self.occupied = True # sets table as occupied
+
+    def clear_table(self):
+        self.current_customer = None # clears the current customer from the table
+        self.occupied = False # sets table as available
+
+    def __str__(self):
+        return f"Table {self.table_number} - Capacity: {self.capacity} - {'Occupied' if self.occupied else 'Available'}"
+
+    def __repr__(self):
+        return self.__str__()
+
+class customer:
+    def __init__(self, name: str, table_number: int):
+        self.name = name
+        self.table_number = table_number
+
+    def order(self):
+        return "Customer has placed an order" # implement customer placing an order
+
+    def callWaiter(self):
+        return "Customer has called the waiter" # implement customer calling the waiter
+
+    def request_help(self):
+        return "Customer has requested help" # implement customer requesting help
+
+    def request_payment(self):
+        return "Customer has requested payment" # implement customer requesting payment
+
