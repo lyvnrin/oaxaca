@@ -318,7 +318,6 @@ class table:
     def assign_customer(self):
         if self.occupied:
             raise ValueError(f"Table {self.table_number} is already occupied.")
-
         self.current_customer = customer # assigns a customer to a table
         self.occupied = True # sets table as occupied
 
@@ -336,6 +335,7 @@ class customer:
     def __init__(self, name: str, table_number: int):
         self.name = name
         self.table_number = table_number
+        self.current_order = None
 
     def order(self):
         return "Customer has placed an order" # implement customer placing an order
