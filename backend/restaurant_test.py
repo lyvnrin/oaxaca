@@ -1,4 +1,5 @@
-from restaurant import restaurant, menuItem, Role
+from restaurant import restaurant, menuItem, Role, KitchenStaff, OrderStatus
+from datetime import datetime
 
 r = restaurant("Oaxaca", "London")
 
@@ -33,26 +34,39 @@ print("Menu initially:", r.menu.get_available_items())
 
 # updating prices as a waiter
 updated = waiter.update_menu_price(r, "Margherita Pizza", 9.99)
-print("Updated item:", updated)
-print("Menu after price update:", r.menu.get_available_items())
+assert updated.price == 9.99, "Failed to update price"
 
 # setting item availability as a waiter
 ok = waiter.set_item_availability(r, 1, False)   # item_id=1
-print("Set availability success:", ok)
-print("Menu available items now:", r.menu.get_available_items())
+assert ok is True , "Failed to set availability"
+assert r.menu.get_available_items()[0].item_id != 1, "Item not available"
 
 # customer ordering a currently unavailable item should fail
 try:
     r.place_order(table_number=12, items=[(1, 2)])
-    print("ERROR: order should not have been placed")
+    assert False, "ERROR: order should not have been placed"
 except ValueError as e:
-    print("Expected order failure:", e)
+    pass
 
 # changing availability back to True should allow ordering again
 waiter.set_item_availability(r, 1, True)
-print("Menu available items restored:", r.menu.get_available_items())
+found = False
+for i in r.menu.get_available_items():
+    if i.item_id == 1:
+        found = True
+        break
+    
+assert found, "Item not found"
 
 # place a valid order
 order = r.place_order(table_number=12, items=[(1, 2)])
-print("Placed order:", order.order_id, "status:", order.status.value, "total:", order.total_price())
+assert order.total_price() == 9.99 * 2, "Wrong total price"
+assert order.status == OrderStatus.PENDING, "Order is not pending"
 
+# placing an order
+order2 = r.place_order(table_number=13, items=[(1, 1)])
+
+# mark in progress
+kitchen.mark_in_progress(r, order2.order_id)
+assert order2.status == OrderStatus.IN_PROGRESS, "Order not in progress"
+assert order2.started_at is not None, "Order has not been started"
