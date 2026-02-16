@@ -55,7 +55,7 @@ for i in r.menu.get_available_items():
     if i.item_id == 1:
         found = True
         break
-    
+
 assert found, "Item not found"
 
 # place a valid order
@@ -70,3 +70,8 @@ order2 = r.place_order(table_number=13, items=[(1, 1)])
 kitchen.mark_in_progress(r, order2.order_id)
 assert order2.status == OrderStatus.IN_PROGRESS, "Order not in progress"
 assert order2.started_at is not None, "Order has not been started"
+
+# mark ready
+kitchen.mark_ready(r, order2.order_id)
+assert order2.status == OrderStatus.READY, "Order not ready"
+assert order2.ready_at is not None, "Order has no ready time"
