@@ -74,6 +74,7 @@ assert t1.occupied is True
 assert t1.current_customer == cust1
 print("Assign customer OK")
 
+# trying to assign another customer to the same table should raise an error
 try:
     cust2 = customer("Jane Smith", 1)
     t1.assign_customer(cust2)
@@ -83,6 +84,7 @@ except ValueError as e:
 
 t1.clear_table()
 
+# check state after clearing
 assert t1.occupied is False
 assert t1.current_customer is None
 print("clear table OK")
