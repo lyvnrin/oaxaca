@@ -76,13 +76,14 @@ class menu:
     def remove_item(self, name: str):
         self.items = [item for item in self.items if item.name != name]
 
-    def get_item_by_id(self, item_id: int): # returns a menu item based on its ID, if not found returns None
+    def get_item_by_id(self, item_id: int):  # returns a menu item based on its ID, if not found returns None
         for item in self.items:
             if item.item_id == item_id:
                 return item
         return None
 
-    def set_availability(self, item_id: int, available: bool): # sets the availability of a menu item based on its name, returns True if successful, False if item not found
+    def set_availability(self, item_id: int,
+                         available: bool):  # sets the availability of a menu item based on its name, returns True if successful, False if item not found
         item = self.get_item_by_id(item_id)
         if item is None:
             return False
@@ -153,7 +154,7 @@ class restaurant:
 
     def place_order(self, table_number, items):
         order_items = []
-        for item_id,qty in items: # search the menu for item id and quantity. if id doesn't match or not available return error
+        for item_id, qty in items:  # search the menu for item id and quantity. if id doesn't match or not available return error
             mi = self.menu.get_item_by_id(item_id)
             if mi is None:
                 raise ValueError(f"Menu item with ID {item_id} not found.")
@@ -173,7 +174,7 @@ class restaurant:
         self.orders.append(order)
         return order
 
-    def get_order(self, order_id): # returns an order based on its ID, if not found returns None
+    def get_order(self, order_id):  # returns an order based on its ID, if not found returns None
         for o in self.orders:
             if o.order_id == order_id:
                 return o
@@ -220,62 +221,63 @@ class Staff:
     def __repr__(self):
         return self.__str__()
 
+
 class waiter(Staff):
     def __init__(self, username: str, password: str, staff_id: int):
         super().__init__(username, password, staff_id, Role.WAITER)
 
-    def update_menu_price(self, r, name, new_price): # waiter can update the price of a menu item
+    def update_menu_price(self, r, name, new_price):  # waiter can update the price of a menu item
         return r.menu.update_item(name, new_price)
 
-    def set_item_availability(self, r, item_id, available): # waiter can set the availability of a menu item
+    def set_item_availability(self, r, item_id, available):  # waiter can set the availability of a menu item
         return r.menu.set_availability(item_id, available)
 
     def confirm_order(self, r, order_id):
         order = r.get_order(order_id)
         if order is None:
             raise ValueError(f"Order {order_id} was not found")
-        
+
         if order.status != OrderStatus.PENDING:
             raise ValueError(f"Order {order_id} cannot be confirmed yet")
-        
+
         order.status = OrderStatus.IN_PROGRESS
         order.started_at = datetime.now()
-        
-        return order # implemented order confirmation
+
+        return order  # implemented order confirmation
 
     def cancel_order(self, r, order_id):
         order = r.get_order(order_id)
         if order is None:
             raise ValueError(f"Order {order_id} was not found")
-        
+
         if order.status in (OrderStatus.COMPLETED, OrderStatus.CANCELLED):
             raise ValueError(f"Order {order_id} cannot be cancelled")
-        
+
         order.status = OrderStatus.CANCELLED
         order.cancelled_at = datetime.now()
 
-        return order # implemented order cancellation
+        return order  # implemented order cancellation
 
     def mark_completed(self, r, order_id):
         order = r.get_order(order_id)
         if order is None:
             raise ValueError(f"Order {order_id} was not found")
-        
+
         if order.status != OrderStatus.READY:
             raise ValueError(f"Order {order_id} cannot be completed yet")
-        
+
         order.status = OrderStatus.COMPLETED
         order.completed_at = datetime.now()
 
-        return order # implemented marking order as completed
+        return order  # implemented marking order as completed
 
     def get_order_time_info(self, r, order_id):
         order = r.get_order(order_id)
         if order is None:
             raise ValueError(f"Order {order_id} was not found")
-        
+
         time_info = {
-            "Order was created at " : order.created_at
+            "Order was created at ": order.created_at
         }
 
         if order.started_at is not None:
@@ -290,23 +292,25 @@ class waiter(Staff):
         if order.cancelled_at is not None:
             time_info["Order cancelled at "] = order.cancelled_at
 
-        return time_info # implemented retrieving order time info
+        return time_info  # implemented retrieving order time info
+
 
 class KitchenStaff(Staff):
     def __init__(self, username: str, password: str, staff_id: int):
         super().__init__(username, password, staff_id, Role.KITCHEN_STAFF)
 
     def accept_order(self, r, order_id):
-        return "Order accepted by kitchen staff" # implement accepting order by kitchen staff
+        return "Order accepted by kitchen staff"  # implement accepting order by kitchen staff
 
     def mark_in_progress(self, r, order_id):
-        return "Order marked as in progress by kitchen staff" # implement marking order as in progress
+        return "Order marked as in progress by kitchen staff"  # implement marking order as in progress
 
     def mark_ready(self, r, order_id):
-        return "Order marked as ready by kitchen staff" # implement marking order as ready
+        return "Order marked as ready by kitchen staff"  # implement marking order as ready
 
     def get_kitchen_queue(self, r):
-        return "Kitchen queue retrieved by kitchen staff" # implement retrieving kitchen queue
+        return "Kitchen queue retrieved by kitchen staff"  # implement retrieving kitchen queue
+
 
 class table:
     def __init__(self, table_number: int, capacity: int):
@@ -318,12 +322,12 @@ class table:
     def assign_customer(self):
         if self.occupied:
             raise ValueError(f"Table {self.table_number} is already occupied.")
-        self.current_customer = customer # assigns a customer to a table
-        self.occupied = True # sets table as occupied
+        self.current_customer = customer  # assigns a customer to a table
+        self.occupied = True  # sets table as occupied
 
     def clear_table(self):
-        self.current_customer = None # clears the current customer from the table
-        self.occupied = False # sets table as available
+        self.current_customer = None  # clears the current customer from the table
+        self.occupied = False  # sets table as available
 
     def __str__(self):
         return f"Table {self.table_number} - Capacity: {self.capacity} - {'Occupied' if self.occupied else 'Available'}"
@@ -331,21 +335,39 @@ class table:
     def __repr__(self):
         return self.__str__()
 
+
 class customer:
     def __init__(self, name: str, table_number: int):
         self.name = name
         self.table_number = table_number
         self.current_order = None
 
-    def order(self):
-        return "Customer has placed an order" # implement customer placing an order
+    # customer can place orders and assigns it to a customer
+    def place_order(self, r, items):
+        order = r.place_order(self.table_number, items)
+        self.current_order = order
+        return order
 
-    def callWaiter(self):
-        return "Customer has called the waiter" # implement customer calling the waiter
+    # customer calling the waiter for help changes the status
+    def call_Waiter(self):
+        return {
+            "table": self.table_number,
+            "type": AlertType.HELP_NEEDED
+        }
 
-    def request_help(self):
-        return "Customer has requested help" # implement customer requesting help
-
+    # customer can request payment which will trigger a payment request
+    # will be used for payment implementation
     def request_payment(self):
-        return "Customer has requested payment" # implement customer requesting payment
+        if self.current_order is None:
+            raise ValueError("Customer has not placed an order yet.")
+        return {
+            "table": self.table_number,
+            "type": AlertType.PAYMENT_REQUEST,
+            "order_id": self.current_order.order_id
+        }
 
+    def __str__(self):
+        return f"Customer {self.name} at Table {self.table_number}"
+
+    def __repr__(self):
+        return self.__str__()
