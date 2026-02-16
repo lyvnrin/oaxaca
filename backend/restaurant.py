@@ -310,7 +310,17 @@ class KitchenStaff(Staff):
         return order # implement marking order as in progress
 
     def mark_ready(self, r, order_id):
-        return #order # implement marking order as ready
+        order = r.get_order(order_id)
+        if order is None:
+            raise ValueError(f"Order {order_id} was not found")
+        
+        if order.status != OrderStatus.IN_PROGRESS:
+            raise ValueError(f"Order {order_id} cannot be accepted yet")
+        
+        order.status = OrderStatus.READY
+        order.ready_at = datetime.now()
+
+        return order # implement marking order as ready
 
     def get_kitchen_queue(self, r):
         return #order_queue # implement retrieving kitchen queue
