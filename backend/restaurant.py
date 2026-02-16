@@ -319,7 +319,7 @@ class table:
         self.occupied = False
         self.current_customer = None
 
-    def assign_customer(self):
+    def assign_customer(self, customer):
         if self.occupied:
             raise ValueError(f"Table {self.table_number} is already occupied.")
         self.current_customer = customer  # assigns a customer to a table

@@ -65,5 +65,26 @@ assert t1.occupied is False
 assert t1.current_customer is None
 print("inital state is correct")
 
+# assign a customer to a table
+cust1 = customer("John Doe", 1)
+t1.assign_customer(cust1)
+print("Table after assigning customer:", t1)
+
+assert t1.occupied is True
+assert t1.current_customer == cust1
+print("Assign customer OK")
+
+try:
+    cust2 = customer("Jane Smith", 1)
+    t1.assign_customer(cust2)
+    print("ERROR: should not have been able to assign second customer to occupied table")
+except ValueError as e:
+    print("Expected error when assigning second customer to occupied table:", e)
+
+t1.clear_table()
+
+assert t1.occupied is False
+assert t1.current_customer is None
+print("clear table OK")
 
 
