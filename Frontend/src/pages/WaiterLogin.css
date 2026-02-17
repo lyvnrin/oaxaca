@@ -8,7 +8,7 @@ body,
 }
 
 /* Page */
-.page {
+.waiter-page {
     width: 100%;
     height: 100%;
     display: flex;
@@ -18,26 +18,28 @@ body,
     font-family: "Times New Roman", serif;
 }
 
-/* Login card */
-.login-box {
+/* Login Card */
+.waiter-login-box {
     background-color: #FFF2D8;
     width: 400px;
+    height: 367px;
     padding: 20px;
     border: 1px solid #DDC698;
     border-radius: 30px;
     box-sizing: border-box;
+    color: #BA3E00;
 }
 
-/* OAXACA */
-.login-box h1 {
+/* Title */
+.waiter-login-box h1 {
     text-align: center;
     margin: 0 0 10px;
     font-size: 50px;
     font-weight: 100;
 }
 
-/* Waiter Login */
-.login-box h2 {
+/* Subtitle */
+.waiter-login-box h2 {
     text-align: center;
     margin: 0 0 15px;
     font-weight: 70;
@@ -45,80 +47,71 @@ body,
     font-family: "Inriana Sans", sans-serif;
 }
 
-/* Divider lines */
-.divider {
+/* Divider */
+.waiter-divider {
     height: 1px;
     background-color: #BA3E00;
     width: calc(100% + 90px);
-    margin-left: -45px;
-    margin-right: -40px;
-    margin-top: 10px;
-    margin-bottom: 15px;
+    margin: 10px -40px 15px -45px;
 }
 
-
-/* Input rows */
-.row {
+/* Input Row */
+.waiter-row {
     display: flex;
     width: 90%;
-    margin: 30px auto 10px;
+    margin: 30px auto -10px;
 }
 
-/* Label (left side) */
-label {
-    width: 70px;
+/* Label */
+.waiter-label {
+    width: 80px;
     padding: 5px;
     padding-left: 12px;
     font-size: 16px;
     font-family: "Inriana Sans", sans-serif;
-
     background-color: white;
-
     border: 1.5px solid #BA3E00;
     border-right: none;
     border-radius: 5px 0 0 5px;
-
     display: flex;
     align-items: center;
     justify-content: flex-start;
 }
 
-
-/* Input (right side) */
-input {
+/* Input */
+.waiter-input {
     flex: 1;
-    padding: 10px;
-    font-size: 15px;
-    font-family: "Inria Sans", sans-serif;
+    padding: 8px;
+    font-size: 16px;
+    font-family: "Inriana Sans", sans-serif;
     background-color: white;
     border: 1.5px solid #BA3E00;
-    border-radius: 0 8px 8px 0;
-    outline: none;
+    border-radius: 0 5px 5px 0;
+    outline: #BA3E00;
 }
 
-/* Input focus effect */
-input:focus {
-    background-color: #fff9ec;
+/* Input Focus */
+.waiter-input:focus {
+    background-color: #ffffff;
 }
 
 /* Button */
-button {
+.waiter-button {
     display: block;
-    margin: 30px auto 0;
-    padding: 12px 0;
-    width: 200px;
-    font-family: "Inria Sans", sans-serif;
-    font-size: 18px;
+    margin: 38px auto 0;
+    padding: 10px 55px;
+    font-family: "inria sans", sans-serif;
     background-color: white;
     color: #BA3E00;
-    border-radius: 12px;
+    border-radius: 10px;
     border: 1.5px solid #BA3E00;
     cursor: pointer;
-    transition: all 0.2s ease;
+    font-size: 18px;
+    width: 200px;
 }
 
-/* Hover effect */
-button:hover {
+/* Button Hover */
+.waiter-button:hover {
     background-color: #BA3E00;
     color: #FFF2D8;
 }

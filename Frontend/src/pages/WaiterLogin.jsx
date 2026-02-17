@@ -3,24 +3,32 @@ import "./WaiterLogin.css";
 
 function WaiterLogin() {
     return (
-        <div className="page">
-            <div className="login-box">
+        <div className="waiter-page">
+            <div className="waiter-login-box">
                 <h1>OAXACA</h1>
-                <div className="divider"></div>
+                <div className="waiter-divider"></div>
                 <h2>Waiter Login</h2>
-                <div className="divider"></div>
+                <div className="waiter-divider"></div>
 
-                <div className="row">
-                    <label>Username</label>
-                    <input type="text" placeholder="Enter username here" />
+                <div className="waiter-row">
+                    <label className="waiter-label">Username</label>
+                    <input
+                        className="waiter-input"
+                        type="text"
+                        placeholder="Enter username here"
+                    />
                 </div>
 
-                <div className="row">
-                    <label>Password</label>
-                    <input type="password" placeholder="Enter password here" />
+                <div className="waiter-row">
+                    <label className="waiter-label">Password</label>
+                    <input
+                        className="waiter-input"
+                        type="password"
+                        placeholder="Enter password here"
+                    />
                 </div>
 
-                <button>
+                <button className="waiter-button">
                     LOG IN
                 </button>
             </div>

@@ -10,20 +10,24 @@ function CustomerLogin() {
     };
 
     return (
-        <div className="page">
-            <div className="login-box">
+        <div className="customer-page">
+            <div className="customer-login-box">
                 <h1>OAXACA</h1>
-                <div className="divider"></div>
+                <div className="customer-divider"></div>
                 <h2>Customer Login</h2>
-                <div className="divider"></div>
+                <div className="customer-divider"></div>
 
-                <div className="row">
-                    <label>Name</label>
-                    <input type="text" placeholder="Enter full name here" />
+                <div className="customer-row">
+                    <label className="customer-label">Name</label>
+                    <input
+                        className="customer-input"
+                        type="text"
+                        placeholder="Enter full name here"
+                    />
                 </div>
 
-                <div className="row">
-                    <select>
+                <div className="customer-row">
+                    <select className="customer-select">
                         <option value="">Select Table Number</option>
                         <option>1</option>
                         <option>2</option>
@@ -34,7 +38,10 @@ function CustomerLogin() {
                     </select>
                 </div>
 
-                <button onClick={goToMenu}>
+                <button
+                    className="customer-button"
+                    onClick={goToMenu}
+                >
                     LOG IN
                 </button>
             </div>
