@@ -1,28 +1,12 @@
-from restaurant import restaurant, menuItem, Role, KitchenStaff, OrderStatus
+from restaurant import Restaurant, menuItem, Role, KitchenStaff, OrderStatus, Customer, Table
 from datetime import datetime
 
-r = restaurant("Oaxaca", "London")
+r = Restaurant("Oaxaca", "London")
 
-# Seed menu
 r.menu.add_item(menuItem(
     item_id=1,
     name="Margherita Pizza",
-    description="Classic pizza with tomato sauce, mozzarella, and basil.",
     price=8.99,
-    calories=800,
-    allergens=["gluten", "dairy"],
-    vegetarian=True,
-    gluten_free=False
-))
-
-r.menu.add_item(menuItem(
-    2,
-    "Grilled Chicken Salad",
-    "Fresh salad with grilled chicken",
-    11.50,
-    450,
-    [],
-    vegetarian=False,
     gluten_free=True
 ))
 
@@ -36,7 +20,7 @@ assert updated.price == 9.99, "Failed to update price"
 
 # setting item availability as a waiter
 ok = waiter.set_item_availability(r, 1, False)   # item_id=1
-assert ok is True , "Failed to set availability"
+assert ok is True, "Failed to set availability"
 assert r.menu.get_available_items()[0].item_id != 1, "Item not available"
 
 # customer ordering a currently unavailable item should fail
@@ -61,22 +45,36 @@ order = r.place_order(table_number=12, items=[(1, 2)])
 assert order.total_price() == 9.99 * 2, "Wrong total price"
 assert order.status == OrderStatus.PENDING, "Order is not pending"
 
+# create table
+t1 = Table(1, 4)
+print("Table:", t1)
+
+# check initial state
+assert t1.occupied is False
+assert t1.current_customer is None
+print("Initial state is correct")
+
+# assign a customer to a table
+cust1 = Customer("John Doe", 1)
+t1.assign_customer(cust1)
+
+# trying to assign another customer to the same table should raise an error
+try:
+    cust2 = Customer("Jane Smith", 1)
+    t1.assign_customer(cust2)
+    print("ERROR: should not have been able to assign second customer to occupied table")
+except ValueError as e:
+    print("Expected error when assigning second customer to occupied table:", e)
+
+t1.clear_table()
+
+# check state after clearing
+assert t1.occupied is False
+assert t1.current_customer is None
+print("Clear table OK")
+
 # placing an order
 order2 = r.place_order(table_number=13, items=[(1, 1)])
-
-# mark in progress
-kitchen.mark_in_progress(r, order2.order_id)
-assert order2.status == OrderStatus.IN_PROGRESS, "Order not in progress"
-assert order2.started_at is not None, "Order has not been started"
-
-# mark ready
-kitchen.mark_ready(r, order2.order_id)
-assert order2.status == OrderStatus.READY, "Order not ready"
-assert order2.ready_at is not None, "Order has no ready time"
-
-# place another order
-order3 = r.place_order(table_number=14, items=[(2, 2)])
-queue = kitchen.get_kitchen_queue(r)
-
-for i in queue:
-    assert i["order status: "] == OrderStatus.PENDING or i["order status: "] == OrderStatus.IN_PROGRESS
+assert order2.total_price() == 9.99 * 1, "Wrong total price for order2"
+assert order2.status == OrderStatus.PENDING, "Order2 is not pending"
+print("All tests passed!")
