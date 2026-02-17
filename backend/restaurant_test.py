@@ -29,8 +29,6 @@ r.menu.add_item(menuItem(
 # Create staff
 kitchen = r.create_staff("Alice", "pass", Role.KITCHEN_STAFF)
 waiter = r.create_staff("Bob", "pass", Role.WAITER)
-print("Staff:", r.staff)
-print("Menu initially:", r.menu.get_available_items())
 
 # updating prices as a waiter
 updated = waiter.update_menu_price(r, "Margherita Pizza", 9.99)
