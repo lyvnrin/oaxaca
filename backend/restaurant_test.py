@@ -75,3 +75,10 @@ assert order2.started_at is not None, "Order has not been started"
 kitchen.mark_ready(r, order2.order_id)
 assert order2.status == OrderStatus.READY, "Order not ready"
 assert order2.ready_at is not None, "Order has no ready time"
+
+# place another order
+order3 = r.place_order(table_number=14, items=[(2, 2)])
+queue = kitchen.get_kitchen_queue(r)
+
+for i in queue:
+    assert i["order status: "] == OrderStatus.PENDING or i["order status: "] == OrderStatus.IN_PROGRESS
