@@ -1,4 +1,4 @@
-/* MenuItems.css */
+/* MenuSection.css */
 
 /* Main container styles */
 .oaxaca-container {
@@ -127,6 +127,76 @@
     justify-content: center;
     font-weight: 600;
     transition: all 0.3s ease;
+}
+
+.icon-button.filter-active {
+    background-color: #000000;
+    color: #ffffff;
+    border-color: #000000;
+}
+
+.active-filters {
+    padding: 15px 20px;
+    background-color: #f5f5f5;
+    border-bottom: 2px solid #000000;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+}
+
+.active-filters-label {
+    font-weight: 700;
+    color: #000000;
+    margin-right: 5px;
+    font-size: 14px;
+    text-transform: uppercase;
+}
+
+.filter-badge {
+    background-color: #ffffff;
+    border: 2px solid #000000;
+    padding: 5px 15px;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #000000;
+}
+
+.filter-badge.diet-badge {
+    background-color: #ffffff;
+    border-color: #000000;
+}
+
+.filter-badge.allergy-badge {
+    background-color: #ffffff;
+    border-color: #000000;
+}
+
+.clear-filters-btn-small {
+    background-color: #ffffff;
+    border: 2px solid #000000;
+    padding: 5px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    color: #000000;
+    margin-left: auto;
+    transition: all 0.3s ease;
+}
+
+.clear-filters-btn-small:hover {
+    background-color: #000000;
+    color: #ffffff;
+}
+
+.results-count {
+    padding: 15px 20px;
+    font-size: 16px;
+    color: #000000;
+    border-bottom: 2px solid #000000;
+    font-weight: 600;
 }
 
 /* Menu grid styles */
@@ -321,6 +391,193 @@
     animation: fadeInOut 3s ease-in-out;
 }
 
+/* Filter Modal Overlay */
+.filter-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+/* Filter Modal Container */
+.filter-modal {
+    background-color: #ffffff;
+    border: 3px solid #000000;
+    border-radius: 0;
+    width: 90%;
+    max-width: 400px;
+    max-height: 80vh;
+    overflow: hidden;
+    box-shadow: 10px 10px 0 rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+}
+
+/* Filter Modal Header */
+.filter-modal-header {
+    padding: 20px;
+    border-bottom: 2px solid #000000;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #ffffff;
+    flex-shrink: 0;
+}
+
+.filter-modal-header h3 {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 900;
+    color: #000000;
+    text-transform: uppercase;
+}
+
+.close-button {
+    background: none;
+    border: 2px solid #000000;
+    font-size: 20px;
+    cursor: pointer;
+    color: #000000;
+    width: 40px;
+    height: 40px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.close-button:hover {
+    background-color: #000000;
+    color: #ffffff;
+}
+
+/* Filter Modal Body - Scrollable */
+.filter-modal-body {
+    padding: 20px;
+    overflow-y: auto;
+    flex: 1;
+    max-height: calc(80vh - 140px);
+    scrollbar-width: thin;
+    scrollbar-color: #000000 #f0f0f0;
+}
+
+/* Custom scrollbar */
+.filter-modal-body::-webkit-scrollbar {
+    width: 8px;
+}
+
+.filter-modal-body::-webkit-scrollbar-track {
+    background: #f0f0f0;
+}
+
+.filter-modal-body::-webkit-scrollbar-thumb {
+    background: #000000;
+    border-radius: 4px;
+}
+
+/* Filter Sections */
+.filter-section {
+    margin-bottom: 25px;
+}
+
+.filter-section h4 {
+    margin: 0 0 15px 0;
+    color: #000000;
+    font-size: 18px;
+    font-weight: 700;
+    text-transform: uppercase;
+    border-bottom: 2px solid #000000;
+    padding-bottom: 5px;
+}
+
+.filter-options {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.filter-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 16px;
+    cursor: pointer;
+    color: #000000;
+    font-weight: 600;
+}
+
+.filter-checkbox input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    border: 2px solid #000000;
+    accent-color: #000000;
+}
+
+.filter-modal-footer {
+    padding: 20px;
+    border-top: 2px solid #000000;
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+    background-color: #ffffff;
+    flex-shrink: 0;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Clear Filters Button */
+.clear-filters-btn {
+    padding: 14px 20px;
+    border: 2px solid #000000;
+    background-color: #ffffff;
+    color: #000000;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 700;
+    text-transform: uppercase;
+    transition: all 0.3s ease;
+    flex: 1;
+    min-width: 120px;
+    text-align: center;
+}
+
+/* Apply Filters Button - THIS IS THE ONE YOU NEED */
+.apply-filters-btn {
+    padding: 14px 20px;
+    background-color: #000000;
+    color: #ffffff;
+    border: 2px solid #000000;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 700;
+    text-transform: uppercase;
+    transition: all 0.3s ease;
+    flex: 1;
+    min-width: 120px;
+    text-align: center;
+}
+
+/* Hover effects */
+.clear-filters-btn:hover {
+    background-color: #000000;
+    color: #ffffff;
+}
+
+.apply-filters-btn:hover {
+    background-color: #333333;
+}
+
 /* Animations */
 @keyframes fadeInOut {
     0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
@@ -338,6 +595,10 @@
 .icon-button:hover {
     background-color: #000000;
     color: #ffffff;
+}
+
+.icon-button.filter-active:hover {
+    background-color: #333333;
 }
 
 .add-to-cart-button:hover {
@@ -388,6 +649,10 @@
     .menu-grid {
         grid-template-columns: repeat(2, 1fr);
     }
+    .filter-modal {
+        width: 95%;
+        max-width: 350px;
+    }
 }
 
 @media (max-width: 768px) {
@@ -430,6 +695,27 @@
     }
     .menu-grid {
         grid-template-columns: repeat(2, 1fr);
+    }
+    .active-filters {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .clear-filters-btn-small {
+        margin-left: 0;
+        width: 100%;
+    }
+
+    /* Responsive filter modal footer */
+    .filter-modal-footer {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .clear-filters-btn,
+    .apply-filters-btn {
+        width: 100%;
+        padding: 12px;
     }
 }
 
