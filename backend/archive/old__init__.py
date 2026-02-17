@@ -1,7 +1,7 @@
-from flask import Flask
-from .old_main_routes import main
+# from flask import Flask
+# from .old_main_routes import main
 
-def create_app():
-    app = Flask(__name__)
-    app.register_blueprint(main)
-    return app
+# def create_app():
+#     app = Flask(__name__)
+#     app.register_blueprint(main)
+#     return app
