@@ -8,13 +8,13 @@ function SelectRole() {
     return (
         <div className="page">
             <div className="role-box">
-                <h1>OAXACA</h1>
 
-                <div className="divider"></div>
-
-                <h2>Select Your Role</h2>
-
-                <div className="divider"></div>
+                <div className="select-role-text">
+                    <h1>OAXACA</h1>
+                    <div className="divider"></div>
+                    <h2>Select Your Role</h2>
+                    <div className="divider"></div>
+                </div>
 
                 <div className="button-group">
                     <button onClick={() => navigate("/customer-login")}>
@@ -29,6 +29,7 @@ function SelectRole() {
                         Kitchen
                     </button>
                 </div>
+
             </div>
         </div>
     );

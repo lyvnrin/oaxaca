@@ -21,10 +21,13 @@ function CustomerLogin() {
             </button>
 
             <div className="customer-login-box">
-                <h1>OAXACA</h1>
-                <div className="customer-divider"></div>
-                <h2>Customer Login</h2>
-                <div className="customer-divider"></div>
+
+                <div className="customer-login-text">
+                    <h1>OAXACA</h1>
+                    <div className="customer-divider"></div>
+                    <h2>Customer Login</h2>
+                    <div className="customer-divider"></div>
+                </div>
 
                 <div className="customer-row">
                     <label className="customer-label">Name</label>
@@ -57,6 +60,7 @@ function CustomerLogin() {
                 >
                     LOG IN
                 </button>
+
             </div>
         </div>
     );

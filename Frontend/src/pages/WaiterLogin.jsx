@@ -12,15 +12,19 @@ function WaiterLogin() {
 
     return (
         <div className="waiter-page">
+
             <button className="waiter-back-button" onClick={goBack}>
                 ←
             </button>
 
             <div className="waiter-login-box">
-                <h1>OAXACA</h1>
-                <div className="waiter-divider"></div>
-                <h2>Waiter Login</h2>
-                <div className="waiter-divider"></div>
+
+                <div className="waiter-login-text">
+                    <h1>OAXACA</h1>
+                    <div className="waiter-divider"></div>
+                    <h2>Waiter Login</h2>
+                    <div className="waiter-divider"></div>
+                </div>
 
                 <div className="waiter-row">
                     <label className="waiter-label">Username</label>
@@ -43,6 +47,7 @@ function WaiterLogin() {
                 <button className="waiter-button">
                     LOG IN
                 </button>
+
             </div>
         </div>
     );
