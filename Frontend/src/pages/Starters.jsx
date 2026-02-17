@@ -14,6 +14,28 @@ const Starters = () => {
             allergies: [],
             ingredients: ["Avocado", "Lime", "Onion", "Cilantro", "Corn Chips"]
         },
+        {
+            id: 2,
+            name: "Queso Fundido",
+            price: 9.99,
+            description: "Melted cheese with chorizo, served with tortillas",
+            category: "Appetizers",
+            diet: [],
+            calories: 380,
+            allergies: ["Dairy", "Gluten"],
+            ingredients: ["Cheese", "Chorizo", "Flour Tortillas", "Salsa"]
+        },
+        {
+            id: 3,
+            name: "Mexican Street Corn",
+            price: 7.99,
+            description: "Grilled corn with mayo, cheese, chili powder & lime",
+            category: "Appetizers",
+            diet: ["Vegetarian"],
+            calories: 220,
+            allergies: ["Dairy"],
+            ingredients: ["Corn", "Mayo", "Cheese", "Chili Powder", "Lime"]
+        },
 
     ];
 

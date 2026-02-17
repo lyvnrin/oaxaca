@@ -14,6 +14,28 @@ const Mains = () => {
             allergies: [],
             ingredients: ["Beef", "Onion", "Cilantro", "Lime", "Corn Tortillas"]
         },
+        {
+            id: 2,
+            name: "Chicken Enchiladas",
+            price: 16.99,
+            description: "Chicken with verde sauce, melted cheese, corn tortillas",
+            category: "Enchiladas",
+            diet: [],
+            calories: 580,
+            allergies: ["Dairy", "Gluten"],
+            ingredients: ["Chicken", "Cheese", "Corn Tortillas", "Verde Sauce"]
+        },
+        {
+            id: 3,
+            name: "Vegetarian Burrito",
+            price: 14.99,
+            description: "Beans, rice, guacamole, pico de gallo, flour tortilla",
+            category: "Burritos",
+            diet: ["Vegetarian"],
+            calories: 650,
+            allergies: ["Gluten"],
+            ingredients: ["Beans", "Rice", "Avocado", "Tomato", "Flour Tortilla"]
+        },
 
     ];
 
