@@ -143,7 +143,7 @@ class Order:
         return sum(item.line_total() for item in self.items)
 
 
-class restaurant:
+class Restaurant:
     def __init__(self, name: str, location: str):
         self.name = name
         self.location = location
@@ -190,7 +190,7 @@ class restaurant:
         Staff._next_id += 1
 
         if role == Role.WAITER:
-            staff_member = waiter(username, password, staff_id)
+            staff_member = Waiter(username, password, staff_id)
         elif role == Role.KITCHEN_STAFF:
             staff_member = KitchenStaff(username, password, staff_id)
         else:
@@ -222,7 +222,7 @@ class Staff:
         return self.__str__()
 
 
-class waiter(Staff):
+class Waiter(Staff):
     def __init__(self, username: str, password: str, staff_id: int):
         super().__init__(username, password, staff_id, Role.WAITER)
 
@@ -312,7 +312,7 @@ class KitchenStaff(Staff):
         return "Kitchen queue retrieved by kitchen staff"  # implement retrieving kitchen queue
 
 
-class table:
+class Table:
     def __init__(self, table_number: int, capacity: int):
         self.table_number = table_number
         self.capacity = capacity
@@ -336,7 +336,7 @@ class table:
         return self.__str__()
 
 
-class customer:
+class Customer:
     def __init__(self, name: str, table_number: int):
         self.name = name
         self.table_number = table_number

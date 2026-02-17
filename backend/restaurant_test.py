@@ -1,6 +1,6 @@
-from restaurant import restaurant, menuItem, Role, customer, table
+from restaurant import Restaurant, menuItem, Role, Customer, Table
 
-r = restaurant("Oaxaca", "London")
+r = Restaurant("Oaxaca", "London")
 
 # Seed menu
 r.menu.add_item(menuItem(
@@ -57,7 +57,7 @@ r.menu.add_item(menuItem(
 # print("Placed order:", order.order_id, "status:", order.status.value, "total:", order.total_price())
 
 # created table
-t1 = table(1,4)
+t1 = Table(1, 4)
 print("Table:", t1)
 
 # check state
@@ -66,7 +66,7 @@ assert t1.current_customer is None
 print("inital state is correct")
 
 # assign a customer to a table
-cust1 = customer("John Doe", 1)
+cust1 = Customer("John Doe", 1)
 t1.assign_customer(cust1)
 print("Table after assigning customer:", t1)
 
@@ -76,7 +76,7 @@ print("Assign customer OK")
 
 # trying to assign another customer to the same table should raise an error
 try:
-    cust2 = customer("Jane Smith", 1)
+    cust2 = Customer("Jane Smith", 1)
     t1.assign_customer(cust2)
     print("ERROR: should not have been able to assign second customer to occupied table")
 except ValueError as e:
