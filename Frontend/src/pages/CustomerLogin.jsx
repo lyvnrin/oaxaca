@@ -9,8 +9,17 @@ function CustomerLogin() {
         navigate("/menu");
     };
 
+    const goBack = () => {
+        navigate("/");
+    };
+
     return (
         <div className="customer-page">
+
+            <button className="back-button" onClick={goBack}>
+                ←
+            </button>
+
             <div className="customer-login-box">
                 <h1>OAXACA</h1>
                 <div className="customer-divider"></div>
@@ -35,6 +44,10 @@ function CustomerLogin() {
                         <option>4</option>
                         <option>5</option>
                         <option>6</option>
+                        <option>7</option>
+                        <option>8</option>
+                        <option>9</option>
+                        <option>10</option>
                     </select>
                 </div>
 
