@@ -9,7 +9,11 @@ r = Restaurant("Oaxaca", "London")
 r.menu.add_item(menuItem(
     item_id=1,
     name="Margherita Pizza",
+    description="Pizza with tomato sauce and mozzarella cheese",
     price=8.99,
+    calories="700",
+    allergens=["dairy"],
+    vegetarian=True,
     gluten_free=True
 ))
 
