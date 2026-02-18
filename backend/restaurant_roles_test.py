@@ -87,3 +87,34 @@ except ValueError:
     error = True
 
 assert error, "Order cannot be canceled"
+
+
+
+# New order
+order3 = r.place_order(table_number=3, items=[(1, 2)])
+
+# Get kitchen queue
+queue = kitchen.get_kitchen_queue(r)
+
+found = False
+for i in queue:
+    if i["order id: "] == order3.order_id:
+        found = True
+        break
+
+assert found, "Order should be in the kitchen staff queue"
+
+kitchen.mark_in_progress(r, order3.order_id)
+kitchen.mark_ready(r, order3.order_id)
+waiter.mark_completed(r, order3.order_id)
+
+# Empty queue
+completed_queue = kitchen.get_kitchen_queue(r)
+
+found = False
+for i in completed_queue:
+    if i["order id: "] == order3.order_id:
+        found = True
+        break
+
+assert not found, "The orders have been completed to queue is empty"
