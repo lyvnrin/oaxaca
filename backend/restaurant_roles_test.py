@@ -47,3 +47,19 @@ waiter.set_item_availability(r, 1, True)
 # Order with available item
 order = r.place_order(table_number=1, items=[(1, 2)])
 assert order.status == OrderStatus.PENDING
+
+# Confirm order as waiter
+waiter.confirm_order(r, order.order_id)
+assert order.status == OrderStatus.IN_PROGRESS
+assert order.started_at is not None
+
+# Kitchen staff marks order as ready
+kitchen.mark_ready(r, order.order_id)
+assert order.status == OrderStatus.READY
+assert order.ready_at is not None
+
+# Waiter marks order as completed
+waiter.mark_completed(r, order.order_id)
+assert order.status == OrderStatus.COMPLETED
+assert order.completed_at is not None
+
