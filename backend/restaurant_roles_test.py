@@ -63,3 +63,27 @@ waiter.mark_completed(r, order.order_id)
 assert order.status == OrderStatus.COMPLETED
 assert order.completed_at is not None
 
+
+
+# New order
+order2 = r.place_order(table_number=2, items=[(1, 1)])
+assert order2.status == OrderStatus.PENDING
+
+# Kitchen staff marks it in progress 
+kitchen.mark_in_progress(r, order2.order_id)
+assert order2.status == OrderStatus.IN_PROGRESS
+
+# Kitchen staff marks order as ready
+kitchen.mark_ready(r, order2.order_id)
+
+# Waiter marks order as completed
+waiter.mark_completed(r, order2.order_id)
+
+# Try cancelling a completed order
+error = False
+try:
+    waiter.cancel_order(r, order2.order_id)
+except ValueError:
+    error = True
+
+assert error, "Order cannot be canceled"
