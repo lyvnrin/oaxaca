@@ -3,9 +3,16 @@ import './MenuSection.css';
 
 const MenuSection = ({title, items}) => {
     const [showCartNotification, setShowCartNotification] = useState(false);
-    const [notificationItem, setNotificationItem] = useState('');
+    const [notificationMessage, setNotificationMessage] = useState('');
     const [windowWidth, setWindowWidth] = useState(window.innerWidth);
     const [gridClass, setGridClass] = useState('menu-grid-3-col');
+
+    // Add to cart modal states
+    const [showCartModal, setShowCartModal] = useState(false);
+    const [selectedItem, setSelectedItem] = useState(null);
+    const [itemQuantity, setItemQuantity] = useState(1);
+    // Track items in cart for this session
+    const [cartItems, setCartItems] = useState({});
 
     // Filter states
     const [showFilters, setShowFilters] = useState(false);
@@ -22,7 +29,6 @@ const MenuSection = ({title, items}) => {
             const width = window.innerWidth;
             setWindowWidth(width);
 
-            // Update grid class based on width
             if (width >= 1200) {
                 setGridClass('menu-grid-3-col');
             } else if (width >= 768) {
@@ -32,10 +38,23 @@ const MenuSection = ({title, items}) => {
             }
         };
 
-        handleResize(); // Set initial value
+        handleResize();
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
     }, []);
+
+    // Clear notification timeout
+    useEffect(() => {
+        let timeoutId;
+        if (showCartNotification) {
+            timeoutId = setTimeout(() => {
+                setShowCartNotification(false);
+            }, 2000);
+        }
+        return () => {
+            if (timeoutId) clearTimeout(timeoutId);
+        };
+    }, [showCartNotification]);
 
     // Filter effect
     useEffect(() => {
@@ -61,13 +80,47 @@ const MenuSection = ({title, items}) => {
     }, [selectedCategories, selectedDiets, selectedAllergies, items]);
 
     const handleAddToCart = (item) => {
-        setNotificationItem(item.name);
+        setSelectedItem(item);
+        // Get current quantity from cart or default to 0
+        const currentQty = cartItems[item.id] || 0;
+        setItemQuantity(currentQty + 1);
+        setShowCartModal(true);
+    };
+
+    const handleAddMore = () => {
+        const newQuantity = itemQuantity + 1;
+        setItemQuantity(newQuantity);
+
+        // Update cart items
+        setCartItems({
+            ...cartItems,
+            [selectedItem.id]: newQuantity
+        });
+
+        // Show notification with updated quantity
+        setNotificationMessage(`${selectedItem.name} x${newQuantity} added to cart`);
         setShowCartNotification(true);
 
-        // Hide notification after 3 seconds
-        setTimeout(() => {
-            setShowCartNotification(false);
-        }, 3000);
+        console.log(`Added to cart: ${selectedItem.name} x${newQuantity}`);
+    };
+
+    const handleAddToCartFromModal = () => {
+        // Update cart items
+        setCartItems({
+            ...cartItems,
+            [selectedItem.id]: itemQuantity
+        });
+
+        // Show notification
+        setNotificationMessage(`${selectedItem.name} x${itemQuantity} added to cart`);
+        setShowCartNotification(true);
+        setShowCartModal(false);
+    };
+
+    const handleGoToCart = () => {
+        setShowCartModal(false);
+        console.log("Go to cart clicked - to be implemented by team");
+
     };
 
     // Filter handlers
@@ -131,7 +184,7 @@ const MenuSection = ({title, items}) => {
 
     return (
         <div className="oaxaca-container">
-            {/* Header - Top Bar */}
+            {/* Header - Top Bar with Oaxaca left, Customer middle, Table right */}
             <header className="oaxaca-header">
                 <div className="top-bar">
                     <h1 className="restaurant-name">OAXACA</h1>
@@ -143,7 +196,7 @@ const MenuSection = ({title, items}) => {
                     </div>
                 </div>
 
-                {/* Dynamic title */}
+                {/* Control Bar */}
                 <div className="control-bar">
                     <h2 className="mains-title">{title}</h2>
                     <div className="controls">
@@ -226,6 +279,7 @@ const MenuSection = ({title, items}) => {
                                 <span className="calories">{item.calories} calories</span>
                             </div>
 
+                            {/* Add to cart button */}
                             <button
                                 className="add-to-cart-button"
                                 onClick={() => handleAddToCart(item)}
@@ -237,10 +291,40 @@ const MenuSection = ({title, items}) => {
                 ))}
             </main>
 
-            {/* Cart Notification */}
             {showCartNotification && (
                 <div className="cart-notification">
-                    {notificationItem} added to cart!
+                    {notificationMessage}
+                </div>
+            )}
+
+            {showCartModal && selectedItem && (
+                <div className="cart-modal-overlay" onClick={() => setShowCartModal(false)}>
+                    <div className="cart-modal" onClick={(e) => e.stopPropagation()}>
+                        <div className="cart-modal-header">
+                            <h3>Add to Cart</h3>
+                            <button className="close-button" onClick={() => setShowCartModal(false)}>✕</button>
+                        </div>
+
+                        <div className="cart-modal-body">
+                            <div className="cart-item-info">
+                                <h4>{selectedItem.name}</h4>
+                                <p className="cart-item-price">£{selectedItem.price}</p>
+                                <p className="cart-item-quantity">Quantity: {itemQuantity}</p>
+                            </div>
+                        </div>
+
+                        <div className="cart-modal-footer">
+                            {/* ADD MORE button - increases quantity by 1 each time */}
+                            <button className="add-more-btn" onClick={handleAddMore}>
+                                ADD MORE
+                            </button>
+
+                            {/* GO TO CART button - does nothing (placeholder) */}
+                            <button className="go-to-cart-btn" onClick={handleGoToCart}>
+                                GO TO CART
+                            </button>
+                        </div>
+                    </div>
                 </div>
             )}
 
@@ -249,14 +333,14 @@ const MenuSection = ({title, items}) => {
                 <div className="filter-modal-overlay" onClick={closeFilters}>
                     <div className="filter-modal" onClick={(e) => e.stopPropagation()}>
                         <div className="filter-modal-header">
-                            <h3>Filter Menu</h3>
+                            <h3>FILTER MENU</h3>
                             <button className="close-button" onClick={closeFilters}>✕</button>
                         </div>
 
                         <div className="filter-modal-body">
                             {/* Category Filter */}
                             <div className="filter-section">
-                                <h4>Category</h4>
+                                <h4>CATEGORY</h4>
                                 <div className="filter-options">
                                     <label className="filter-checkbox">
                                         <input
@@ -327,7 +411,7 @@ const MenuSection = ({title, items}) => {
 
                             {/* Diet Filter */}
                             <div className="filter-section">
-                                <h4>Diet</h4>
+                                <h4>DIET</h4>
                                 <div className="filter-options">
                                     <label className="filter-checkbox">
                                         <input
@@ -358,7 +442,7 @@ const MenuSection = ({title, items}) => {
 
                             {/* Exclude Allergy Filter */}
                             <div className="filter-section">
-                                <h4>Exclude Allergy</h4>
+                                <h4>EXCLUDE ALLERGY</h4>
                                 <div className="filter-options">
                                     <label className="filter-checkbox">
                                         <input
@@ -404,12 +488,13 @@ const MenuSection = ({title, items}) => {
                             </div>
                         </div>
 
+                        {/* Filter modal footer with buttons */}
                         <div className="filter-modal-footer">
                             <button className="clear-filters-btn" onClick={clearFilters}>
-                                Clear
+                                CLEAR
                             </button>
                             <button className="apply-filters-btn" onClick={applyFilters}>
-                                Apply Filters
+                                APPLY FILTERS
                             </button>
                         </div>
                     </div>
