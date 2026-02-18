@@ -5,10 +5,10 @@ const Mains = () => {
     const mainsItems = [
         {
             id: 1,
-            name: "Carne Asada",
+            name: "Steak Burrito",
             price: 18.99,
             description: "Grilled steak with onions, cilantro, lime juice, corn tortillas",
-            category: "Tacos",
+            category: "Burritos",
             diet: ["Gluten-Free"],
             calories: 420,
             allergies: [],
@@ -16,13 +16,13 @@ const Mains = () => {
         },
         {
             id: 2,
-            name: "Chicken Enchiladas",
+            name: "Chicken Burrito",
             price: 16.99,
             description: "Chicken with verde sauce, melted cheese, corn tortillas",
-            category: "Enchiladas",
-            diet: [],
+            category: "Burritos",
+            diet: ["Gluten-Free"],
             calories: 580,
-            allergies: ["Dairy", "Gluten"],
+            allergies: ["Dairy"],
             ingredients: ["Chicken", "Cheese", "Corn Tortillas", "Verde Sauce"]
         },
         {
@@ -36,6 +36,39 @@ const Mains = () => {
             allergies: ["Gluten"],
             ingredients: ["Beans", "Rice", "Avocado", "Tomato", "Flour Tortilla"]
         },
+        {
+            id: 4,
+            name: "Steak Tacos",
+            price: 14.99,
+            description: "Three corn tortillas with grilled steak, onion, cilantro, and lime",
+            category: "Tacos",
+            diet: ["Gluten-Free"],
+            calories: 450,
+            allergies: [],
+            ingredients: ["Steak", "Onion", "Cilantro", "Lime", "Corn Tortillas", "Salsa"]
+        },
+        {
+            id: 5,
+            name: "Chicken Tinga Tacos",
+            price: 13.99,
+            description: "Three corn tortillas with shredded chicken in tomato-chipotle sauce, onion, and cilantro",
+            category: "Tacos",
+            diet: ["Gluten-Free"],
+            calories: 420,
+            allergies: [],
+            ingredients: ["Chicken", "Tomato", "Chipotle", "Onion", "Cilantro", "Corn Tortillas"]
+        },
+        {
+            id: 6,
+            name: "Pork Tacos",
+            price: 14.99,
+            description: "Three corn tortillas with slow-cooked pork, onion, cilantro, and salsa verde",
+            category: "Tacos",
+            diet: ["Gluten-Free"],
+            calories: 480,
+            allergies: [],
+            ingredients: ["Pork", "Onion", "Cilantro", "Salsa Verde", "Lime", "Corn Tortillas"]
+        }
 
     ];
 

@@ -27,15 +27,48 @@ const Drinks = () => {
         },
         {
             id: 3,
-            name: "Mexican Hot Chocolate",
+            name: "Coca Cola",
             price: 4.99,
-            description: "Rich hot chocolate with cinnamon",
-            category: "Non-Alcoholic",
-            diet: ["Vegetarian"],
+            description: "Original Can Coca Cola",
+            category: "Fizzy",
+            diet: ["Vegan"],
             calories: 210,
-            allergies: ["Dairy"],
-            ingredients: ["Chocolate", "Milk", "Cinnamon", "Vanilla", "Sugar"]
-        }
+            allergies: [],
+            ingredients: ["Coca Cola"]
+        },
+        {
+            id: 4,
+            name: "Pepsi",
+            price: 4.99,
+            description: "Original Can Pepsi",
+            category: "Fizzy",
+            diet: ["Vegan", "Gluten-Free"],
+            calories: 200,
+            allergies: [],
+            ingredients: ["Pepsi"]
+        },
+        {
+            id: 5,
+            name: "Orange Juice",
+            price: 14.99,
+            description: "Orange with Lime and Ice",
+            category: "Juice",
+            diet: ["Vegan", "Gluten-Free"],
+            calories: 300,
+            allergies: [],
+            ingredients: ["Orange", "Lime", "Ice"]
+        },
+        {
+            id: 6,
+            name: "Apple Juice",
+            price: 14.99,
+            description: "Apple with Lime and Ice",
+            category: "Juice",
+            diet: ["Vegan", "Gluten-Free"],
+            calories: 300,
+            allergies: [],
+            ingredients: ["Apple", "Lime", "Ice"]
+        },
 
     ];
 
