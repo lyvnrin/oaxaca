@@ -23,3 +23,7 @@ waiter = r.create_staff("Bob", "pass", Role.WAITER)
 
 assert kitchen.role == Role.KITCHEN_STAFF
 assert waiter.role == Role.WAITER
+
+# Updating prices as a waiter
+updated = waiter.update_menu_price(r, "Margherita Pizza", 9.99)
+assert updated.price == 9.99, "Failed to update price"
