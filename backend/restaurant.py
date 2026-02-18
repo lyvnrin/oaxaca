@@ -1,6 +1,9 @@
 from enum import Enum
 from datetime import datetime
 
+class PaymentStatus(Enum):
+    UNPAID = 'unpaid'
+    PAID = 'paid'
 
 class OrderStatus(Enum):
     PENDING = "Pending"
@@ -135,12 +138,30 @@ class Order:
         self.confirmed_by_waiter_id = None
         self.kitchen_staff_id = None
 
+        self.payment = None
+
     def age_seconds(self):  # used to track how long the order has been active for, used for tracking order progress
         return (datetime.now() - self.created_at).total_seconds()
 
     def total_price(
             self):  # calculates the total price of a order by summing each item in the order and multiplying by the quantity of that item
         return sum(item.line_total() for item in self.items)
+
+    def is_paid(self):
+        return self.payment is not None and self.payment.status == PaymentStatus.PAID
+
+
+class Payment:
+    def __init__(self, order_id: int, amount: float):
+        self.order_id = order_id
+        self.amount = amount
+        self.status = PaymentStatus.UNPAID
+        self.paid_at = None
+
+    def process(self):
+        self.status = PaymentStatus.PAID
+        self.paid_at = datetime.now()
+        return self
 
 
 class Restaurant:
@@ -201,6 +222,29 @@ class Restaurant:
 
     def get_staff_by_role(self, role: Role):
         return [s for s in self.staff if s.role == role]  # returns a list of staff members with the specified role
+
+    def process_payment(self, order_id: int):
+        order = self.get_order(order_id)
+        if order is None:
+            raise ValueError(f"Order {order_id} not found.")
+
+        # Prevent paying cancelled orders
+        if order.status == OrderStatus.CANCELLED:
+            raise ValueError(f"Order {order_id} is cancelled.")
+
+        # Prevent double payment
+        if order.is_paid():
+            raise ValueError(f"Order {order_id} already paid.")
+
+        # Create payment
+        payment = Payment(order_id, order.total_price())
+
+        payment.process()
+        order.payment = payment
+
+        return payment
+
+
 
     def __str__(self):
         return f"{self.name} - {self.location}"
