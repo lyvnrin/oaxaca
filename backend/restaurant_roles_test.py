@@ -27,3 +27,23 @@ assert waiter.role == Role.WAITER
 # Updating prices as a waiter
 updated = waiter.update_menu_price(r, "Margherita Pizza", 9.99)
 assert updated.price == 9.99, "Failed to update price"
+
+# Change availability
+waiter.set_item_availability(r, 1, False)
+
+for i in r.menu.get_available_items():
+    assert i.item_id != 1, "Item not available"
+
+# Order with unavailable item
+try:
+    r.place_order(table_number=1, items=[(1, 1)])
+    assert False, "Order not allowed, unavaiable item"
+except ValueError:
+    pass
+
+# Make item available
+waiter.set_item_availability(r, 1, True)
+
+# Order with available item
+order = r.place_order(table_number=1, items=[(1, 2)])
+assert order.status == OrderStatus.PENDING
