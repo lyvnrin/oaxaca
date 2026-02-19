@@ -85,10 +85,10 @@ function OrderSummary() {
           </div>
 
           {/* Call waiter */}
-          <div style={{ fontSize: "12px", textAlign: "right" }}>
-            <div style={{ fontWeight: "bold" }}>Call Waiter</div>
-            <div>  07579 033233</div>
-          </div>
+          {/*<div style={{ fontSize: "12px", textAlign: "right" }}>*/}
+          {/*  <div style={{ fontWeight: "bold" }}>Call Waiter</div>*/}
+          {/*  <div>  07481337535</div>*/}
+          {/*</div>*/}
         </div>
 
         <h2 style={{ textAlign: "center", marginTop: "0" }}>
