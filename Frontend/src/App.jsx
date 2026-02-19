@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import CustomerLogin from "./pages/CustomerLogin";
-import Menu from "./pages/Menu";
+import CustomerLogin from "./pages/auth/CustomerLogin.jsx";
+import Menu from "./pages/menu/Menu.jsx";
 // import MenuItems from "./pages/MenuItems.jsx";
 
 function App() {
