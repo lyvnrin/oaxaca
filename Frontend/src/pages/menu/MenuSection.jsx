@@ -20,7 +20,7 @@ const MenuSection = ({title, items, category}) => {
     const [selectedCategories, setSelectedCategories] = useState([]);
     const [selectedDiets, setSelectedDiets] = useState([]);
     const [selectedAllergies, setSelectedAllergies] = useState([]);
-    const [filteredItems, setFilteredItems] = useState(items);
+    const [filteredItems, setFilteredItems] = useState(items || []);
     const [tempSelectedCategories, setTempSelectedCategories] = useState([]);
     const [tempSelectedDiets, setTempSelectedDiets] = useState([]);
     const [tempSelectedAllergies, setTempSelectedAllergies] = useState([]);
@@ -94,7 +94,8 @@ const MenuSection = ({title, items, category}) => {
 
     useEffect(() => {
     applyFilters();
-}, []);
+    }, [items, category]);
+
 
 
     const handleAddToCart = (item) => {
@@ -319,7 +320,7 @@ const MenuSection = ({title, items, category}) => {
                             <div className="ingredients-section">
                                 <div className="section-title">Ingredients:</div>
                                 <div className="ingredients-list">
-                                    {item.ingredients?.join(', ')}
+                                    {(item.ingredients || []).join(', ')}
                                 </div>
                             </div>
 
