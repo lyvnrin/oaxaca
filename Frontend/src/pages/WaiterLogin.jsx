@@ -6,6 +6,10 @@ function WaiterLogin() {
 
     const navigate = useNavigate();
 
+    const goToDashboard = () => {
+        navigate("/waiter-dashboard");
+    };
+
     const goBack = () => {
         navigate("/");
     };
@@ -44,7 +48,7 @@ function WaiterLogin() {
                     />
                 </div>
 
-                <button className="waiter-button">
+                <button className="waiter-button" onClick={goToDashboard}>
                     LOG IN
                 </button>
 

@@ -4,6 +4,7 @@ import CustomerLogin from "./pages/CustomerLogin";
 import WaiterLogin from "./pages/WaiterLogin";
 import Menu from "./pages/Menu";
 import MenuSection from "./pages/MenuSection.jsx";
+import WaiterDashboard from "./pages/WaiterDashboard";
 
 function App() {
     return (
@@ -17,6 +18,7 @@ function App() {
 
                 {/* Waiter login page */}
                 <Route path="/waiter-login" element={<WaiterLogin />} />
+                <Route path="/waiter-dashboard" element={<WaiterDashboard />} />
 
                 {/* Other pages */}
                 <Route path="/menu" element={<Menu />} />
