@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
 import './MenuSection.css';
 
-const MenuSection = ({title, items}) => {
+const MenuSection = ({title, items, category}) => {
     const [showCartNotification, setShowCartNotification] = useState(false);
     const [notificationMessage, setNotificationMessage] = useState('');
     const [windowWidth, setWindowWidth] = useState(window.innerWidth);
@@ -24,6 +24,8 @@ const MenuSection = ({title, items}) => {
     const [tempSelectedCategories, setTempSelectedCategories] = useState([]);
     const [tempSelectedDiets, setTempSelectedDiets] = useState([]);
     const [tempSelectedAllergies, setTempSelectedAllergies] = useState([]);
+
+    
 
     // order summary
     const navigate = useNavigate();
@@ -142,10 +144,31 @@ const MenuSection = ({title, items}) => {
         setShowFilters(false);
     };
 
-    const applyFilters = () => {
+    const applyFilters = async () => {
         setSelectedCategories([...tempSelectedCategories]);
         setSelectedDiets([...tempSelectedDiets]);
         setSelectedAllergies([...tempSelectedAllergies]);
+
+        const vegetarian = tempSelectedDiets.includes('Vegetarian');
+        const glutenFree = tempSelectedDiets.includes('Gluten-Free');
+
+        if (vegetarian || glutenFree) {
+            try {
+                const params = new URLSearchParams();
+                if (vegetarian) params.append('vegetarian', true);
+                if (glutenFree) params.append('gluten_free', true);
+
+                const res = await fetch(`http://localhost:8000/api/menu/${category}?${params}`);
+                const data = await res.json();
+                setFilteredItems(data);
+            } catch (error) {
+                console.error('Backend unavailable:', error);
+                setFilteredItems([]); // show nothing if backend is down
+            }
+        } else {
+            setFilteredItems(items);
+        }
+
         setShowFilters(false);
     };
 

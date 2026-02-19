@@ -8,6 +8,7 @@ r.menu.add_item(menuItem(2, "Tacos al Pastor", "Pork tacos", 12.99, 600, ["glute
 r.menu.add_item(menuItem(3, "Veggie Burrito", "Bean burrito", 10.99, 550, ["gluten"], True, False, category="mains"))
 r.menu.add_item(menuItem(4, "Churros", "Fried dough", 5.99, 400, ["gluten", "dairy"], True, False, category="desserts"))
 r.menu.add_item(menuItem(5, "Horchata", "Rice drink", 3.99, 150, [], True, True, category="drinks"))
+r.menu.add_item(menuItem(6, "Chicken Wings", "Crispy wings", 8.99, 500, ["gluten"], False, False, available=True, category="starters"))
 
 kitchen = r.create_staff("Alice", "pass", Role.KITCHEN_STAFF)
 waiter = r.create_staff("Bob", "pass", Role.WAITER)
@@ -25,9 +26,9 @@ def get_filtered_menu(category=None, vegetarian=None, gluten_free=None, role="cu
     if category:
         items = [i for i in items if i.category == category]
     if vegetarian is not None:
-        items = [i for i in items if i.vegetarian]
+        items = [i for i in items if i.vegetarian == vegetarian]
     if gluten_free is not None:
-        items = [i for i in items if i.gluten_free]
+        items = [i for i in items if i.gluten_free == gluten_free]
 
     serialised = [
         {
