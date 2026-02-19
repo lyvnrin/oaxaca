@@ -30,7 +30,8 @@ class menuItem:
                  allergens: list[str],
                  vegetarian: bool,
                  gluten_free: bool,
-                 available: bool = True):
+                 available: bool = True,
+                 category: str = "mains"):
         self.item_id = item_id
         self.name = name
         self.description = description
@@ -40,6 +41,7 @@ class menuItem:
         self.vegetarian = vegetarian
         self.gluten_free = gluten_free
         self.available = available
+        self.category = category
 
     def to_dict(self):  # converts the menu item to a dictionary
         return {
@@ -51,7 +53,8 @@ class menuItem:
             "allergens": self.allergens,
             "vegetarian": self.vegetarian,
             "glutenFree": self.gluten_free,
-            "available": self.available
+            "available": self.available,
+            "category": self.category
         }
 
     def __str__(self):
