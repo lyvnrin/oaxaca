@@ -1,27 +1,15 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import SelectRole from "./pages/SelectRole";
 import CustomerLogin from "./pages/CustomerLogin";
-import WaiterLogin from "./pages/WaiterLogin";
 import Menu from "./pages/Menu";
-import MenuSection from "./pages/MenuSection.jsx";
+// import MenuItems from "./pages/MenuItems.jsx";
 
 function App() {
     return (
         <BrowserRouter>
             <Routes>
-                {/* Select role page */}
-                <Route path="/" element={<SelectRole />} />
-
-                {/* Customer login page */}
-                <Route path="/customer-login" element={<CustomerLogin />} />
-
-                {/* Waiter login page */}
-                <Route path="/waiter-login" element={<WaiterLogin />} />
-
-                {/* Other pages */}
+                <Route path="/" element={<CustomerLogin />} />
                 <Route path="/menu" element={<Menu />} />
-                <Route path="/menu-section" element={<MenuSection />} />
-
+                {/*<Route path="/menuitems" element={<MenuItems />} />*/}
             </Routes>
         </BrowserRouter>
     );
