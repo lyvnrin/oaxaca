@@ -1,5 +1,5 @@
 import React from 'react';
-import MenuSection from './MenuSection';
+import MenuSection from '../MenuSection.jsx';
 
 const Starters = () => {
     const startersItems = [

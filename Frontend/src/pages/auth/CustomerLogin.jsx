@@ -4,19 +4,18 @@ import "./CustomerLogin.css";
 
 function CustomerLogin() {
     const navigate = useNavigate();
-
     const goToMenu = () => {
         navigate("/menu");
     };
 
-    const goBack = () => {
+    const goToRoles = () => {
         navigate("/");
     };
 
     return (
         <div className="customer-page">
 
-            <button className="back-button" onClick={goBack}>
+            <button className="back-button" onClick={goToRoles}>
                 ←
             </button>
 

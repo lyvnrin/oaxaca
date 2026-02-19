@@ -5,8 +5,24 @@ import "./Menu.css";
 export default function Menu() {
     const navigate = useNavigate();
 
-    const goToMenuItems = () => {
-        navigate("/menuitems");
+    const goToRoles = () => {
+        navigate("/");
+    }
+
+    const goToStarters = () => {
+        navigate("/menu-starters");
+    };
+
+    const goToMains = () => {
+        navigate("/menu-mains");
+    };
+
+    const goToDesserts = () => {
+        navigate("/menu-desserts");
+    };
+
+    const goToDrinks = () => {
+        navigate("/menu-drinks");
     };
 
     return (
@@ -21,7 +37,7 @@ export default function Menu() {
             </div>
             <div className="top-button-row">
                 <div className="top-button-inner">
-                    <button className="top-left-button">Back</button>
+                    <button className="top-left-button" onClick={goToRoles}>Back</button>
 
                     <div className="top-right-buttons">
                         <button className="top-right-button">Call Waiter</button>
@@ -34,10 +50,10 @@ export default function Menu() {
             <h1 className="menu-title">Menu</h1>
 
             <div className="menu-buttons">
-                <button className="menu-button">Drinks</button>
-                <button className="menu-button">Starters</button>
-                <button className="menu-button" onClick={goToMenuItems}>Mains</button>
-                <button className="menu-button">Desserts</button>
+                <button className="menu-button" onClick={goToStarters}>Starters</button>
+                <button className="menu-button" onClick={goToMains}>Mains</button>
+                <button className="menu-button" onClick={goToDesserts}>Desserts</button>
+                <button className="menu-button" onClick={goToDrinks}>Drinks</button>
             </div>
         </div>
     );
