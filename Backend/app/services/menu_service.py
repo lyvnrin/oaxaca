@@ -2,7 +2,7 @@ from restaurant import Restaurant, menuItem, Role
 
 r = Restaurant("Oaxaca", "London")
 
-# seed menu - add category field to your items
+# Seed menu
 r.menu.add_item(menuItem(1, "Guacamole", "Fresh avocado dip", 6.99, 300, [], True, True, category="starters"))
 r.menu.add_item(menuItem(2, "Tacos al Pastor", "Pork tacos", 12.99, 600, ["gluten"], False, False, category="mains"))
 r.menu.add_item(menuItem(3, "Veggie Burrito", "Bean burrito", 10.99, 550, ["gluten"], True, False, category="mains"))
@@ -10,15 +10,13 @@ r.menu.add_item(menuItem(4, "Churros", "Fried dough", 5.99, 400, ["gluten", "dai
 r.menu.add_item(menuItem(5, "Horchata", "Rice drink", 3.99, 150, [], True, True, category="drinks"))
 r.menu.add_item(menuItem(6, "Chicken Wings", "Crispy wings", 8.99, 500, ["gluten"], False, False, available=True, category="starters"))
 
-kitchen = r.create_staff("Alice", "pass", Role.KITCHEN_STAFF)
-waiter = r.create_staff("Bob", "pass", Role.WAITER)
-
+# role view serialiser
 def apply_role_view(items, role):
     if role == "staff":
-        return [{"name": i["name"], "allergens": i["allergens"], "available": i["available"]} for i in items]
-    else:  # customer default
-        return [{"name": i["name"], "description": i["description"], "price": i["price"],
-                 "vegetarian": i["vegetarian"], "gluten_free": i["gluten_free"]} for i in items]
+        return [{"name": i["name"], "allergens": i["allergies"], "available": i["available"]} for i in items]
+    else:
+        # customer sees full menu
+        return items
 
 def get_filtered_menu(category=None, vegetarian=None, gluten_free=None, role="customer"):
     items = r.menu.get_available_items()
@@ -32,17 +30,28 @@ def get_filtered_menu(category=None, vegetarian=None, gluten_free=None, role="cu
 
     serialised = [
         {
-            "item_id": i.item_id,
+            "id": i.item_id,                  
             "name": i.name,
             "description": i.description,
             "price": i.price,
-            "vegetarian": i.vegetarian,
-            "gluten_free": i.gluten_free,
-            "allergens": i.allergens,
+            "category": i.category,
+            "diet": ["Vegetarian"] if i.vegetarian else [],  
+            "allergies": i.allergens,          
+            "calories": i.calories,
             "available": i.available
         }
         for i in items
     ]
 
+    # Debug print
+    print("Filtered menu:", serialised)
 
     return apply_role_view(serialised, role)
+
+
+# Example debug calls
+if __name__ == "__main__":
+    print(get_filtered_menu())                  # full menu
+    print(get_filtered_menu(category="mains"))  # mains only
+    print(get_filtered_menu(vegetarian=True))   # vegetarian only
+    print(get_filtered_menu(gluten_free=True))  # gluten free only

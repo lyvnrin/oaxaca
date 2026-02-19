@@ -25,7 +25,8 @@ const MenuSection = ({title, items, category}) => {
     const [tempSelectedDiets, setTempSelectedDiets] = useState([]);
     const [tempSelectedAllergies, setTempSelectedAllergies] = useState([]);
 
-    
+    // Flag to prevent local useEffect overwriting Python backend results
+    const [backendFiltered, setBackendFiltered] = useState(false);     
 
     // order summary
     const navigate = useNavigate();
@@ -66,7 +67,10 @@ const MenuSection = ({title, items, category}) => {
     }, [showCartNotification]);
 
     // Filter effect
+    /*
     useEffect(() => {
+        if (backendFiltered) return;
+
         let filtered = [...items];
 
         if (selectedCategories.length > 0) {
@@ -86,7 +90,12 @@ const MenuSection = ({title, items, category}) => {
         }
 
         setFilteredItems(filtered);
-    }, [selectedCategories, selectedDiets, selectedAllergies, items]);
+    }, [selectedCategories, selectedDiets, selectedAllergies, items]);*/
+
+    useEffect(() => {
+    applyFilters();
+}, []);
+
 
     const handleAddToCart = (item) => {
         setSelectedItem(item);
@@ -145,32 +154,52 @@ const MenuSection = ({title, items, category}) => {
     };
 
     const applyFilters = async () => {
-        setSelectedCategories([...tempSelectedCategories]);
-        setSelectedDiets([...tempSelectedDiets]);
-        setSelectedAllergies([...tempSelectedAllergies]);
+    setSelectedCategories([...tempSelectedCategories]);
+    setSelectedDiets([...tempSelectedDiets]);
+    setSelectedAllergies([...tempSelectedAllergies]);
 
-        const vegetarian = tempSelectedDiets.includes('Vegetarian');
-        const glutenFree = tempSelectedDiets.includes('Gluten-Free');
+    const vegetarian = tempSelectedDiets.includes('Vegetarian');
+    const glutenFree = tempSelectedDiets.includes('Gluten-Free');
 
-        if (vegetarian || glutenFree) {
-            try {
-                const params = new URLSearchParams();
-                if (vegetarian) params.append('vegetarian', true);
-                if (glutenFree) params.append('gluten_free', true);
+    if (vegetarian || glutenFree) {
+        try {
+            const params = new URLSearchParams();
+            if (vegetarian) params.append('vegetarian', true);
+            if (glutenFree) params.append('gluten_free', true);
 
-                const res = await fetch(`http://localhost:8000/api/menu/${category}?${params}`);
-                const data = await res.json();
-                setFilteredItems(data);
-            } catch (error) {
-                console.error('Backend unavailable:', error);
-                setFilteredItems([]); // show nothing if backend is down
-            }
-        } else {
-            setFilteredItems(items);
+            const res = await fetch(`http://localhost:8000/api/menu/${category}?${params}`);
+            let data = await res.json();
+
+            // Ensure we always have an array
+            if (!Array.isArray(data)) data = [];
+
+            // Map backend keys to frontend keys safely
+            data = data.map(item => ({
+                id: item.id,
+                name: item.name || "",
+                description: item.description || "",
+                price: item.price || 0,
+                category: item.category || "",
+                diet: item.diet || [],
+                allergies: item.allergies || [],
+                calories: item.calories || 0,
+                available: item.available ?? true
+            }));
+
+            setBackendFiltered(true);
+            setFilteredItems(data);
+        } catch (error) {
+            console.error('Backend unavailable:', error);
+            setFilteredItems([]);  // fallback to empty array
         }
+    } else {
+        setBackendFiltered(false);
+        setFilteredItems(items);
+    }
 
-        setShowFilters(false);
-    };
+    setShowFilters(false);
+};
+
 
     const clearFilters = () => {
         setTempSelectedCategories([]);
@@ -178,12 +207,25 @@ const MenuSection = ({title, items, category}) => {
         setTempSelectedAllergies([]);
     };
 
-    const resetAllFilters = () => {
-        setSelectedCategories([]);
-        setSelectedDiets([]);
-        setSelectedAllergies([]);
-        setShowFilters(false);
-    };
+    const resetAllFilters = async () => {
+    setSelectedCategories([]);
+    setSelectedDiets([]);
+    setSelectedAllergies([]);
+
+    setTempSelectedCategories([]);
+    setTempSelectedDiets([]);
+    setTempSelectedAllergies([]);
+
+    try {
+        const res = await fetch(`http://localhost:8000/api/menu?section=${category}`);
+        const data = await res.json();
+        setFilteredItems(data);
+    } catch (err) {
+        console.error(err);
+    }
+
+    setShowFilters(false);
+};
 
     const toggleCategory = (category) => {
         if (tempSelectedCategories.includes(category)) {
