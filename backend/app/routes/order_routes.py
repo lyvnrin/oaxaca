@@ -8,7 +8,7 @@ order_bp = Blueprint('order_bp', __name__)
 def place_order():
     data = request.get_json()
     
-    # Validates for specific fields
+    # Validates for certain fields
     if not data or 'table_number' not in data or 'items' not in data or 'customer_id' not in data:
         return jsonify({"error": "Missing customer_id, table_number or items"}), 400
     
@@ -27,4 +27,5 @@ def place_order():
         )
         return jsonify(new_order.to_dict()), 201
     except Exception as e:
-    	return jsonify(new_order.to_dict()), 201
+        return jsonify({"error": str(e)}), 500
+
