@@ -2,10 +2,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import SelectRole from "./pages/auth/SelectRole.jsx";
 import CustomerLogin from "./pages/auth/CustomerLogin.jsx";
 import Menu from "./pages/menu/Menu.jsx";
-import Starters from "./pages/menu/sections/Starters.jsx";
-import Mains from "./pages/menu/sections/Mains.jsx";
-import Desserts from "./pages/menu/sections/Desserts.jsx";
-import Drinks from "./pages/menu/sections/Drinks.jsx";
+import { Starters, Mains, Desserts, Drinks } from "./pages/menu/sections";
 
 function App() {
     return (
