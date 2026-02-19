@@ -43,4 +43,5 @@ def get_filtered_menu(category=None, vegetarian=None, gluten_free=None, role="cu
         for i in items
     ]
 
+
     return apply_role_view(serialised, role)
