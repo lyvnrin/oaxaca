@@ -4,7 +4,6 @@ import "./CustomerLogin.css";
 
 function CustomerLogin() {
     const navigate = useNavigate();
-
     const goToMenu = () => {
         navigate("/menu");
     };

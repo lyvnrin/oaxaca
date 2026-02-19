@@ -6,7 +6,19 @@ export default function Menu() {
     const navigate = useNavigate();
 
     const goToStarters = () => {
-        navigate("/starters");
+        navigate("/menu-starters");
+    };
+
+    const goToMains = () => {
+        navigate("/menu-mains");
+    };
+
+    const goToDesserts = () => {
+        navigate("/menu-desserts");
+    };
+
+    const goToDrinks = () => {
+        navigate("/menu-drinks");
     };
 
     return (
@@ -34,10 +46,10 @@ export default function Menu() {
             <h1 className="menu-title">Menu</h1>
 
             <div className="menu-buttons">
-                <button className="menu-button">Drinks</button>
                 <button className="menu-button" onClick={goToStarters}>Starters</button>
-                <button className="menu-button">Mains</button>
-                <button className="menu-button">Desserts</button>
+                <button className="menu-button" onClick={goToMains}>Mains</button>
+                <button className="menu-button" onClick={goToDesserts}>Desserts</button>
+                <button className="menu-button" onClick={goToDrinks}>Drinks</button>
             </div>
         </div>
     );
