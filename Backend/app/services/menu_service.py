@@ -2,7 +2,7 @@ from restaurant import Restaurant, menuItem, Role
 
 r = Restaurant("Oaxaca", "London")
 
-# Seed menu
+# seed menu
 r.menu.add_item(menuItem(1, "Guacamole", "Fresh avocado dip", 6.99, 300, [], True, True, category="starters"))
 r.menu.add_item(menuItem(2, "Tacos al Pastor", "Pork tacos", 12.99, 600, ["gluten"], False, False, category="mains"))
 r.menu.add_item(menuItem(3, "Veggie Burrito", "Bean burrito", 10.99, 550, ["gluten"], True, False, category="mains"))
@@ -43,13 +43,13 @@ def get_filtered_menu(category=None, vegetarian=None, gluten_free=None, role="cu
         for i in items
     ]
 
-    # Debug print
+    # for debugging
     print("Filtered menu:", serialised)
 
     return apply_role_view(serialised, role)
 
 
-# Example debug calls
+# example debug calls
 if __name__ == "__main__":
     print(get_filtered_menu())                  # full menu
     print(get_filtered_menu(category="mains"))  # mains only
