@@ -5,6 +5,10 @@ import "./Menu.css";
 export default function Menu() {
     const navigate = useNavigate();
 
+    const goToRoles = () => {
+        navigate("/");
+    }
+
     const goToStarters = () => {
         navigate("/menu-starters");
     };
@@ -33,7 +37,7 @@ export default function Menu() {
             </div>
             <div className="top-button-row">
                 <div className="top-button-inner">
-                    <button className="top-left-button">Back</button>
+                    <button className="top-left-button" onClick={goToRoles}>Back</button>
 
                     <div className="top-right-buttons">
                         <button className="top-right-button">Call Waiter</button>

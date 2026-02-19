@@ -1,8 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import SelectRole from "./pages/auth/SelectRole.jsx";
-import CustomerLogin from "./pages/auth/CustomerLogin.jsx";
-import WaiterLogin from "./pages/auth/WaiterLogin.jsx";
-
+import { SelectRole, CustomerLogin, WaiterLogin } from "./pages/auth";
 import Menu from "./pages/menu/Menu.jsx";
 import { Starters, Mains, Desserts, Drinks } from "./pages/menu/sections";
 import OrderSummary from "./pages/menu/OrderSummary.jsx";
