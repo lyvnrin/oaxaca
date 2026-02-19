@@ -3,10 +3,11 @@ from restaurant import Restaurant, menuItem, Role
 r = Restaurant("Oaxaca", "London")
 
 # seed menu - add category field to your items
-r.menu.add_item(menuItem(1, "Guacamole", "Fresh guac...", 6.99, 300, ["none"], True, True, category="starters"))
-r.menu.add_item(menuItem(2, "Tacos al Pastor", "Pork tacos...", 12.99, 600, ["gluten"], False, False, category="mains"))
-r.menu.add_item(menuItem(3, "Churros", "Fried dough...", 5.99, 400, ["gluten", "dairy"], True, False, category="desserts"))
-r.menu.add_item(menuItem(4, "Horchata", "Rice drink...", 3.99, 150, [], True, True, category="drinks"))
+r.menu.add_item(menuItem(1, "Guacamole", "Fresh avocado dip", 6.99, 300, [], True, True, category="starters"))
+r.menu.add_item(menuItem(2, "Tacos al Pastor", "Pork tacos", 12.99, 600, ["gluten"], False, False, category="mains"))
+r.menu.add_item(menuItem(3, "Veggie Burrito", "Bean burrito", 10.99, 550, ["gluten"], True, False, category="mains"))
+r.menu.add_item(menuItem(4, "Churros", "Fried dough", 5.99, 400, ["gluten", "dairy"], True, False, category="desserts"))
+r.menu.add_item(menuItem(5, "Horchata", "Rice drink", 3.99, 150, [], True, True, category="drinks"))
 
 kitchen = r.create_staff("Alice", "pass", Role.KITCHEN_STAFF)
 waiter = r.create_staff("Bob", "pass", Role.WAITER)
