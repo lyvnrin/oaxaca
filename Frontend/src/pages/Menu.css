@@ -1,14 +1,16 @@
-
+.menu-box button {
+    color: #BA3E00;
+}
 
 .page-container {
     width: 100%;
-    background-color: #DDC698;
+    background-color: #BA3E00;
 }
 
 .margin {
     width: 100%;
-    background:#DDC698;
-    color: #fff;
+    background:#FFF2D8;
+    color: #BA3E00;
     padding: 20px 0;
     font-family: Bahnschrift, Georgia, serif;
 }
@@ -53,7 +55,7 @@
 
 .top-left-button {
     padding: 10px 30px;
-    background: #444444;
+    background: #FFF2D8;
     border: none;
     border-radius: 6px;
     color: #fff;
@@ -80,7 +82,7 @@
 
 .top-right-button {
     padding: 10px 30px;
-    background: #444444;
+    background: #FFF2D8;
     border: none;
     border-radius: 6px;
     color: #fff;
@@ -97,14 +99,14 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    background: #FFF2D8;
+    background: #BA3E00;
     font-family: Bahnschrift, Georgia, serif;
 }
 
 .menu-title {
     margin-bottom: 40px;
     font-size: 2.5rem;
-    color: #f9f9f9;
+    color: #FFF2D8;
 }
 
 .menu-buttons {
@@ -119,7 +121,7 @@
     padding: 15px 20px;
     border: none;
     border-radius: 8px;
-    background: #666666;
+    background: #ffffff;
     cursor: pointer;
     transition: background 0.2s ease;
 }
@@ -127,3 +129,16 @@
 .menu-button:hover {
     background: #666666;
 }
+
+.menu-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    align-items: center;
+
+    background: #FFF2D8;
+    padding: 30px 40px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
