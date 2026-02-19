@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from "react-router-dom";
 import './MenuSection.css';
 
 const MenuSection = ({title, items}) => {
@@ -23,6 +24,12 @@ const MenuSection = ({title, items}) => {
     const [tempSelectedCategories, setTempSelectedCategories] = useState([]);
     const [tempSelectedDiets, setTempSelectedDiets] = useState([]);
     const [tempSelectedAllergies, setTempSelectedAllergies] = useState([]);
+
+    // order summary
+    const navigate = useNavigate();
+    const goToOrderSummary = () => {
+        navigate("/order-summary");
+    };
 
     useEffect(() => {
         const handleResize = () => {
@@ -201,7 +208,7 @@ const MenuSection = ({title, items}) => {
                     <h2 className="mains-title">{title}</h2>
                     <div className="controls">
                         <button className="call-waiter-button">Call Waiter</button>
-                        <button className="icon-button">🛒</button>
+                        <button className="icon-button" onClick={goToOrderSummary}>🛒</button>
                         <button className="icon-button filter-button" onClick={openFilters}>
                             🔍
                         </button>

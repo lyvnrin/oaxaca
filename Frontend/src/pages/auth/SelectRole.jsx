@@ -10,6 +10,10 @@ function SelectRole() {
         navigate("/customer-login");
     };
 
+    const goToWaiterLogin = () => {
+        navigate("/waiter-login");
+    };
+
     return (
         <div className="page">
             <div className="role-box">
@@ -26,7 +30,7 @@ function SelectRole() {
                         Customer
                     </button>
 
-                    <button onClick={() => navigate("/waiter-login")}>
+                    <button onClick={goToWaiterLogin}>
                         Waiter
                     </button>
 

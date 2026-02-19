@@ -1,8 +1,11 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import SelectRole from "./pages/auth/SelectRole.jsx";
 import CustomerLogin from "./pages/auth/CustomerLogin.jsx";
+import WaiterLogin from "./pages/auth/WaiterLogin.jsx";
+
 import Menu from "./pages/menu/Menu.jsx";
 import { Starters, Mains, Desserts, Drinks } from "./pages/menu/sections";
+import OrderSummary from "./pages/menu/OrderSummary.jsx";
 
 function App() {
     return (
@@ -11,6 +14,7 @@ function App() {
                 {/* authorisation pages */}
                 <Route path="/" element={<SelectRole />} />
                 <Route path="/customer-login" element={<CustomerLogin />}  />
+                <Route path="/waiter-login" element={<WaiterLogin />}  />
 
                 {/* menu pages*/}
                 <Route path="/menu" element={<Menu />} />
@@ -18,6 +22,8 @@ function App() {
                 <Route path="/menu-mains" element={<Mains />} />
                 <Route path="/menu-desserts" element={<Desserts />} />
                 <Route path="/menu-drinks" element={<Drinks />} />
+
+                <Route path="/order-summary" element={<OrderSummary />} />
             </Routes>
         </BrowserRouter>
     );
