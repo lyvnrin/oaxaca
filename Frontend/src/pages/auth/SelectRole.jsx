@@ -1,9 +1,14 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import "./SelectRole.css";
+import "./CustomerLogin.jsx";
 
 function SelectRole() {
     const navigate = useNavigate();
+
+    const goToCustomerLogin = () => {
+        navigate("/customer-login");
+    };
 
     return (
         <div className="page">
@@ -17,7 +22,7 @@ function SelectRole() {
                 </div>
 
                 <div className="button-group">
-                    <button onClick={() => navigate("/customer-login")}>
+                    <button onClick={goToCustomerLogin} >
                         Customer
                     </button>
 
