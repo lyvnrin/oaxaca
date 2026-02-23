@@ -1,4 +1,4 @@
-from restaurant import Restaurant, menuItem, Role, KitchenStaff, OrderStatus, Customer, Table
+from restaurant import Restaurant, menuItem, Role, KitchenStaff, OrderStatus, Customer, Table, PaymentStatus
 from datetime import datetime
 
 r = Restaurant("Oaxaca", "London")
@@ -6,7 +6,11 @@ r = Restaurant("Oaxaca", "London")
 r.menu.add_item(menuItem(
     item_id=1,
     name="Margherita Pizza",
+    description="Classic cheese pizza",
     price=8.99,
+    calories=850,
+    allergens=["milk", "gluten"],
+    vegetarian=True,
     gluten_free=True
 ))
 
@@ -21,7 +25,9 @@ assert updated.price == 9.99, "Failed to update price"
 # setting item availability as a waiter
 ok = waiter.set_item_availability(r, 1, False)   # item_id=1
 assert ok is True, "Failed to set availability"
-assert r.menu.get_available_items()[0].item_id != 1, "Item not available"
+assert all(i.item_id != 1 for i in r.menu.get_available_items()), \
+    "Item not available"
+
 
 # customer ordering a currently unavailable item should fail
 try:
@@ -77,4 +83,16 @@ print("Clear table OK")
 order2 = r.place_order(table_number=13, items=[(1, 1)])
 assert order2.total_price() == 9.99 * 1, "Wrong total price for order2"
 assert order2.status == OrderStatus.PENDING, "Order2 is not pending"
+
+# tests payment processing
+customer = Customer("Tyler", 5)
+order = customer.place_order(r, [(1, 2)])
+
+payment = r.process_payment(order.order_id)
+
+assert payment.status == PaymentStatus.PAID
+assert order.payment.status == PaymentStatus.PAID
+assert order.is_paid() is True
+
+
 print("All tests passed!")
