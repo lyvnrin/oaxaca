@@ -8,7 +8,7 @@ body,
 }
 
 /* Page */
-.waiter-page {
+.staff-page {
     position: relative;
     width: 100%;
     height: 100%;
@@ -20,7 +20,7 @@ body,
 }
 
 /* Login Card */
-.waiter-login-box {
+.staff-login-box {
     background-color: #FFF2D8;
     width: 400px;
     height: 367px;
@@ -32,7 +32,7 @@ body,
 }
 
 /* Title */
-.waiter-login-box h1 {
+.staff-login-box h1 {
     text-align: center;
     margin: 0 0 10px;
     font-size: 50px;
@@ -40,7 +40,7 @@ body,
 }
 
 /* Subtitle */
-.waiter-login-box h2 {
+.staff-login-box h2 {
     text-align: center;
     margin: 0 0 15px;
     font-weight: 70;
@@ -49,7 +49,7 @@ body,
 }
 
 /* Divider */
-.waiter-divider {
+.staff-divider {
     height: 1px;
     background-color: #BA3E00;
     width: calc(100% + 90px);
@@ -57,14 +57,14 @@ body,
 }
 
 /* Input Row */
-.waiter-row {
+.staff-row {
     display: flex;
     width: 90%;
     margin: 30px auto -10px;
 }
 
 /* Label */
-.waiter-label {
+.staff-label {
     width: 80px;
     padding: 5px;
     padding-left: 12px;
@@ -80,7 +80,7 @@ body,
 }
 
 /* Input */
-.waiter-input {
+.staff-input {
     flex: 1;
     padding: 8px;
     font-size: 16px;
@@ -92,12 +92,12 @@ body,
 }
 
 /* Input Focus */
-.waiter-input:focus {
+.staff-input:focus {
     background-color: #ffffff;
 }
 
 /* Button */
-.waiter-button {
+.staff-button {
     display: block;
     margin: 38px auto 0;
     padding: 10px 55px;
@@ -112,13 +112,13 @@ body,
 }
 
 /* Button Hover */
-.waiter-button:hover {
+.staff-button:hover {
     background-color: #BA3E00;
     color: #FFF2D8;
 }
 
 /* Back Button */
-.waiter-back-button {
+.staff-back-button {
     position: absolute;
     top: 25px;
     left: 25px;
@@ -129,6 +129,6 @@ body,
     cursor: pointer;
 }
 
-.waiter-back-button:hover {
+.staff-back-button:hover {
     transform: scale(1.2);
 }
