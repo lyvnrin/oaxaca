@@ -1,7 +1,4 @@
-/* Only keep this reset ONCE in index.css — remove duplicates */
-html,
-body,
-#root {
+html, body, #root {
     margin: 0;
     padding: 0;
     width: 100%;
@@ -16,9 +13,8 @@ body,
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: #BA3E00;
+    background: radial-gradient(ellipse at center, #8B3A10 0%, #4a1a08 60%, #2a0d04 100%);
     font-family: "Times New Roman", serif;
-    color: #BA3E00;
 }
 
 /* Login Card */
