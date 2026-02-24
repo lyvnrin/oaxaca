@@ -1,8 +1,8 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import "./StaffLogin.css";
+import "./WaiterLogin.css";
 
-function StaffLogin() {
+function WaiterLogin() {
 
     const navigate = useNavigate();
 
@@ -53,4 +53,4 @@ function StaffLogin() {
     );
 }
 
-export default StaffLogin;
+export default WaiterLogin;
