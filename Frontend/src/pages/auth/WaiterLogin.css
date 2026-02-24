@@ -1,21 +1,18 @@
-html,
-body,
-#root {
+html, body, #root {
     margin: 0;
     padding: 0;
     width: 100%;
     height: 100%;
 }
 
-/* Page */
-.staff-page {
+.waiter-page {
     position: relative;
     width: 100%;
     height: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: #BA3E00;
+    background: radial-gradient(ellipse at center, #8B3A10 0%, #4a1a08 60%, #2a0d04 100%);
     font-family: "Times New Roman", serif;
 }
 
