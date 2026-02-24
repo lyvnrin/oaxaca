@@ -5,7 +5,6 @@ html, body, #root {
     height: 100%;
 }
 
-/* Page */
 .customer-page {
     position: relative;
     width: 100%;
@@ -17,7 +16,6 @@ html, body, #root {
     font-family: "Times New Roman", serif;
 }
 
-/* Login Card */
 .customer-login-box {
     background-color: #E8D5B0;
     width: 280px;
@@ -29,7 +27,6 @@ html, body, #root {
     align-items: center;
 }
 
-/* Title */
 .customer-login-box h2 {
     margin: 0 0 20px;
     font-size: 28px;
@@ -38,7 +35,6 @@ html, body, #root {
     font-family: "Times New Roman", serif;
 }
 
-/* Small spaced out label above each input */
 .customer-field-label {
     font-size: 11px;
     letter-spacing: 0.08em;
@@ -48,7 +44,6 @@ html, body, #root {
     font-family: sans-serif;
 }
 
-/* Borderless input fields */
 .customer-input {
     width: 100%;
     padding: 10px;
@@ -61,22 +56,20 @@ html, body, #root {
     margin-bottom: 5px;
 }
 
-/* Rounded terracotta continue button */
 .customer-button {
     margin-top: 20px;
     padding: 12px 40px;
     font-family: "Times New Roman", serif;
     font-size: 18px;
     background-color: #8B2E00;
-    color: white;
+    color: #f0e8d8;
     border: none;
     border-radius: 25px;
     cursor: pointer;
 }
 
 .customer-button:hover {
-    background-color: #BA3E00;
-    color: #FFF2D8;
+    background-color: #6B2200;
 }
 
 .back-button {
