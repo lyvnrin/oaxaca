@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { SelectRole, CustomerLogin, StaffLogin } from "./pages/auth";
+import { SelectRole, CustomerLogin, WaiterLogin, KitchenLogin } from "./pages/auth";
 import Menu from "./pages/menu/Menu.jsx";
 import { Starters, Mains, Desserts, Drinks } from "./pages/menu/sections";
 import OrderSummary from "./pages/menu/OrderSummary.jsx";
@@ -10,8 +10,9 @@ function App() {
             <Routes>
                 {/* authorisation pages */}
                 <Route path="/" element={<SelectRole />} />
-                <Route path="/customer-login" element={<CustomerLogin />}  />
-                <Route path="/staff-login" element={<StaffLogin />}  />
+                <Route path="/customer-login" element={<CustomerLogin />} />
+                <Route path="/waiter-login" element={<WaiterLogin />} />
+                <Route path="/kitchen-login" element={<KitchenLogin />} />
 
                 {/* menu pages*/}
                 <Route path="/menu" element={<Menu />} />
