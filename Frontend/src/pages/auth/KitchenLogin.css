@@ -55,3 +55,36 @@ html, body, #root {
     outline: none;
     margin-bottom: 5px;
 }
+
+.kitchen-button {
+    margin-top: 20px;
+    padding: 12px 40px;
+    font-family: "Times New Roman", serif;
+    font-size: 18px;
+    background-color: #8B2E00;
+    color: #f0e8d8;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+}
+
+.kitchen-button:hover {
+    background-color: #6B2200;
+}
+
+.kitchen-back-button {
+    position: absolute;
+    top: 25px;
+    left: 25px;
+    background-color: transparent !important;
+    border: none;
+    outline: none;
+    font-size: 30px;
+    color: #FFF2D8;
+    cursor: pointer;
+    padding: 0;
+}
+
+.kitchen-back-button:hover {
+    transform: scale(1.2);
+}
