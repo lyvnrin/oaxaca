@@ -56,39 +56,35 @@ html, body, #root {
     margin-bottom: 5px;
 }
 
-/* Button */
-.staff-button {
-    display: block;
-    margin: 38px auto 0;
-    padding: 10px 55px;
-    font-family: "inria sans", sans-serif;
-    background-color: white;
-    color: #BA3E00;
-    border-radius: 10px;
-    border: 1.5px solid #BA3E00;
-    cursor: pointer;
+.waiter-button {
+    margin-top: 20px;
+    padding: 12px 40px;
+    font-family: "Times New Roman", serif;
     font-size: 18px;
-    width: 200px;
+    background-color: #8B2E00;
+    color: #f0e8d8;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
 }
 
-/* Button Hover */
-.staff-button:hover {
-    background-color: #BA3E00;
-    color: #FFF2D8;
+.waiter-button:hover {
+    background-color: #6B2200;
 }
 
-/* Back Button */
-.staff-back-button {
+.waiter-back-button {
     position: absolute;
     top: 25px;
     left: 25px;
-    background: none;
+    background-color: transparent !important;
     border: none;
+    outline: none;
     font-size: 30px;
     color: #FFF2D8;
     cursor: pointer;
+    padding: 0;
 }
 
-.staff-back-button:hover {
+.waiter-back-button:hover {
     transform: scale(1.2);
 }
