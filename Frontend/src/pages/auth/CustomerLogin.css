@@ -48,79 +48,30 @@ html, body, #root {
     font-family: sans-serif;
 }
 
-/* Divider */
-.customer-divider {
-    height: 1px;
-    background-color: #BA3E00;
-    width: calc(100% + 90px);
-    margin: 10px -40px 15px -45px;
-}
-
-/* Row */
-.customer-row {
-    display: flex;
-    width: 90%;
-    margin: 30px auto 10px;
-}
-
-/* Label */
-.customer-label {
-    width: 70px;
-    padding: 5px;
-    padding-left: 12px;
-    font-size: 16px;
-    font-family: "Inriana Sans", sans-serif;
-    background-color: white;
-    border: 1.5px solid #BA3E00;
-    border-right: none;
-    border-radius: 5px 0 0 5px;
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-}
-
-/* Input */
+/* Borderless input fields */
 .customer-input {
-    flex: 1;
-    padding: 8px;
-    font-size: 16px;
-    font-family: "Inriana Sans", sans-serif;
-    background-color: white;
-    border: 1.5px solid #BA3E00;
-    border-radius: 0 5px 5px 0;
-    outline: #BA3E00;
-}
-
-/* Select */
-.customer-select {
     width: 100%;
-    margin: 30px auto 10px;
-    display: block;
-    padding: 8px;
-    font-size: 16px;
-    font-family: "Inriana Sans", sans-serif;
-    background-color: white;
-    color: #BA3E00;
-    border: 1.5px solid #BA3E00;
-    border-radius: 5px;
-    margin-top: -10px;
-    margin-bottom: 1px;
+    padding: 10px;
+    font-size: 15px;
+    background-color: #f0e8d8;
+    border: none;
+    border-radius: 8px;
+    box-sizing: border-box;
     outline: none;
+    margin-bottom: 5px;
 }
 
-/* Button */
+/* Rounded terracotta continue button */
 .customer-button {
-    display: block;
-    margin: 25px auto 0;
-    padding: 10px 55px;
-    font-family: "inria sans", sans-serif;
-    background-color: white;
-    color: #BA3E00;
-    border-radius: 10px;
-    border: 1.5px solid #BA3E00;
-    cursor: pointer;
+    margin-top: 20px;
+    padding: 12px 40px;
+    font-family: "Times New Roman", serif;
     font-size: 18px;
-    width: 200px;
+    background-color: #8B2E00;
+    color: white;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
 }
 
 .customer-button:hover {
