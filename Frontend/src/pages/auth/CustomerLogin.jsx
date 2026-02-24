@@ -25,6 +25,7 @@ function CustomerLogin() {
                     className="customer-input"
                     type="number"
                     min="1"
+                    max="12"
                 />
 
                 <button className="customer-button" onClick={goToMenu}>
