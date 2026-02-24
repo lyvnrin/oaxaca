@@ -1,3 +1,4 @@
+/* global reset */
 html, body, #root {
     margin: 0;
     padding: 0;
@@ -5,6 +6,7 @@ html, body, #root {
     height: 100%;
 }
 
+/* full page layout */
 .kitchen-page {
     position: relative;
     width: 100%;
@@ -16,6 +18,7 @@ html, body, #root {
     font-family: "Times New Roman", serif;
 }
 
+/* login card */
 .kitchen-login-box {
     background-color: #E8D5B0;
     width: 280px;
@@ -27,6 +30,7 @@ html, body, #root {
     align-items: center;
 }
 
+/* card title */
 .kitchen-login-box h2 {
     margin: 0 0 20px;
     font-size: 28px;
@@ -35,6 +39,7 @@ html, body, #root {
     font-family: "Times New Roman", serif;
 }
 
+/* field labels */
 .kitchen-field-label {
     font-size: 11px;
     letter-spacing: 0.08em;
@@ -44,6 +49,7 @@ html, body, #root {
     font-family: sans-serif;
 }
 
+/* input fields */
 .kitchen-input {
     width: 100%;
     padding: 10px;
@@ -56,6 +62,7 @@ html, body, #root {
     margin-bottom: 5px;
 }
 
+/* continue button */
 .kitchen-button {
     margin-top: 20px;
     padding: 12px 40px;
@@ -68,10 +75,12 @@ html, body, #root {
     cursor: pointer;
 }
 
+/* button hover */
 .kitchen-button:hover {
     background-color: #6B2200;
 }
 
+/* back arrow */
 .kitchen-back-button {
     position: absolute;
     top: 25px;
@@ -85,6 +94,7 @@ html, body, #root {
     padding: 0;
 }
 
+/* back hover */
 .kitchen-back-button:hover {
     transform: scale(1.2);
 }
