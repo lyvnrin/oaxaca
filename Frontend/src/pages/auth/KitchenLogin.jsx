@@ -13,8 +13,7 @@ function KitchenLogin() {
             <div className="kitchen-login-box">
                 <h2>Kitchen Staff</h2>
 
-                <p className="kitchen-field-label">PLEASE ENTER YOUR</p>
-                <p className="kitchen-field-label">USERNAME</p>
+                <p className="kitchen-field-label">PLEASE ENTER YOUR<span style={{display: "block", marginTop: "6px"}}>USERNAME</span></p>
                 <input
                     className="kitchen-input"
                     type="text"
