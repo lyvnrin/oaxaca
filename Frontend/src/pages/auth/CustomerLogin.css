@@ -19,29 +19,33 @@ html, body, #root {
 
 /* Login Card */
 .customer-login-box {
-    background-color: #FFF2D8;
-    width: 400px;
-    padding: 20px;
-    border: 1px solid #DDC698;
-    border-radius: 30px;
+    background-color: #E8D5B0;
+    width: 280px;
+    padding: 30px 25px;
+    border-radius: 20px;
     box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 /* Title */
-.customer-login-box h1 {
-    text-align: center;
-    margin: 0 0 10px;
-    font-size: 50px;
-    font-weight: 100;
+.customer-login-box h2 {
+    margin: 0 0 20px;
+    font-size: 28px;
+    font-weight: 600;
+    color: #1a1a1a;
+    font-family: "Times New Roman", serif;
 }
 
-/* Subtitle */
-.customer-login-box h2 {
+/* Small spaced out label above each input */
+.customer-field-label {
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    color: #2a1a0a;
     text-align: center;
-    margin: 0 0 15px;
-    font-weight: 70;
-    font-size: 25px;
-    font-family: "Inriana Sans", sans-serif;
+    margin: 10px 0 6px;
+    font-family: sans-serif;
 }
 
 /* Divider */
