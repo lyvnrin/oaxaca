@@ -76,11 +76,13 @@ html, body, #root {
     position: absolute;
     top: 25px;
     left: 25px;
-    background: none;
+    background-color: transparent !important;
     border: none;
+    outline: none;
     font-size: 30px;
     color: #FFF2D8;
     cursor: pointer;
+    padding: 0;
 }
 
 .back-button:hover {
