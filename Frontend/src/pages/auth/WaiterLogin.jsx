@@ -13,7 +13,8 @@ function WaiterLogin() {
             <div className="waiter-login-box">
                 <h2>Waiter</h2>
 
-                <p className="waiter-field-label">PLEASE ENTER YOUR USERNAME</p>
+                <p className="waiter-field-label">PLEASE ENTER YOUR</p>
+                <p className="waiter-field-label">USERNAME</p>
                 <input
                     className="waiter-input"
                     type="text"
