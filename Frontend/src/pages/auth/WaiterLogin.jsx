@@ -3,51 +3,33 @@ import { useNavigate } from "react-router-dom";
 import "./WaiterLogin.css";
 
 function WaiterLogin() {
-
     const navigate = useNavigate();
-
-    const goBack = () => {
-        navigate("/");
-    };
+    const goBack = () => navigate("/");
 
     return (
-        <div className="staff-page">
+        <div className="waiter-page">
+            <button className="waiter-back-button" onClick={goBack}>←</button>
 
-            <button className="staff-back-button" onClick={goBack}>
-                ←
-            </button>
+            <div className="waiter-login-box">
+                <h2>Waiter</h2>
 
-            <div className="staff-login-box">
+                <p className="waiter-field-label">PLEASE ENTER YOUR USERNAME</p>
+                <input
+                    className="waiter-input"
+                    type="text"
+                />
 
-                <div className="staff-login-text">
-                    <h1>OAXACA</h1>
-                    <div className="staff-divider"></div>
-                    <h2>Staff Login</h2>
-                    <div className="staff-divider"></div>
-                </div>
+                <p className="waiter-field-label">AND</p>
 
-                <div className="staff-row">
-                    <label className="staff-label">Username</label>
-                    <input
-                        className="staff-input"
-                        type="text"
-                        placeholder="Enter username here"
-                    />
-                </div>
+                <p className="waiter-field-label">PASSWORD</p>
+                <input
+                    className="waiter-input"
+                    type="password"
+                />
 
-                <div className="staff-row">
-                    <label className="staff-label">Password</label>
-                    <input
-                        className="staff-input"
-                        type="password"
-                        placeholder="Enter password here"
-                    />
-                </div>
-
-                <button className="staff-button">
-                    LOG IN
+                <button className="waiter-button">
+                    Continue
                 </button>
-
             </div>
         </div>
     );
