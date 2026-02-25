@@ -21,6 +21,15 @@ r.menu.add_item(menuItem(
 kitchen = r.create_staff("Alice", "pass", Role.KITCHEN_STAFF)
 waiter = r.create_staff("Bob", "pass", Role.WAITER)
 
+# Get staff by role
+kitchen_staff = r.get_staff_by_role(Role.KITCHEN_STAFF)
+assert len(kitchen_staff) == 1
+#assert kitchen_staff[0].name == "Alice"
+
+waiters = r.get_staff_by_role(Role.WAITER)
+assert len(waiters) == 1
+
+
 assert kitchen.role == Role.KITCHEN_STAFF
 assert waiter.role == Role.WAITER
 
@@ -118,3 +127,19 @@ for i in completed_queue:
         break
 
 assert not found, "The orders have been completed to queue is empty"
+
+# Get order time info
+time_info = waiter.get_order_time_info(r, order.order_id)
+assert time_info["created_at"] is not None
+assert time_info["started_at"] is not None
+assert time_info["ready_at"] is not None
+assert time_info["completed_at"] is not None
+
+# Get order time info failing
+error = False
+try:
+    waiter.get_order_time_info(r, 999)
+except ValueError:
+    error = True
+
+assert error
