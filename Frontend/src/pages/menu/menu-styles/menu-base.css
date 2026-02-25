@@ -1,0 +1,13 @@
+/* Base root styles */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+.oaxaca-root {
+  font-family: var(--font-body);
+  background: var(--bg);
+  min-height: 100vh;
+  color: var(--text-primary);
+}
