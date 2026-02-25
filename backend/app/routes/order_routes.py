@@ -1,31 +1,37 @@
-from flask import Blueprint, request, jsonify
+from fastapi import APIRouter, HTTPException, status
+from pydantic import BaseModel
+from typing import List
 from ..orders import order_manager
 
-order_bp = Blueprint('order_bp', __name__)
+# Create the router.
+router = APIRouter()
+
+# Define the data model for validation.
+class OrderCreate(BaseModel):
+    customer_id: int
+    table_number: int
+    items: List[int]
 
 # Route to Place an Order
-@order_bp.route('/api/orders', methods=['POST'])
-def place_order():
-    data = request.get_json()
-    
-    # Validates for certain fields
-    if not data or 'table_number' not in data or 'items' not in data or 'customer_id' not in data:
-        return jsonify({"error": "Missing customer_id, table_number or items"}), 400
-    
-    # Create the order
-    new_order = order_manager.place_order(
-        customer_id=data['customer_id'],
-        table_number=data['table_number'],
-        item_ids=data['items']
-    )
-    
-    try:
-        new_order = order_manager.place_order(
-            customer_id=data['customer_id'],
-            table_number=data['table_number'],
-            item_ids=data['items']
-        )
-        return jsonify(new_order.to_dict()), 201
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+@router.post("/api/orders", status_code=status.HTTP_201_CREATED)
+async def place_order(order_data: OrderCreate):
+    # FastAPI validates that customer_id, table_number, and items exist.
+    # If they are missing, it sends a 422 entity error.
 
+    try:
+        # Create the order
+        new_order = order_manager.place_order(
+            customer_id=order_data.customer_id,
+            table_number=order_data.table_number,
+            item_ids=order_data.items
+        )
+        
+        # Return the dictionary directly which is converted to JSON automatically.
+        return new_order.to_dict()
+
+    except Exception as e:
+        # Return a 500 error if something goes wrong within the code.
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, 
+            detail=str(e)
+        )

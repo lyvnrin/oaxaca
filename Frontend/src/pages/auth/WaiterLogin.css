@@ -1,0 +1,134 @@
+html,
+body,
+#root {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+}
+
+/* Page */
+.waiter-page {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #BA3E00;
+    font-family: "Times New Roman", serif;
+}
+
+/* Login Card */
+.waiter-login-box {
+    background-color: #FFF2D8;
+    width: 400px;
+    height: 367px;
+    padding: 20px;
+    border: 1px solid #DDC698;
+    border-radius: 30px;
+    box-sizing: border-box;
+    color: #BA3E00;
+}
+
+/* Title */
+.waiter-login-box h1 {
+    text-align: center;
+    margin: 0 0 10px;
+    font-size: 50px;
+    font-weight: 100;
+}
+
+/* Subtitle */
+.waiter-login-box h2 {
+    text-align: center;
+    margin: 0 0 15px;
+    font-weight: 70;
+    font-size: 25px;
+    font-family: "Inriana Sans", sans-serif;
+}
+
+/* Divider */
+.waiter-divider {
+    height: 1px;
+    background-color: #BA3E00;
+    width: calc(100% + 90px);
+    margin: 10px -40px 15px -45px;
+}
+
+/* Input Row */
+.waiter-row {
+    display: flex;
+    width: 90%;
+    margin: 30px auto -10px;
+}
+
+/* Label */
+.waiter-label {
+    width: 80px;
+    padding: 5px;
+    padding-left: 12px;
+    font-size: 16px;
+    font-family: "Inriana Sans", sans-serif;
+    background-color: white;
+    border: 1.5px solid #BA3E00;
+    border-right: none;
+    border-radius: 5px 0 0 5px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+/* Input */
+.waiter-input {
+    flex: 1;
+    padding: 8px;
+    font-size: 16px;
+    font-family: "Inriana Sans", sans-serif;
+    background-color: white;
+    border: 1.5px solid #BA3E00;
+    border-radius: 0 5px 5px 0;
+    outline: #BA3E00;
+}
+
+/* Input Focus */
+.waiter-input:focus {
+    background-color: #ffffff;
+}
+
+/* Button */
+.waiter-button {
+    display: block;
+    margin: 38px auto 0;
+    padding: 10px 55px;
+    font-family: "inria sans", sans-serif;
+    background-color: white;
+    color: #BA3E00;
+    border-radius: 10px;
+    border: 1.5px solid #BA3E00;
+    cursor: pointer;
+    font-size: 18px;
+    width: 200px;
+}
+
+/* Button Hover */
+.waiter-button:hover {
+    background-color: #BA3E00;
+    color: #FFF2D8;
+}
+
+/* Back Button */
+.waiter-back-button {
+    position: absolute;
+    top: 25px;
+    left: 25px;
+    background: none;
+    border: none;
+    font-size: 30px;
+    color: #FFF2D8;
+    cursor: pointer;
+}
+
+.waiter-back-button:hover {
+    transform: scale(1.2);
+}

@@ -1,31 +1,28 @@
-import "./App.css";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { SelectRole, CustomerLogin, WaiterLogin } from "./pages/auth";
+import Menu from "./pages/menu/Menu.jsx";
+import { Starters, Mains, Desserts, Drinks } from "./pages/menu/sections";
+import OrderSummary from "./pages/menu/OrderSummary.jsx";
 
 function App() {
     return (
-        <div className="page">
-            <div className="login-box">
-                <h1>OAXACA</h1>
-                <h2>Customer Login</h2>
+        <BrowserRouter>
+            <Routes>
+                {/* authorisation pages */}
+                <Route path="/" element={<SelectRole />} />
+                <Route path="/customer-login" element={<CustomerLogin />}  />
+                <Route path="/waiter-login" element={<WaiterLogin />}  />
 
-                <div className="row">
-                    <label>Name:</label>
-                    <input type="text" placeholder="Enter full name here" />
-                </div>
+                {/* menu pages*/}
+                <Route path="/menu" element={<Menu />} />
+                <Route path="/menu-starters" element={<Starters />} />
+                <Route path="/menu-mains" element={<Mains />} />
+                <Route path="/menu-desserts" element={<Desserts />} />
+                <Route path="/menu-drinks" element={<Drinks />} />
 
-                <div className="row">
-                    <select>
-                        <option value="">Select Table Number</option>
-                        <option>1</option>
-                        <option>2</option>
-                        <option>3</option>
-                        <option>4</option>
-                        <option>5</option>
-                    </select>
-                </div>
-
-                <button>CONTINUE</button>
-            </div>
-        </div>
+                <Route path="/order-summary" element={<OrderSummary />} />
+            </Routes>
+        </BrowserRouter>
     );
 }
 

@@ -1,0 +1,88 @@
+html,
+body,
+#root {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+}
+
+/* Page */
+.page {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #BA3E00;
+    font-family: "Times New Roman", serif;
+    color: #BA3E00;
+}
+
+/* Role selection card */
+.role-box {
+    background-color: #FFF2D8;
+    width: 400px;
+    padding: 20px;
+    border: 1px solid #DDC698;
+    border-radius: 30px;
+    box-sizing: border-box;
+}
+
+/* OAXACA */
+.role-box h1 {
+    text-align: center;
+    margin: 0 0 10px;
+    font-size: 50px;
+    font-weight: 100;
+}
+
+/* Select Your Role */
+.role-box h2 {
+    text-align: center;
+    margin: 0 0 15px;
+    font-weight: 70;
+    font-size: 25px;
+    font-family: "Inriana Sans", sans-serif;
+}
+
+/* Divider lines */
+.divider {
+    height: 1px;
+    background-color: #BA3E00;
+    width: calc(100% + 90px);
+    margin-left: -45px;
+    margin-right: -40px;
+    margin-top: 10px;
+    margin-bottom: 15px;
+}
+
+/* Button group container */
+.button-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    margin-top: 28px;
+    margin-bottom: 8px;
+}
+
+/* Button */
+.button-group button {
+    display: block;
+    margin:0;
+    padding: 10px 55px;
+    font-family: "inria sans", sans-serif;
+    background-color: white;
+    color: #BA3E00;
+    border-radius: 10px;
+    border: 1.5px solid #BA3E00;
+    cursor: pointer;
+    font-size: 18px;
+    width: 200px;
+}
+
+button:hover {
+    background-color: #BA3E00;
+    color: #FFF2D8;
+}
