@@ -24,7 +24,6 @@ waiter = r.create_staff("Bob", "pass", Role.WAITER)
 # Get staff by role
 kitchen_staff = r.get_staff_by_role(Role.KITCHEN_STAFF)
 assert len(kitchen_staff) == 1
-#assert kitchen_staff[0].name == "Alice"
 
 waiters = r.get_staff_by_role(Role.WAITER)
 assert len(waiters) == 1
