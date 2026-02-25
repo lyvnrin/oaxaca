@@ -1,0 +1,31 @@
+.kitchen-page {
+  padding: 20px;
+  background-color: bisque;
+  min-height: 100vh;
+}
+
+.kitchen-title {
+  font-weight: bold;
+  color: darkorange;
+  margin-bottom: 15px;
+}
+.kitchen-board {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+}
+
+.kitchen-column {
+  border: 2px solid chocolate;
+  border-radius: 8px;
+  background-color: seashell;
+  min-height: 300px;
+}
+
+.column-header {
+  background-color: peachpuff;
+  padding: 10px;
+  font-weight: bold;
+  border-bottom: 2px solid chocolate;
+}
+
