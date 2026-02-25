@@ -2,6 +2,7 @@ from app import create_app
 
 app = create_app()
 
+<<<<<<< HEAD
 '''
 Entry point for the FastAPI backend.
 
@@ -27,3 +28,5 @@ Notes:
 - Any changes to API routes or static files require restarting the server (or rely on --reload)
 - You can test filters, menu items, and other functionality via the frontend page
 '''
+=======
+>>>>>>> main

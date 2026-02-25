@@ -1,14 +1,12 @@
-/* Only keep this reset ONCE in index.css — remove duplicates */
-html,
-body,
-#root {
+/* global reset */
+html, body, #root {
     margin: 0;
     padding: 0;
     width: 100%;
     height: 100%;
 }
 
-/* Page */
+/* full page layout */
 .customer-page {
     position: relative;
     width: 100%;
@@ -16,129 +14,87 @@ body,
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: #BA3E00;
+    background: radial-gradient(ellipse at center, #8B3A10 0%, #4a1a08 60%, #2a0d04 100%);
     font-family: "Times New Roman", serif;
-    color: #BA3E00;
 }
 
-/* Login Card */
+/* login card */
 .customer-login-box {
-    background-color: #FFF2D8;
-    width: 400px;
-    padding: 20px;
-    border: 1px solid #DDC698;
-    border-radius: 30px;
+    background-color: #E8D5B0;
+    width: 280px;
+    padding: 30px 25px;
+    border-radius: 20px;
     box-sizing: border-box;
-}
-
-/* Title */
-.customer-login-box h1 {
-    text-align: center;
-    margin: 0 0 10px;
-    font-size: 50px;
-    font-weight: 100;
-}
-
-/* Subtitle */
-.customer-login-box h2 {
-    text-align: center;
-    margin: 0 0 15px;
-    font-weight: 70;
-    font-size: 25px;
-    font-family: "Inriana Sans", sans-serif;
-}
-
-/* Divider */
-.customer-divider {
-    height: 1px;
-    background-color: #BA3E00;
-    width: calc(100% + 90px);
-    margin: 10px -40px 15px -45px;
-}
-
-/* Row */
-.customer-row {
     display: flex;
-    width: 90%;
-    margin: 30px auto 10px;
-}
-
-/* Label */
-.customer-label {
-    width: 70px;
-    padding: 5px;
-    padding-left: 12px;
-    font-size: 16px;
-    font-family: "Inriana Sans", sans-serif;
-    background-color: white;
-    border: 1.5px solid #BA3E00;
-    border-right: none;
-    border-radius: 5px 0 0 5px;
-    display: flex;
+    flex-direction: column;
     align-items: center;
-    justify-content: flex-start;
 }
 
-/* Input */
+/* card title */
+.customer-login-box h2 {
+    margin: 0 0 20px;
+    font-size: 28px;
+    font-weight: 600;
+    color: #1a1a1a;
+    font-family: "Times New Roman", serif;
+}
+
+/* field labels */
+.customer-field-label {
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    color: #2a1a0a;
+    text-align: center;
+    margin: 10px 0 6px;
+    font-family: sans-serif;
+}
+
+/* input fields */
 .customer-input {
-    flex: 1;
-    padding: 8px;
-    font-size: 16px;
-    font-family: "Inriana Sans", sans-serif;
-    background-color: white;
-    border: 1.5px solid #BA3E00;
-    border-radius: 0 5px 5px 0;
-    outline: #BA3E00;
-}
-
-/* Select */
-.customer-select {
     width: 100%;
-    margin: 30px auto 10px;
-    display: block;
-    padding: 8px;
-    font-size: 16px;
-    font-family: "Inriana Sans", sans-serif;
-    background-color: white;
-    color: #BA3E00;
-    border: 1.5px solid #BA3E00;
-    border-radius: 5px;
-    margin-top: -10px;
-    margin-bottom: 1px;
+    padding: 10px;
+    font-size: 15px;
+    background-color: #f0e8d8;
+    border: none;
+    border-radius: 8px;
+    box-sizing: border-box;
     outline: none;
+    margin-bottom: 5px;
 }
 
-/* Button */
+/* continue button */
 .customer-button {
-    display: block;
-    margin: 25px auto 0;
-    padding: 10px 55px;
-    font-family: "inria sans", sans-serif;
-    background-color: white;
-    color: #BA3E00;
-    border-radius: 10px;
-    border: 1.5px solid #BA3E00;
-    cursor: pointer;
+    margin-top: 20px;
+    padding: 12px 40px;
+    font-family: "Times New Roman", serif;
     font-size: 18px;
-    width: 200px;
+    background-color: #8B2E00;
+    color: #f0e8d8;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
 }
 
+/* button hover */
 .customer-button:hover {
-    background-color: #BA3E00;
-    color: #FFF2D8;
+    background-color: #6B2200;
 }
 
+/* back arrow */
 .back-button {
     position: absolute;
     top: 25px;
     left: 25px;
-    background: none;
+    background-color: transparent !important;
     border: none;
+    outline: none;
     font-size: 30px;
     color: #FFF2D8;
     cursor: pointer;
+    padding: 0;
 }
 
+/* back hover */
 .back-button:hover {
     transform: scale(1.2);
 }

@@ -72,7 +72,7 @@ const Starters = () => {
 
     ];
 
-    return <MenuSection title="STARTERS" items={startersItems} />;
+    return <MenuSection title="STARTERS" items={startersItems} category="starters" />;
 };
 
 export default Starters;
