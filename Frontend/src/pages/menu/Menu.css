@@ -1,4 +1,6 @@
 /* Entry point imports from ../styles */
 
-@import "./01-variables.css";
-@import "./02-base.css";
+@import "menu-styles/Variables.css";
+@import "menu-styles/Base.css";
+@import "menu-styles/Header.css";
+@import "menu-styles/Filters.css";
