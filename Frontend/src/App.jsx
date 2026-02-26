@@ -1,8 +1,9 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { SelectRole, CustomerLogin, WaiterLogin, KitchenLogin } from "./pages/auth";
-import Menu from "./pages/menu/Menu.jsx";
-import { Starters, Mains, Desserts, Drinks } from "./pages/menu/sections";
-import OrderSummary from "./pages/menu/OrderSummary.jsx";
+// import Menu from "./pages/menu/Menu.jsx";
+//import { Starters, Mains, Desserts, Drinks } from "./pages/menu/sections";
+//import OrderSummary from "./pages/menu/OrderSummary.jsx";
+import OaxacaMenu from "./pages/menu/Menu";
 
 function App() {
     return (
@@ -15,7 +16,7 @@ function App() {
                 <Route path="/kitchen-login" element={<KitchenLogin />} />
 
                 {/* menu pages*/}
-                <Route path="/menu" element={<Menu />} />
+                <Route path="/menu" element={<OaxacaMenu />} />
                 <Route path="/menu-starters" element={<Starters />} />
                 <Route path="/menu-mains" element={<Mains />} />
                 <Route path="/menu-desserts" element={<Desserts />} />
