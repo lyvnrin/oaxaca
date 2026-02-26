@@ -14,13 +14,13 @@ function CustomerLogin() {
             <div className="customer-login-box">
                 <h2>Customer</h2>
 
-                <p className="customer-field-label">PLEASE ENTER YOUR NAME</p>
+                <p className="customer-field-label">YOUR NAME</p>
                 <input
                     className="customer-input"
                     type="text"
                 />
 
-                <p className="customer-field-label">PLEASE CHOOSE HOW MANY YOU'RE BOOKING FOR</p>
+                <p className="customer-field-label">NUMBER OF GUESTS</p>
                 <input
                     className="customer-input"
                     type="number"
