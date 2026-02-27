@@ -17,9 +17,9 @@ function SecondLanding() {
                 <div className="question-text">ARE YOU A</div>
 
                 <div className="button-group">
-                    <button className="choice-btn">STAFF</button>
+                    <button className="choice-btn">WAITER</button>
                     <span className="or-text">OR</span>
-                    <button className="choice-btn">CHEF</button>
+                    <button className="choice-btn">KITCHEN STAFF</button>
                 </div>
             </div>
         </div>
