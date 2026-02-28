@@ -44,7 +44,9 @@ function KitchenLogin() {
                 <p className="kitchen-field-label">PASSWORD</p>
                 <input className="kitchen-input" type="password" />
 
-                <button className="kitchen-button">Continue</button>
+                <button className="kitchen-button" onClick={() => navigate("/kitchen-dashboard")}>
+                    Continue
+                </button>
             </div>
         </div>
     );

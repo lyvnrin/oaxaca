@@ -1,8 +1,9 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./WaiterDashboard.css";
 
 export default function Dashboard() {
-
+    const navigate = useNavigate();
     const [showNotifications, setShowNotifications] = useState(false);
 
     const notifications = [
@@ -19,6 +20,7 @@ export default function Dashboard() {
 
             {/* header */}
             <div className="dashboard-header">
+                <button className="waiter-back-button" onClick={() => navigate("/waiter-login")}>←</button>
                 <h1 className="dashboard-title">Waiter Dashboard</h1>
 
                 <div className="dashboard-icons">
@@ -35,7 +37,10 @@ export default function Dashboard() {
             {/* notif popup */}
             {showNotifications && (
                 <div className="notifications-popup">
-                    <h2 className="notif-title">Notifications</h2>
+                    <div className="notif-header">
+                        <h2 className="notif-title">Notifications</h2>
+                        <button className="notif-close" onClick={() => setShowNotifications(false)}>✕</button>
+                    </div>
 
                     <div className="notif-list">
                         {notifications.map((n, i) => (

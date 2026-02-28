@@ -2,12 +2,13 @@
     min-height: 100vh;
     background: #A34719;
     font-family: Bahnschrift, Georgia, serif;
+    color: #333;
 }
 
 /*header*/
 .dashboard-header {
     background: #E8DDCC;
-    padding: 25px 40px;
+    padding: 25px 60px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -226,4 +227,18 @@
 
 .notif-item.allergy .notif-status {
     color: #E65100; /* orange */
+}
+
+.notif-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.notif-close {
+    background: none;
+    border: none;
+    font-size: 1rem;
+    cursor: pointer;
+    color: white;
 }
