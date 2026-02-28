@@ -3,7 +3,7 @@ import { SelectRole, CustomerLogin, WaiterLogin, KitchenLogin } from "./pages/au
 // import Menu from "./pages/menu/Menu.jsx";
 //import { Starters, Mains, Desserts, Drinks } from "./pages/menu/sections";
 //import OrderSummary from "./pages/menu/OrderSummary.jsx";
-// import OaxacaMenu from "./pages/menu/Menu";
+
 import FirstLanding from "./pages/auth/FirstLanding";
 
 function App() {
@@ -16,8 +16,10 @@ function App() {
                 <Route path="/waiter-login" element={<WaiterLogin />} />
                 <Route path="/kitchen-login" element={<KitchenLogin />} />
 
+                {/* <Route path="/menu" element={<Menu />} /> */}
+
                 {/* menu pages
-                <Route path="/menu" element={<OaxacaMenu />} />
+                
                 <Route path="/menu-starters" element={<Starters />} />
                 <Route path="/menu-mains" element={<Mains />} />
                 <Route path="/menu-desserts" element={<Desserts />} />
