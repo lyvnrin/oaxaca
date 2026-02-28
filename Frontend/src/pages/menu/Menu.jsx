@@ -178,3 +178,49 @@ function MenuSection({ sectionName, items, isOpen, onToggle }) {
     </div>
   );
 }
+
+// APP ROOT COMPONENT : main structure handling functions, menuData, filter operations
+export default function App() {
+  const [openSection, setOpenSection] = useState(null);
+  const [activeFilters, setActiveFilters] = useState([]);
+  const [excludedAllergens, setExcludedAllergens] = useState([]);
+
+  function handleSectionToggle(sectionName) {
+    setOpenSection((prev) => (prev === sectionName ? null : sectionName));
+  }
+
+  function handleFilterToggle(filter) {
+    setActiveFilters((prev) =>
+      prev.includes(filter) ? prev.filter((f) => f !== filter) : [...prev, filter]
+    );
+  }
+
+  return (
+    <div className="app">
+      <TopActions />
+      <Header tableNumber="Table 10" />
+
+      <main className="main-content">
+        <FilterBar
+          activeFilters={activeFilters}
+          onFilterToggle={handleFilterToggle}
+          excludedAllergens={excludedAllergens}
+          onAllergenChange={setExcludedAllergens}
+        />
+
+        <div className="menu-sections">
+          {Object.entries(MENU_DATA).map(([sectionName, items]) => (
+            <MenuSection
+              key={sectionName}
+              sectionName={sectionName}
+              items={items}
+              isOpen={openSection === sectionName}
+              onToggle={() => handleSectionToggle(sectionName)}
+            />
+          ))}
+        </div>
+      </main>
+    </div>
+  );
+}
+
