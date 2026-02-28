@@ -17,7 +17,7 @@ function TopActions() {
 }
 
 // NAVBAR : cartIcon
-function CartIcon() {
+function CartIcon({ count, onClick }) {
   return (
     <div className="cart-icon" title="View cart">
       <svg
@@ -40,7 +40,7 @@ function CartIcon() {
 }
 
 // NAVBAR : Header components - restaurant title, table number
-function Header({ tableNumber }) {
+function Header({ tableNumber, cartCount, onCartClick }) {
   return (
     <header className="header">
       <span className="table-number">{tableNumber}</span>
@@ -163,8 +163,8 @@ function MenuItemCard({ item, dimmed, onAddToCart }) {
 }
 
 
-// MENU COMPONENTS : menu section components, dropdown
-function MenuSection({ sectionName, items, isOpen, onToggle }) {
+// MENU : menu section components, dropdown
+function MenuSection({ sectionName, items, isOpen, onToggle, matchesFilter, onAddToCart }) {
   return (
     <div className={`menu-section ${isOpen ? "menu-section--open" : ""}`}>
       <button className="section-header" onClick={onToggle}>
@@ -178,11 +178,11 @@ function MenuSection({ sectionName, items, isOpen, onToggle }) {
       {isOpen && (
         <div className="section-items">
           {items.map((item) => (
-            <MenuItemCard key={item.id} item={item} />
+            <MenuItemCard key={item.id} item={item} dimmed={!matchesFilter(item)} onAddToCart={onAddToCart} />
           ))}
         </div>
       )}
-    </div>
+    </div>  
   );
 }
 
