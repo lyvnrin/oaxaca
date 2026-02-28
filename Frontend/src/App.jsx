@@ -5,6 +5,7 @@ import { SelectRole, CustomerLogin, WaiterLogin, KitchenLogin } from "./pages/au
 //import OrderSummary from "./pages/menu/OrderSummary.jsx";
 
 import FirstLanding from "./pages/auth/FirstLanding";
+//import Menu from "./pages/menu/Menu";
 
 function App() {
     return (
