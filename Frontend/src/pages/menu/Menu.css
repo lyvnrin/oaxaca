@@ -6,12 +6,21 @@
   padding: 0;
 }
 
+/* :root {
+  --font-serif: Georgia, "Times New Roman", serif;
+  --font-sans: "Helvetica Neue", Arial, sans-serif;
+} */
+
 body {
   font-family: Georgia, "Times New Roman", serif;
   background-color: #f5f0e8;
   color: #2c2c2c;
   font-size: 15px;
   line-height: 1.5;
+}
+
+body::-webkit-scrollbar {
+  display: none;
 }
 
 button {
@@ -23,12 +32,9 @@ button {
 
 /* ── App wrapper ── */
 .app {
-  max-width: 720px;
-  margin: 0 auto;
+  width: 100%;
   min-height: 100vh;
   background-color: #faf7f2;
-  border-left: 1px solid #e0d9ce;
-  border-right: 1px solid #e0d9ce;
 }
 
 /* ─────────────────────────────────────────────
@@ -200,6 +206,9 @@ button {
 ───────────────────────────────────────────── */
 .allergen-wrapper {
   position: relative;
+  margin-left: auto;
+  padding-left: 16px;
+  border-left: 1px solid #d0c8b8;
 }
 
 .allergen-toggle {
@@ -361,22 +370,13 @@ button {
   overflow-x: auto;
   padding: 14px 16px;
   background-color: #faf7f2;
-  scrollbar-width: thin;
-  scrollbar-color: #d4824a #f0ebe0;
+   
 }
 
 .section-items::-webkit-scrollbar {
-  height: 5px;
+  display: none;    
 }
 
-.section-items::-webkit-scrollbar-track {
-  background: #f0ebe0;
-}
-
-.section-items::-webkit-scrollbar-thumb {
-  background-color: #d4824a;
-  border-radius: 3px;
-}
 
 /* ─────────────────────────────────────────────
    MenuItemCard
@@ -766,4 +766,63 @@ button {
   .modal {
     max-height: 90vh;
   }
+}
+
+/* Hamburger corner popup */
+.hamburger-wrapper {
+  position: relative;
+}
+
+.hamburger-bar {
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+.hamburger--open .hamburger-bar:nth-child(1) {
+  transform: translateY(6px) rotate(45deg);
+}
+.hamburger--open .hamburger-bar:nth-child(2) {
+  opacity: 0;
+}
+.hamburger--open .hamburger-bar:nth-child(3) {
+  transform: translateY(-6px) rotate(-45deg);
+}
+
+.menu-popup-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+}
+
+.menu-popup {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  z-index: 201;
+  background-color: #2c2218;
+  border: 1px solid #4a3f30;
+  border-radius: 6px;
+  min-width: 170px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+}
+
+.menu-popup-item {
+  padding: 13px 18px;
+  font-size: 14px;
+  color: #f0ebe0;
+  text-align: left;
+  background: none;
+  border: none;
+  border-bottom: 1px solid #3d3025;
+  letter-spacing: 0.3px;
+}
+
+.menu-popup-item:last-child {
+  border-bottom: none;
+}
+
+.menu-popup-item:hover {
+  background-color: #3d3025;
+  color: #e8c99a;
 }

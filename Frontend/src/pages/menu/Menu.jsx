@@ -18,8 +18,7 @@ function TopActions() {
 
 // NAVBAR : cartIcon
 function CartIcon({ count, onClick }) {
-  return (
-    <div className="cart-icon" title="View cart">
+  return ( <button className="cart-icon" title="View cart" onClick={onClick}>
       <svg
         width="20"
         height="20"
@@ -35,23 +34,37 @@ function CartIcon({ count, onClick }) {
         <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
       </svg>
       {count > 0 && <span className="cart-badge">{count}</span>}
-    </div>
+    </button>
   );
 }
 
 // NAVBAR : Header components - restaurant title, table number
 function Header({ tableNumber, cartCount, onCartClick }) {
+  const [menuOpen, setMenuOpen] = useState(false);
+
+
   return (
     <header className="header">
       <span className="table-number">{tableNumber}</span>
       <h1 className="restaurant-title">OAXACA</h1>
       <div className="header-right">
         <CartIcon count={cartCount} onClick={onCartClick} />
-        <button className="hamburger" aria-label="Open navigation menu">
+        <div className="hamburger-wrapper">
+        <button className={`hamburger ${menuOpen ? "hamburger--open" : ""}`}
+          aria-label="Open navigation menu"
+          onClick={() => setMenuOpen((v) => !v)} >
           <span className="hamburger-bar" />
           <span className="hamburger-bar" />
           <span className="hamburger-bar" />
         </button>
+        {menuOpen && ( <>
+        <div className="menu-popup-backdrop" onClick={() => setMenuOpen(false)} />
+          <div className="menu-popup">
+            <button className="menu-popup-item" onClick={() => setMenuOpen(false)}>📞 Contact Waiter </button>
+            <button className="menu-popup-item" onClick={() => setMenuOpen(false)}>⚙️ Settings</button>
+          </div> </>
+          )}
+        </div>
       </div>
     </header>
   );
@@ -115,16 +128,13 @@ function FilterBar({ activeFilters, onFilterToggle, excludedAllergens, onAllerge
             </button>
           ))}
         </div>
-      </div>
-
-      <div className="filter-row allergen-row">
         <AllergenDropdown selected={excludedAllergens} onChange={onAllergenChange} />
       </div>
     </div>
   );
 }
 
-// MENU COMPONENTS : menu item card, with names and info
+// MENU : menu item card, with names and info
 function MenuItemCard({ item, dimmed, onAddToCart }) {
   return (
     <div className={`menu-item-card ${dimmed ? "menu-item-card--dimmed" : ""}`}>
@@ -161,7 +171,6 @@ function MenuItemCard({ item, dimmed, onAddToCart }) {
     </div>
   );
 }
-
 
 // MENU : menu section components, dropdown
 function MenuSection({ sectionName, items, isOpen, onToggle, matchesFilter, onAddToCart }) {
@@ -344,7 +353,7 @@ export default function App() {
 
   return (
     <div className="app">
-      <TopActions />
+
       <Header
         tableNumber="Table 10"
         cartCount={cartCount}
@@ -388,4 +397,3 @@ export default function App() {
     </div>
   );
 }
-
