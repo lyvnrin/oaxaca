@@ -1,7 +1,10 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import './Landing.css';
 
 function FirstLanding() {
+    const navigate = useNavigate();
+
     return (
         <div className="container">
             <div className="top-nav">
@@ -17,9 +20,9 @@ function FirstLanding() {
                 <div className="question-text">ARE YOU A</div>
 
                 <div className="button-group">
-                    <button className="choice-btn">CUSTOMER</button>
+                    <button className="choice-btn" onClick={() => navigate('/customer-login')}>CUSTOMER</button>
                     <span className="or-text">OR</span>
-                    <button className="choice-btn">STAFF</button>
+                    <button className="choice-btn" onClick={() => navigate('/staff')}>STAFF</button>
                 </div>
             </div>
         </div>
