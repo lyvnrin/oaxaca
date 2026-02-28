@@ -25,12 +25,8 @@ function App() {
 
                 {/* menu pages */}
                 <Route path="/menu" element={<Menu />} />
-                <Route path="/menu-starters" element={<Starters />} />
-                <Route path="/menu-mains" element={<Mains />} />
-                <Route path="/menu-desserts" element={<Desserts />} />
-                <Route path="/menu-drinks" element={<Drinks />} />
 
-                <Route path="/order-summary" element={<OrderSummary />} />
+                {/* STAFF DASHBOARD PAGES */}
             </Routes>
         </BrowserRouter>
     );
