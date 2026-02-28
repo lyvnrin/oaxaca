@@ -1,9 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { SelectRole, CustomerLogin, WaiterLogin, KitchenLogin } from "./pages/auth";
-// import Menu from "./pages/menu/Menu.jsx";
-//import { Starters, Mains, Desserts, Drinks } from "./pages/menu/sections";
-//import OrderSummary from "./pages/menu/OrderSummary.jsx";
-
+import { CustomerLogin, WaiterLogin, KitchenLogin } from "./pages/auth";
 import FirstLanding from "./pages/auth/FirstLanding";
 import Menu from "./pages/menu/Menu";
 
@@ -11,22 +7,18 @@ function App() {
     return (
         <BrowserRouter>
             <Routes>
-                {/* authorisation pages */}
+                {/* LANDING PAGES */}
                 <Route path="/" element={<FirstLanding />} />
+
+                {/* AUTHORISATION PAGES */}
                 <Route path="/customer-login" element={<CustomerLogin />} />
                 <Route path="/waiter-login" element={<WaiterLogin />} />
                 <Route path="/kitchen-login" element={<KitchenLogin />} />
 
+                {/* MENU PAGE */}
                 <Route path="/menu" element={<Menu />} />
 
-                {/* menu pages
-                
-                <Route path="/menu-starters" element={<Starters />} />
-                <Route path="/menu-mains" element={<Mains />} />
-                <Route path="/menu-desserts" element={<Desserts />} />
-                <Route path="/menu-drinks" element={<Drinks />} /> */}
-
-                {/* <Route path="/order-summary" element={<OrderSummary />} /> */}
+                {/* STAFF DASHBOARD PAGES */}
             </Routes>
         </BrowserRouter>
     );

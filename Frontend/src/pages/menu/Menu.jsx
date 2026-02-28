@@ -6,16 +6,6 @@ import { MENU_DATA } from "./menuData.js";
 const ALLERGEN_OPTIONS = ["Fish", "Soy", "Milk", "Nuts", "Eggs", "Wheat", "Sesame", "Shellfish"];
 const DIET_FILTERS = ["Vegetarian", "Gluten-Free", "Vegan"];
 
-// NAVBAR : icons actions - contact waiter, settings button
-function TopActions() {
-  return (
-    <div className="top-actions">
-      <button className="action-btn">Contact Waiter</button>
-      <button className="action-btn">Settings</button>
-    </div>
-  );
-}
-
 // NAVBAR : cartIcon
 function CartIcon({ count, onClick }) {
   return ( <button className="cart-icon" title="View cart" onClick={onClick}>
@@ -42,7 +32,6 @@ function CartIcon({ count, onClick }) {
 function Header({ tableNumber, cartCount, onCartClick }) {
   const [menuOpen, setMenuOpen] = useState(false);
 
-
   return (
     <header className="header">
       <span className="table-number">{tableNumber}</span>
@@ -50,19 +39,17 @@ function Header({ tableNumber, cartCount, onCartClick }) {
       <div className="header-right">
         <CartIcon count={cartCount} onClick={onCartClick} />
         <div className="hamburger-wrapper">
-        <button className={`hamburger ${menuOpen ? "hamburger--open" : ""}`}
-          aria-label="Open navigation menu"
-          onClick={() => setMenuOpen((v) => !v)} >
+        <button className={`hamburger ${menuOpen ? "hamburger--open" : ""}`} aria-label="Open navigation menu" onClick={() => setMenuOpen((v) => !v)} >
           <span className="hamburger-bar" />
           <span className="hamburger-bar" />
           <span className="hamburger-bar" />
         </button>
         {menuOpen && ( <>
-        <div className="menu-popup-backdrop" onClick={() => setMenuOpen(false)} />
-          <div className="menu-popup">
-            <button className="menu-popup-item" onClick={() => setMenuOpen(false)}>📞 Contact Waiter </button>
-            <button className="menu-popup-item" onClick={() => setMenuOpen(false)}>⚙️ Settings</button>
-          </div> </>
+          <div className="menu-popup-backdrop" onClick={() => setMenuOpen(false)} />
+            <div className="menu-popup">
+              <button className="menu-popup-item" onClick={() => setMenuOpen(false)}>📞 Contact Waiter </button>
+              <button className="menu-popup-item" onClick={() => setMenuOpen(false)}>⚙️ Settings</button>
+            </div> </>
           )}
         </div>
       </div>
@@ -75,33 +62,23 @@ function AllergenDropdown({ selected, onChange }) {
   const [open, setOpen] = useState(false);
 
   function handleToggle(allergen) {
-    if (selected.includes(allergen)) {
-      onChange(selected.filter((a) => a !== allergen));
-    } else {
-      onChange([...selected, allergen]);
+    if (selected.includes(allergen)) { onChange(selected.filter((a) => a !== allergen));
+     } else { onChange([...selected, allergen]);
     }
   }
 
   return (
     <div className="allergen-wrapper">
-      <button
-        className={`allergen-toggle ${selected.length > 0 ? "allergen-toggle--active" : ""}`}
-        onClick={() => setOpen((v) => !v)}
-      >
+      <button className={`allergen-toggle ${selected.length > 0 ? "allergen-toggle--active" : ""}`} onClick={() => setOpen((v) => !v)} >
         <span>Does Not Contain</span>
         {selected.length > 0 && <span className="allergen-count">{selected.length}</span>}
         <span className="dropdown-arrow">{open ? "▲" : "▼"}</span>
       </button>
 
       {open && (
-        <div className="allergen-list">
-          {ALLERGEN_OPTIONS.map((allergen) => (
+        <div className="allergen-list"> {ALLERGEN_OPTIONS.map((allergen) => (
             <label key={allergen} className="allergen-option">
-              <input
-                type="checkbox"
-                checked={selected.includes(allergen)}
-                onChange={() => handleToggle(allergen)}
-              />
+              <input type="checkbox" checked={selected.includes(allergen)} onChange={() => handleToggle(allergen)}/> 
               {allergen}
             </label>
           ))}
@@ -119,11 +96,7 @@ function FilterBar({ activeFilters, onFilterToggle, excludedAllergens, onAllerge
         <span className="filter-label">Show me</span>
         <div className="filter-buttons">
           {DIET_FILTERS.map((filter) => (
-            <button
-              key={filter}
-              className={`filter-btn ${activeFilters.includes(filter) ? "filter-btn--active" : ""}`}
-              onClick={() => onFilterToggle(filter)}
-            >
+            <button key={filter} className={`filter-btn ${activeFilters.includes(filter) ? "filter-btn--active" : ""}`} onClick={() => onFilterToggle(filter)} >
               {filter}
             </button>
           ))}
@@ -150,9 +123,7 @@ function MenuItemCard({ item, dimmed, onAddToCart }) {
         <div className="card-footer">
           {item.dietary.length > 0 && (
             <div className="card-tags">
-              {item.dietary.map((tag) => (
-                <span key={tag} className="diet-tag">{tag}</span>
-              ))}
+              {item.dietary.map((tag) => ( <span key={tag} className="diet-tag">{tag}</span> ))}
             </div>
           )}
           {item.allergens.length > 0 && (
@@ -160,11 +131,8 @@ function MenuItemCard({ item, dimmed, onAddToCart }) {
           )}
           <span className="card-calories">{item.calories}</span>
         </div>
-        <button
-          className="add-to-order-btn"
-          onClick={() => !dimmed && onAddToCart(item)}
-          disabled={dimmed}
-        >
+
+        <button className="add-to-order-btn" onClick={() => !dimmed && onAddToCart(item)} disabled={dimmed} >
           + Add to Order
         </button>
       </div>
@@ -214,9 +182,7 @@ function CartModal({ cart, onClose, onUpdateQty, onRemove, onPlaceOrder }) {
         </div>
 
         {entries.length === 0 ? (
-          <p className="modal-empty">Your order is empty. Add some items from the menu!</p>
-        ) : (
-          <>
+          <p className="modal-empty">Your order is empty. Add some items from the menu!</p> ) : ( <>
             <div className="modal-items">
               {entries.map(({ item, qty }) => {
                 const linePrice = (parseFloat(item.price.replace("£", "")) * qty).toFixed(2);
@@ -269,7 +235,6 @@ function OrderConfirmation() {
     </div>
   );
 }
-
 
 // APP ROOT COMPONENT : main structure handling functions, menuData, filter operations
 export default function App() {
@@ -353,7 +318,6 @@ export default function App() {
 
   return (
     <div className="app">
-
       <Header
         tableNumber="Table 10"
         cartCount={cartCount}
