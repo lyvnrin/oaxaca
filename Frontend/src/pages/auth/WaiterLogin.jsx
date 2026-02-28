@@ -44,7 +44,9 @@ function WaiterLogin() {
                 <p className="waiter-field-label">PASSWORD</p>
                 <input className="waiter-input" type="password" />
 
-                <button className="waiter-button">Continue</button>
+                <button className="waiter-button" onClick={() => navigate("/waiter-dashboard")}>
+                    Continue
+                </button>
             </div>
         </div>
     );
