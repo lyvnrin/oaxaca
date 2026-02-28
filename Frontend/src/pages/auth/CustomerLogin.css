@@ -6,20 +6,20 @@ html, body, #root {
     height: 100%;
 }
 
-/* full page layout */
 .customer-page {
     position: relative;
     width: 100%;
-    height: 100%;
+    height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
-    background: radial-gradient(ellipse at center, #8B3A10 0%, #4a1a08 60%, #2a0d04 100%);
     font-family: "Times New Roman", serif;
+    overflow: hidden;
 }
 
-/* login card */
 .customer-login-box {
+    position: relative;
+    z-index: 1;
     background-color: #E8D5B0;
     width: 280px;
     padding: 30px 25px;
@@ -80,7 +80,6 @@ html, body, #root {
     background-color: #6B2200;
 }
 
-/* back arrow */
 .back-button {
     position: absolute;
     top: 25px;
@@ -92,6 +91,7 @@ html, body, #root {
     color: #FFF2D8;
     cursor: pointer;
     padding: 0;
+    z-index: 1;
 }
 
 /* back hover */

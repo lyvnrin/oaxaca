@@ -40,7 +40,6 @@ function FirstLanding() {
             <div className="content">
                 <h1 className="title">OAXACA</h1>
                 <p className="welcome-text">Bold flavours, vibrant dining. Experience the taste of Mexico.</p>
-                <div className="question-text">ARE YOU A</div>
                 <div className="button-group">
                     <button className="choice-btn" onClick={() => navigate('/customer-login')}>CUSTOMER</button>
                     <span className="or-text">OR</span>
