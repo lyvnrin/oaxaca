@@ -1,0 +1,236 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+    min-height: 100vh;
+    color: white;
+}
+
+.container {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding: 2rem;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Ensure content sits above Grainient */
+.content {
+    position: relative;
+    z-index: 1;
+}
+
+.top-nav {
+    position: absolute;
+    top: 2rem;
+    right: 2rem;
+    display: flex;
+    gap: 2rem;
+    font-weight: 600;
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: white;
+    z-index: 1;
+}
+
+.top-nav span {
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.top-nav span:hover {
+    color: #f0f0f0;
+}
+
+.back-button {
+    position: absolute;
+    top: 25px;
+    left: 25px;
+    background-color: transparent !important;
+    border: none;
+    outline: none;
+    font-size: 30px;
+    color: #FFF2D8;
+    cursor: pointer;
+    padding: 0;
+    z-index: 1;
+}
+
+.back-button:hover {
+    transform: scale(1.2);
+}
+
+/* Main content */
+.content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    margin-top: -5vh;
+    width: 100%;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.title {
+    font-size: 5rem;
+    font-weight: 800;
+    color: white;
+    letter-spacing: -2px;
+    text-transform: uppercase;
+    text-shadow: 3px 3px 0 rgba(0, 0, 0, 0.2);
+    margin-bottom: 1.5rem;
+    line-height: 1;
+}
+
+.welcome-text {
+    font-size: 1.8rem;
+    font-weight: 500;
+    color: white;
+    margin-bottom: 2rem;
+    letter-spacing: 1px;
+    text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.1);
+}
+
+/* "ARE YOU A" text - centered */
+.question-text {
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: white;
+    text-transform: uppercase;
+    margin-bottom: 2rem;
+    letter-spacing: 2px;
+    text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.15);
+    width: 100%;
+    text-align: center;
+}
+
+/* Button container - centered */
+.button-group {
+    display: flex;
+    align-items: center;
+    justify-content: center;  /* Center the entire group */
+    gap: 3rem;
+    flex-wrap: wrap;
+    width: 100%;
+}
+
+.choice-btn {
+    background: #FFF2D8;
+    border: 3px solid white;
+    padding: 1.2rem 3rem;
+    font-size: 2.2rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: black;
+    border-radius: 20px;
+    box-shadow: none;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    min-width: 240px;
+    text-align: center;
+    letter-spacing: 1px;
+    flex: 0 1 auto;  /* Allow buttons to shrink but not grow */
+}
+
+.choice-btn:hover {
+    background: #E8D5B0;
+    border-color: #E8D5B0;
+    color: black;
+    transform: translate(2px, 2px);
+}
+
+/* OR text between buttons - perfectly centered */
+.or-text {
+    font-size: 2.4rem;
+    font-weight: 700;
+    color: white;
+    text-transform: uppercase;
+    text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    flex: 0 0 auto;  /* Don't grow or shrink */
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .title {
+        font-size: 4rem;
+        letter-spacing: -1px;
+    }
+
+    .welcome-text {
+        font-size: 1.6rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .question-text {
+        font-size: 1.8rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .button-group {
+        gap: 2rem;
+    }
+
+    .choice-btn {
+        font-size: 1.8rem;
+        padding: 1rem 2rem;
+        min-width: 200px;
+        border-radius: 15px;
+    }
+
+    .or-text {
+        font-size: 2rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .top-nav {
+        gap: 1rem;
+        font-size: 0.9rem;
+    }
+
+    .title {
+        font-size: 3rem;
+    }
+
+    .welcome-text {
+        font-size: 1.4rem;
+        margin-bottom: 1rem;
+    }
+
+    .question-text {
+        font-size: 1.6rem;
+        margin-bottom: 1rem;
+    }
+
+    .button-group {
+        gap: 1rem;
+        flex-direction: column;
+    }
+
+    .choice-btn {
+        font-size: 1.6rem;
+        padding: 0.8rem 1.2rem;
+        min-width: 180px;
+        border-radius: 12px;
+        margin: 0;
+    }
+
+    .or-text {
+        font-size: 1.8rem;
+        margin: 0.2rem 0;
+    }
+}

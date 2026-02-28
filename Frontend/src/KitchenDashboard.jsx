@@ -1,0 +1,29 @@
+import React from "react";
+import { useNavigate } from "react-router-dom";
+import "./KitchenDashboard.css";
+
+export default function KitchenDashboard() {
+    const navigate = useNavigate();
+
+    return (
+        <div className="kitchen-page">
+            <button className="kitchen-back-button" onClick={() => navigate("/kitchen-login")}>←</button>
+
+            <h2 className="kitchen-title">Kitchen Dashboard</h2>
+
+            <div className="kitchen-board">
+                <div className="kitchen-column">
+                    <div className="column-header">Pending Confirmation</div>
+                </div>
+
+                <div className="kitchen-column">
+                    <div className="column-header">Ready To Prepare</div>
+                </div>
+
+                <div className="kitchen-column">
+                    <div className="column-header">Ready For Service</div>
+                </div>
+            </div>
+        </div>
+    );
+}
