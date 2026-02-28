@@ -6,9 +6,8 @@
 
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
-    background: #f97316;  /* Orange background */
     min-height: 100vh;
-    color: white;  /* All text white */
+    color: white;
 }
 
 .container {
@@ -17,9 +16,15 @@ body {
     flex-direction: column;
     padding: 2rem;
     position: relative;
+    overflow: hidden;
 }
 
-/* Top right navigation */
+/* Ensure content sits above Grainient */
+.content {
+    position: relative;
+    z-index: 1;
+}
+
 .top-nav {
     position: absolute;
     top: 2rem;
@@ -31,6 +36,7 @@ body {
     text-transform: uppercase;
     letter-spacing: 1px;
     color: white;
+    z-index: 1;
 }
 
 .top-nav span {
