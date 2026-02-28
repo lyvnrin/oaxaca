@@ -15,9 +15,7 @@ function SecondLanding() {
 
             <div className="content">
                 <h1 className="title">OAXACA STAFF</h1>
-                <p className="welcome-text">SUBTLE SNAPPY INTRODUCTION TO RESTAURANT</p>
-
-                <div className="question-text">ARE YOU A</div>
+                <p className="welcome-text">Welcome back, let's make today a great service.</p>
 
                 <div className="button-group">
                     <button className="choice-btn" onClick={() => navigate('/waiter-login')}>WAITER</button>
