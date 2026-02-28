@@ -4,7 +4,7 @@ import "./KitchenLogin.css";
 
 function KitchenLogin() {
     const navigate = useNavigate();
-    const goBack = () => navigate("/");
+    const goBack = () => navigate("/staff");
 
     return (
         <div className="kitchen-page">

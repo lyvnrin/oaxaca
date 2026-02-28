@@ -4,7 +4,7 @@ import "./WaiterLogin.css";
 
 function WaiterLogin() {
     const navigate = useNavigate();
-    const goBack = () => navigate("/");
+    const goBack = () => navigate("/staff");
 
     return (
         <div className="waiter-page">
