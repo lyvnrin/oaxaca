@@ -32,6 +32,7 @@ function SecondLanding() {
                 centerY={0.05}
                 zoom={0.9}
             />
+            <button className="back-button" onClick={() => navigate('/')}>←</button>
             <div className="top-nav">
                 <span>ABOUT</span>
                 <span>CONTACT</span>

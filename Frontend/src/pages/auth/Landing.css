@@ -48,6 +48,24 @@ body {
     color: #f0f0f0;
 }
 
+.back-button {
+    position: absolute;
+    top: 25px;
+    left: 25px;
+    background-color: transparent !important;
+    border: none;
+    outline: none;
+    font-size: 30px;
+    color: #FFF2D8;
+    cursor: pointer;
+    padding: 0;
+    z-index: 1;
+}
+
+.back-button:hover {
+    transform: scale(1.2);
+}
+
 /* Main content */
 .content {
     flex: 1;
