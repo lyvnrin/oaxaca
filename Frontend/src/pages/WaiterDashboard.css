@@ -158,3 +158,72 @@
     display: flex;
     gap: 10px;
 }
+
+/* Notif popup */
+
+.notifications-popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 420px;
+    max-height: 70vh;
+    background: #E8DDCC;
+    border: 3px solid #333;
+    border-radius: 10px;
+    padding: 20px;
+    z-index: 999;
+    box-shadow: 0 0 25px rgba(0,0,0,0.4);
+    display: flex;
+    flex-direction: column;
+    animation: fadeIn 0.25s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translate(-50%, -48%); }
+    to   { opacity: 1; transform: translate(-50%, -50%); }
+}
+
+.notif-title {
+    font-size: 1.8rem;
+    margin-bottom: 15px;
+    border-bottom: 2px solid #333;
+    padding-bottom: 5px;
+    text-align: center;
+}
+
+.notif-list {
+    overflow-y: auto;
+    padding-right: 5px;
+    max-height: 55vh;
+}
+
+/* Notification row */
+.notif-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 12px;
+    margin-bottom: 10px;
+    border-radius: 6px;
+    background: #F2E6D5;
+    border: 2px solid #777;
+    font-size: 1rem;
+}
+
+/* Status text */
+.notif-status {
+    font-weight: bold;
+}
+
+/* Color coding */
+.notif-item.ready .notif-status {
+    color: #2E7D32; /* green */
+}
+
+.notif-item.alert .notif-status {
+    color: #B71C1C; /* red */
+}
+
+.notif-item.allergy .notif-status {
+    color: #E65100; /* orange */
+}

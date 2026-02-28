@@ -1,31 +1,63 @@
-import React from "react";
+import React, { useState } from "react";
 import "./WaiterDashboard.css";
 
 export default function Dashboard() {
+
+    const [showNotifications, setShowNotifications] = useState(false);
+
+    const notifications = [
+        { order: "1234", table: "12", status: "Ready For Service", type: "ready" },
+        { order: "1235", table: "7", status: "Ready For Service", type: "ready" },
+        { order: "1236", table: "4", status: "Needs Assistance", type: "alert" },
+        { order: "1237", table: "9", status: "Has Nut Allergy", type: "allergy" },
+        { order: "1238", table: "3", status: "Ready For Service", type: "ready" },
+        { order: "1239", table: "5", status: "Ready For Service", type: "ready" },
+    ];
+
     return (
         <div className="dashboard-page">
 
-            {/*header*/}
+            {/* header */}
             <div className="dashboard-header">
                 <h1 className="dashboard-title">Waiter Dashboard</h1>
 
                 <div className="dashboard-icons">
-                    <button className="icon-button">🔔</button>
+                    <button
+                        className="icon-button"
+                        onClick={() => setShowNotifications(!showNotifications)}
+                    >
+                        🔔
+                    </button>
                     <button className="icon-button">👤</button>
                 </div>
             </div>
 
-            {/*main*/}
+            {/* notif popup */}
+            {showNotifications && (
+                <div className="notifications-popup">
+                    <h2 className="notif-title">Notifications</h2>
+
+                    <div className="notif-list">
+                        {notifications.map((n, i) => (
+                            <div key={i} className={`notif-item ${n.type}`}>
+                                <span>Order {n.order}</span>
+                                <span>Table {n.table}</span>
+                                <span className="notif-status">{n.status}</span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
+
+            {/* main */}
             <div className="dashboard-content">
 
-                {/*left*/}
+                {/* left */}
                 <div className="dashboard-left">
-
                     <div className="panel">
                         <h2 className="panel-title">Active Orders</h2>
 
                         <div className="scroll-area">
-
                             {[1,2,3,4].map((i) => (
                                 <div key={i} className="order-card">
                                     <div className="order-header">
@@ -50,15 +82,14 @@ export default function Dashboard() {
                                     </div>
                                 </div>
                             ))}
-
                         </div>
                     </div>
                 </div>
 
-                {/*right*/}
+                {/* right */}
                 <div className="dashboard-right">
 
-                    {/*orders*/}
+                    {/* orders */}
                     <div className="panel">
                         <h2 className="panel-title">Order Backlog</h2>
 
@@ -70,12 +101,11 @@ export default function Dashboard() {
                         </div>
                     </div>
 
-                    {/*management*/}
+                    {/* management */}
                     <div className="panel">
                         <h2 className="panel-title">Menu Management</h2>
 
                         <div className="scroll-area">
-
                             {[1,2,3].map((i) => (
                                 <div key={i} className="menu-item-card">
 
@@ -101,7 +131,6 @@ export default function Dashboard() {
 
                                 </div>
                             ))}
-
                         </div>
                     </div>
 
