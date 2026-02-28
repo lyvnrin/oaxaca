@@ -13,13 +13,11 @@ function WaiterLogin() {
             <div className="waiter-login-box">
                 <h2>Waiter</h2>
 
-                <p className="waiter-field-label">PLEASE ENTER YOUR<span style={{display: "block", marginTop: "6px"}}>USERNAME</span></p>
+                <p className="waiter-field-label">USERNAME</p>
                 <input
                     className="waiter-input"
                     type="text"
                 />
-
-                <p className="waiter-field-label">AND</p>
 
                 <p className="waiter-field-label">PASSWORD</p>
                 <input
