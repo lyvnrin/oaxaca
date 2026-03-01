@@ -77,6 +77,7 @@ assert not table2.occupied
 # have a customer place an order
 order = customer1.place_order(r, [(1, 2)])
 
+# check all the detailsof the order are correct
 assert order.table_number == customer1.table_number
 assert customer1.current_order == order
-assert order.total_price() = 
+assert order.total_price() == "15.98"
