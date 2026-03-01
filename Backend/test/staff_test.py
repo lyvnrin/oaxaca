@@ -32,7 +32,26 @@ class StaffTests(unittest.TestCase):
     def test_waiter_role(self):
         self.assertEqual(self.waiter.role, Role.WAITER)
 
+# menu tests
+    def test_waiter_can_update_menu_price(self):
+        updated = self.waiter.update_menu_price(self.restaurant, "Margherita Pizza", 9.99)
+        self.assertAlmostEqual(updated.price, 9.99, places=2)
 
+    def test_waiter_can_set_item_unavailable(self):
+        self.waiter.set_item_availability(self.restaurant, 1, False)
+        available_ids = [item.item_id for item in self.restaurant.menu.get_available_items()]
+        self.assertNotIn(1, available_ids)
+
+    def test_order_with_unavailable_item_raises_error(self):
+        self.waiter.set_item_availability(self.restaurant, 1, False)
+        with self.assertRaises(ValueError):
+            self.restaurant.place_order(table_number=1, items=[(1, 1)])
+
+    def test_waiter_can_restore_item_availability(self):
+        self.waiter.set_item_availability(self.restaurant, 1, False)
+        self.waiter.set_item_availability(self.restaurant, 1, True)
+        available_ids = [item.item_id for item in self.restaurant.menu.get_available_items()]
+        self.assertIn(1, available_ids)
 if __name__ == "__main__":
     unittest.main()
 #
