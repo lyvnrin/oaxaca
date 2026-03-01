@@ -1,4 +1,4 @@
-from restaurant import Customer, Table, Restaurant, Payment, Order, menuItem, AlertType, OrderItem
+from restaurant import Customer, Table, Restaurant, Payment, Order, menuItem, AlertType, OrderItem, PaymentStatus
 
 # create a restaurant
 r = Restaurant("Oaxaca", "London") 
@@ -104,3 +104,18 @@ assert order_item.line_total() == 17.98
 order2 = r.place_order(4, [(1, 2), (1, 1)])
 assert order2.total_price() == 26.97
 assert not order2.is_paid()
+
+
+# PAYMENT TESTS
+
+# create a payment that has not been paid
+payment = Payment(order2.order_id, order2.total_price())
+assert payment.status == PaymentStatus.UNPAID
+
+# process the payment
+payment.process()
+assert payment.status == PaymentStatus.PAID
+
+# give an order a payment and check its paid
+order2.payment = payment
+assert order2.is_paid()
