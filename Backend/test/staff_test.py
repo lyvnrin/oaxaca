@@ -32,7 +32,7 @@ class StaffTests(unittest.TestCase):
     def test_waiter_role(self):
         self.assertEqual(self.waiter.role, Role.WAITER)
 
-# menu tests
+# menu test
     def test_waiter_can_update_menu_price(self):
         updated = self.waiter.update_menu_price(self.restaurant, "Margherita Pizza", 9.99)
         self.assertAlmostEqual(updated.price, 9.99, places=2)
