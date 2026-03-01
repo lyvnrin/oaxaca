@@ -25,6 +25,9 @@ r.menu.add_item(menuItem(
     gluten_free=True
 ))
 
+
+# TABLE TTESTS
+
 # create tables
 table1 = Table(1, 4)
 table2 = Table(2, 6)
@@ -41,3 +44,39 @@ table1.assign_customer(customer1)
 assert table1.occupied
 assert table1.current_customer == customer1
 
+# clear the table, check that there is no longer a customer on it
+table1.clear_table()
+assert not table1.occupied
+assert table1.current_customer is None
+
+
+# create a customer and add them to a table
+customer2 = Customer("Bob", table2.table_number)
+table2.assign_customer(customer2)
+
+# check its occupied
+assert table2.occupied
+
+# try add a customer to an occupied table
+try:
+    customer3 = Customer("Dave", table2.table_number)
+    table2.assign_customer(customer3)
+
+    assert False, "Table is occupied"
+
+except ValueError:
+    pass
+
+# check table 2 is empty after clearing it
+table2.clear_table()
+assert not table2.occupied
+
+
+# CUSTOMER TESTS
+
+# have a customer place an order
+order = customer1.place_order(r, [(1, 2)])
+
+assert order.table_number == customer1.table_number
+assert customer1.current_order == order
+assert order.total_price() = 
