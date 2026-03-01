@@ -87,6 +87,40 @@ class CustomerTests(unittest.TestCase):
         self.assertEqual(payment_request["type"], AlertType.PAYMENT_REQUEST)
         self.assertEqual(payment_request["order_id"], order.order_id)
 
+    class OrderTests(unittest.TestCase):
+        def setUp(self):
+            self.restaurant = Restaurant('Oaxaca', 'London')
+            self.restaurant.menu.add_item(menuItem(
+                item_id=1,
+                name="Margherita Pizza",
+                description="Pizza with tomato sauce and mozzarella cheese",
+                price=8.99,
+                calories="700",
+                allergens=["dairy"],
+                vegetarian=True,
+                gluten_free=True
+            ))
+            self.order = self.restaurant.place_order(4, [(1, 2), (1, 1)])
+        def test_payment_initial_status(self):
+            payment = Payment(self.order.order_id, self.order.total_price())
+
+            self.assertEqual(payment.status, PaymentStatus.UNPAID)
+
+        def test_process_payment(self):
+            payment = Payment(self.order.order_id, self.order.total_price())
+            payment.process()
+
+            self.assertEqual(payment.status, PaymentStatus.PAID)
+
+        def test_order_is_paid_after_payment(self):
+            payment = Payment(self.order.order_id, self.order.total_price())
+            payment.process()
+
+            self.order.payment = payment
+
+            self.assertTrue(self.order.is_paid())
+
+
 if __name__ == "__main__":
         unittest.main()
 
