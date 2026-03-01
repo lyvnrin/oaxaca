@@ -1,18 +1,20 @@
 stages:
   - test
-  - Frontend-build
+  - build
 
 backend-test:
   stage: test
+  image: python:3.11
+  before_script:
+    - cd backend
+    - pip install --upgrade pip
+    - pip install -r requirements.txt
   script:
-    - cd Backend
-    - python3 -m venv venv
-    - venv/bin/pip install --upgrade pip
-    - venv/bin/pip install -r requirements.txt
-    - venv/bin/python -m unittest discover
+    - python -m unittest discover -s test -p "*_test.py"
 
 frontend-build:
-  stage: Frontend-build
+  stage: build
+  image: node:20
   before_script:
     - cd Frontend
     - npm install
