@@ -53,6 +53,24 @@ class StaffTests(unittest.TestCase):
         available_ids = [item.item_id for item in self.restaurant.menu.get_available_items()]
         self.assertIn(1, available_ids)
 
+# kitchen queue tests
+    def test_pending_order_appears_in_kitchen_queue(self):
+        order = self.restaurant.place_order(table_number=3, items=[(1, 2)])
+        queue = self.kitchen.get_kitchen_queue(self.restaurant)
+        order_ids = [item["order id: "] for item in queue]
+        self.assertIn(order.order_id, order_ids)
+
+    def test_completed_order_not_in_kitchen_queue(self):
+        order = self.restaurant.place_order(table_number=3, items=[(1, 2)])
+        self.kitchen.mark_in_progress(self.restaurant, order.order_id)
+        self.kitchen.mark_ready(self.restaurant, order.order_id)
+        self.waiter.mark_completed(self.restaurant, order.order_id)
+
+        queue = self.kitchen.get_kitchen_queue(self.restaurant)
+        order_ids = [item["order id: "] for item in queue]
+        self.assertNotIn(order.order_id, order_ids)
+
+    # order time stamps tests
     def test_get_order_time_info_returns_all_timestamps(self):
         order = self.restaurant.place_order(table_number=1, items=[(1, 2)])
         self.waiter.confirm_order(self.restaurant, order.order_id)
