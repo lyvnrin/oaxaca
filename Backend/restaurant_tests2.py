@@ -106,6 +106,14 @@ assert order2.total_price() == 26.97
 assert not order2.is_paid()
 
 
+# statuses
+assert order2.started_at is None
+assert order2.ready_at is None
+assert order2.completed_at is None
+assert order2.cancelled_at is None
+
+
+
 # PAYMENT TESTS
 
 # create a payment that has not been paid
