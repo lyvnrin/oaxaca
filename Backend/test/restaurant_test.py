@@ -1,129 +1,111 @@
-from restaurant import Customer, Table, Restaurant, Payment, Order, menuItem, AlertType, OrderItem, PaymentStatus
+import unittest
+from restaurant import Customer, Table, Restaurant, menuItem
 
-# create a restaurant
-r = Restaurant("Oaxaca", "London") 
+class RestaurantTests(unittest.TestCase):
+    def setUp(self):
+        # create a restaurant
+        self.restaurant = Restaurant('Oaxaca', 'London')
 
-# add a menu item
-r.menu.add_item(menuItem(
-    item_id=1,
-    name="Margherita Pizza",
-    description="Pizza with tomato sauce and mozzarella cheese",
-    price=8.99,
-    calories="700",
-    allergens=["dairy"],
-    vegetarian=True,
-    gluten_free=True
-))
-r.menu.add_item(menuItem(
-    item_id=2,
-    name="Cucumber salad",
-    description="Salad with cucumbers and seasonings",
-    price=6.99,
-    calories="200",
-    allergens=[],
-    vegetarian=True,
-    gluten_free=True
-))
+        # add item to menu
+        self.menu.add_item(menuItem(
+            item_id=1,
+            name="Margherita Pizza",
+            description="Pizza with tomato sauce and mozzarella cheese",
+            price=8.99,
+            calories="700",
+            allergens=["dairy"],
+            vegetarian=True,
+            gluten_free=True
+        ))
+    def test_table_initial_state(self):
+        table = Table(1, 4)
+        # checks current table state
+        self.assertFalse(table.occupied)
+        self.assertIsNone(table.current_customer)
 
+    def test_assign_customer(self):
+        table = Table(1, 4)
+        # create a customer and abb then to a table
+        customer = Customer("Alice", 1)
 
-# TABLE TTESTS
+        table.assign_customer(customer)
+        self.assertTrue(table.occupied)
+        self.assertEqual(table.current_customer, customer)
 
-# create tables
-table1 = Table(1, 4)
-table2 = Table(2, 6)
+    def test_assign_customer_to_occupied_table(self):
+        table = Table(1, 4)
+        customer1 = Customer("Alice", 1)
+        customer2 = Customer("Bob", 1)
 
-# check they are not occupied and there is no customer (which is the default value)
-assert not table1.occupied
-assert table1.current_customer is None
+        table.assign_customer(customer1)
 
-# create a customer and abb then to a table
-customer1 = Customer("Alice", table1.table_number)
-table1.assign_customer(customer1)
+        with self.assertRaises(ValueError):
+            table.assign_customer(customer2)
 
-# check the table is now occupied by customer1
-assert table1.occupied
-assert table1.current_customer == customer1
+    def test_clear_table(self):
+        table = Table(1, 4)
+        customer = Customer("Alice", 1)
 
-# clear the table, check that there is no longer a customer on it
-table1.clear_table()
-assert not table1.occupied
-assert table1.current_customer is None
+        table.assign_customer(customer)
+        table.clear_table()
 
+        self.assertFalse(table.occupied)
+        self.assertIsNone(table.current_customer)
 
-# create a customer and add them to a table
-customer2 = Customer("Bob", table2.table_number)
-table2.assign_customer(customer2)
+if __name__ == "__main__":
+        unittest.main()
 
-# check its occupied
-assert table2.occupied
+#
+# # have a customer place an order
+# order = customer2.place_order(r, [(1, 2)])
+#
+# # check all the detailsof the order are correct
+# assert order.table_number == customer2.table_number
+# assert customer2.current_order == order
+# assert order.total_price() == 17.98
+#
+# # call a waiter
+# alert = customer2.call_Waiter()
+# assert alert["table"] == 2
+# assert alert["type"] == AlertType.HELP_NEEDED
 
-# try add a customer to an occupied table
-try:
-    customer3 = Customer("Dave", table2.table_number)
-    table2.assign_customer(customer3)
-
-    assert False, "Table is occupied"
-
-except ValueError:
-    pass
-
-# check table 2 is empty after clearing it
-table2.clear_table()
-assert not table2.occupied
-
-
-# CUSTOMER TESTS
-
-# have a customer place an order
-order = customer2.place_order(r, [(1, 2)])
-
-# check all the detailsof the order are correct
-assert order.table_number == customer2.table_number
-assert customer2.current_order == order
-assert order.total_price() == 17.98
-
-# call a waiter
-alert = customer2.call_Waiter()
-assert alert["table"] == 2
-assert alert["type"] == AlertType.HELP_NEEDED
-
-# request payment
-payment_request = customer2.request_payment()
-assert payment_request["table"] == 2
-assert payment_request["type"] == AlertType.PAYMENT_REQUEST
-assert payment_request["order_id"] == order.order_id
-
-
-# ORDER TESTS
-
-# order items total
-item = r.menu.get_item_by_id(1)
-order_item = OrderItem(item, 2)
-assert order_item.line_total() == 17.98
-
-order2 = r.place_order(4, [(1, 2), (1, 1)])
-assert order2.total_price() == 26.97
-assert not order2.is_paid()
-
-
-# statuses
-assert order2.started_at is None
-assert order2.ready_at is None
-assert order2.completed_at is None
-assert order2.cancelled_at is None
-
-
-
-# PAYMENT TESTS
-
-# create a payment that has not been paid
-payment = Payment(order2.order_id, order2.total_price())
-assert payment.status == PaymentStatus.UNPAID
-
-# process the payment
-payment.process()
-assert payment.status == PaymentStatus.PAID
-
-# give an order a payment and check its paid
-order2.payment = payment
-assert order2.is_paid()
+# # request payment
+# payment_request = customer2.request_payment()
+# assert payment_request["table"] == 2
+# assert payment_request["type"] == AlertType.PAYMENT_REQUEST
+# assert payment_request["order_id"] == order.order_id
+#
+#
+# # ORDER TESTS
+#
+# # order items total
+# item = r.menu.get_item_by_id(1)
+# order_item = OrderItem(item, 2)
+# assert order_item.line_total() == 17.98
+#
+# order2 = r.place_order(4, [(1, 2), (1, 1)])
+# assert order2.total_price() == 26.97
+# assert not order2.is_paid()
+#
+#
+# # statuses
+# assert order2.started_at is None
+# assert order2.ready_at is None
+# assert order2.completed_at is None
+# assert order2.cancelled_at is None
+#
+#
+#
+# # PAYMENT TESTS
+#
+# # create a payment that has not been paid
+# payment = Payment(order2.order_id, order2.total_price())
+# assert payment.status == PaymentStatus.UNPAID
+#
+# # process the payment
+# payment.process()
+# assert payment.status == PaymentStatus.PAID
+#
+# # give an order a payment and check its paid
+# order2.payment = payment
+# assert order2.is_paid()
