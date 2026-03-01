@@ -174,7 +174,7 @@ const MenuSection = ({title, items, category}) => {
             // Ensure we always have an array
             if (!Array.isArray(data)) data = [];
 
-            // Map backend keys to frontend keys safely
+            // Map backend keys to Frontend keys safely
             data = data.map(item => ({
                 id: item.id,
                 name: item.name || "",

@@ -1,0 +1,26 @@
+stages:
+  - test
+  - Frontend-build
+
+backend-test:
+  stage: test
+  script:
+    - cd Backend
+    - python3 -m venv venv
+    - venv/bin/pip install --upgrade pip
+    - venv/bin/pip install -r requirements.txt
+    - venv/bin/python -m unittest discover
+
+frontend-build:
+  stage: Frontend-build
+  before_script:
+    - cd Frontend
+    - npm install
+  script:
+    - npm run build
+  artifacts:
+    paths:
+      - Frontend/dist/
+  cache:
+    paths:
+      - Frontend/node_modules/
