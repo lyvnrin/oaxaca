@@ -1,4 +1,4 @@
-from restaurant import Customer, Table, Restaurant, Payment, Order, menuItem
+from restaurant import Customer, Table, Restaurant, Payment, Order, menuItem, AlertType
 
 # create a restaurant
 r = Restaurant("Oaxaca", "London") 
@@ -15,7 +15,7 @@ r.menu.add_item(menuItem(
     gluten_free=True
 ))
 r.menu.add_item(menuItem(
-    item_id=1,
+    item_id=2,
     name="Cucumber salad",
     description="Salad with cucumbers and seasonings",
     price=6.99,
@@ -75,9 +75,20 @@ assert not table2.occupied
 # CUSTOMER TESTS
 
 # have a customer place an order
-order = customer1.place_order(r, [(1, 2)])
+order = customer2.place_order(r, [(1, 2)])
 
 # check all the detailsof the order are correct
-assert order.table_number == customer1.table_number
-assert customer1.current_order == order
-assert order.total_price() == "15.98"
+assert order.table_number == customer2.table_number
+assert customer2.current_order == order
+assert order.total_price() == 17.98
+
+# call a waiter
+alert = customer2.call_Waiter()
+assert alert["table"] == 2
+assert alert["type"] == AlertType.HELP_NEEDED
+
+# request payment
+payment_request = customer2.request_payment()
+assert payment_request["table"] == 2
+assert payment_request["type"] == AlertType.PAYMENT_REQUEST
+assert payment_request["order_id"] == order.order_id
