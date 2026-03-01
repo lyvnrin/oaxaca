@@ -18,6 +18,7 @@ class StaffTests(unittest.TestCase):
         self.kitchen = self.restaurant.create_staff("Alice", "pass", Role.KITCHEN_STAFF)
         self.waiter = self.restaurant.create_staff("Bob", "pass", Role.WAITER)
 
+    # kitchen creation tests
     def test_get_staff_by_role_kitchen(self):
         kitchen_staff = self.restaurant.get_staff_by_role(Role.KITCHEN_STAFF)
         self.assertEqual(len(kitchen_staff), 1)
@@ -53,8 +54,28 @@ class StaffTests(unittest.TestCase):
         available_ids = [item.item_id for item in self.restaurant.menu.get_available_items()]
         self.assertIn(1, available_ids)
 
-    # cancellation tests
+    # menu management tests
+    def test_waiter_can_update_menu_price(self):
+        updated = self.waiter.update_menu_price(self.restaurant, "Margherita Pizza", 9.99)
+        self.assertAlmostEqual(updated.price, 9.99, places=2)
 
+    def test_waiter_can_set_item_unavailable(self):
+        self.waiter.set_item_availability(self.restaurant, 1, False)
+        available_ids = [item.item_id for item in self.restaurant.menu.get_available_items()]
+        self.assertNotIn(1, available_ids)
+
+    def test_order_with_unavailable_item_raises_error(self):
+        self.waiter.set_item_availability(self.restaurant, 1, False)
+        with self.assertRaises(ValueError):
+            self.restaurant.place_order(table_number=1, items=[(1, 1)])
+
+    def test_waiter_can_restore_item_availability(self):
+        self.waiter.set_item_availability(self.restaurant, 1, False)
+        self.waiter.set_item_availability(self.restaurant, 1, True)
+        available_ids = [item.item_id for item in self.restaurant.menu.get_available_items()]
+        self.assertIn(1, available_ids)
+
+    # cancellation tests
     def test_cancel_completed_order_raises_error(self):
         order = self.restaurant.place_order(table_number=2, items=[(1, 1)])
         self.kitchen.mark_in_progress(self.restaurant, order.order_id)
