@@ -52,84 +52,22 @@ class StaffTests(unittest.TestCase):
         self.waiter.set_item_availability(self.restaurant, 1, True)
         available_ids = [item.item_id for item in self.restaurant.menu.get_available_items()]
         self.assertIn(1, available_ids)
+
+    def test_get_order_time_info_returns_all_timestamps(self):
+        order = self.restaurant.place_order(table_number=1, items=[(1, 2)])
+        self.waiter.confirm_order(self.restaurant, order.order_id)
+        self.kitchen.mark_ready(self.restaurant, order.order_id)
+        self.waiter.mark_completed(self.restaurant, order.order_id)
+
+        time_info = self.waiter.get_order_time_info(self.restaurant, order.order_id)
+        self.assertIsNotNone(time_info["created_at"])
+        self.assertIsNotNone(time_info["started_at"])
+        self.assertIsNotNone(time_info["ready_at"])
+        self.assertIsNotNone(time_info["completed_at"])
+
+    def test_get_order_time_info_invalid_id_raises_error(self):
+        with self.assertRaises(ValueError):
+            self.waiter.get_order_time_info(self.restaurant, 999)
+
 if __name__ == "__main__":
     unittest.main()
-#
-# # updating prices as a waiter
-# updated = waiter.update_menu_price(r, "Margherita Pizza", 9.99)
-# assert updated.price == 9.99, "Failed to update price"
-#
-# # setting item availability as a waiter
-# ok = waiter.set_item_availability(r, 1, False)   # item_id=1
-# assert ok is True, "Failed to set availability"
-# assert all(i.item_id != 1 for i in r.menu.get_available_items()), \
-#     "Item not available"
-#
-#
-# # customer ordering a currently unavailable item should fail
-# try:
-#     r.place_order(table_number=12, items=[(1, 2)])
-#     assert False, "ERROR: order should not have been placed"
-# except ValueError as e:
-#     pass
-#
-# # changing availability back to True should allow ordering again
-# waiter.set_item_availability(r, 1, True)
-# found = False
-# for i in r.menu.get_available_items():
-#     if i.item_id == 1:
-#         found = True
-#         break
-#
-# assert found, "Item not found"
-#
-# # place a valid order
-# order = r.place_order(table_number=12, items=[(1, 2)])
-# assert order.total_price() == 9.99 * 2, "Wrong total price"
-# assert order.status == OrderStatus.PENDING, "Order is not pending"
-#
-# # create table
-# t1 = Table(1, 4)
-# print("Table:", t1)
-#
-# # check initial state
-# assert t1.occupied is False
-# assert t1.current_customer is None
-# print("Initial state is correct")
-#
-# # assign a customer to a table
-# cust1 = Customer("John Doe", 1)
-# t1.assign_customer(cust1)
-#
-# # trying to assign another customer to the same table should raise an error
-# try:
-#     cust2 = Customer("Jane Smith", 1)
-#     t1.assign_customer(cust2)
-#     print("ERROR: should not have been able to assign second customer to occupied table")
-# except ValueError as e:
-#     print("Expected error when assigning second customer to occupied table:", e)
-#
-# t1.clear_table()
-#
-# # check state after clearing
-# assert t1.occupied is False
-# assert t1.current_customer is None
-# print("Clear table OK")
-#
-# # placing an order
-# order2 = r.place_order(table_number=13, items=[(1, 1)])
-# assert order2.total_price() == 9.99 * 1, "Wrong total price for order2"
-# assert order2.status == OrderStatus.PENDING, "Order2 is not pending"
-#
-# # tests payment processing
-# customer = Customer("Tyler", 5)
-# order = customer.place_order(r, [(1, 2)])
-#
-# payment = r.process_payment(order.order_id)
-#
-# assert payment.status == PaymentStatus.PAID
-# assert order.payment.status == PaymentStatus.PAID
-# assert order.is_paid() is True
-#
-#
-# print("All tests passed!")
