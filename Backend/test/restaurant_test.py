@@ -20,13 +20,11 @@ class RestaurantTests(unittest.TestCase):
         ))
     def test_table_initial_state(self):
         table = Table(1, 4)
-        # checks current table state
         self.assertFalse(table.occupied)
         self.assertIsNone(table.current_customer)
 
     def test_assign_customer(self):
         table = Table(1, 4)
-        # create a customer and abb then to a table
         customer = Customer("Alice", 1)
 
         table.assign_customer(customer)
@@ -52,6 +50,42 @@ class RestaurantTests(unittest.TestCase):
 
         self.assertFalse(table.occupied)
         self.assertIsNone(table.current_customer)
+
+class CustomerTests(unittest.TestCase):
+    def setUp(self):
+        self.restaurant = Restaurant('Oaxaca', 'London')
+        self.restaurant.menu.add_item(menuItem(
+            item_id=1,
+            name="Margherita Pizza",
+            description="Pizza with tomato sauce and mozzarella cheese",
+            price=8.99,
+            calories="700",
+            allergens=["dairy"],
+            vegetarian=True,
+            gluten_free=True
+        ))
+        self.customer = Customer("Bob", 2)
+
+    def test_place_order(self):
+        order = self.customer.place_order(self.restaurant, [(1, 2)])
+
+        self.assertEqual(order.table_number, self.customer.table_number)
+        self.assertEqual(self.customer.current_order, order)
+        self.assertAlmostEqual(order.total_price(), 17.98, places=2)
+
+    def test_call_waiter(self):
+        alert = self.customer.call_Waiter()
+
+        self.assertEqual(alert["table"], 2)
+        self.assertEqual(alert["type"], AlertType.HELP_NEEDED)
+
+    def test_request_payment(self):
+        order = self.customer.place_order(self.restaurant, [(1, 2)])
+        payment_request = self.customer.request_payment()
+
+        self.assertEqual(payment_request["table"], 2)
+        self.assertEqual(payment_request["type"], AlertType.PAYMENT_REQUEST)
+        self.assertEqual(payment_request["order_id"], order.order_id)
 
 if __name__ == "__main__":
         unittest.main()
