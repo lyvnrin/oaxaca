@@ -1,10 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { CustomerLogin, WaiterLogin, KitchenLogin, FirstLanding, SecondLanding } from "./pages/auth";
 import Menu from "./pages/menu/Menu.jsx";
-import { Starters, Mains, Desserts, Drinks } from "./pages/menu/sections";
-import OrderSummary from "./pages/menu/OrderSummary.jsx";
-import WaiterDashboard from "./pages/WaiterDashboard.jsx";
-import KitchenDashboard from "./KitchenDashboard.jsx";
+import { KitchenDashboard, WaiterDashboard } from "./pages/staff";
 
 function App() {
     return (
