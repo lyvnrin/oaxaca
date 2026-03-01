@@ -21,20 +21,6 @@ r.menu.add_item(menuItem(
 kitchen = r.create_staff("Alice", "pass", Role.KITCHEN_STAFF)
 waiter = r.create_staff("Bob", "pass", Role.WAITER)
 
-# Get staff by role
-kitchen_staff = r.get_staff_by_role(Role.KITCHEN_STAFF)
-assert len(kitchen_staff) == 1
-
-waiters = r.get_staff_by_role(Role.WAITER)
-assert len(waiters) == 1
-
-
-assert kitchen.role == Role.KITCHEN_STAFF
-assert waiter.role == Role.WAITER
-
-# Updating prices as a waiter
-updated = waiter.update_menu_price(r, "Margherita Pizza", 9.99)
-assert updated.price == 9.99, "Failed to update price"
 
 # Change availability
 waiter.set_item_availability(r, 1, False)
@@ -86,15 +72,6 @@ kitchen.mark_ready(r, order2.order_id)
 
 # Waiter marks order as completed
 waiter.mark_completed(r, order2.order_id)
-
-# Try cancelling a completed order
-error = False
-try:
-    waiter.cancel_order(r, order2.order_id)
-except ValueError:
-    error = True
-
-assert error, "Order cannot be canceled"
 
 
 

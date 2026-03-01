@@ -32,7 +32,7 @@ class StaffTests(unittest.TestCase):
     def test_waiter_role(self):
         self.assertEqual(self.waiter.role, Role.WAITER)
 
-# menu test
+    # menu test
     def test_waiter_can_update_menu_price(self):
         updated = self.waiter.update_menu_price(self.restaurant, "Margherita Pizza", 9.99)
         self.assertAlmostEqual(updated.price, 9.99, places=2)
@@ -53,7 +53,18 @@ class StaffTests(unittest.TestCase):
         available_ids = [item.item_id for item in self.restaurant.menu.get_available_items()]
         self.assertIn(1, available_ids)
 
-# kitchen queue tests
+    # cancellation tests
+
+    def test_cancel_completed_order_raises_error(self):
+        order = self.restaurant.place_order(table_number=2, items=[(1, 1)])
+        self.kitchen.mark_in_progress(self.restaurant, order.order_id)
+        self.kitchen.mark_ready(self.restaurant, order.order_id)
+        self.waiter.mark_completed(self.restaurant, order.order_id)
+
+        with self.assertRaises(ValueError):
+            self.waiter.cancel_order(self.restaurant, order.order_id)
+
+    # kitchen queue tests
     def test_pending_order_appears_in_kitchen_queue(self):
         order = self.restaurant.place_order(table_number=3, items=[(1, 2)])
         queue = self.kitchen.get_kitchen_queue(self.restaurant)
