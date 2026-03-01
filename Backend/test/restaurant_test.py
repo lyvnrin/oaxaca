@@ -1,5 +1,6 @@
 import unittest
-from restaurant import Customer, Table, Restaurant, menuItem
+from restaurant import Customer, Table, Restaurant, menuItem, OrderItem, Payment, PaymentStatus, AlertType
+
 
 class RestaurantTests(unittest.TestCase):
     def setUp(self):
@@ -7,7 +8,7 @@ class RestaurantTests(unittest.TestCase):
         self.restaurant = Restaurant('Oaxaca', 'London')
 
         # add item to menu
-        self.menu.add_item(menuItem(
+        self.restaurant.menu.add_item(menuItem(
             item_id=1,
             name="Margherita Pizza",
             description="Pizza with tomato sauce and mozzarella cheese",
