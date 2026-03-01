@@ -11,5 +11,5 @@ def api_menu(category: str, role: str = None, vegetarian: bool = None, gluten_fr
 def health():
     return {
         "status": "ok",
-        "service": "restaurant-backend"
+        "service": "restaurant-Backend"
     }
