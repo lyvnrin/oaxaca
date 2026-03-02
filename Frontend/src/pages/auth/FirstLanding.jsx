@@ -9,7 +9,7 @@ function FirstLanding() {
     return (
         <div className="landing-wrapper">
 
-            {/* ── HERO SECTION ── */}
+            {/* LANDING : HERO SECTION*/}
             <section className="container">
                 <Grainient
                     color1="#781111" color2="#b94609" color3="#9a0e0e"
@@ -22,13 +22,11 @@ function FirstLanding() {
                     centerX={-0.09} centerY={0.05} zoom={0.9}
                 />
 
-                <div className="top-nav">
-                    
-                    
-                    <a className="nav-link staff-nav-link" href="/staff">STAFF</a>
+                <div className="top-nav"> 
+                    <a className="nav-link" href="#about">ABOUT</a>
+                    <a className="nav-link" href="#footer">CONTACT</a>
+                    <a className="nav-link" href="/staff">STAFF</a>
                     <a className="nav-link" href="/settings">SETTINGS</a>
-                    <a className="nav-link" href="#about">about</a>
-                    <a className="nav-link" href="#footer">contact</a>
                     
                 </div>
 
@@ -64,18 +62,12 @@ function FirstLanding() {
                     <p className="about-eyebrow">OUR STORY</p>
                     <h2 className="about-heading">Where Mexico Comes Alive</h2>
                     <p className="about-body">
-                        Rooted in the rich culinary traditions of Oaxaca, we bring the warmth of
-                        Mexican culture to every plate. From slow-braised meats to hand-pressed
-                        tortillas, every dish is a celebration of bold spice, fresh ingredients,
-                        and generations of craft.
+                        Rooted in the rich culinary traditions of Oaxaca, we bring the warmth of Mexican culture to every plate. From low-braised meats to hand-pressed tortillas, every dish is a celebration of bold spice, fresh ingredients, and generations of craft.
                     </p>
                     <p className="about-body">
-                        Whether you're joining us for a casual lunch or a late-night feast,
-                        our doors are always open — and the mole is always on.
+                        Whether you're joining us for a casual lunch or a late-night feast, our doors are always open. (And the mole is always on).
                     </p>
-                    <button className="book-btn" onClick={() => navigate('/customer-login')}>
-                        BOOK NOW
-                    </button>
+                    <button className="book-btn" onClick={() => navigate('/customer-login')}> BOOK NOW</button>
                 </div>
             </section>
 
