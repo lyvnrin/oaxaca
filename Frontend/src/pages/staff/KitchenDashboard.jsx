@@ -68,7 +68,10 @@ export default function KitchenDashboard() {
           </div>
 
           <div className="kitchen-column">
-            <div className="column-header">Ready to Prepare</div>
+             <div className="column-header">Ready to Prepare</div>
+           <div className="order-card">
+             <div className="order-pill">Order ###</div>
+          </div>
           </div>
 
           <div className="kitchen-column">
