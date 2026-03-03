@@ -93,8 +93,19 @@ export default function KitchenDashboard() {
               <span>Total</span>
               <span>£00.00</span>
           </div>
-          </div>
+        <div className="order-footer">
+        <div className="order-id">
+          <div>Order ID</div>
+          <div>000000000</div>
         </div>
+
+        <div className="order-actions">
+          <button className="cancel-btn">Cancel</button>
+         <button className="prepare-btn">Ready For Service</button>
+        </div>
+      </div>
+        </div>
+    </div>
 
           <div className="kitchen-column">
             <div className="column-header">Ready To Deliver</div>
