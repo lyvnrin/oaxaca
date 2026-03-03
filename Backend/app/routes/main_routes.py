@@ -46,6 +46,6 @@ def health():
 
 =======
         "status": "ok",
-        "service": "restaurant-backend"
+        "service": "restaurant-Backend"
     }
 >>>>>>> main

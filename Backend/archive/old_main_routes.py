@@ -12,5 +12,5 @@
 # def health():
 #     return jsonify({
 #         "status": "ok",
-#         "service": "restaurant-backend",
+#         "service": "restaurant-Backend",
 #     })

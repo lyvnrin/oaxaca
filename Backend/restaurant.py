@@ -322,20 +322,20 @@ class Waiter(Staff):
             raise ValueError(f"Order {order_id} was not found")
 
         time_info = {
-            "Order was created at ": order.created_at
+            "created_at": order.created_at
         }
 
         if order.started_at is not None:
-            time_info["Order was started at "] = order.started_at
+            time_info["started_at"] = order.started_at
 
         if order.ready_at is not None:
-            time_info["Order ready at "] = order.ready_at
+            time_info["ready_at"] = order.ready_at
 
         if order.completed_at is not None:
-            time_info["Order completed at "] = order.completed_at
+            time_info["completed_at"] = order.completed_at
 
         if order.cancelled_at is not None:
-            time_info["Order cancelled at "] = order.cancelled_at
+            time_info["cancelled_at"] = order.cancelled_at
 
         return time_info  # implemented retrieving order time info
 

@@ -25,7 +25,7 @@ const MenuSection = ({title, items, category}) => {
     const [tempSelectedDiets, setTempSelectedDiets] = useState([]);
     const [tempSelectedAllergies, setTempSelectedAllergies] = useState([]);
 
-    // Flag to prevent local useEffect overwriting Python backend results
+    // Flag to prevent local useEffect overwriting Python Backend results
     const [backendFiltered, setBackendFiltered] = useState(false);     
 
     // order summary
@@ -174,7 +174,7 @@ const MenuSection = ({title, items, category}) => {
             // Ensure we always have an array
             if (!Array.isArray(data)) data = [];
 
-            // Map backend keys to frontend keys safely
+            // Map Backend keys to Frontend keys safely
             data = data.map(item => ({
                 id: item.id,
                 name: item.name || "",
