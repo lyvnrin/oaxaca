@@ -1,20 +1,9 @@
-* {
-  box-sizing: border-box;
-}
-
-html,
-body {
-  height: 100%;
-  margin: 0;
-  overflow: hidden; 
-}
-
 /* Page */
 .kitchen-page {
-  height: 100vh; 
+  height: 100vh;
   background: oldlace;
   font-family: Georgia, "Times New Roman", serif;
-  overflow: hidden; 
+  overflow: hidden;
 }
 
 /* Navbar (fixed at top) */
@@ -32,7 +21,7 @@ body {
   padding: 10px 24px;
   background: #f3d7b6;
   border-bottom: 4px solid #e67e22;
-  height: 80px; 
+  height: 80px;
 }
 
 .nav-brand {
@@ -60,7 +49,7 @@ body {
 
 .kitchen-content {
   height: calc(100vh - 80px);
-  margin-top: 80px; /* same as navbar height */
+  margin-top: 80px;
   width: 95%;
   margin-left: auto;
   margin-right: auto;
@@ -69,7 +58,7 @@ body {
   flex-direction: column;
   gap: 14px;
   padding: 14px 0;
-  overflow: hidden; /* no page scroll */
+  overflow: hidden;
 }
 
 /* Board takes most of the screen */
@@ -91,7 +80,7 @@ body {
 
   display: flex;
   flex-direction: column;
-  overflow: hidden; 
+  overflow: hidden;
 }
 
 .column-header {
@@ -227,6 +216,7 @@ body {
   overflow-y: auto;
   padding-right: 6px;
 }
+
 .confirm-btn {
   margin-top: 10px;
   background: darkseagreen;
@@ -317,6 +307,7 @@ body {
 .stat-orange {
   background: rgb(63, 205, 84);
 }
+
 .toast {
   background: #2e8b57;
   color: white;
@@ -331,15 +322,4 @@ body {
   color: rgb(105, 105, 105);
   font-size: 13px;
   padding: 8px 4px;
-}
-
-.confirm-btn {
-  margin-top: 10px;
-  background: darkseagreen;
-  color: white;
-  border: none;
-  padding: 8px 14px;
-  border-radius: 10px;
-  font-weight: bold;
-  cursor: pointer;
 }
