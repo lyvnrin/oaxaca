@@ -85,6 +85,10 @@ export default function KitchenDashboard() {
           </div>
             <div className="row-price">£00.00</div>
           </div>
+          <div className="order-notes">
+             <div>Allergies: -----------</div>
+             <div>Preferences: -----------</div>
+          </div>
           </div>
         </div>
 
