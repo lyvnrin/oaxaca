@@ -78,8 +78,15 @@ export default function KitchenDashboard() {
                  </div>
                 <div className="row-price">£00.00</div>
                  </div>
-            </div>
+          <div className="order-row">
+             <div className="row-left">
+             <div className="item-name">Item Name: xxxx</div>
+            <div className="qty-pill">Qty: 00</div>
           </div>
+            <div className="row-price">£00.00</div>
+          </div>
+          </div>
+        </div>
 
           <div className="kitchen-column">
             <div className="column-header">Ready To Deliver</div>
