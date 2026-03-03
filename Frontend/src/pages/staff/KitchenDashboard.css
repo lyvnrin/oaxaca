@@ -47,9 +47,8 @@
   cursor: pointer;
 }
 
-
 .kitchen-content {
-  padding-top: 115px; 
+  padding-top: 115px;
   width: 95%;
   margin: 0 auto;
   padding-bottom: 24px;
@@ -81,7 +80,7 @@
   margin-bottom: 16px;
 }
 
-/* Card */
+/* Main order card */
 .order-card {
   background: #fffaf3;
   border: 2px solid black;
@@ -188,6 +187,54 @@
   cursor: pointer;
 }
 
+
+.column-scroll {
+  max-height: 460px;
+  overflow-y: auto;
+  padding-right: 6px;
+}
+
+.compact-card {
+  background: #fffaf3;
+  border: 2px solid gray;
+  border-radius: 10px;
+  padding: 12px;
+  margin-bottom: 12px;
+}
+
+.table-title {
+  font-weight: 900;
+  font-size: 18px;
+  margin-bottom: 4px;
+}
+
+.table-time {
+  font-size: 13px;
+  color: dimgray;
+  margin-bottom: 10px;
+}
+
+.compact-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+}
+
+.compact-qty {
+  font-weight: 700;
+}
+
+.delivered-btn {
+  margin-top: 10px;
+  background: darkseagreen;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
 /* Bottom stats */
 .kitchen-stats {
   margin-top: 18px;
@@ -213,4 +260,21 @@
 .stat-value {
   font-size: 22px;
   font-weight: 900;
+}
+
+
+.stat-gray {
+  background: lightgray;
+}
+
+.stat-green {
+  background: darkseagreen;
+}
+
+.stat-red {
+  background: indianred;
+}
+
+.stat-orange {
+  background: peru;
 }
