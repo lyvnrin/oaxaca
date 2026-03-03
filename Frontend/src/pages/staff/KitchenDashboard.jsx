@@ -104,14 +104,17 @@ export default function KitchenDashboard() {
          <button className="prepare-btn">Ready For Service</button>
         </div>
       </div>
-        </div>
-    </div>
+       </div>
+     </div>
 
-          <div className="kitchen-column">
-            <div className="column-header">Ready To Deliver</div>
+        <div className="kitchen-column">
+          <div className="column-header">Ready To Deliver</div>
+
+            <div className="order-card">
+            <div className="order-pill">Order ###</div>
           </div>
         </div>
-
+</div>
         {/* Bottom features/stats component */}
         <div className="kitchen-stats">
           <div className="stat-card">
