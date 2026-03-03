@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Grainient from '../../components/Grainient';
 import './Landing.css';
 
-function FirstLanding() {
+function Landing() {
     const navigate = useNavigate();
 
     return (
@@ -104,4 +104,4 @@ function FirstLanding() {
     );
 }
 
-export default FirstLanding;
+export default Landing;

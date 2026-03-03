@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { CustomerLogin, WaiterLogin, KitchenLogin, FirstLanding, SecondLanding } from "./pages/auth";
+import { CustomerLogin, WaiterLogin, KitchenLogin, Landing, StaffLanding } from "./pages/auth";
 import Menu from "./pages/menu/Menu.jsx";
 import { KitchenDashboard, WaiterDashboard } from "./pages/staff";
 
@@ -8,8 +8,8 @@ function App() {
         <BrowserRouter>
             <Routes>
                 {/* landing pages */}
-                <Route path="/" element={<FirstLanding />} />
-                <Route path="/staff" element={<SecondLanding />} />
+                <Route path="/" element={<Landing />} />
+                <Route path="/staff" element={<StaffLanding />} />
 
                 {/* login pages */}
                 <Route path="/customer-login" element={<CustomerLogin />} />
