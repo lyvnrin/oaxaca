@@ -18,51 +18,59 @@ export default function KitchenDashboard() {
         <div className="kitchen-board">
 
           {/* Pending Confirmation */}
-          <div className="kitchen-column">
-            <div className="column-header">Pending Confirmation</div>
+<div className="kitchen-column">
+  <div className="column-header">Pending Confirmation</div>
 
-            <div className="order-card">
-              <div className="order-pill">Order ###</div>
+  <div className="column-scroll">
 
-              <div className="order-row">
-                <div className="row-left">
-                  <div className="item-name">Item Name: xxxx</div>
-                  <div className="qty-pill">Qty: 00</div>
-                </div>
-                <div className="row-price">£00.00</div>
-              </div>
+    <div className="compact-card">
+      <div className="table-title">Table XX</div>
+      <div className="table-time">xx minutes ago</div>
 
-              <div className="order-row">
-                <div className="row-left">
-                  <div className="item-name">Item Name: xxxx</div>
-                  <div className="qty-pill">Qty: 00</div>
-                </div>
-                <div className="row-price">£00.00</div>
-              </div>
+      <div className="compact-row">
+        <span>Item name</span>
+        <span className="compact-qty">Qty: xx</span>
+      </div>
 
-              <div className="order-notes">
-                <div>Allergies: -----------</div>
-                <div>Preferences: -----------</div>
-              </div>
+      <div className="compact-row">
+        <span>Item name</span>
+        <span className="compact-qty">Qty: xx</span>
+      </div>
 
-              <div className="order-total">
-                <span>Total</span>
-                <span>£00.00</span>
-              </div>
+      <button className="confirm-btn">Confirm Order</button>
+    </div>
 
-              <div className="order-footer">
-                <div className="order-id">
-                  <div>Order ID</div>
-                  <div>000000000</div>
-                </div>
+    <div className="compact-card">
+      <div className="table-title">Table XX</div>
+      <div className="table-time">xx minutes ago</div>
 
-                <div className="order-actions">
-                  <button className="cancel-btn">Cancel</button>
-                  <button className="prepare-btn">Prepare</button>
-                </div>
-              </div>
-            </div>
-          </div>
+      <div className="compact-row">
+        <span>Item name</span>
+        <span className="compact-qty">Qty: xx</span>
+      </div>
+
+      <div className="compact-row">
+        <span>Item name</span>
+        <span className="compact-qty">Qty: xx</span>
+      </div>
+
+      <button className="confirm-btn">Confirm Order</button>
+    </div>
+
+    <div className="compact-card">
+      <div className="table-title">Table XX</div>
+      <div className="table-time">xx minutes ago</div>
+
+      <div className="compact-row">
+        <span>Item name</span>
+        <span className="compact-qty">Qty: xx</span>
+      </div>
+
+      <button className="confirm-btn">Confirm Order</button>
+    </div>
+
+  </div>
+</div>
 
           {/* Ready to Prepare */}
           <div className="kitchen-column">

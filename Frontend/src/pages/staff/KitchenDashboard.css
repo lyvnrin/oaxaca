@@ -227,6 +227,16 @@ body {
   overflow-y: auto;
   padding-right: 6px;
 }
+.confirm-btn {
+  margin-top: 10px;
+  background: darkseagreen;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 10px;
+  font-weight: bold;
+  cursor: pointer;
+}
 
 /* Compact cards */
 .compact-card {
@@ -301,9 +311,9 @@ body {
 }
 
 .stat-red {
-  background: indianred;
+  background: rgb(38, 61, 176);
 }
 
 .stat-orange {
-  background: peru;
+  background: rgb(63, 205, 84);
 }
