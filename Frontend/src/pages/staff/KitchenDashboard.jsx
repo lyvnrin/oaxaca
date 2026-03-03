@@ -3,24 +3,20 @@ import "./KitchenDashboard.css";
 export default function KitchenDashboard() {
   return (
     <div className="kitchen-page">
+      {/* NAVBAR */}
       <header className="kitchen-nav">
         <div className="nav-brand">OAXACA</div>
 
         <div className="nav-icons">
-          <button className="nav-icon" aria-label="Menu">
-            ≡
-          </button>
-          <button className="nav-icon" aria-label="User">
-            👤
-          </button>
-          <button className="nav-icon" aria-label="Notifications">
-            🔔
-          </button>
+          <button className="nav-icon">≡</button>
+          <button className="nav-icon">👤</button>
+          <button className="nav-icon">🔔</button>
         </div>
       </header>
 
       <div className="kitchen-content">
         <div className="kitchen-board">
+
           {/* Pending Confirmation */}
           <div className="kitchen-column">
             <div className="column-header">Pending Confirmation</div>
@@ -72,129 +68,154 @@ export default function KitchenDashboard() {
           <div className="kitchen-column">
             <div className="column-header">Ready to Prepare</div>
 
-            <div className="order-card">
-              <div className="order-pill">Order ###</div>
+            <div className="column-scroll">
 
-              <div className="order-row">
-                <div className="row-left">
-                  <div className="item-name">Item Name: xxxx</div>
-                  <div className="qty-pill">Qty: 00</div>
-                </div>
-                <div className="row-price">£00.00</div>
-              </div>
+              {/* Card 1 */}
+              <div className="compact-card">
+                <div className="table-title">Table 01</div>
+                <div className="table-time">5 minutes ago</div>
 
-              <div className="order-row">
-                <div className="row-left">
-                  <div className="item-name">Item Name: xxxx</div>
-                  <div className="qty-pill">Qty: 00</div>
-                </div>
-                <div className="row-price">£00.00</div>
-              </div>
-
-              <div className="order-notes">
-                <div>Allergies: -----------</div>
-                <div>Preferences: -----------</div>
-              </div>
-
-              <div className="order-total">
-                <span>Total</span>
-                <span>£00.00</span>
-              </div>
-
-              <div className="order-footer">
-                <div className="order-id">
-                  <div>Order ID</div>
-                  <div>000000000</div>
+                <div className="compact-row">
+                  <span>Tacos</span>
+                  <span className="compact-qty">Qty: 2</span>
                 </div>
 
-                <div className="order-actions">
-                  <button className="cancel-btn">Cancel</button>
-                  <button className="prepare-btn">Ready For Service</button>
+                <div className="compact-row">
+                  <span>Nachos</span>
+                  <span className="compact-qty">Qty: 1</span>
                 </div>
+
+                <button className="prepare-btn">Prepare</button>
               </div>
+
+              {/* Card 2 */}
+              <div className="compact-card">
+                <div className="table-title">Table 02</div>
+                <div className="table-time">8 minutes ago</div>
+
+                <div className="compact-row">
+                  <span>Burrito</span>
+                  <span className="compact-qty">Qty: 1</span>
+                </div>
+
+                <button className="prepare-btn">Prepare</button>
+              </div>
+
+              {/* Card 3 */}
+              <div className="compact-card">
+                <div className="table-title">Table 03</div>
+                <div className="table-time">12 minutes ago</div>
+
+                <div className="compact-row">
+                  <span>Quesadilla</span>
+                  <span className="compact-qty">Qty: 2</span>
+                </div>
+
+                <button className="prepare-btn">Prepare</button>
+              </div>
+
+              {/* Card 4 */}
+              <div className="compact-card">
+                <div className="table-title">Table 04</div>
+                <div className="table-time">15 minutes ago</div>
+
+                <div className="compact-row">
+                  <span>Churros</span>
+                  <span className="compact-qty">Qty: 3</span>
+                </div>
+
+                <button className="prepare-btn">Prepare</button>
+              </div>
+
             </div>
           </div>
 
+          {/* Ready For Service */}
           <div className="kitchen-column">
             <div className="column-header">Ready For Service</div>
 
             <div className="column-scroll">
+
+              {/* Card 1 */}
               <div className="compact-card">
-                <div className="table-title">Table XX</div>
-                <div className="table-time">xx minutes ago</div>
+                <div className="table-title">Table 05</div>
+                <div className="table-time">3 minutes ago</div>
 
                 <div className="compact-row">
-                  <span>Item name</span>
-                  <span className="compact-qty">Qty: xx</span>
-                </div>
-
-                <div className="compact-row">
-                  <span>Item name</span>
-                  <span className="compact-qty">Qty: xx</span>
+                  <span>Tacos</span>
+                  <span className="compact-qty">Qty: 2</span>
                 </div>
 
                 <button className="delivered-btn">Delivered</button>
               </div>
 
+              {/* Card 2 */}
               <div className="compact-card">
-                <div className="table-title">Table XX</div>
-                <div className="table-time">xx minutes ago</div>
+                <div className="table-title">Table 06</div>
+                <div className="table-time">6 minutes ago</div>
 
                 <div className="compact-row">
-                  <span>Item name</span>
-                  <span className="compact-qty">Qty: xx</span>
-                </div>
-
-                <div className="compact-row">
-                  <span>Item name</span>
-                  <span className="compact-qty">Qty: xx</span>
+                  <span>Burrito</span>
+                  <span className="compact-qty">Qty: 1</span>
                 </div>
 
                 <button className="delivered-btn">Delivered</button>
               </div>
 
+              {/* Card 3 */}
               <div className="compact-card">
-                <div className="table-title">Table XX</div>
-                <div className="table-time">xx minutes ago</div>
+                <div className="table-title">Table 07</div>
+                <div className="table-time">9 minutes ago</div>
 
                 <div className="compact-row">
-                  <span>Item name</span>
-                  <span className="compact-qty">Qty: xx</span>
-                </div>
-
-                <div className="compact-row">
-                  <span>Item name</span>
-                  <span className="compact-qty">Qty: xx</span>
+                  <span>Nachos</span>
+                  <span className="compact-qty">Qty: 1</span>
                 </div>
 
                 <button className="delivered-btn">Delivered</button>
               </div>
+
+              {/* Card 4 */}
+              <div className="compact-card">
+                <div className="table-title">Table 08</div>
+                <div className="table-time">14 minutes ago</div>
+
+                <div className="compact-row">
+                  <span>Quesadilla</span>
+                  <span className="compact-qty">Qty: 2</span>
+                </div>
+
+                <button className="delivered-btn">Delivered</button>
+              </div>
+
             </div>
           </div>
+
         </div>
 
-        {/* Bottom features/stats */}
+        {/* Bottom Stats */}
         <div className="kitchen-stats">
           <div className="stat-card stat-gray">
             <div className="stat-label">Completed Orders</div>
-            <div className="stat-value">###</div>
+            <div className="stat-value">12</div>
           </div>
 
           <div className="stat-card stat-green">
             <div className="stat-label">Active Orders</div>
-            <div className="stat-value">###</div>
+            <div className="stat-value">8</div>
           </div>
 
           <div className="stat-card stat-red">
             <div className="stat-label">Urgent Orders</div>
-            <div className="stat-value">###</div>
+            <div className="stat-value">3</div>
           </div>
 
           <div className="stat-card stat-orange">
-            <div className="stat-label">Average Order completion time</div>
-            <div className="stat-value">00:00</div>
+            <div className="stat-label">Average Completion Time</div>
+            <div className="stat-value">18 min</div>
           </div>
         </div>
+
       </div>
     </div>
   );
