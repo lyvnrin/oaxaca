@@ -46,7 +46,7 @@ function FirstLanding() {
                 </a>
             </section>
 
-            {/* ── ABOUT SECTION ── */}
+            {/* ABOUT */}
             <section className="about-section" id="about">
                 <Grainient
                     color1="#781111" color2="#b94609" color3="#9a0e0e"
@@ -65,13 +65,13 @@ function FirstLanding() {
                         Rooted in the rich culinary traditions of Oaxaca, we bring the warmth of Mexican culture to every plate. From low-braised meats to hand-pressed tortillas, every dish is a celebration of bold spice, fresh ingredients, and generations of craft.
                     </p>
                     <p className="about-body">
-                        Whether you're joining us for a casual lunch or a late-night feast, our doors are always open. (And the mole is always on).
+                        Whether you're joining us for a casual lunch or a late-night feast, our doors are always open. And the mole is always on.
                     </p>
                     <button className="book-btn" onClick={() => navigate('/customer-login')}> BOOK NOW</button>
                 </div>
             </section>
 
-            {/* ── FOOTER ── */}
+            {/* FOOTER : CONTACT */}
             <footer className="site-footer" id="footer">
                 <div className="footer-inner">
                     <div className="footer-brand">
