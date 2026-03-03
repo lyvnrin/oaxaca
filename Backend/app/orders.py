@@ -35,5 +35,18 @@ class OrderManager:
     def get_all_orders(self):
         return self.orders
 
+    def get_order_by_id(self, order_id: int):
+        for order in self.orders:
+            if order.order_id == order_id:
+                return order
+        return None
+
+    def update_order_status(self, order_id: int, new_status: str):
+        order = self.get_order_by_id(order_id)
+        if order:
+            order.status = new_status
+            return order
+        return None
+
 # Create a single instance for the app to use
 order_manager = OrderManager()
