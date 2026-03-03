@@ -61,28 +61,14 @@ function KitchenLogin() {
     return (
         <div className="kitchen-page">
             <Grainient
-                color1="#7a3018"
-                color2="#8f4a22"
-                color3="#7d3a1a"
-                timeSpeed={0.25}
-                colorBalance={0}
-                warpStrength={1}
-                warpFrequency={3}
-                warpSpeed={1.5}
-                warpAmplitude={40}
-                blendAngle={0}
-                blendSoftness={0.1}
+                color1="#7a3018" color2="#8f4a22" color3="#7d3a1a"
+                timeSpeed={0.25} colorBalance={0}
+                warpStrength={1} warpFrequency={3} warpSpeed={1.5} warpAmplitude={40}
+                blendAngle={0} blendSoftness={0.1}
                 rotationAmount={400}
-                noiseScale={2}
-                grainAmount={0}
-                grainScale={2}
-                grainAnimated={false}
-                contrast={1.2}
-                gamma={1}
-                saturation={0.6}
-                centerX={-0.09}
-                centerY={0.05}
-                zoom={0.9}
+                noiseScale={2} grainAmount={0} grainScale={2} grainAnimated={false}
+                contrast={1.2} gamma={1} saturation={0.6}
+                centerX={-0.09} centerY={0.05} zoom={0.9}
             />
             <button className="kitchen-back-button" onClick={goBack}>←</button>
 

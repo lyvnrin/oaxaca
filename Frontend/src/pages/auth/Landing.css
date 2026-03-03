@@ -311,14 +311,6 @@ section {
     transform: translate(1px, 1px);
 }
 
-.about-section::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.35);
-    z-index: 0;
-}
-
 /* FOOTER : CONTACT */
 .site-footer {
     font-family: 'Cormorant', serif;

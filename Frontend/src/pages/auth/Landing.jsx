@@ -49,14 +49,14 @@ function Landing() {
             {/* ABOUT */}
             <section className="about-section" id="about">
                 <Grainient
-                    color1="#781111" color2="#b94609" color3="#9a0e0e"
-                    timeSpeed={0.1} colorBalance={0.3}
-                    warpStrength={0.6} warpFrequency={2} warpSpeed={0.8} warpAmplitude={25}
-                    blendAngle={180} blendSoftness={0.2}
-                    rotationAmount={200}
+                    color1="#7a3018" color2="#8f4a22" color3="#7d3a1a"
+                    timeSpeed={0.25} colorBalance={0}
+                    warpStrength={1} warpFrequency={3} warpSpeed={1.5} warpAmplitude={40}
+                    blendAngle={0} blendSoftness={0.1}
+                    rotationAmount={400}
                     noiseScale={2} grainAmount={0} grainScale={2} grainAnimated={false}
-                    contrast={1.1} gamma={1} saturation={0.5}
-                    centerX={0.1} centerY={-0.05} zoom={0.9}
+                    contrast={1.2} gamma={1} saturation={0.6}
+                    centerX={-0.09} centerY={0.05} zoom={0.9}
                 />
                 <div className="about-content">
                     <p className="about-eyebrow">OUR STORY</p>
