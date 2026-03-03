@@ -1,3 +1,6 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300..700;1,300..700&');
+@import url('https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap');
+
 /* global reset */
 html, body, #root {
     margin: 0;
@@ -13,7 +16,6 @@ html, body, #root {
     display: flex;
     justify-content: center;
     align-items: center;
-    font-family: "Times New Roman", serif;
     overflow: hidden;
 }
 
@@ -36,7 +38,13 @@ html, body, #root {
     font-size: 28px;
     font-weight: 600;
     color: #1a1a1a;
-    font-family: "Times New Roman", serif;
+    font-family: "Cormorant", serif;
+    font-weight: 700;
+    margin-bottom: 0;
+}
+
+.customer-login-box p {
+    font-family: "Lato", sans-serif;
 }
 
 /* field labels */
@@ -46,7 +54,8 @@ html, body, #root {
     color: #2a1a0a;
     text-align: center;
     margin: 10px 0 6px;
-    font-family: sans-serif;
+    font-family: "Lato", sans-serif;
+    text-transform: uppercase;
 }
 
 /* input fields */

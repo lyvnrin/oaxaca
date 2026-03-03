@@ -65,33 +65,20 @@ function CustomerLogin() {
     return (
         <div className="customer-page">
             <Grainient
-                color1="#781111"
-                color2="#b94609"
-                color3="#9a0e0e"
-                timeSpeed={0.25}
-                colorBalance={0}
-                warpStrength={1}
-                warpFrequency={3}
-                warpSpeed={1.5}
-                warpAmplitude={40}
-                blendAngle={0}
-                blendSoftness={0.1}
-                rotationAmount={500}
-                noiseScale={2}
-                grainAmount={0}
-                grainScale={2}
-                grainAnimated={false}
-                contrast={1.2}
-                gamma={1}
-                saturation={0.6}
-                centerX={-0.09}
-                centerY={0.05}
-                zoom={0.9}
-            />
+                    color1="#781111" color2="#b94609" color3="#9a0e0e"
+                    timeSpeed={0.1} colorBalance={0.3}
+                    warpStrength={0.6} warpFrequency={2} warpSpeed={0.8} warpAmplitude={25}
+                    blendAngle={180} blendSoftness={0.2}
+                    rotationAmount={200}
+                    noiseScale={2} grainAmount={0} grainScale={2} grainAnimated={false}
+                    contrast={1.1} gamma={1} saturation={0.5}
+                    centerX={0.1} centerY={-0.05} zoom={0.9}
+                />
             <button className="back-button" onClick={goToRoles}>←</button>
 
             <div className="customer-login-box">
-                <h2>Customer</h2>
+                <h2>Hello, Customer</h2>
+                <p className="customer-field-label">Please enter:</p>
                 <p className="customer-field-label">YOUR NAME</p>
                 <input
                     className={`customer-input ${errors.name ? 'input-error' : ''}`}

@@ -1,3 +1,12 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300..700;1,300..700&');
+@import url('https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap');
+
+html {
+    scroll-behavior: smooth;
+    height: auto;
+    overflow-y: scroll;
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -5,49 +14,126 @@
 }
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+    font-family: 'Lato', sans-serif;
     min-height: 100vh;
+    height: auto;
+    overflow-y: auto;
     color: white;
+}
+
+/* SCROLL WRAPPER */
+.landing-wrapper {
+    width: 100%;
+    overflow-x: hidden;
+    background: #0e0e0e;
+}
+
+section {
+    display: block;
+    margin: 0;
+    padding: 0;
+    border: none;
+    outline: none;
 }
 
 .container {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    padding: 2rem;
+    padding: 2rem 2rem 0 2rem;
     position: relative;
-    overflow: hidden;
+    overflow-x: hidden;
+    margin: 0;
+    border: none;
 }
 
-/* Ensure content sits above Grainient */
-.content {
+.about-section {
     position: relative;
-    z-index: 1;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    border: none;
 }
 
+/* NAV BAR */
 .top-nav {
     position: absolute;
     top: 2rem;
     right: 2rem;
     display: flex;
     gap: 2rem;
+    align-items: center;
     font-weight: 600;
     font-size: 1rem;
     text-transform: uppercase;
     letter-spacing: 1px;
     color: white;
-    z-index: 1;
+    z-index: 10;
 }
 
-.top-nav span {
+.nav-link {
+    background: none;
+    border: none;
+    color: #FFF2D8;
+    font-family: 'Lato', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    text-decoration: none;
     cursor: pointer;
+    padding: 0;
     transition: color 0.2s;
 }
 
-.top-nav span:hover {
-    color: #f0f0f0;
+.nav-link:hover {
+    color: #bdab86;
 }
 
+.nav-icon {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.6);
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    transition: color 0.2s;
+}
+
+.nav-icon:hover { color: #fff;}
+
+/* LANDING : SCROLL HINT */
+.scroll-hint {
+    position: absolute;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.55);
+    font-family: 'Cormorant', serif;
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    text-decoration: none;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    z-index: 1;
+    transition: color 0.2s;
+}
+
+.scroll-hint:hover {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+/* LANDING : BACK BUTTON */
 .back-button {
     position: absolute;
     top: 25px;
@@ -66,8 +152,10 @@ body {
     transform: scale(1.2);
 }
 
-/* Main content */
+/* LANDING : HERO CONTENT */
 .content {
+    position: relative;
+    z-index: 1;
     flex: 1;
     display: flex;
     flex-direction: column;
@@ -82,26 +170,28 @@ body {
 }
 
 .title {
-    font-size: 5rem;
+    font-family: 'Cormorant', serif;
+    font-size: 80px;
     font-weight: 800;
-    color: white;
-    letter-spacing: -2px;
+    color: #FFF2D8;
+    letter-spacing: 6px;
     text-transform: uppercase;
-    text-shadow: 3px 3px 0 rgba(0, 0, 0, 0.2);
+    /* text-shadow: 3px 3px 0 rgba(0, 0, 0, 0.2); */
     margin-bottom: 1.5rem;
     line-height: 1;
 }
 
 .welcome-text {
-    font-size: 1.8rem;
+    font-family: 'Lato', sans-serif;
+    font-size: 18px;
     font-weight: 500;
-    color: white;
+    color: #FFF2D8;
     margin-bottom: 2rem;
-    letter-spacing: 1px;
-    text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.1);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    /* text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.1); */
 }
 
-/* "ARE YOU A" text - centered */
 .question-text {
     font-size: 2.2rem;
     font-weight: 700;
@@ -114,11 +204,10 @@ body {
     text-align: center;
 }
 
-/* Button container - centered */
 .button-group {
     display: flex;
     align-items: center;
-    justify-content: center;  /* Center the entire group */
+    justify-content: center;
     gap: 3rem;
     flex-wrap: wrap;
     width: 100%;
@@ -139,7 +228,7 @@ body {
     min-width: 240px;
     text-align: center;
     letter-spacing: 1px;
-    flex: 0 1 auto;  /* Allow buttons to shrink but not grow */
+    flex: 0 1 auto;
 }
 
 .choice-btn:hover {
@@ -149,21 +238,179 @@ body {
     transform: translate(2px, 2px);
 }
 
-/* OR text between buttons - perfectly centered */
 .or-text {
-    font-size: 2.4rem;
+    font-family: 'Lato', sans-serif;
+    font-size: 16px;
     font-weight: 700;
-    color: white;
+    letter-spacing: 4px;
+    color: #FFF2D8;
     text-transform: uppercase;
-    text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.1);
+    /* text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.1); */
     display: flex;
     align-items: center;
     justify-content: center;
     line-height: 1;
-    flex: 0 0 auto;  /* Don't grow or shrink */
+    flex: 0 0 auto;
 }
 
-/* Responsive design */
+/* ABOUT */
+.about-content {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    max-width: 580px;
+    padding: 2rem;
+    color: #FFF2D8;
+}
+
+.about-eyebrow {
+    font-family: 'Afacad Flux', sans-serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.25em;
+    color: rgba(255, 255, 255, 0.5);
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+}
+
+.about-heading {
+    font-family: 'Cormorant', serif;
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin-bottom: 1.5rem;
+    line-height: 1.1;
+    text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.2);
+}
+
+.about-body {
+    font-family: 'Lato', sans-serif;
+    font-size: 18px;
+    line-height: 1.8;
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 1rem;
+}
+
+.book-btn {
+    margin-top: 0;
+    padding: 0.9rem 2.8rem;
+    background: #FFF2D8;
+    color: #781111;
+    border: none;
+    border-radius: 22px;
+    font-family: 'Cormorant', serif;
+    font-size: 16px;
+    font-weight: 800;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.15s;
+}
+
+.book-btn:hover {
+    background: #E8D5B0;
+    transform: translate(1px, 1px);
+}
+
+.about-section::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.35);
+    z-index: 0;
+}
+
+/* FOOTER : CONTACT */
+.site-footer {
+    font-family: 'Cormorant', serif;
+    background: #0e0e0e;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.8rem;
+    padding: 3rem 2rem 1.5rem;
+    margin: 0;
+}
+
+.footer-inner {
+    max-width: 960px;
+    margin: 0 auto;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2.5rem;
+    justify-content: space-between;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.footer-brand {
+    flex: 1 1 160px;
+}
+
+.footer-logo {
+    font-size: 1.4rem;
+    font-weight: 800;
+    letter-spacing: 0.15em;
+    color: #fff;
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.footer-tagline {
+    color: rgba(255, 255, 255, 0.35);
+    font-size: 0.75rem;
+}
+
+.footer-contact {
+    flex: 1 1 140px;
+}
+
+.footer-label {
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    color: rgba(255, 255, 255, 0.3);
+    text-transform: uppercase;
+    margin-bottom: 0.75rem;
+}
+
+.footer-contact p {
+    margin-bottom: 0.3rem;
+    line-height: 1.6;
+}
+
+.footer-bottom {
+    max-width: 960px;
+    margin: 1.2rem auto 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.7rem;
+    color: rgba(255, 255, 255, 0.2);
+}
+
+.staff-link {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.2);
+    font-family: 'Cormorant', serif;
+    font-size: 0.7rem;
+    cursor: pointer;
+    transition: color 0.2s;
+    letter-spacing: 0.05em;
+}
+
+.staff-link:hover {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.staff-role-label {
+    font-family: 'Lato', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.45);
+    margin-bottom: 2rem;
+}
+
+/* RESPONSIVE STYLING */
 @media (max-width: 768px) {
     .title {
         font-size: 4rem;
@@ -193,6 +440,10 @@ body {
 
     .or-text {
         font-size: 2rem;
+    }
+
+    .footer-inner {
+        gap: 1.5rem;
     }
 }
 
@@ -232,5 +483,16 @@ body {
     .or-text {
         font-size: 1.8rem;
         margin: 0.2rem 0;
+    }
+
+    .footer-inner {
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .footer-bottom {
+        flex-direction: column;
+        gap: 0.5rem;
+        text-align: center;
     }
 }
