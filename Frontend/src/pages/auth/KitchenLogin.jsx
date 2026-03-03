@@ -61,9 +61,9 @@ function KitchenLogin() {
     return (
         <div className="kitchen-page">
             <Grainient
-                color1="#781111"
-                color2="#b94609"
-                color3="#9a0e0e"
+                color1="#7a3018"
+                color2="#8f4a22"
+                color3="#7d3a1a"
                 timeSpeed={0.25}
                 colorBalance={0}
                 warpStrength={1}
@@ -72,7 +72,7 @@ function KitchenLogin() {
                 warpAmplitude={40}
                 blendAngle={0}
                 blendSoftness={0.1}
-                rotationAmount={500}
+                rotationAmount={400}
                 noiseScale={2}
                 grainAmount={0}
                 grainScale={2}
