@@ -89,6 +89,10 @@ export default function KitchenDashboard() {
              <div>Allergies: -----------</div>
              <div>Preferences: -----------</div>
           </div>
+          <div className="order-total">
+              <span>Total</span>
+              <span>£00.00</span>
+          </div>
           </div>
         </div>
 
