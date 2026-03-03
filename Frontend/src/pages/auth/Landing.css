@@ -239,11 +239,13 @@ section {
 }
 
 .or-text {
-    font-size: 2.4rem;
+    font-family: 'Lato', sans-serif;
+    font-size: 16px;
     font-weight: 700;
-    color: white;
+    letter-spacing: 4px;
+    color: #FFF2D8;
     text-transform: uppercase;
-    text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.1);
+    /* text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.1); */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -289,7 +291,7 @@ section {
 }
 
 .book-btn {
-    margin-top: 2rem;
+    margin-top: 0;
     padding: 0.9rem 2.8rem;
     background: #FFF2D8;
     color: #781111;
@@ -297,7 +299,7 @@ section {
     border-radius: 22px;
     font-family: 'Cormorant', serif;
     font-size: 16px;
-    font-weight: bold;
+    font-weight: 800;
     letter-spacing: 0.2em;
     text-transform: uppercase;
     cursor: pointer;
@@ -396,6 +398,16 @@ section {
 
 .staff-link:hover {
     color: rgba(255, 255, 255, 0.5);
+}
+
+.staff-role-label {
+    font-family: 'Lato', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.45);
+    margin-bottom: 2rem;
 }
 
 /* RESPONSIVE STYLING */

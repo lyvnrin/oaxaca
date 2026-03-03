@@ -1,10 +1,13 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
 import Grainient from '../../components/Grainient';
+import SettingsModal from '../../components/SettingsModal.jsx';
 import './Landing.css';
 
 function Landing() {
     const navigate = useNavigate();
+    // const [showSettings, setShowSettings] = useState(false);
 
     return (
         <div className="landing-wrapper">
@@ -26,23 +29,20 @@ function Landing() {
                     <a className="nav-link" href="#about">ABOUT</a>
                     <a className="nav-link" href="#footer">CONTACT</a>
                     <a className="nav-link" href="/staff">STAFF</a>
-                    <a className="nav-link" href="/settings">SETTINGS</a>
-                    
+                    {/* <a className="nav-link" onClick={() => setShowSettings(true)}>SETTINGS</a>                     */}
                 </div>
 
                 <div className="content">
                     <h1 className="title">OAXACA</h1>
                     <p className="welcome-text">Bold flavours, vibrant dining. Experience the taste of Mexico.</p>
-                    <div className="button-group">
-                        {/* <button className="choice-btn" onClick={() => navigate('/customer-login')}>CUSTOMER</button> */}
-                    </div>
+                    {/* <div className="button-group">
+                        <button className="choice-btn" onClick={() => navigate('/customer-login')}>CUSTOMER</button>
+                    </div> */}
                 </div>
 
                 <a className="scroll-hint" href="#about">
                     <span>LEARN MORE</span>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <polyline points="6 9 12 15 18 9"/>
-                    </svg>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"> <polyline points="6 9 12 15 18 9"/> </svg>
                 </a>
             </section>
 
@@ -65,9 +65,9 @@ function Landing() {
                         Rooted in the rich culinary traditions of Oaxaca, we bring the warmth of Mexican culture to every plate. From low-braised meats to hand-pressed tortillas, every dish is a celebration of bold spice, fresh ingredients, and generations of craft.
                     </p>
                     <p className="about-body">
-                        Whether you're joining us for a casual lunch or a late-night feast, our doors are always open. And the mole is always on.
+                        Whether you're joining us for a casual lunch or a late-night feast, our doors are always open.
                     </p>
-                    <button className="book-btn" onClick={() => navigate('/customer-login')}> BOOK NOW</button>
+                    <button className="book-btn" onClick={() => navigate('/customer-login')}>BOOK NOW</button>
                 </div>
             </section>
 
@@ -100,6 +100,7 @@ function Landing() {
                 </div>
             </footer>
 
+            {/* {showSettings && <SettingsModal onClose={() => setShowSettings(false)} />} */}
         </div>
     );
 }
