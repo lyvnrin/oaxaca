@@ -2,13 +2,22 @@
   box-sizing: border-box;
 }
 
-.kitchen-page {
-  min-height: 100vh;
-  background: oldlace;
-  font-family: Georgia, "Times New Roman", serif;
+html,
+body {
+  height: 100%;
+  margin: 0;
+  overflow: hidden; 
 }
 
-/* Navbar */
+/* Page */
+.kitchen-page {
+  height: 100vh; 
+  background: oldlace;
+  font-family: Georgia, "Times New Roman", serif;
+  overflow: hidden; 
+}
+
+/* Navbar (fixed at top) */
 .kitchen-nav {
   position: fixed;
   top: 0;
@@ -20,13 +29,14 @@
   justify-content: space-between;
   align-items: center;
 
-  padding: 18px 32px;
+  padding: 10px 24px;
   background: #f3d7b6;
   border-bottom: 4px solid #e67e22;
+  height: 80px; 
 }
 
 .nav-brand {
-  font-size: 46px;
+  font-size: 34px;
   font-weight: 900;
   letter-spacing: 4px;
   color: #e67e22;
@@ -34,7 +44,7 @@
 
 .nav-icons {
   display: flex;
-  gap: 14px;
+  gap: 12px;
 }
 
 .nav-icon {
@@ -43,23 +53,33 @@
   border: none;
   border-radius: 14px;
   padding: 10px 14px;
-  font-size: 18px;
+  font-size: 16px;
   cursor: pointer;
 }
 
+
 .kitchen-content {
-  padding-top: 115px;
+  height: calc(100vh - 80px);
+  margin-top: 80px; /* same as navbar height */
   width: 95%;
-  margin: 0 auto;
-  padding-bottom: 24px;
+  margin-left: auto;
+  margin-right: auto;
+
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 14px 0;
+  overflow: hidden; /* no page scroll */
 }
 
-/* Grid */
+/* Board takes most of the screen */
 .kitchen-board {
+  flex: 1;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
-  align-items: start;
+  gap: 18px;
+  align-items: stretch;
+  overflow: hidden;
 }
 
 /* Columns */
@@ -67,42 +87,45 @@
   border: 4px solid #e67e22;
   border-radius: 18px;
   background: #f7efe5;
-  padding: 16px;
-  min-height: 540px;
+  padding: 14px;
+
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; 
 }
 
 .column-header {
-  font-size: 22px;
+  font-size: 18px;
   font-weight: 900;
   color: #e67e22;
-  padding-bottom: 12px;
+  padding-bottom: 10px;
   border-bottom: 2px solid #e67e22;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
-/* Main order card */
+/* Pending confirmation card */
 .order-card {
   background: #fffaf3;
   border: 2px solid black;
   border-radius: 16px;
-  padding: 16px;
+  padding: 12px;
 }
 
 .order-pill {
   display: inline-block;
   background: black;
   color: white;
-  padding: 6px 14px;
+  padding: 6px 12px;
   border-radius: 999px;
   font-weight: bold;
-  font-size: 13px;
-  margin-bottom: 12px;
+  font-size: 12px;
+  margin-bottom: 10px;
 }
 
 .order-row {
   display: flex;
   justify-content: space-between;
-  padding: 10px 0;
+  padding: 8px 0;
   border-top: 1px solid rgba(0, 0, 0, 0.28);
 }
 
@@ -113,7 +136,7 @@
 }
 
 .item-name {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 700;
 }
 
@@ -123,28 +146,28 @@
   color: white;
   padding: 4px 10px;
   border-radius: 999px;
-  font-size: 12px;
+  font-size: 11px;
   width: fit-content;
 }
 
 .row-price {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 700;
 }
 
 .order-notes {
   border-top: 1px solid rgba(0, 0, 0, 0.28);
-  padding-top: 10px;
+  padding-top: 8px;
   margin-top: 8px;
-  font-size: 14px;
+  font-size: 13px;
 }
 
 .order-total {
   display: flex;
   justify-content: space-between;
   border-top: 1px solid rgba(0, 0, 0, 0.28);
-  padding-top: 10px;
-  margin-top: 10px;
+  padding-top: 8px;
+  margin-top: 8px;
   font-weight: 900;
 }
 
@@ -153,12 +176,12 @@
   justify-content: space-between;
   align-items: center;
   border-top: 1px solid rgba(0, 0, 0, 0.28);
-  padding-top: 10px;
-  margin-top: 10px;
+  padding-top: 8px;
+  margin-top: 8px;
 }
 
 .order-id {
-  font-size: 12px;
+  font-size: 11px;
   color: gray;
 }
 
@@ -167,11 +190,12 @@
   gap: 10px;
 }
 
+/* Buttons */
 .cancel-btn {
   background: #c0392b;
   color: white;
   border: none;
-  padding: 9px 16px;
+  padding: 8px 14px;
   border-radius: 12px;
   font-weight: bold;
   cursor: pointer;
@@ -181,47 +205,10 @@
   background: #2e8b57;
   color: white;
   border: none;
-  padding: 9px 16px;
+  padding: 8px 14px;
   border-radius: 12px;
   font-weight: bold;
   cursor: pointer;
-}
-
-
-.column-scroll {
-  max-height: 460px;
-  overflow-y: auto;
-  padding-right: 6px;
-}
-
-.compact-card {
-  background: #fffaf3;
-  border: 2px solid gray;
-  border-radius: 10px;
-  padding: 12px;
-  margin-bottom: 12px;
-}
-
-.table-title {
-  font-weight: 900;
-  font-size: 18px;
-  margin-bottom: 4px;
-}
-
-.table-time {
-  font-size: 13px;
-  color: dimgray;
-  margin-bottom: 10px;
-}
-
-.compact-row {
-  display: flex;
-  justify-content: space-between;
-  padding: 6px 0;
-}
-
-.compact-qty {
-  font-weight: 700;
 }
 
 .delivered-btn {
@@ -229,15 +216,52 @@
   background: darkseagreen;
   color: white;
   border: none;
-  padding: 6px 12px;
-  border-radius: 8px;
+  padding: 7px 12px;
+  border-radius: 10px;
   font-weight: bold;
   cursor: pointer;
 }
 
-/* Bottom stats */
+.column-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 6px;
+}
+
+/* Compact cards */
+.compact-card {
+  background: #fffaf3;
+  border: 2px solid gray;
+  border-radius: 10px;
+  padding: 10px;
+  margin-bottom: 12px;
+}
+
+.table-title {
+  font-weight: 900;
+  font-size: 16px;
+  margin-bottom: 4px;
+}
+
+.table-time {
+  font-size: 12px;
+  color: dimgray;
+  margin-bottom: 8px;
+}
+
+.compact-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 5px 0;
+}
+
+.compact-qty {
+  font-weight: 700;
+}
+
+
 .kitchen-stats {
-  margin-top: 18px;
+  height: 88px;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 14px;
@@ -247,22 +271,27 @@
   border: 4px solid #e67e22;
   border-radius: 18px;
   background: #f7efe5;
-  padding: 14px;
+  padding: 10px;
   text-align: center;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .stat-label {
   color: #e67e22;
   font-weight: 900;
   margin-bottom: 6px;
+  font-size: 14px;
 }
 
 .stat-value {
-  font-size: 22px;
+  font-size: 18px;
   font-weight: 900;
 }
 
-
+/* Colours */
 .stat-gray {
   background: lightgray;
 }
