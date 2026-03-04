@@ -73,7 +73,8 @@ function WaiterLogin() {
             <button className="waiter-back-button" onClick={goBack}>←</button>
 
             <div className="waiter-login-box">
-                <h2>Waiter</h2>
+                <h2> Hello, Waiter</h2>
+                <p>Please enter:</p>
                 <p className="waiter-field-label">USERNAME</p>
                 <input
                     className={`waiter-input ${errors.username ? 'input-error' : ''}`}
