@@ -42,3 +42,15 @@
   font-family: "Lato", sans-serif;
   text-transform: uppercase;
 }
+/* Inputs (matches CustomerLogin) */
+.waiter-input {
+  width: 100%;
+  padding: 10px;
+  font-size: 15px;
+  background-color: #f0e8d8;
+  border: none;
+  border-radius: 8px;
+  box-sizing: border-box;
+  outline: none;
+  margin-bottom: 5px;
+}
