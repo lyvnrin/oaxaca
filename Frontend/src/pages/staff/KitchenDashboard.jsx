@@ -208,7 +208,7 @@ export default function KitchenDashboard() {
 
         {/* STATS */}
         <div className="kitchen-stats">
-          <div className="stat-card stat-gray">
+          <div className="stat-card stat-green">
             <div className="stat-label">Completed Orders</div>
             <div className="stat-value">{completed.length}</div>
           </div>
@@ -218,12 +218,12 @@ export default function KitchenDashboard() {
             <div className="stat-value">{activeCount}</div>
           </div>
 
-          <div className="stat-card stat-red">
+          <div className="stat-card stat-green">
             <div className="stat-label">Urgent Orders</div>
             <div className="stat-value">0</div>
           </div>
 
-          <div className="stat-card stat-orange">
+          <div className="stat-card stat-green">
             <div className="stat-label">Average Completion Time</div>
             <div className="stat-value">00:00</div>
           </div>
