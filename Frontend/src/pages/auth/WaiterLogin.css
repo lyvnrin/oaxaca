@@ -79,3 +79,21 @@
   color: rgba(240, 232, 216, 0.7);
   cursor: not-allowed;
 }
+/* Back button */
+.waiter-back-button {
+  position: absolute;
+  top: 25px;
+  left: 25px;
+  background-color: transparent;
+  border: none;
+  outline: none;
+  font-size: 30px;
+  color: #FFF2D8;
+  cursor: pointer;
+  padding: 0;
+  z-index: 1;
+}
+
+.waiter-back-button:hover {
+  transform: scale(1.2);
+}
