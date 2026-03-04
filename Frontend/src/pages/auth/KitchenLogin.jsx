@@ -17,7 +17,6 @@ function KitchenLogin() {
             ...formData,
             [name]: value
         });
-
         if (errors[name]) {
             setErrors({
                 ...errors,
@@ -28,17 +27,14 @@ function KitchenLogin() {
 
     const validateForm = () => {
         let newErrors = {};
-
         if (!formData.username.trim()) {
             newErrors.username = 'Username is required';
         }
-
         if (!formData.password) {
             newErrors.password = 'Password is required';
         } else if (formData.password.length < 6) {
             newErrors.password = 'Password must be at least 6 characters';
         }
-
         return newErrors;
     };
 
@@ -51,7 +47,6 @@ function KitchenLogin() {
     const handleContinue = () => {
         const validationErrors = validateForm();
         setErrors(validationErrors);
-
         if (Object.keys(validationErrors).length === 0) {
             console.log('Kitchen staff login:', formData);
             goToDashboard();
@@ -73,7 +68,8 @@ function KitchenLogin() {
             <button className="kitchen-back-button" onClick={goBack}>←</button>
 
             <div className="kitchen-login-box">
-                <h2>Kitchen Staff</h2>
+                <h2>Hello, Kitchen</h2>
+                <p className="kitchen-field-label">Please enter:</p>
                 <p className="kitchen-field-label">USERNAME</p>
                 <input
                     className={`kitchen-input ${errors.username ? 'input-error' : ''}`}
@@ -95,7 +91,7 @@ function KitchenLogin() {
                 />
                 {errors.password && <span className="error-message">{errors.password}</span>}
                 <button
-                    className={`kitchen-button ${!isFormValid() ? 'button-disabled' : ''}`}
+                    className={`kitchen-button ${!isFormValid() ? 'kitchen-button-disabled' : ''}`}
                     onClick={handleContinue}
                     disabled={!isFormValid()}
                 >
