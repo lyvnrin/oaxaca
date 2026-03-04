@@ -4,7 +4,7 @@
 /* Page */
 .kitchen-page {
   height: 100vh;
-  background: oldlace;
+  background: linear-gradient(135deg, #0e0e0e 0%, #781111 50%, #E67E22 100%);          /* changed */
   /* font-family: Georgia, "Times New Roman", serif; */
   overflow: hidden;
 
@@ -26,18 +26,18 @@
   align-items: center;
 
   padding: 10px 24px;
-  background: #f3d7b6;
-  border-bottom: 4px solid #e67e22;
+  background: transparent;        /* changed */
+  /* border-bottom: 4px solid #e67e22;       /* changed */
   height: 80px;
 
   font-family: 'Cormorant', serif;    /* changed */
 }
 
 .nav-brand {
-  font-size: 34px;
+  font-size: 80px;            /* changed */
   font-weight: 900;
-  letter-spacing: 4px;
-  color: #e67e22;
+  letter-spacing: 6px;
+  color: #FFF2D8;             /* changed */
 }
 
 .nav-icons {
@@ -46,15 +46,19 @@
 }
 
 .nav-icon {
-  background-color: #e67e22;
-  color: white;
-  border: none;
+  background-color: transparent;          /* changed */
+  color: #FFF2D8;
+  border: 2px solid #FFF2D8;              /* changed */
   border-radius: 14px;
-  padding: 10px 14px;
-  font-size: 16px;
+  padding: 10px 20px;                     /* changed */
+  font-size: 40px;                        /* changed */
   cursor: pointer;
 }
 
+.nav-icon:hover {
+  border-color: #E67E22;              /* changed */
+  background-color: rgba(120, 17, 17, 0.1); /* changed */
+}
 
 .kitchen-content {
   height: calc(100vh - 80px);
@@ -79,14 +83,14 @@
   grid-template-columns: repeat(3, 1fr);
   gap: 18px;
   align-items: stretch;
-  overflow: hidden;
+  overflow-y: auto;               /* changed */
 }
 
 /* Columns */
 .kitchen-column {
-  border: 4px solid #e67e22;
+  border: 4px solid #FFF2D8;          /* changed */
   border-radius: 18px;
-  background: #f7efe5;
+  background: #FFF2D8;                /* changed */
   padding: 14px;
 
   display: flex;
@@ -97,15 +101,15 @@
 .column-header {
   font-size: 18px;
   font-weight: 900;
-  color: #e67e22;
+  color: black;           /* changed */
   padding-bottom: 10px;
-  border-bottom: 2px solid #e67e22;
+  border-bottom: 2px solid black;         /* changed */
   margin-bottom: 12px;
 }
 
 /* Pending confirmation card */
 .order-card {
-  background: #fffaf3;
+  background: #FFF2D8;                /* changed */
   border: 2px solid black;
   border-radius: 16px;
   padding: 12px;
@@ -241,7 +245,7 @@
 
 /* Compact cards */
 .compact-card {
-  background: #fffaf3;
+  background: #FFF2D8;                    /* changed */
   border: 2px solid gray;
   border-radius: 10px;
   padding: 10px;
@@ -276,10 +280,11 @@
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 14px;
+  margin-bottom: 30px;                /* changed */
 }
 
 .stat-card {
-  border: 4px solid #e67e22;
+  border: 4px solid #FFF2D8;          /* changed */
   border-radius: 18px;
   background: #f7efe5;
   padding: 10px;
@@ -291,7 +296,7 @@
 }
 
 .stat-label {
-  color: #e67e22;
+  color: #FFF2D8;             /* changed */
   font-weight: 900;
   margin-bottom: 6px;
   font-size: 14px;
@@ -300,23 +305,12 @@
 .stat-value {
   font-size: 18px;
   font-weight: 900;
+  color: #FFF2D8;             /* changed */
 }
 
 /* Colours */
-.stat-gray {
-  background: lightgray;
-}
-
 .stat-green {
   background: darkseagreen;
-}
-
-.stat-red {
-  background: rgb(38, 61, 176);
-}
-
-.stat-orange {
-  background: rgb(63, 205, 84);
 }
 
 .toast {
