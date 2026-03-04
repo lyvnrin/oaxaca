@@ -61,7 +61,7 @@ function WaiterLogin() {
     return (
         <div className="waiter-page">
             <Grainient
-                color1="#7a3018" color2="#8f4a22" color3="#7d3a1a"
+                color1="#6d2d17" color2="#9b552c" color3="#4b2311"
                 timeSpeed={0.25} colorBalance={0}
                 warpStrength={1} warpFrequency={3} warpSpeed={1.5} warpAmplitude={40}
                 blendAngle={0} blendSoftness={0.1}
@@ -73,8 +73,8 @@ function WaiterLogin() {
             <button className="waiter-back-button" onClick={goBack}>←</button>
 
             <div className="waiter-login-box">
-                <h2> Hello, Waiter</h2>
-                <p>Please enter:</p>
+                <h2>Hello, Waiter</h2>
+                <p className="waiter-field-label">Please enter:</p>
                 <p className="waiter-field-label">USERNAME</p>
                 <input
                     className={`waiter-input ${errors.username ? 'input-error' : ''}`}
@@ -96,7 +96,7 @@ function WaiterLogin() {
                 />
                 {errors.password && <span className="error-message">{errors.password}</span>}
                 <button
-                    className={`waiter-button ${!isFormValid() ? 'button-disabled' : ''}`}
+                    className={`waiter-button ${!isFormValid() ? 'waiter-button-disabled' : ''}`}
                     onClick={handleContinue}
                     disabled={!isFormValid()}
                 >

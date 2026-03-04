@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300..700;1,300..700&');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300..700;1,300..700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap');
 
 /* global reset */
@@ -22,7 +22,7 @@ html, body, #root {
 .customer-login-box {
     position: relative;
     z-index: 1;
-    background-color: #E8D5B0;
+    background: radial-gradient(circle at center, #faf0d7 0%, #e8d5b0 50%, #d4b896 100%);
     width: 280px;
     padding: 30px 25px;
     border-radius: 20px;
@@ -30,16 +30,16 @@ html, body, #root {
     display: flex;
     flex-direction: column;
     align-items: center;
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.35), 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 /* card title */
 .customer-login-box h2 {
     margin: 0 0 20px;
     font-size: 28px;
-    font-weight: 600;
-    color: #1a1a1a;
     font-family: "Cormorant", serif;
     font-weight: 700;
+    color: #1a1a1a;
     margin-bottom: 0;
 }
 
@@ -81,6 +81,11 @@ html, body, #root {
     color: #f0e8d8;
     border: none;
     border-radius: 25px;
+    cursor: not-allowed;
+    transition: 0.2s ease;
+}
+
+.customer-button:not(:disabled) {
     cursor: pointer;
 }
 
@@ -89,6 +94,21 @@ html, body, #root {
     background-color: #6B2200;
 }
 
+/* disabled state */
+.customer-button:disabled,
+.customer-button-disabled {
+    background-color: rgba(0, 0, 0, 0.35);
+    color: rgba(240, 232, 216, 0.7);
+    cursor: not-allowed;
+}
+
+/* hover when disabled */
+.customer-button:disabled:hover {
+    background-color: #6B2200;
+    color: #f0e8d8;
+}
+
+/* back button */
 .back-button {
     position: absolute;
     top: 25px;

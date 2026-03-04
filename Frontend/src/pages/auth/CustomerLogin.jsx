@@ -65,7 +65,7 @@ function CustomerLogin() {
     return (
         <div className="customer-page">
             <Grainient
-                color1="#7a3018" color2="#8f4a22" color3="#7d3a1a"
+                color1="#6d2d17" color2="#9b552c" color3="#4b2311"
                 timeSpeed={0.25} colorBalance={0}
                 warpStrength={1} warpFrequency={3} warpSpeed={1.5} warpAmplitude={40}
                 blendAngle={0} blendSoftness={0.1}
@@ -102,7 +102,7 @@ function CustomerLogin() {
                 />
                 {errors.guests && <span className="error-message">{errors.guests}</span>}
                 <button
-                    className={`customer-button ${!isFormValid() ? 'button-disabled' : ''}`}
+                    className={`customer-button ${!isFormValid() ? 'customer-button-disabled' : ''}`}
                     onClick={handleContinue}
                     disabled={!isFormValid()}
                 >
