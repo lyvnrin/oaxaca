@@ -54,3 +54,28 @@
   outline: none;
   margin-bottom: 5px;
 }
+/* Continue button */
+.waiter-button {
+  margin-top: 20px;
+  padding: 12px 40px;
+  font-family: "Times New Roman", serif;
+  font-size: 18px;
+  background-color: #8B2E00;
+  color: #f0e8d8;
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.waiter-button:hover:not(:disabled) {
+  background-color: #6B2200;
+}
+
+/* Disabled state */
+.waiter-button:disabled,
+.button-disabled {
+  background-color: rgba(0, 0, 0, 0.35);
+  color: rgba(240, 232, 216, 0.7);
+  cursor: not-allowed;
+}
