@@ -102,7 +102,7 @@ function CustomerLogin() {
                 />
                 {errors.guests && <span className="error-message">{errors.guests}</span>}
                 <button
-                    className={`customer-button ${!isFormValid() ? 'button-disabled' : ''}`}
+                    className={`customer-button ${!isFormValid() ? 'customer-button-disabled' : ''}`}
                     onClick={handleContinue}
                     disabled={!isFormValid()}
                 >

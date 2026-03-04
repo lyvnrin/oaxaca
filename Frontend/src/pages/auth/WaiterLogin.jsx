@@ -96,7 +96,7 @@ function WaiterLogin() {
                 />
                 {errors.password && <span className="error-message">{errors.password}</span>}
                 <button
-                    className={`waiter-button ${!isFormValid() ? 'button-disabled' : ''}`}
+                    className={`waiter-button ${!isFormValid() ? 'waiter-button-disabled' : ''}`}
                     onClick={handleContinue}
                     disabled={!isFormValid()}
                 >
