@@ -8,58 +8,44 @@ function CustomerLogin() {
     const goToMenu = () => navigate("/menu");
     const goToRoles = () => navigate("/");
 
-    const [formData, setFormData] = useState({
-        name: '',
-        guests: ''
-    });
-    const [errors, setErrors] = useState({});
+    const [tableNumber, setTableNumber] = useState('');
+    const [error, setError] = useState('');
 
     const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData({
-            ...formData,
-            [name]: value
-        });
+        const raw = e.target.value;
+        // strip "Table " prefix if present, keep only the number
+        const stripped = raw.replace(/^Table\s*/i, '').trim();
+        const num = parseInt(stripped, 10);
 
-        if (errors[name]) {
-            setErrors({
-                ...errors,
-                [name]: ''
-            });
+        if (stripped === '') {
+            setTableNumber('');
+        } else if (!isNaN(num) && num >= 1 && num <= 20) {
+            setTableNumber(String(num));
         }
+        if (error) setError('');
     };
 
-    const validateForm = () => {
-        let newErrors = {};
-
-        if (!formData.name.trim()) {
-            newErrors.name = 'Name is required';
+    const handleKeyDown = (e) => {
+        const current = tableNumber === '' ? 0 : Number(tableNumber);
+        if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            if (current < 20) setTableNumber(String(current + 1));
+        } else if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            if (current > 1) setTableNumber(String(current - 1));
         }
-
-        if (!formData.guests) {
-            newErrors.guests = 'Number of guests is required';
-        } else if (formData.guests < 1 || formData.guests > 30) {
-            newErrors.guests = 'Guests must be between 1 and 30';
-        }
-
-        return newErrors;
+        if (error) setError('');
     };
 
-    const isFormValid = () => {
-        return formData.name.trim() !== '' &&
-            formData.guests !== '' &&
-            formData.guests >= 1 &&
-            formData.guests <= 30;
-    };
+    const isFormValid = () => tableNumber !== '';
 
     const handleContinue = () => {
-        const validationErrors = validateForm();
-        setErrors(validationErrors);
-
-        if (Object.keys(validationErrors).length === 0) {
-            console.log('Customer info:', formData);
-            goToMenu();
+        if (!tableNumber) {
+            setError('Please select a table number');
+            return;
         }
+        console.log('Table number:', tableNumber);
+        goToMenu();
     };
 
     return (
@@ -79,28 +65,38 @@ function CustomerLogin() {
             <div className="customer-login-box">
                 <h2>Hello, Customer</h2>
                 <p className="customer-field-label">Please enter:</p>
-                <p className="customer-field-label">YOUR NAME</p>
-                <input
-                    className={`customer-input ${errors.name ? 'input-error' : ''}`}
-                    type="text"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleChange}
-                    placeholder="Enter your name"
-                />
-                {errors.name && <span className="error-message">{errors.name}</span>}
-                <p className="customer-field-label">NUMBER OF GUESTS</p>
-                <input
-                    className={`customer-input ${errors.guests ? 'input-error' : ''}`}
-                    type="number"
-                    name="guests"
-                    min="1"
-                    max="30"
-                    value={formData.guests}
-                    onChange={handleChange}
-                    placeholder="Enter number of guests"
-                />
-                {errors.guests && <span className="error-message">{errors.guests}</span>}
+                <p className="customer-field-label">TABLE NUMBER</p>
+                <div className="customer-input-wrapper">
+                    <input
+                        className={`customer-input ${error ? 'input-error' : ''}`}
+                        type="text"
+                        value={tableNumber === '' ? '' : `Table ${tableNumber}`}
+                        onChange={handleChange}
+                        onKeyDown={handleKeyDown}
+                        placeholder="Enter table number"
+                    />
+                    <div className="spinner-arrows">
+                        <button
+                            className="spinner-btn"
+                            tabIndex={-1}
+                            onClick={() => {
+                                const cur = tableNumber === '' ? 0 : Number(tableNumber);
+                                if (cur < 20) setTableNumber(String(cur + 1));
+                                if (error) setError('');
+                            }}
+                        >▲</button>
+                        <button
+                            className="spinner-btn"
+                            tabIndex={-1}
+                            onClick={() => {
+                                const cur = Number(tableNumber);
+                                if (cur > 1) setTableNumber(String(cur - 1));
+                                if (error) setError('');
+                            }}
+                        >▼</button>
+                    </div>
+                </div>
+                {error && <span className="error-message">{error}</span>}
                 <button
                     className={`customer-button ${!isFormValid() ? 'customer-button-disabled' : ''}`}
                     onClick={handleContinue}
