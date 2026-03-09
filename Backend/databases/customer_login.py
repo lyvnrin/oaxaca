@@ -26,6 +26,17 @@ def create_tables(conn):
         )
     """)
 
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS order_item (
+            order_item   INTEGER PRIMARY KEY AUTOINCREMENT,
+            FOREIGN KEY (order_id) REFERENCES order (order_id)
+                ON DELETE SET NULL ON UPDATE NO ACTION,
+            FOREIGN KEY (item_id) REFERENCES menu_items (item_id)
+                ON DELETE SET NULL ON UPDATE NO ACTION,
+            quantity INTEGER
+        )
+    """)
+
     conn.commit()
     print("Tables created successfully.")
 
