@@ -39,14 +39,30 @@ function CustomerLogin() {
 
     const isFormValid = () => tableNumber !== '';
 
-    const handleContinue = () => {
-        if (!tableNumber) {
-            setError('Please select a table number');
+    const handleContinue = async () => {
+    if (!tableNumber) {
+        setError('Please select a table number');
+        return;
+    }
+
+    try {
+        const res = await fetch('http://127.0.0.1:8000/customers', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name: `Table ${tableNumber}`, table_id: parseInt(tableNumber) }),
+        });
+
+        if (!res.ok) {
+            const data = await res.json();
+            setError(data.detail || 'Something went wrong');
             return;
         }
-        console.log('Table number:', tableNumber);
+
         goToMenu();
-    };
+    } catch (err) {
+        setError('Could not reach server');
+    }
+};
 
     return (
         <div className="customer-page">
