@@ -18,10 +18,8 @@ function StaffLanding() {
                 contrast={1.2} gamma={1} saturation={0.6}
                 centerX={-0.09} centerY={0.05} zoom={0.9}
             />
-            
-            {/* <button className="back-button" onClick={() => navigate('/')}>←</button> */}
+
             <div className="top-nav">
-                {/* <a className="nav-link" href="/settings">SETTINGS</a> */}
                 <a className= "nav-link" href="/">Home</a>
             </div>
 
@@ -33,6 +31,8 @@ function StaffLanding() {
                     <button className="book-btn" onClick={() => navigate('/waiter-login')}>WAITER</button>
                     <span className="or-text">or</span>
                     <button className="book-btn" onClick={() => navigate('/kitchen-login')}>KITCHEN</button>
+                    <span className="or-text">or</span>
+                    <button className="book-btn" onClick={() => navigate('/manager-login')}>MANAGER</button>
                 </div>
             </div>
         </div>
