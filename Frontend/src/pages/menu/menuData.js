@@ -192,3 +192,159 @@ export const MENU_DATA = {
     },
   ],
 };
+
+export const INGREDIENTS = {
+  "1": ["Food1", "Food2", "Food3", "Food4", "Food5"],
+  "2": ["Food1", "Food2", "Food3", "Food4", "Food5"],
+  "3": ["Food1", "Food2", "Food3", "Food4", "Food5"],
+  "4": ["Food1", "Food2", "Food3", "Food4", "Food5"],
+  "5": ["Food1", "Food2", "Food3", "Food4", "Food5"],
+  "6": ["Food1", "Food2", "Food3", "Food4", "Food5"],
+  "7": ["Food1", "Food2", "Food3", "Food4", "Food5"],
+  "8": ["Food1", "Food2", "Food3", "Food4", "Food5"],
+  "9": ["Food1", "Food2", "Food3", "Food4", "Food5"],
+  "10": ["Food1", "Food2", "Food3", "Food4", "Food5"],
+  "11": ["Food1", "Food2", "Food3", "Food4", "Food5"],
+  "12": ["Food1", "Food2", "Food3", "Food4", "Food5"],
+  "13": ["Food1", "Food2", "Food3", "Food4", "Food5"],
+  "14": ["Food1", "Food2", "Food3", "Food4", "Food5"],
+  "15": ["Food1", "Food2", "Food3", "Food4", "Food5"],
+  "16": ["Food1", "Food2", "Food3", "Food4", "Food5"],
+  "17": ["Food1", "Food2", "Food3", "Food4", "Food5"],
+  "18": ["Food1", "Food2", "Food3", "Food4", "Food5"],
+  "19": ["Food1", "Food2", "Food3", "Food4", "Food5"],
+  "20": ["Food1", "Food2", "Food3", "Food4", "Food5"]
+};
+
+// ===== EXTRAS MAPPING - DIFFERENT FOR EACH ITEM ID =====
+export const EXTRAS_BY_ID = {
+  // Starters (1-4)
+  "1": [
+    { name: "Extra One", price: 0.25 },
+    { name: "Extra Two", price: 0.50 },
+    { name: "Extra Three", price: 0.75 },
+    { name: "Extra Four", price: 1.00 },
+  ],
+  "2": [
+    { name: "Extra One", price: 0.25 },
+    { name: "Extra Two", price: 0.50 },
+    { name: "Extra Three", price: 0.75 },
+    { name: "Extra Four", price: 1.00 },
+  ],
+  "3": [
+    { name: "Extra One", price: 0.25 },
+    { name: "Extra Two", price: 0.50 },
+    { name: "Extra Three", price: 0.75 },
+    { name: "Extra Four", price: 1.00 },
+  ],
+  "4": [
+    { name: "Extra One", price: 0.25 },
+    { name: "Extra Two", price: 0.50 },
+    { name: "Extra Three", price: 0.75 },
+    { name: "Extra Four", price: 1.00 },
+  ],
+
+  // Mains (5-8)
+  "5": [
+    { name: "Extra One", price: 0.25 },
+    { name: "Extra Two", price: 0.50 },
+    { name: "Extra Three", price: 0.75 },
+    { name: "Extra Four", price: 1.00 },
+  ],
+  "6": [
+    { name: "Extra One", price: 0.25 },
+    { name: "Extra Two", price: 0.50 },
+    { name: "Extra Three", price: 0.75 },
+    { name: "Extra Four", price: 1.00 },
+  ],
+  "7": [
+    { name: "Extra One", price: 0.25 },
+    { name: "Extra Two", price: 0.50 },
+    { name: "Extra Three", price: 0.75 },
+    { name: "Extra Four", price: 1.00 },
+  ],
+  "8": [
+    { name: "Extra One", price: 0.25 },
+    { name: "Extra Two", price: 0.50 },
+    { name: "Extra Three", price: 0.75 },
+    { name: "Extra Four", price: 1.00 },
+  ],
+
+  // Desserts (9-11)
+  "9": [
+    { name: "Extra One", price: 0.25 },
+    { name: "Extra Two", price: 0.50 },
+    { name: "Extra Three", price: 0.75 },
+    { name: "Extra Four", price: 1.00 },
+  ],
+  "10": [
+    { name: "Extra One", price: 0.25 },
+    { name: "Extra Two", price: 0.50 },
+    { name: "Extra Three", price: 0.75 },
+    { name: "Extra Four", price: 1.00 },
+  ],
+  "11": [
+    { name: "Extra One", price: 0.25 },
+    { name: "Extra Two", price: 0.50 },
+    { name: "Extra Three", price: 0.75 },
+    { name: "Extra Four", price: 1.00 },
+  ],
+
+  // Sides (12-15)
+  "12": [
+    { name: "Extra One", price: 0.25 },
+    { name: "Extra Two", price: 0.50 },
+    { name: "Extra Three", price: 0.75 },
+    { name: "Extra Four", price: 1.00 },
+  ],
+  "13": [
+    { name: "Extra One", price: 0.25 },
+    { name: "Extra Two", price: 0.50 },
+    { name: "Extra Three", price: 0.75 },
+    { name: "Extra Four", price: 1.00 },
+  ],
+  "14": [
+    { name: "Extra One", price: 0.25 },
+    { name: "Extra Two", price: 0.50 },
+    { name: "Extra Three", price: 0.75 },
+    { name: "Extra Four", price: 1.00 },
+  ],
+  "15": [
+    { name: "Extra One", price: 0.25 },
+    { name: "Extra Two", price: 0.50 },
+    { name: "Extra Three", price: 0.75 },
+    { name: "Extra Four", price: 1.00 },
+  ],
+
+  // Drinks (16-20)
+  "16": [
+    { name: "Extra One", price: 0.25 },
+    { name: "Extra Two", price: 0.50 },
+    { name: "Extra Three", price: 0.75 },
+    { name: "Extra Four", price: 1.00 },
+  ],
+  "17": [
+    { name: "Extra One", price: 0.25 },
+    { name: "Extra Two", price: 0.50 },
+    { name: "Extra Three", price: 0.75 },
+    { name: "Extra Four", price: 1.00 },
+  ],
+  "18": [
+    { name: "Extra One", price: 0.25 },
+    { name: "Extra Two", price: 0.50 },
+    { name: "Extra Three", price: 0.75 },
+    { name: "Extra Four", price: 1.00 },
+  ],
+  "19": [
+    { name: "Extra One", price: 0.25 },
+    { name: "Extra Two", price: 0.50 },
+    { name: "Extra Three", price: 0.75 },
+    { name: "Extra Four", price: 1.00 },
+  ],
+  "20": [
+    { name: "Extra One", price: 0.25 },
+    { name: "Extra Two", price: 0.50 },
+    { name: "Extra Three", price: 0.75 },
+    { name: "Extra Four", price: 1.00 },
+  ],
+};
