@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { CustomerLogin, WaiterLogin, KitchenLogin, Landing, StaffLanding } from "./pages/auth";
+import { CustomerLogin, WaiterLogin, KitchenLogin, Landing, StaffLanding, ManagerLogin } from "./pages/auth";
 import { KitchenDashboard, WaiterDashboard, ManagerDashboard } from "./pages/staff";
 import Menu from "./pages/menu/Menu.jsx";
 
@@ -13,6 +13,7 @@ function App() {
                 <Route path="/customer-login" element={<CustomerLogin />} />
                 <Route path="/waiter-login" element={<WaiterLogin />} />
                 <Route path="/kitchen-login" element={<KitchenLogin />} />
+                <Route path="/manager-login" element={<ManagerLogin />} />
 
                 <Route path="/waiter-dashboard" element={<WaiterDashboard />} />
                 <Route path="/kitchen-dashboard" element={<KitchenDashboard />} />

@@ -32,7 +32,7 @@ function StaffLanding() {
                     <span className="or-text">or</span>
                     <button className="book-btn" onClick={() => navigate('/kitchen-login')}>KITCHEN</button>
                     <span className="or-text">or</span>
-                    <button className="book-btn" onClick={() => navigate('/manager-dashboard')}>MANAGER</button>
+                    <button className="book-btn" onClick={() => navigate('/manager-login')}>MANAGER</button>
                 </div>
             </div>
         </div>
