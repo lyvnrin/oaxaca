@@ -42,27 +42,12 @@ def get_customers():
 def add_customer(payload: CustomerIn):
     conn = get_conn()
     cursor = conn.cursor()
-
-    if payload.table_id:
-        table = cursor.execute(
-            "SELECT occupied FROM tables WHERE table_id = ?", (payload.table_id,)
-        ).fetchone()
-        if not table:
-            raise HTTPException(status_code=404, detail="Table not found")
-        if table["occupied"]:
-            raise HTTPException(status_code=400, detail="Table is already occupied")
-        cursor.execute(
-            "UPDATE tables SET occupied = 1 WHERE table_id = ?", (payload.table_id,)
-        )
-
     cursor.execute(
         "INSERT INTO customers (name, table_id) VALUES (?, ?)",
         (payload.name, payload.table_id),
     )
     conn.commit()
-    row = conn.execute(
-        "SELECT * FROM customers WHERE cust_id = ?", (cursor.lastrowid,)
-    ).fetchone()
+    row = conn.execute( "SELECT * FROM customers WHERE cust_id = ?", (cursor.lastrowid,) ).fetchone()
     conn.close()
     return dict(row)
 
