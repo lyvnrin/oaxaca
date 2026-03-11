@@ -3,12 +3,12 @@ from pydantic import BaseModel
 
 router = APIRouter()
 
-# 1. Define the data model for Login
+# Define the data model for Login
 class LoginRequest(BaseModel):
     username: str
     password: str
 
-# 2. Temporary Database of Staff
+# Temporary Database of Staff
 fake_staff_db = [
     {"id": 1, "username": "waiter1", "password": "password123", "role": "Waiter"},
     {"id": 2, "username": "chef1", "password": "password123", "role": "Kitchen_Staff"},
