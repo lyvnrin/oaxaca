@@ -73,6 +73,72 @@
 
 /* profile dropdown */
 
+.nav-profile-dropdown {
+  position: absolute;
+  top: 44px;
+  right: 0;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+  padding: 16px;
+  min-width: 240px;
+  z-index: 2000;
+}
+
+.nav-profile-header {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.nav-profile-avatar{
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: #4a7c59;
+  color: white;
+  font-size: 14px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+nav-profile-name {
+  font-weight: 700;
+  font-size: 14px;
+  color: #1a1208;
+}
+
+.nav-profile-email {
+  font-size: 12px;
+  color: #888;
+  margin: 2px 0;
+}
+
+.nav-profile-role {
+  font-size: 11px;
+  font-weight: 700;
+  color: #c4622d;
+  letter-spacing: 1px;
+}
+
+.nav-signout-btn {
+  width: 100%;
+  background: none;
+  border: none;
+  text-align: left;
+  color: #c4622d;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 8px 0 4px;
+  border-top: 1px solid #eee;
+  margin-top: 4px;
+}
+
 .kitchen-content {
   height: calc(100vh - 80px);
   margin-top: 80px;
