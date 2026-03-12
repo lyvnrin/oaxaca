@@ -144,11 +144,10 @@ nav-profile-name {
 
 .kitchen-content {
   margin-top: 52px;
+  padding: 0 28px 28px;
   height: calc(100vh - 52px);
   display: flex;
   flex-direction: column;
-  gap: 0;
-  padding: 0 28px 28px;
   overflow: hidden;
 }
 
@@ -242,8 +241,9 @@ nav-profile-name {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 18px;
-  align-items: stretch;
-  overflow: hidden;               /* changed */
+  align-items: start;
+  overflow: hidden;              /* changed */
+  width: 100%;
 }
 
 /* Columns */
