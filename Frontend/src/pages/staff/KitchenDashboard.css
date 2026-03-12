@@ -139,20 +139,16 @@ nav-profile-name {
   margin-top: 4px;
 }
 
-.kitchen-content {
-  height: calc(100vh - 80px);
-  margin-top: 80px;
-  width: 95%;
-  margin-left: auto;
-  margin-right: auto;
+/* content wrapper */
 
+.kitchen-content {
+  margin-top: 52px;
+  height: calc(100vh - 52px);
   display: flex;
   flex-direction: column;
-  gap: 14px;
-  padding: 14px 0;
+  gap: 0;
+  padding: 0 28px 28px;
   overflow: hidden;
-
-  font-family: 'Lato', sans-serif;    /* changed */
 }
 
 /* Board takes most of the screen */
