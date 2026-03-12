@@ -523,7 +523,190 @@ function EmployeesTab({ employees, setEmployees, addToast }) {
         </div>
     );
 }
-function StockTab()     { return <div style={{ gridColumn: "1/-1", background: C.panel, border: `1.5px solid ${C.border}`, borderRadius: 8, padding: 18 }}><span style={{ fontFamily: "Cormorant Garamond, serif", fontSize: 20, fontWeight: 700, color: C.dark }}>Stock Levels</span></div>; }
+const INIT_STOCK = [
+    // ── Produce ──────────────────────────────────────────────────────────────
+    { id: 1,  name: "Avocado",              category: "Produce",   level: 75, unit: "units",   reorderAt: 30, usedIn: ["Guacamole & Chips", "Tlayuda Tostada", "+ Extra Guacamole"] },
+    { id: 2,  name: "Lime",                 category: "Produce",   level: 85, unit: "units",   reorderAt: 25, usedIn: ["Guacamole & Chips", "Ceviche Verde", "Barbacoa Tacos", "Hibiscus Agua Fresca", "Mezcal Margarita", "Mango Sorbet"] },
+    { id: 3,  name: "Jalapeño",             category: "Produce",   level: 60, unit: "units",   reorderAt: 20, usedIn: ["Guacamole & Chips", "Pickled Jalapeños", "+ Extra Jalapeños"] },
+    { id: 4,  name: "Corn (fresh)",         category: "Produce",   level: 55, unit: "kg",      reorderAt: 25, usedIn: ["Elote Esquites"] },
+    { id: 5,  name: "Tomatillo",            category: "Produce",   level: 48, unit: "kg",      reorderAt: 20, usedIn: ["Ceviche Verde"] },
+    { id: 6,  name: "Mango (Alphonso)",     category: "Produce",   level: 50, unit: "units",   reorderAt: 20, usedIn: ["Mango Sorbet"] },
+    { id: 7,  name: "Portobello Mushrooms", category: "Produce",   level: 40, unit: "kg",      reorderAt: 20, usedIn: ["Portobello Enchiladas"] },
+    { id: 8,  name: "White Onion",          category: "Produce",   level: 65, unit: "kg",      reorderAt: 15, usedIn: ["Barbacoa Tacos", "Pickled Jalapeños"] },
+    { id: 9,  name: "Red Onion",            category: "Produce",   level: 70, unit: "kg",      reorderAt: 15, usedIn: ["Cochinita Pibil", "+ Pickled Onion"] },
+    { id: 10, name: "Cucumber",             category: "Produce",   level: 55, unit: "units",   reorderAt: 15, usedIn: ["Ceviche Verde"] },
+    { id: 11, name: "Coriander",            category: "Produce",   level: 72, unit: "bunches", reorderAt: 20, usedIn: ["Ceviche Verde", "Barbacoa Tacos", "Mexican Rice"] },
+    { id: 12, name: "Hibiscus (dried)",     category: "Produce",   level: 58, unit: "kg",      reorderAt: 20, usedIn: ["Hibiscus Agua Fresca"] },
+    { id: 13, name: "Mint",                 category: "Produce",   level: 65, unit: "bunches", reorderAt: 15, usedIn: ["Horchata"] },
+    { id: 14, name: "Tomatoes",             category: "Produce",   level: 62, unit: "kg",      reorderAt: 20, usedIn: ["Snapper Veracruz", "Mexican Rice"] },
+    { id: 15, name: "Olives",              category: "Produce",   level: 44, unit: "kg",      reorderAt: 15, usedIn: ["Snapper Veracruz"] },
+    { id: 16, name: "Capers",              category: "Produce",   level: 50, unit: "kg",      reorderAt: 15, usedIn: ["Snapper Veracruz"] },
+    { id: 17, name: "Chilli Salt (Mango)", category: "Produce",   level: 68, unit: "units",   reorderAt: 15, usedIn: ["Mango Sorbet"] },
+    // ── Protein ──────────────────────────────────────────────────────────────
+    { id: 18, name: "Sea Bass / Snapper",   category: "Protein",   level: 12, unit: "kg",      reorderAt: 30, usedIn: ["Ceviche Verde", "Snapper Veracruz"] },
+    { id: 19, name: "Beef Cheek",           category: "Protein",   level: 60, unit: "kg",      reorderAt: 25, usedIn: ["Barbacoa Tacos", "+ Extra Beef"] },
+    { id: 20, name: "Chicken (free-range)", category: "Protein",   level: 55, unit: "kg",      reorderAt: 25, usedIn: ["Mole Negro Chicken"] },
+    { id: 21, name: "Pork Shoulder",        category: "Protein",   level: 50, unit: "kg",      reorderAt: 20, usedIn: ["Cochinita Pibil (Cochinita Pibil is not on MENU_DATA — retained from original menu)"] },
+    { id: 22, name: "Chorizo",              category: "Protein",   level: 55, unit: "kg",      reorderAt: 25, usedIn: ["Tlayuda Tostada", "+ Extra Chorizo"] },
+    // ── Dairy ────────────────────────────────────────────────────────────────
+    { id: 23, name: "Cotija Cheese",        category: "Dairy",     level: 40, unit: "kg",      reorderAt: 30, usedIn: ["Elote Esquites", "Tlayuda Tostada", "+ Extra Cheese"] },
+    { id: 24, name: "Quesillo",             category: "Dairy",     level: 35, unit: "kg",      reorderAt: 25, usedIn: ["Tlayuda Tostada", "+ Extra Quesillo"] },
+    { id: 25, name: "Crema / Sour Cream",   category: "Dairy",     level: 68, unit: "kg",      reorderAt: 25, usedIn: ["Elote Esquites", "Black Bean Pot", "+ Extra Sour Cream"] },
+    { id: 26, name: "Eggs",                 category: "Dairy",     level: 80, unit: "units",   reorderAt: 30, usedIn: ["Churro Sundae", "Mezcal Flan"] },
+    { id: 27, name: "Vanilla Ice Cream",    category: "Dairy",     level: 55, unit: "litres",  reorderAt: 20, usedIn: ["Churro Sundae"] },
+    { id: 28, name: "Oat Milk",             category: "Dairy",     level: 60, unit: "litres",  reorderAt: 20, usedIn: ["Mexican Hot Chocolate (not on shared menu — retained)"] },
+    // ── Dry Goods & Pantry ───────────────────────────────────────────────────
+    { id: 29, name: "Corn Masa (nixtamal)", category: "Dry Goods", level: 35, unit: "kg",      reorderAt: 40, usedIn: ["Corn Tortillas", "Tlayuda Tostada"] },
+    { id: 30, name: "Black Beans (dried)",  category: "Dry Goods", level: 90, unit: "kg",      reorderAt: 20, usedIn: ["Black Bean Pot", "Tlayuda Tostada", "Portobello Enchiladas"] },
+    { id: 31, name: "Rice",                 category: "Dry Goods", level: 78, unit: "kg",      reorderAt: 20, usedIn: ["Mexican Rice", "Mole Negro Chicken", "Horchata"] },
+    { id: 32, name: "Ancho Chilli",         category: "Dry Goods", level: 22, unit: "units",   reorderAt: 25, usedIn: ["Elote Esquites", "Mole Negro Chicken", "+ Extra Chilli"] },
+    { id: 33, name: "Achiote Paste",        category: "Dry Goods", level: 45, unit: "kg",      reorderAt: 20, usedIn: ["Cochinita Pibil"] },
+    { id: 34, name: "Epazote",              category: "Dry Goods", level: 50, unit: "bunches", reorderAt: 15, usedIn: ["Elote Esquites", "Black Bean Pot"] },
+    { id: 35, name: "Sesame Seeds",         category: "Dry Goods", level: 60, unit: "kg",      reorderAt: 15, usedIn: ["Mole Negro Chicken"] },
+    { id: 36, name: "Chipotle Sauce",       category: "Dry Goods", level: 42, unit: "kg",      reorderAt: 15, usedIn: ["Portobello Enchiladas"] },
+    { id: 37, name: "Dark Chocolate",       category: "Dry Goods", level: 48, unit: "kg",      reorderAt: 20, usedIn: ["Churro Sundae", "+ Extra Chocolate Sauce"] },
+    { id: 38, name: "Cashew Crema",         category: "Dry Goods", level: 38, unit: "kg",      reorderAt: 20, usedIn: ["Portobello Enchiladas"] },
+    { id: 39, name: "Cinnamon",             category: "Dry Goods", level: 70, unit: "units",   reorderAt: 15, usedIn: ["Horchata"] },
+    { id: 40, name: "Vanilla Extract",      category: "Dry Goods", level: 65, unit: "units",   reorderAt: 15, usedIn: ["Horchata", "Churro Sundae"] },
+    { id: 41, name: "Habanero Salsa",       category: "Dry Goods", level: 55, unit: "kg",      reorderAt: 15, usedIn: ["Cochinita Pibil", "+ Extra Habanero"] },
+    { id: 42, name: "Salsa Verde",          category: "Dry Goods", level: 60, unit: "kg",      reorderAt: 15, usedIn: ["Barbacoa Tacos", "+ Salsa Verde"] },
+    { id: 43, name: "Apple Cider Vinegar",  category: "Dry Goods", level: 72, unit: "litres",  reorderAt: 15, usedIn: ["Pickled Jalapeños"] },
+    { id: 44, name: "Cumin",               category: "Dry Goods", level: 80, unit: "units",   reorderAt: 15, usedIn: ["Mexican Rice"] },
+    { id: 45, name: "Almond (extract)",    category: "Dry Goods", level: 55, unit: "units",   reorderAt: 15, usedIn: ["Horchata"] },
+    { id: 46, name: "Caramel",             category: "Dry Goods", level: 48, unit: "kg",      reorderAt: 20, usedIn: ["Mezcal Flan"] },
+    // ── Bar ──────────────────────────────────────────────────────────────────
+    { id: 47, name: "Mezcal (Joven)",       category: "Bar",       level: 45, unit: "bottles", reorderAt: 30, usedIn: ["Mezcal Margarita", "Mezcal Flan"] },
+    { id: 48, name: "Agave Syrup",          category: "Bar",       level: 55, unit: "litres",  reorderAt: 20, usedIn: ["Mezcal Margarita"] },
+    { id: 49, name: "Smoked Salt",          category: "Bar",       level: 70, unit: "units",   reorderAt: 15, usedIn: ["Mezcal Margarita"] },
+    { id: 50, name: "Mexican Lager",        category: "Bar",       level: 70, unit: "bottles", reorderAt: 30, usedIn: ["Mexican Lager"] },
+    { id: 51, name: "Still / Sparkling Water", category: "Bar",    level: 80, unit: "bottles", reorderAt: 20, usedIn: ["Water"] },
+    { id: 52, name: "Cane Sugar",           category: "Bar",       level: 75, unit: "kg",      reorderAt: 15, usedIn: ["Hibiscus Agua Fresca"] },
+];
+
+const stockStatus = (level) =>
+    level >= 50 ? { color: C.green, bg: C.greenL, label: "Good"     }
+        : level >= 25 ? { color: C.amber, bg: C.amberL, label: "Low"      }
+            :               { color: C.red,   bg: C.redL,   label: "Critical" };
+
+function StockTab({ stock, setStock, addToast }) {
+    const [search, setSearch] = useState("");
+
+    const q        = search.trim().toLowerCase();
+    const filtered = q
+        ? stock.filter(s =>
+            s.name.toLowerCase().includes(q) ||
+            s.category.toLowerCase().includes(q) ||
+            s.usedIn.some(d => d.toLowerCase().includes(q))
+        )
+        : stock;
+
+    const categories = [...new Set(filtered.map(s => s.category))];
+    const lowCount   = stock.filter(s => s.level < 50).length;
+    const critCount  = stock.filter(s => s.level < 25).length;
+
+    const restock    = (id) => {
+        const item = stock.find(s => s.id === id);
+        setStock(prev => prev.map(s => s.id === id ? { ...s, level: 100 } : s));
+        addToast(`${item.name} restocked ✓`);
+    };
+    const restockAll = () => {
+        setStock(prev => prev.map(s => s.level < 50 ? { ...s, level: 100 } : s));
+        addToast("All low stock restocked ✓");
+    };
+
+    return (
+        <div style={{ gridColumn: "1/-1", background: C.panel, border: `1.5px solid ${C.border}`, borderRadius: 8, padding: 18, display: "flex", flexDirection: "column", gap: 16 }}>
+
+            {/* Header */}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <span style={{ fontFamily: "Cormorant Garamond, serif", fontSize: 20, fontWeight: 700, color: C.dark }}>Stock Levels</span>
+                <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                    {critCount > 0 && <span style={{ fontSize: 10, fontWeight: 600, letterSpacing: ".08em", textTransform: "uppercase", padding: "3px 9px", borderRadius: 20, background: C.redL,   color: C.red   }}>{critCount} Critical</span>}
+                    {lowCount  > 0 && <span style={{ fontSize: 10, fontWeight: 600, letterSpacing: ".08em", textTransform: "uppercase", padding: "3px 9px", borderRadius: 20, background: C.amberL, color: C.amber }}>{lowCount} Low</span>}
+                    {lowCount  > 0 && <button onClick={restockAll} style={{ fontSize: 11, fontWeight: 600, letterSpacing: ".06em", textTransform: "uppercase", padding: "6px 13px", borderRadius: 5, border: "none", background: C.mid, color: "white", cursor: "pointer", fontFamily: "Jost, sans-serif" }}>Restock All Low</button>}
+                </div>
+            </div>
+            <div style={{ height: 1, background: C.border }} />
+
+            {/* Summary cards + Search in one row */}
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 240px", gap: 12, alignItems: "stretch" }}>
+                {[
+                    { label: "Good (≥50%)",     val: stock.filter(s => s.level >= 50).length, color: C.green, bg: C.greenL },
+                    { label: "Low (25–49%)",    val: stock.filter(s => s.level >= 25 && s.level < 50).length, color: C.amber, bg: C.amberL },
+                    { label: "Critical (<25%)", val: stock.filter(s => s.level < 25).length,  color: C.red,   bg: C.redL   },
+                ].map((s, i) => (
+                    <div key={i} style={{ background: s.bg, borderRadius: 6, padding: "12px 16px", display: "flex", alignItems: "center", gap: 12 }}>
+                        <div style={{ fontFamily: "Cormorant Garamond, serif", fontSize: 30, fontWeight: 700, color: s.color, lineHeight: 1 }}>{s.val}</div>
+                        <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: ".08em", textTransform: "uppercase", color: s.color }}>{s.label}</div>
+                    </div>
+                ))}
+                {/* Search box */}
+                <div style={{ display: "flex", alignItems: "center", gap: 8, background: C.bg, border: `1.5px solid ${q ? C.warm : C.border}`, borderRadius: 6, padding: "0 12px", transition: "border-color .15s" }}>
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={q ? C.warm : C.muted} strokeWidth="2.5" strokeLinecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <input value={search} onChange={e => setSearch(e.target.value)}
+                           placeholder="Search ingredient or dish…"
+                           style={{ border: "none", background: "transparent", outline: "none", fontSize: 12, fontFamily: "Jost, sans-serif", color: C.text, width: "100%", padding: "10px 0" }} />
+                    {search && <button onClick={() => setSearch("")} style={{ background: "none", border: "none", cursor: "pointer", color: C.muted, fontSize: 14, lineHeight: 1, padding: "0 2px" }}>✕</button>}
+                </div>
+            </div>
+
+            {/* Search result hint */}
+            {q && (
+                <div style={{ fontSize: 11, color: C.muted }}>
+                    {filtered.length === 0 ? `No items match "${search}".` : `${filtered.length} item${filtered.length !== 1 ? "s" : ""} found for "${search}"`}
+                </div>
+            )}
+
+            {/* Per-category sections */}
+            {categories.map(cat => (
+                <div key={cat}>
+                    <div style={{ fontSize: 11, letterSpacing: ".1em", textTransform: "uppercase", color: C.muted, fontWeight: 600, paddingBottom: 6, borderBottom: `1px solid ${C.border}`, marginBottom: 10 }}>{cat}</div>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 10 }}>
+                        {filtered.filter(s => s.category === cat).map(s => {
+                            const st = stockStatus(s.level);
+                            const belowReorder = s.level <= s.reorderAt;
+                            return (
+                                <div key={s.id} style={{ background: C.bg, border: `1px solid ${belowReorder ? st.color + "66" : C.border}`, borderRadius: 7, padding: "12px 14px", display: "flex", flexDirection: "column", gap: 8 }}>
+                                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                        <span style={{ fontSize: 13, fontWeight: 600, color: C.text }}>{s.name}</span>
+                                        <span style={{ fontSize: 10, fontWeight: 700, color: st.color, background: st.bg, padding: "2px 8px", borderRadius: 10 }}>{st.label}</span>
+                                    </div>
+                                    <div style={{ fontSize: 10, color: C.muted, lineHeight: 1.5 }}>{s.usedIn.join(" · ")}</div>
+                                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                                        <div style={{ flex: 1, height: 8, background: C.pale, borderRadius: 4, overflow: "hidden" }}>
+                                            <div style={{ height: "100%", width: `${s.level}%`, background: st.color, borderRadius: 4, transition: "width .3s" }} />
+                                        </div>
+                                        <span style={{ fontSize: 12, color: C.muted, width: 34, textAlign: "right", flexShrink: 0 }}>{s.level}%</span>
+                                    </div>
+                                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                                        <input type="range" min={0} max={100} value={s.level}
+                                               onChange={e => setStock(prev => prev.map(i => i.id === s.id ? { ...i, level: +e.target.value } : i))}
+                                               style={{ flex: 1, accentColor: C.warm }} />
+                                        <button onClick={() => restock(s.id)}
+                                                style={{ fontSize: 10, fontWeight: 600, padding: "4px 10px", borderRadius: 4, border: "none", background: C.mid, color: "white", cursor: "pointer", fontFamily: "Jost, sans-serif", whiteSpace: "nowrap" }}>
+                                            Restock
+                                        </button>
+                                    </div>
+                                    {belowReorder && (
+                                        <div style={{ fontSize: 10, color: st.color, fontWeight: 600 }}>
+                                            ⚠ Below reorder point ({s.reorderAt}%)
+                                        </div>
+                                    )}
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
+            ))}
+
+            {filtered.length === 0 && q && (
+                <div style={{ textAlign: "center", padding: "32px 0", color: C.muted, fontSize: 13 }}>
+                    No ingredients found for <strong>"{search}"</strong>
+                </div>
+            )}
+        </div>
+    );
+}
 
 export default function ManagerDashboard() {
     const [tab,           setTab]           = useState("Overview");
@@ -531,6 +714,7 @@ export default function ManagerDashboard() {
     const [requests,      setRequests]      = useState(INIT_REQUESTS);
     const [menu,          setMenu]          = useState(INIT_MENU);
     const [employees,     setEmployees]     = useState(INIT_EMPLOYEES);
+    const [stock,         setStock]         = useState(INIT_STOCK);
     const [notifications, setNotifications] = useState(INIT_NOTIFICATIONS);
     const [toasts,        setToasts]        = useState([]);
     const [showNotifs,    setShowNotifs]    = useState(false);
@@ -597,7 +781,7 @@ export default function ManagerDashboard() {
                 {tab === "Overview"  && <OverviewTab tables={tables} setTables={setTables} requests={requests} setRequests={setRequests} addToast={addToast} />}
                 {tab === "Menu"      && <MenuTab menu={menu} setMenu={setMenu} addToast={addToast} />}
                 {tab === "Employees" && <EmployeesTab employees={employees} setEmployees={setEmployees} addToast={addToast} />}
-                {tab === "Stock"     && <StockTab />}
+                {tab === "Stock"     && <StockTab stock={stock} setStock={setStock} addToast={addToast} />}
             </div>
 
             <div style={{ position: "fixed", bottom: 24, right: 24, display: "flex", flexDirection: "column", gap: 8, zIndex: 9999, pointerEvents: "none" }}>
