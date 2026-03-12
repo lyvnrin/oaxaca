@@ -294,11 +294,48 @@ nav-profile-name {
 }
 
 /* Pending confirmation card */
-.order-card {
-  background: #FFF2D8;                /* changed */
-  border: 2px solid black;
-  border-radius: 16px;
-  padding: 12px;
+.compact-card {
+  background: #faf8f4;                /* changed */
+  border: 1.5px solid #e8e0d4;;
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-bottom: 0;
+}
+
+.compacy-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.table-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1a1208;
+  margin-bottom: 0;
+}
+
+.table-time {
+  font-size: 12px;
+  color: #c4622d;
+  font-weight: 600;
+  margin-bottom: 0;
+}
+
+compact-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px 0;
+  border-top: 1px solid #ede6dc;
+  font-size: 13px;
+  color: #3a2e22;
+}
+
+.compact-qty {
+  font-weight: 700;
+  color: #5a4a38;
 }
 
 .order-pill {
