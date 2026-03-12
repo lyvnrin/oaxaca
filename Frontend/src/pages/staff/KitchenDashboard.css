@@ -4,13 +4,14 @@
 /* Page */
 .kitchen-page {
   height: 100vh;
-  background: linear-gradient(135deg, #0e0e0e 0%, #781111 50%, #E67E22 100%);          /* changed */
+  background:#f5f0e8;          /* changed */
   /* font-family: Georgia, "Times New Roman", serif; */
   overflow: hidden;
 
   font-family: 'Lato', sans-serif;    /* changed */
-  font-size: 18px;    /* changed */
-  line-height: 1.8;   /* changed */
+  font-size: 14px;    /* changed */
+  color: #1a1208;
+  position: relative;
 }
 
 /* Navbar (fixed at top) */
@@ -21,27 +22,26 @@
   right: 0;
   z-index: 1000;
 
+  height: 52px;
+  background: #2c1a0e;
+
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  padding: 0px 28px;
 
-  padding: 10px 24px;
-  background: transparent;        /* changed */
-  /* border-bottom: 4px solid #e67e22;       /* changed */
-  height: 80px;
-
-  font-family: 'Cormorant', serif;    /* changed */
 }
 
 .nav-brand {
-  font-size: 80px;            /* changed */
-  font-weight: 900;
-  letter-spacing: 6px;
-  color: #FFF2D8;             /* changed */
+  font-family: 'Cormorant', serif;
+  font-size: 18px;            /* changed */
+  font-weight: 400;
+  letter-spacing: 10px;
+  color: #f5f0e8;             /* changed */
 }
 
 .nav-icons {
   display: flex;
+  align-items: center;
   gap: 12px;
 }
 
