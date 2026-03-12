@@ -31,26 +31,24 @@ const initialPending = [
   },
 ];
 
+const TODAY = new Date().toLocaleDateString("en-GB", {
+  weekday: "long",
+  day: "numeric",
+  month: "long",
+});
+
 export default function KitchenDashboard() {
   const [pending, setPending] = useState(initialPending);
   const [prepare, setPrepare] = useState([]);
   const [service, setService] = useState([]);
   const [completed, setCompleted] = useState([]);
-  const [toast, setToast] = useState("");
-
-  const showToast = (msg) => {
-    setToast(msg);
-    window.clearTimeout(showToast._t);
-    showToast._t = window.setTimeout(() => setToast(""), 1800);
-  };
+  const [showProfile, setShowProfile] = useState(false);
 
   const move = (from, setFrom, to, setTo, orderId, msg) => {
     const order = from.find((o) => o.id === orderId);
     if (!order) return;
-
     setFrom(from.filter((o) => o.id !== orderId));
     setTo([order, ...to]);
-    showToast(msg);
   };
 
   const confirmOrder = (id) =>
@@ -60,7 +58,6 @@ export default function KitchenDashboard() {
       prepare,
       setPrepare,
       id,
-      "Confirmed → Ready to Prepare"
     );
 
   const prepareOrder = (id) =>
@@ -69,56 +66,82 @@ export default function KitchenDashboard() {
       setPrepare,
       service,
       setService,
-      id,
-      "Prepared → Ready for Service"
+      id
     );
 
   const deliveredOrder = (id) => {
     const order = service.find((o) => o.id === id);
     if (!order) return;
-
     setService(service.filter((o) => o.id !== id));
     setCompleted([order, ...completed]);
-    showToast("Delivered ✅");
   };
 
   const activeCount = pending.length + prepare.length + service.length;
 
   return (
-    <div className="kitchen-page">
+    <div className="kitchen-page" onClick={() => setShowProfile(false)}>
       {/* NAVBAR */}
       <header className="kitchen-nav">
-        <div className="nav-brand">OAXACA</div>
-
+        <div className="nav-brand">O A X A C A</div>
         <div className="nav-icons">
-          <button className="nav-icon" aria-label="Menu">
-            ≡
-          </button>
-          <button className="nav-icon" aria-label="User">
-            👤
-          </button>
-          <button className="nav-icon" aria-label="Notifications">
-            🔔
-          </button>
+          <span className="nav-kitchen-label">KITCHEN VIEW</span>
+        <div
+          className="nav-avatar"
+          onClick={(e) => { e.stopPropagation(); setShowProfile(!showProfile); }}
+        >
+          AK
+          {showProfile && (
+            <div className="nav-profile-dropdown" onClick={(e) => e.stopPropagation()}>
+              <div className="nav-profile-header">
+                <div className="nav-profile-avatar">AK</div>
+                  <div>
+                    <div className="nav-profile-name">Aisha K.</div>
+                    <div className="nav-profile-email">aisha.k@oaxaca.com</div>
+                    <div className="nav-profile-role">HEAD CHEF</div>
+                  </div>
+                </div>
+                <button className="nav-signout-btn">→ Sign Out</button>
+              </div>
+            )}
+          </div>
         </div>
       </header>
 
       <div className="kitchen-content">
-       
-        {toast && <div className="toast">{toast}</div>}
+        {/* PAGE HEADER */}
+        <div className="kitchen-page-header">
+            <h1 className="kitchen-title">Kitchen Dashboard</h1>
+            <p className="kitchen-date">{TODAY}</p>
+        </div>
+        <div className="kitchen-header-right">
+            <div className="active-orders-box">
+              <div className="active-orders-label">ACTIVE ORDERS</div>
+              <div className="active-orders-count">{activeCount}</div>
+            </div>
+            <div className="live-pill">
+              <span className="live-dot" /> LIVE
+            </div>
+          </div>
+        </div>
+
 
         {/* BOARD */}
         <div className="kitchen-board">
           {/* Pending Confirmation */}
-          <div className="kitchen-column">
-            <div className="column-header">Pending Confirmation</div>
-
+          <div className="kitchen-column kitchen-column--pending">
+            <div className="column-header">
+              <span>Pending Confirmation</span>
+              <span className="column-badge column-badge--amber">
+                {pending.length} {pending.length === 1 ? "order" : "orders"}
+                </span>
+            </div>
             <div className="column-scroll">
               {pending.map((o) => (
                 <div className="compact-card" key={o.id}>
-                  <div className="table-title">{o.table}</div>
-                  <div className="table-time">{o.time}</div>
-
+                  <div className="compacy-card-header">
+                    <span className="table-title">{o.table}</span>
+                    <span className="table-time">{o.time}</span>
+                  </div>
                   {o.items.map((it, idx) => (
                     <div className="compact-row" key={idx}>
                       <span>{it.name}</span>
@@ -130,7 +153,7 @@ export default function KitchenDashboard() {
                     className="confirm-btn"
                     onClick={() => confirmOrder(o.id)}
                   >
-                    Confirm Order
+                    CONFIRM ORDER
                   </button>
                 </div>
               ))}
@@ -142,19 +165,24 @@ export default function KitchenDashboard() {
           </div>
 
           {/* Ready to Prepare */}
-          <div className="kitchen-column">
-            <div className="column-header">Ready to Prepare</div>
-
+          <div className="kitchen-column kitchen-column--preparing">
+            <div className="column-header">
+              <span>Preparing</span>
+              <span className="column-badge column-badge--olive">
+                {prepare.length} {prepare.length === 1 ? "order" : "orders"}
+              </span>
+            </div>
             <div className="column-scroll">
               {prepare.map((o) => (
                 <div className="compact-card" key={o.id}>
-                  <div className="table-title">{o.table}</div>
-                  <div className="table-time">{o.time}</div>
-
+                  <div className= "compact-card-header">
+                    <span className="table-title">{o.table}</span>
+                    <span className="table-time">⏱ {o.time}</span>
+                  </div>
                   {o.items.map((it, idx) => (
                     <div className="compact-row" key={idx}>
                       <span>{it.name}</span>
-                      <span className="compact-qty">Qty: {it.qty}</span>
+                      <span className="compact-qty">×{it.qty}</span>
                     </div>
                   ))}
 
@@ -162,13 +190,13 @@ export default function KitchenDashboard() {
                     className="prepare-btn"
                     onClick={() => prepareOrder(o.id)}
                   >
-                    Prepare
+                    NOTIFY WAITER
                   </button>
                 </div>
               ))}
 
               {prepare.length === 0 && (
-                <div className="empty">No orders to prepare</div>
+                <div className="empty">No orders preparing</div>
               )}
             </div>
           </div>
