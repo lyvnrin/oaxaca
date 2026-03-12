@@ -1,0 +1,123 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300..700;1,300..700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap');
+
+.manager-login-page {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+.manager-login-box {
+    position: relative;
+    z-index: 1;
+    background: radial-gradient(circle at center, #faf0d7 0%, #e8d5b0 50%, #d4b896 100%);
+    width: 280px;
+    padding: 30px 25px;
+    border-radius: 20px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.35), 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.manager-login-box h2 {
+    margin: 0 0 20px;
+    font-size: 28px;
+    font-family: "Cormorant", serif;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-bottom: 0;
+}
+
+.manager-login-box p {
+    font-family: "Lato", sans-serif;
+}
+
+.manager-login-field-label {
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    color: #2a1a0a;
+    text-align: center;
+    margin: 10px 0 6px;
+    font-family: "Lato", sans-serif;
+    text-transform: uppercase;
+}
+
+.manager-login-input {
+    width: 100%;
+    padding: 10px;
+    font-size: 15px;
+    background-color: #f0e8d8;
+    border: none;
+    border-radius: 8px;
+    box-sizing: border-box;
+    outline: none;
+    margin-bottom: 5px;
+}
+
+.manager-login-input--error {
+    border: 1px solid #c0392b;
+}
+
+.manager-login-error {
+    font-size: 11px;
+    color: #c0392b;
+    font-family: "Lato", sans-serif;
+    margin-bottom: 4px;
+}
+
+.manager-login-button {
+    margin-top: 20px;
+    padding: 12px 40px;
+    font-family: "Times New Roman", serif;
+    font-size: 18px;
+    background-color: #8B2E00;
+    color: #f0e8d8;
+    border: none;
+    border-radius: 25px;
+    cursor: not-allowed;
+    transition: 0.2s ease;
+}
+
+.manager-login-button:not(:disabled) {
+    cursor: pointer;
+}
+
+.manager-login-button:hover:not(:disabled) {
+    background-color: #6B2200;
+}
+
+.manager-login-button:disabled,
+.manager-login-button--disabled {
+    background-color: rgba(0, 0, 0, 0.35);
+    color: rgba(240, 232, 216, 0.7);
+    cursor: not-allowed;
+}
+
+.manager-login-button:disabled:hover {
+    background-color: #6B2200;
+    color: #f0e8d8;
+}
+
+.manager-login-back-button {
+    position: absolute;
+    top: 25px;
+    left: 25px;
+    background-color: transparent !important;
+    border: none;
+    outline: none;
+    font-size: 30px;
+    color: #FFF2D8;
+    cursor: pointer;
+    padding: 0;
+    z-index: 1;
+}
+
+.manager-login-back-button:hover {
+    transform: scale(1.2);
+}
