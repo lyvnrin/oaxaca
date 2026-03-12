@@ -35,7 +35,9 @@ function Header({ tableNumber, cartCount, onCartClick }) {
   return (
     <header className="header">
       <span className="table-number">{tableNumber}</span>
-      <h1 className="restaurant-title">OAXACA</h1>
+      <a href="/" style={{ textDecoration: 'none', color: 'inherit' }} className="no-style-link">
+  <h1 className="restaurant-title">OAXACA</h1>
+</a>
       <div className="header-right">
         <CartIcon count={cartCount} onClick={onCartClick} />
         <div className="hamburger-wrapper">
