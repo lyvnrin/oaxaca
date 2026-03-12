@@ -5,7 +5,7 @@ const initialPending = [
   {
     id: 1,
     table: "Table 01",
-    time: "5 minutes ago",
+    mins: "5 minutes ago",
     items: [
       { name: "Tacos", qty: 2 },
       { name: "Nachos", qty: 1 },
@@ -14,19 +14,19 @@ const initialPending = [
   {
     id: 2,
     table: "Table 02",
-    time: "8 minutes ago",
+    mins: "8 minutes ago",
     items: [{ name: "Burrito", qty: 1 }],
   },
   {
     id: 3,
     table: "Table 03",
-    time: "12 minutes ago",
+    mins: "12 minutes ago",
     items: [{ name: "Quesadilla", qty: 2 }],
   },
   {
     id: 4,
     table: "Table 04",
-    time: "15 minutes ago",
+    mins: "15 minutes ago",
     items: [{ name: "Churros", qty: 3 }],
   },
 ];
@@ -110,8 +110,10 @@ return (
     <div className="kitchen-content">
       {/* PAGE HEADER */}
       <div className="kitchen-page-header">
+        <div>
           <h1 className="kitchen-title">Kitchen Dashboard</h1>
           <p className="kitchen-date">{TODAY}</p>
+        </div>
       </div>
       <div className="kitchen-header-right">
           <div className="active-orders-box">
@@ -122,6 +124,7 @@ return (
             <span className="live-dot" /> LIVE
           </div>
       </div>
+    </div>
 
 
       {/* BOARD */}
@@ -139,7 +142,7 @@ return (
               <div className="compact-card" key={o.id}>
                 <div className="compact-card-header">
                   <span className="table-title">{o.table}</span>
-                  <span className="table-time">{o.time}</span>
+                  <span className="table-time">{o.mins}</span>
                 </div>
                 {o.items.map((it, idx) => (
                   <div className="compact-row" key={idx}>
