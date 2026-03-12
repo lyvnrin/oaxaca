@@ -11,21 +11,21 @@ const C = {
 };
 
 const INIT_TABLES = [
-    { id: 1,  status: "Ordering",  items: 3, bill: null },
-    { id: 2,  status: "Eating",    items: 5, bill: null },
-    { id: 3,  status: "Bill Req.", items: 0, bill: 62.00 },
-    { id: 4,  status: "Free",      items: 0, bill: null },
-    { id: 5,  status: "Waiting",   items: 2, bill: null },
-    { id: 6,  status: "Service",   items: 0, bill: null },
-    { id: 7,  status: "Free",      items: 0, bill: null },
-    { id: 8,  status: "Eating",    items: 4, bill: null },
-    { id: 9,  status: "Free",      items: 0, bill: null },
-    { id: 10, status: "Ordering",  items: 2, bill: null },
-    { id: 11, status: "Free",      items: 0, bill: null },
-    { id: 12, status: "Eating",    items: 3, bill: null },
-    { id: 13, status: "Free",      items: 0, bill: null },
-    { id: 14, status: "Waiting",   items: 1, bill: null },
-    { id: 15, status: "Free",      items: 0, bill: null },
+    { id: 1,  status: "Ordering",  bill: null,  orders: [{ name: "Guacamole & Chips", qty: 1, price: 7.00 }, { name: "Ceviche Verde", qty: 1, price: 12.00 }, { name: "Mezcal Margarita", qty: 2, price: 11.00 }] },
+    { id: 2,  status: "Eating",    bill: null,  orders: [{ name: "Mole Negro Chicken", qty: 2, price: 18.00 }, { name: "Barbacoa Tacos", qty: 1, price: 16.00 }, { name: "Black Bean Pot", qty: 2, price: 4.00 }, { name: "Horchata", qty: 1, price: 4.50 }, { name: "Water", qty: 1, price: 2.50 }] },
+    { id: 3,  status: "Bill Req.", bill: 62.00, orders: [{ name: "Tlayuda Tostada", qty: 2, price: 9.00 }, { name: "Snapper Veracruz", qty: 1, price: 22.00 }, { name: "Churro Sundae", qty: 1, price: 8.00 }, { name: "Mezcal Margarita", qty: 2, price: 11.00 }] },
+    { id: 4,  status: "Free",      bill: null,  orders: [] },
+    { id: 5,  status: "Waiting",   bill: null,  orders: [{ name: "Elote Esquites", qty: 1, price: 8.00 }, { name: "Portobello Enchiladas", qty: 1, price: 14.00 }] },
+    { id: 6,  status: "Service",   bill: null,  orders: [] },
+    { id: 7,  status: "Free",      bill: null,  orders: [] },
+    { id: 8,  status: "Eating",    bill: null,  orders: [{ name: "Barbacoa Tacos", qty: 2, price: 16.00 }, { name: "Mexican Rice", qty: 2, price: 4.00 }, { name: "Mango Sorbet", qty: 2, price: 6.00 }, { name: "Mexican Lager", qty: 2, price: 5.00 }] },
+    { id: 9,  status: "Free",      bill: null,  orders: [] },
+    { id: 10, status: "Ordering",  bill: null,  orders: [{ name: "Guacamole & Chips", qty: 2, price: 7.00 }, { name: "Hibiscus Agua Fresca", qty: 2, price: 4.00 }] },
+    { id: 11, status: "Free",      bill: null,  orders: [] },
+    { id: 12, status: "Eating",    bill: null,  orders: [{ name: "Mole Negro Chicken", qty: 1, price: 18.00 }, { name: "Snapper Veracruz", qty: 1, price: 22.00 }, { name: "Corn Tortillas", qty: 1, price: 3.00 }] },
+    { id: 13, status: "Free",      bill: null,  orders: [] },
+    { id: 14, status: "Waiting",   bill: null,  orders: [{ name: "Mezcal Flan", qty: 1, price: 7.00 }] },
+    { id: 15, status: "Free",      bill: null,  orders: [] },
 ];
 const TABLE_STATUSES = ["Free", "Ordering", "Waiting", "Eating", "Bill Req.", "Service"];
 
@@ -255,7 +255,10 @@ function OverviewTab({ tables, setTables, requests, setRequests, addToast }) {
                                 <div style={{ fontFamily: "Cormorant Garamond, serif", fontSize: 20, fontWeight: 700, color: s.num, lineHeight: 1 }}>{String(t.id).padStart(2, "0")}</div>
                                 <div style={{ fontSize: 9, letterSpacing: ".08em", textTransform: "uppercase", fontWeight: 600, color: s.label, marginTop: 3 }}>{t.status}</div>
                                 <div style={{ fontSize: 10, color: C.muted, marginTop: 4 }}>
-                                    {t.status === "Free" ? "—" : t.status === "Bill Req." ? `£${t.bill?.toFixed(2)}` : `${t.items} item${t.items !== 1 ? "s" : ""}`}
+                                    {t.status === "Free" ? "—"
+                                        : t.status === "Bill Req." ? `£${t.bill?.toFixed(2)}`
+                                            : t.orders.length > 0 ? `£${t.orders.reduce((s,o) => s + o.price * o.qty, 0).toFixed(2)}`
+                                                : "—"}
                                 </div>
                             </div>
                         );
@@ -294,19 +297,57 @@ function OverviewTab({ tables, setTables, requests, setRequests, addToast }) {
                 ))}
             </div>
 
-            {selectedTable && (
-                <Modal title={`Table ${String(selectedTable.id).padStart(2, "0")}`} onClose={() => setSelectedTable(null)}>
-                    <p style={{ fontSize: 12, color: C.muted, marginBottom: 14 }}>Update status:</p>
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
-                        {TABLE_STATUSES.map(s => (
-                            <button key={s} onClick={() => updateTableStatus(selectedTable.id, s)}
-                                    style={{ padding: "10px 12px", borderRadius: 6, border: `1.5px solid ${selectedTable.status === s ? C.warm : C.border}`, background: selectedTable.status === s ? C.pale : "white", color: C.text, fontSize: 12, fontWeight: selectedTable.status === s ? 600 : 400, cursor: "pointer", fontFamily: "Jost, sans-serif" }}>
-                                {s}
-                            </button>
-                        ))}
-                    </div>
-                </Modal>
-            )}
+            {selectedTable && (() => {
+                const t = tables.find(t => t.id === selectedTable.id) || selectedTable;
+                const total = t.orders.reduce((s, o) => s + o.price * o.qty, 0);
+                const sc = tileColors(t.status);
+                return (
+                    <Modal title={`Table ${String(t.id).padStart(2, "0")}`} onClose={() => setSelectedTable(null)}>
+                        {/* Status badge */}
+                        <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: sc.bg, border: `1px solid ${sc.border}`, borderRadius: 20, padding: "3px 12px", marginBottom: 16 }}>
+                            <div style={{ width: 7, height: 7, borderRadius: "50%", background: sc.num }} />
+                            <span style={{ fontSize: 11, fontWeight: 600, color: sc.label, letterSpacing: ".06em", textTransform: "uppercase" }}>{t.status}</span>
+                        </div>
+
+                        {/* Order breakdown */}
+                        {t.orders.length > 0 ? (
+                            <div style={{ marginBottom: 18 }}>
+                                <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: ".1em", textTransform: "uppercase", color: C.muted, marginBottom: 10 }}>Current Order</p>
+                                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                                    {t.orders.map((o, i) => (
+                                        <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "7px 10px", background: C.bg, borderRadius: 5, border: `1px solid ${C.border}` }}>
+                                            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                                                <span style={{ fontSize: 11, color: C.muted, background: C.pale, borderRadius: 3, padding: "1px 6px", fontWeight: 600 }}>{o.qty}×</span>
+                                                <span style={{ fontSize: 13, color: C.text, fontWeight: 500 }}>{o.name}</span>
+                                            </div>
+                                            <span style={{ fontSize: 13, fontWeight: 600, color: C.dark }}>£{(o.price * o.qty).toFixed(2)}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 10, padding: "9px 10px", background: C.pale, borderRadius: 5 }}>
+                                    <span style={{ fontSize: 12, fontWeight: 700, color: C.dark, letterSpacing: ".04em" }}>Total</span>
+                                    <span style={{ fontFamily: "Cormorant Garamond, serif", fontSize: 20, fontWeight: 700, color: C.dark }}>£{total.toFixed(2)}</span>
+                                </div>
+                            </div>
+                        ) : (
+                            <div style={{ marginBottom: 18, padding: "14px", background: C.bg, borderRadius: 5, border: `1px solid ${C.border}`, textAlign: "center" }}>
+                                <p style={{ fontSize: 12, color: C.muted, fontStyle: "italic" }}>No items ordered yet.</p>
+                            </div>
+                        )}
+
+                        {/* Status controls */}
+                        <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: ".1em", textTransform: "uppercase", color: C.muted, marginBottom: 10 }}>Update Status</p>
+                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+                            {TABLE_STATUSES.map(s => (
+                                <button key={s} onClick={() => updateTableStatus(t.id, s)}
+                                        style={{ padding: "10px 12px", borderRadius: 6, border: `1.5px solid ${t.status === s ? C.warm : C.border}`, background: t.status === s ? C.pale : "white", color: t.status === s ? C.dark : C.text, fontSize: 12, fontWeight: t.status === s ? 700 : 400, cursor: "pointer", fontFamily: "Jost, sans-serif", transition: "all .15s" }}>
+                                    {s}
+                                </button>
+                            ))}
+                        </div>
+                    </Modal>
+                );
+            })()}
         </>
     );
 }
