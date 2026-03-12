@@ -107,7 +107,7 @@
   flex-shrink: 0;
 }
 
-nav-profile-name {
+.nav-profile-name {
   font-weight: 700;
   font-size: 14px;
   color: #1a1208;
@@ -270,7 +270,7 @@ nav-profile-name {
   font-size: 14px;
   font-weight: 700;
   color: #1a1208;           /* changed */
-  border-bottom: 2px solid black;         /* changed */
+  border-bottom: 2px solid #f0e8dc;         /* changed */
   flex-shrink: 0;
 }
 
@@ -303,7 +303,7 @@ nav-profile-name {
   margin-bottom: 0;
 }
 
-.compacy-card-header {
+.compact-card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -324,7 +324,7 @@ nav-profile-name {
   margin-bottom: 0;
 }
 
-compact-row {
+.compact-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
