@@ -45,6 +45,38 @@ const INIT_NOTIFICATIONS = [
     { id: 6, type: "info",   title: "Veggie Enchiladas marked off", body: "Item currently set to unavailable.",           time: "1h ago",  read: true  },
 ];
 
+const INIT_MENU = [
+    { id: 1,  section: "Starters", name: "Guacamole & Chips",    cost: 2.80, price: 7.00,  avail: true,  description: "Hand-mashed avocado, jalapeño, lime zest & Oaxacan pink salt.",                          dietary: ["Vegan", "Gluten-Free"],        allergens: [],                    calories: "350 kcal"               },
+    { id: 2,  section: "Starters", name: "Tlayuda Tostada",      cost: 3.60, price: 9.00,  avail: true,  description: "Crispy corn base, black bean, quesillo, chorizo & fresh avocado.",                       dietary: ["Gluten-Free"],                 allergens: ["Milk", "Soy"],       calories: "500 kcal"               },
+    { id: 3,  section: "Starters", name: "Ceviche Verde",        cost: 5.50, price: 12.00, avail: true,  description: "Sea bass, tomatillo, cucumber, coriander & tiger's milk.",                               dietary: ["Gluten-Free"],                 allergens: ["Fish"],              calories: "180 kcal"               },
+    { id: 4,  section: "Starters", name: "Elote Esquites",       cost: 3.20, price: 8.00,  avail: true,  description: "Charred corn, crema, cotija cheese, ancho chilli & epazote.",                            dietary: ["Vegetarian", "Gluten-Free"],   allergens: ["Milk"],              calories: "250 kcal"               },
+    { id: 5,  section: "Mains",    name: "Mole Negro Chicken",   cost: 6.50, price: 18.00, avail: true,  description: "Free-range thigh braised in a 30-ingredient black mole, sesame rice.",                   dietary: [],                              allergens: ["Soy", "Nuts"],       calories: "600 kcal"               },
+    { id: 6,  section: "Mains",    name: "Barbacoa Tacos",       cost: 5.50, price: 16.00, avail: true,  description: "Slow-braised beef cheek, white onion, coriander & salsa roja. Three pieces.",            dietary: [],                              allergens: [],                    calories: "300 kcal (per taco)"    },
+    { id: 7,  section: "Mains",    name: "Portobello Enchiladas",cost: 4.20, price: 14.00, avail: false, description: "Roasted mushrooms, black bean, chipotle sauce & cashew crema.",                          dietary: ["Vegan"],                       allergens: [],                    calories: "400 kcal"               },
+    { id: 8,  section: "Mains",    name: "Snapper Veracruz",     cost: 7.80, price: 22.00, avail: true,  description: "Pan-seared whole snapper, olives, capers & fresh tomato broth.",                         dietary: ["Gluten-Free"],                 allergens: ["Fish"],              calories: "450 kcal"               },
+    { id: 9,  section: "Desserts", name: "Churro Sundae",        cost: 2.10, price: 8.00,  avail: true,  description: "Crispy churros, vanilla bean ice cream & dark chocolate mole sauce.",                    dietary: ["Vegetarian"],                  allergens: ["Milk", "Gluten", "Eggs"], calories: "550 kcal"          },
+    { id: 10, section: "Desserts", name: "Mezcal Flan",          cost: 2.00, price: 7.00,  avail: true,  description: "Silky caramel custard with a smoky mezcal caramel drizzle.",                             dietary: ["Vegetarian", "Gluten-Free"],   allergens: ["Milk", "Eggs"],      calories: "320 kcal"               },
+    { id: 11, section: "Desserts", name: "Mango Sorbet",         cost: 1.40, price: 6.00,  avail: true,  description: "Alphonso mango, chilli salt & fresh lime. Completely dairy free.",                       dietary: ["Vegan", "Gluten-Free"],        allergens: [],                    calories: "120 kcal"               },
+    { id: 12, section: "Sides",    name: "Black Bean Pot",       cost: 1.20, price: 4.00,  avail: true,  description: "Slow-cooked with avocado leaf, epazote & lime crema.",                                   dietary: ["Vegan", "Gluten-Free"],        allergens: [],                    calories: "200 kcal"               },
+    { id: 13, section: "Sides",    name: "Corn Tortillas",       cost: 0.80, price: 3.00,  avail: true,  description: "Fresh nixtamal masa, made in-house daily. Four pieces.",                                 dietary: ["Vegan", "Gluten-Free"],        allergens: [],                    calories: "60 kcal (per tortilla)" },
+    { id: 14, section: "Sides",    name: "Pickled Jalapeños",    cost: 0.60, price: 3.00,  avail: true,  description: "House-pickled chillies, carrots & white onion in apple cider vinegar.",                  dietary: ["Vegan", "Gluten-Free"],        allergens: [],                    calories: "5 kcal (per tbsp)"      },
+    { id: 15, section: "Sides",    name: "Mexican Rice",         cost: 0.90, price: 4.00,  avail: true,  description: "Tomato-braised rice with cumin, garlic & fresh coriander.",                              dietary: ["Vegan", "Gluten-Free"],        allergens: [],                    calories: "200 kcal"               },
+    { id: 16, section: "Drinks",   name: "Hibiscus Agua Fresca", cost: 1.00, price: 4.00,  avail: true,  description: "House-dried hibiscus, lime, cane sugar & still water.",                                  dietary: ["Vegan", "Gluten-Free"],        allergens: [],                    calories: "70 kcal (per cup)"      },
+    { id: 17, section: "Drinks",   name: "Mezcal Margarita",     cost: 3.50, price: 11.00, avail: true,  description: "Joven mezcal, fresh lime juice, agave syrup & smoked salt rim.",                         dietary: ["Vegan", "Gluten-Free"],        allergens: [],                    calories: "250 kcal"               },
+    { id: 18, section: "Drinks",   name: "Horchata",             cost: 1.20, price: 4.50,  avail: true,  description: "Rice milk, cinnamon, vanilla & a hint of almond. Served chilled.",                       dietary: ["Vegan", "Gluten-Free"],        allergens: ["Nuts"],              calories: "150 kcal (per cup)"     },
+    { id: 19, section: "Drinks",   name: "Mexican Lager",        cost: 1.80, price: 5.00,  avail: true,  description: "Ice-cold bottle served with lime. Ask your server for today's selection.",               dietary: [],                              allergens: [],                    calories: "150 kcal (per bottle)"  },
+    { id: 20, section: "Drinks",   name: "Water",                cost: 0.20, price: 2.50,  avail: true,  description: "Ice-cold and refreshing. Ask your server for alternative temperatures.",                 dietary: [],                              allergens: [],                    calories: "0 kcal"                 },
+];
+
+const calcMargin   = (cost, price) => price > 0 ? Math.round((1 - cost / price) * 100) : 0;
+const calcMinPrice = (cost) => +(cost / 0.4).toFixed(2);
+
+const marginColor = (m) => {
+    if (m >= 60) return { bg: C.greenL, text: C.green, label: `${m}%` };
+    if (m >= 50) return { bg: C.amberL, text: C.amber, label: `${m}% !` };
+    return { bg: C.redL, text: C.red, label: `${m}% ⚠` };
+};
+
 const tileColors = (status) => ({
     "Free":      { bg: "#f0f7f2", border: "#b8d4c0", num: "#4a7c59",  label: "#4a7c59"  },
     "Ordering":  { bg: "#fff8f0", border: "#f0c97a", num: "#d4870e",  label: "#d4870e"  },
@@ -269,7 +301,119 @@ function OverviewTab({ tables, setTables, requests, setRequests, addToast }) {
     );
 }
 
-function MenuTab()      { return <div style={{ gridColumn: "1/-1", background: C.panel, border: `1.5px solid ${C.border}`, borderRadius: 8, padding: 18 }}><span style={{ fontFamily: "Cormorant Garamond, serif", fontSize: 20, fontWeight: 700, color: C.dark }}>Menu Management</span></div>; }
+function MenuTab({ menu, setMenu, addToast }) {
+    const [editPrices, setEditPrices] = useState({});
+    const [editNames,  setEditNames]  = useState({});
+    const [showAdd,    setShowAdd]    = useState(false);
+    const [newItem,    setNewItem]    = useState({ section: "Starters", name: "", cost: "", price: "" });
+    const [savedIds,   setSavedIds]   = useState({});
+
+    const sections = [...new Set(menu.map(m => m.section))];
+    const getPrice = (item) => editPrices[item.id] !== undefined ? editPrices[item.id] : item.price;
+    const getName  = (item) => editNames[item.id]  !== undefined ? editNames[item.id]  : item.name;
+    const belowMgn = menu.filter(m => calcMargin(m.cost, m.price) < 60);
+
+    const handleSave = (item) => {
+        const p = parseFloat(getPrice(item)); const n = getName(item);
+        if (isNaN(p) || p <= 0) { addToast("Invalid price"); return; }
+        if (calcMargin(item.cost, p) < 60) addToast(`⚠ ${n} is below 60% margin`);
+        setMenu(prev => prev.map(i => i.id === item.id ? { ...i, price: p, name: n } : i));
+        setSavedIds(s => ({ ...s, [item.id]: true }));
+        setTimeout(() => setSavedIds(s => { const n = { ...s }; delete n[item.id]; return n; }), 1500);
+        addToast(`${n} saved ✓`);
+    };
+
+    const fieldStyle = { width: "100%", padding: "8px 10px", border: `1px solid ${C.border}`, borderRadius: 5, fontSize: 12, fontFamily: "Jost, sans-serif", background: C.bg, color: C.text };
+    const labelStyle = { fontSize: 11, color: C.muted, fontWeight: 600, letterSpacing: ".08em", textTransform: "uppercase", display: "block", marginBottom: 4 };
+
+    return (
+        <div style={{ gridColumn: "1/-1", background: C.panel, border: `1.5px solid ${C.border}`, borderRadius: 8, padding: 18, display: "flex", flexDirection: "column", gap: 14 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <span style={{ fontFamily: "Cormorant Garamond, serif", fontSize: 20, fontWeight: 700, color: C.dark }}>Menu Management</span>
+                <button onClick={() => setShowAdd(true)} style={{ fontSize: 11, fontWeight: 600, letterSpacing: ".06em", textTransform: "uppercase", padding: "7px 14px", borderRadius: 5, border: "none", background: C.mid, color: "white", cursor: "pointer", fontFamily: "Jost, sans-serif" }}>+ Add Item</button>
+            </div>
+
+            {belowMgn.length > 0 && (
+                <div style={{ fontSize: 11, background: C.amberL, border: `1px solid #f0c97a`, color: "#8a5e0a", borderRadius: 5, padding: "9px 14px" }}>
+                    ⚠️ <strong>{belowMgn.length} item{belowMgn.length > 1 ? "s" : ""}</strong> ({belowMgn.map(i => i.name).join(", ")}) below 60% margin.
+                </div>
+            )}
+
+            {sections.map(sec => (
+                <div key={sec}>
+                    <div style={{ fontSize: 11, letterSpacing: ".1em", textTransform: "uppercase", color: C.muted, fontWeight: 600, paddingBottom: 6, borderBottom: `1px solid ${C.border}`, marginBottom: 4 }}>{sec}</div>
+                    <div style={{ display: "grid", gridTemplateColumns: "2fr 1.2fr 1.2fr 0.9fr 0.8fr auto", gap: 8, fontSize: 9, letterSpacing: ".1em", textTransform: "uppercase", color: C.muted, fontWeight: 600, padding: "2px 0 8px" }}>
+                        <span>Item</span><span>Cost</span><span>Sell Price</span><span>Margin</span><span>Avail.</span><span>Actions</span>
+                    </div>
+                    {menu.filter(m => m.section === sec).map(item => {
+                        const p  = parseFloat(getPrice(item)) || 0;
+                        const m  = calcMargin(item.cost, p);
+                        const mc = marginColor(m);
+                        const mn = calcMinPrice(item.cost);
+                        return (
+                            <div key={item.id} style={{ display: "grid", gridTemplateColumns: "2fr 1.2fr 1.2fr 0.9fr 0.8fr auto", gap: 8, alignItems: "center", padding: "9px 0", borderBottom: `1px solid ${C.pale}`, opacity: item.avail ? 1 : 0.5 }}>
+                                <input value={getName(item)} onChange={e => setEditNames(prev => ({ ...prev, [item.id]: e.target.value }))}
+                                       style={{ border: `1px solid ${C.border}`, borderRadius: 4, padding: "4px 8px", fontSize: 12, fontFamily: "Jost, sans-serif", background: C.bg, color: C.text, width: "100%" }} />
+                                <span style={{ fontSize: 11, color: C.muted }}>£{item.cost.toFixed(2)}<br /><span style={{ fontSize: 9 }}>min £{mn.toFixed(2)}</span></span>
+                                <div style={{ display: "flex", alignItems: "center", border: `1px solid ${p < mn ? C.red : C.border}`, borderRadius: 4, padding: "4px 6px", background: C.bg }}>
+                                    £<input value={getPrice(item)} onChange={e => setEditPrices(prev => ({ ...prev, [item.id]: e.target.value }))}
+                                            style={{ border: "none", background: "transparent", width: 46, fontSize: 12, fontFamily: "Jost, sans-serif", color: C.text }} />
+                                </div>
+                                <span style={{ fontSize: 10, fontWeight: 600, padding: "3px 8px", borderRadius: 10, background: mc.bg, color: mc.text, textAlign: "center" }}>{mc.label}</span>
+                                <button onClick={() => setMenu(prev => prev.map(i => i.id === item.id ? { ...i, avail: !i.avail } : i))}
+                                        style={{ fontSize: 10, fontWeight: 600, padding: "3px 8px", borderRadius: 10, background: item.avail ? C.greenL : C.pale, color: item.avail ? C.green : C.muted, border: "none", cursor: "pointer", fontFamily: "Jost, sans-serif" }}>
+                                    {item.avail ? "On" : "Off"}
+                                </button>
+                                <div style={{ display: "flex", gap: 4 }}>
+                                    <button onClick={() => handleSave(item)} style={{ fontSize: 10, fontWeight: 600, padding: "5px 10px", borderRadius: 4, border: "none", background: savedIds[item.id] ? C.green : C.mid, color: "white", cursor: "pointer", fontFamily: "Jost, sans-serif", transition: "background .3s" }}>{savedIds[item.id] ? "✓" : "Save"}</button>
+                                    <button onClick={() => { setMenu(prev => prev.filter(i => i.id !== item.id)); addToast(`${item.name} removed`); }}
+                                            style={{ fontSize: 10, fontWeight: 600, padding: "5px 10px", borderRadius: 4, border: "none", background: C.redL, color: C.red, cursor: "pointer", fontFamily: "Jost, sans-serif" }}>Del</button>
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
+            ))}
+
+            {showAdd && (
+                <Modal title="Add Menu Item" onClose={() => setShowAdd(false)}>
+                    {[
+                        { label: "Item Name",      key: "name",    type: "text"   },
+                        { label: "Section",        key: "section", type: "select", options: ["Starters", "Mains", "Desserts", "Sides", "Drinks"] },
+                        { label: "Cost Price (£)", key: "cost",    type: "number" },
+                        { label: "Sell Price (£)", key: "price",   type: "number" },
+                    ].map(f => (
+                        <div key={f.key} style={{ marginBottom: 12 }}>
+                            <label style={labelStyle}>{f.label}</label>
+                            {f.type === "select"
+                                ? <select value={newItem[f.key]} onChange={e => setNewItem(p => ({ ...p, [f.key]: e.target.value }))} style={fieldStyle}>
+                                    {f.options.map(o => <option key={o}>{o}</option>)}
+                                </select>
+                                : <input type={f.type} value={newItem[f.key]} onChange={e => setNewItem(p => ({ ...p, [f.key]: e.target.value }))} placeholder={f.type === "number" ? "0.00" : ""} style={fieldStyle} />
+                            }
+                        </div>
+                    ))}
+                    {newItem.cost && newItem.price && (
+                        <div style={{ fontSize: 11, color: C.muted, marginBottom: 12 }}>
+                            Margin: <strong style={{ color: calcMargin(+newItem.cost, +newItem.price) >= 60 ? C.green : C.red }}>{calcMargin(+newItem.cost, +newItem.price)}%</strong> · Min price: £{calcMinPrice(+newItem.cost || 0).toFixed(2)}
+                        </div>
+                    )}
+                    <button onClick={() => {
+                        if (!newItem.name || !newItem.cost || !newItem.price) { addToast("Fill all fields"); return; }
+                        const cost = parseFloat(newItem.cost), price = parseFloat(newItem.price);
+                        if (isNaN(cost) || isNaN(price)) { addToast("Invalid numbers"); return; }
+                        setMenu(prev => [...prev, { id: Date.now(), section: newItem.section, name: newItem.name, cost, price, avail: true }]);
+                        setNewItem({ section: "Starters", name: "", cost: "", price: "" });
+                        setShowAdd(false);
+                        addToast(`${newItem.name} added ✓`);
+                    }} style={{ width: "100%", padding: 10, background: C.mid, color: "white", border: "none", borderRadius: 5, fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: "Jost, sans-serif" }}>
+                        Add to Menu
+                    </button>
+                </Modal>
+            )}
+        </div>
+    );
+}
 function EmployeesTab() { return <div style={{ gridColumn: "1/-1", background: C.panel, border: `1.5px solid ${C.border}`, borderRadius: 8, padding: 18 }}><span style={{ fontFamily: "Cormorant Garamond, serif", fontSize: 20, fontWeight: 700, color: C.dark }}>Employee Performance</span></div>; }
 function StockTab()     { return <div style={{ gridColumn: "1/-1", background: C.panel, border: `1.5px solid ${C.border}`, borderRadius: 8, padding: 18 }}><span style={{ fontFamily: "Cormorant Garamond, serif", fontSize: 20, fontWeight: 700, color: C.dark }}>Stock Levels</span></div>; }
 
@@ -277,6 +421,7 @@ export default function ManagerDashboard() {
     const [tab,           setTab]           = useState("Overview");
     const [tables,        setTables]        = useState(INIT_TABLES);
     const [requests,      setRequests]      = useState(INIT_REQUESTS);
+    const [menu,          setMenu]          = useState(INIT_MENU);
     const [notifications, setNotifications] = useState(INIT_NOTIFICATIONS);
     const [toasts,        setToasts]        = useState([]);
     const [showNotifs,    setShowNotifs]    = useState(false);
@@ -341,7 +486,7 @@ export default function ManagerDashboard() {
 
             <div style={{ padding: "20px 28px 40px", display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16 }}>
                 {tab === "Overview"  && <OverviewTab tables={tables} setTables={setTables} requests={requests} setRequests={setRequests} addToast={addToast} />}
-                {tab === "Menu"      && <MenuTab />}
+                {tab === "Menu"      && <MenuTab menu={menu} setMenu={setMenu} addToast={addToast} />}
                 {tab === "Employees" && <EmployeesTab />}
                 {tab === "Stock"     && <StockTab />}
             </div>
