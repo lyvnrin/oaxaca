@@ -42,23 +42,36 @@
 .nav-icons {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 16px;
 }
 
-.nav-icon {
-  background-color: transparent;          /* changed */
-  color: #FFF2D8;
-  border: 2px solid #FFF2D8;              /* changed */
-  border-radius: 14px;
-  padding: 10px 20px;                     /* changed */
-  font-size: 40px;                        /* changed */
+/* new */
+
+.nav-kitchen-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: #c4a882;
+  text-transform: uppercase;
+}
+
+.nav-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #4a7c59;
+  color: white;
+  font-size: 13px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
+  position: relative;
+  user-select: none;
 }
 
-.nav-icon:hover {
-  border-color: #E67E22;              /* changed */
-  background-color: rgba(120, 17, 17, 0.1); /* changed */
-}
+/* profile dropdown */
 
 .kitchen-content {
   height: calc(100vh - 80px);
