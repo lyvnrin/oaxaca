@@ -137,7 +137,7 @@ return (
           <div className="column-scroll">
             {pending.map((o) => (
               <div className="compact-card" key={o.id}>
-                <div className="compacy-card-header">
+                <div className="compact-card-header">
                   <span className="table-title">{o.table}</span>
                   <span className="table-time">{o.time}</span>
                 </div>
