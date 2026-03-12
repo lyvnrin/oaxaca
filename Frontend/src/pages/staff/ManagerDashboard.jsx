@@ -68,6 +68,16 @@ const INIT_MENU = [
     { id: 20, section: "Drinks",   name: "Water",                cost: 0.20, price: 2.50,  avail: true,  description: "Ice-cold and refreshing. Ask your server for alternative temperatures.",                 dietary: [],                              allergens: [],                    calories: "0 kcal"                 },
 ];
 
+const INIT_EMPLOYEES = [
+    { id: 1, initials: "SR", name: "Sofia R.",  role: "Waiter",  tables: 6, orders: 22, sales: 342, avgTime: "6m 40s", status: "Active"   },
+    { id: 2, initials: "JM", name: "James M.",  role: "Waiter",  tables: 5, orders: 18, sales: 268, avgTime: "7m 20s", status: "Active"   },
+    { id: 3, initials: "AK", name: "Aisha K.",  role: "Kitchen", tables: 0, orders: 31, sales: 0,   avgTime: "8m 10s", status: "Active"   },
+    { id: 4, initials: "TL", name: "Tom L.",    role: "Kitchen", tables: 0, orders: 28, sales: 0,   avgTime: "9m 05s", status: "Active"   },
+    { id: 5, initials: "PR", name: "Priya R.",  role: "Waiter",  tables: 4, orders: 14, sales: 210, avgTime: "6m 55s", status: "On Break" },
+    { id: 6, initials: "CN", name: "Carlos N.", role: "Kitchen", tables: 0, orders: 19, sales: 0,   avgTime: "7m 30s", status: "Active"   },
+    { id: 7, initials: "EM", name: "Eve M.",    role: "Waiter",  tables: 3, orders: 11, sales: 174, avgTime: "8m 00s", status: "Active"   },
+];
+
 const calcMargin   = (cost, price) => price > 0 ? Math.round((1 - cost / price) * 100) : 0;
 const calcMinPrice = (cost) => +(cost / 0.4).toFixed(2);
 
@@ -414,7 +424,105 @@ function MenuTab({ menu, setMenu, addToast }) {
         </div>
     );
 }
-function EmployeesTab() { return <div style={{ gridColumn: "1/-1", background: C.panel, border: `1.5px solid ${C.border}`, borderRadius: 8, padding: 18 }}><span style={{ fontFamily: "Cormorant Garamond, serif", fontSize: 20, fontWeight: 700, color: C.dark }}>Employee Performance</span></div>; }
+function EmployeesTab({ employees, setEmployees, addToast }) {
+    const onShift  = employees.filter(e => e.status !== "Off Shift").length;
+    const maxSales = Math.max(...employees.map(e => e.sales), 1);
+    const statusColor = { "Active": C.green, "On Break": C.amber, "Off Shift": C.muted };
+    const roleStyle   = { "Waiter": { bg: C.pale, color: C.mid }, "Kitchen": { bg: C.amberL, color: C.amber } };
+
+    const toggleStatus = (id) => {
+        const emp  = employees.find(e => e.id === id);
+        const next = emp.status === "Active" ? "On Break" : emp.status === "On Break" ? "Off Shift" : "Active";
+        setEmployees(prev => prev.map(e => e.id === id ? { ...e, status: next } : e));
+        addToast(`${emp.name} → ${next}`);
+    };
+
+    const summaryCards = [
+        { label: "Total Sales",    val: `£${employees.reduce((a, e) => a + e.sales, 0)}` },
+        { label: "Orders Handled", val: employees.reduce((a, e) => a + e.orders, 0)       },
+        { label: "Top Performer",  val: [...employees].sort((a, b) => b.sales - a.sales)[0]?.name.split(" ")[0] },
+        { label: "Active Staff",   val: employees.filter(e => e.status === "Active").length },
+    ];
+
+    return (
+        <div style={{ gridColumn: "1/-1", background: C.panel, border: `1.5px solid ${C.border}`, borderRadius: 8, padding: 18, display: "flex", flexDirection: "column", gap: 14 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <span style={{ fontFamily: "Cormorant Garamond, serif", fontSize: 20, fontWeight: 700, color: C.dark }}>Employee Performance</span>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <span style={{ fontSize: 11, color: C.muted }}>Today's Shift</span>
+                    <span style={{ fontSize: 10, fontWeight: 600, letterSpacing: ".08em", textTransform: "uppercase", padding: "3px 9px", borderRadius: 20, background: C.greenL, color: C.green }}>{onShift} On Shift</span>
+                </div>
+            </div>
+            <div style={{ height: 1, background: C.border }} />
+
+            <div style={{ overflowX: "auto" }}>
+                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12, tableLayout: "fixed" }}>
+                    <colgroup>
+                        <col style={{ width: "20%" }} />
+                        <col style={{ width: "10%" }} />
+                        <col style={{ width: "8%"  }} />
+                        <col style={{ width: "8%"  }} />
+                        <col style={{ width: "20%" }} />
+                        <col style={{ width: "10%" }} />
+                        <col style={{ width: "12%" }} />
+                        <col style={{ width: "12%" }} />
+                    </colgroup>
+                    <thead>
+                    <tr>
+                        {["Employee", "Role", "Tables", "Orders", "Sales Today", "Avg. Time", "Status", ""].map((h, i) => (
+                            <th key={i} style={{ textAlign: "left", fontSize: 9, letterSpacing: ".12em", textTransform: "uppercase", color: C.muted, fontWeight: 600, padding: "0 10px 10px", borderBottom: `1px solid ${C.border}`, overflow: "hidden" }}>{h}</th>
+                        ))}
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {employees.map(e => {
+                        const rs = roleStyle[e.role] || roleStyle["Waiter"];
+                        return (
+                            <tr key={e.id}
+                                onMouseEnter={ev => ev.currentTarget.style.background = C.pale}
+                                onMouseLeave={ev => ev.currentTarget.style.background = ""}>
+                                <td style={{ padding: "10px", borderBottom: `1px solid ${C.pale}`, overflow: "hidden" }}>
+                                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                                        <div style={{ width: 28, height: 28, borderRadius: "50%", background: C.light, display: "grid", placeItems: "center", fontSize: 10, fontWeight: 700, color: C.mid, flexShrink: 0 }}>{e.initials}</div>
+                                        <span style={{ fontWeight: 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{e.name}</span>
+                                    </div>
+                                </td>
+                                <td style={{ padding: "10px", borderBottom: `1px solid ${C.pale}` }}>
+                                    <span style={{ fontSize: 10, padding: "2px 8px", borderRadius: 10, fontWeight: 600, background: rs.bg, color: rs.color, whiteSpace: "nowrap" }}>{e.role}</span>
+                                </td>
+                                <td style={{ padding: "10px", borderBottom: `1px solid ${C.pale}`, color: C.text }}>{e.tables || "—"}</td>
+                                <td style={{ padding: "10px", borderBottom: `1px solid ${C.pale}`, color: C.text }}>{e.orders}</td>
+                                <td style={{ padding: "10px", borderBottom: `1px solid ${C.pale}` }}>
+                                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                                        <div style={{ width: 80, flexShrink: 0 }}>
+                                            <div style={{ height: 6, borderRadius: 3, background: e.role === "Kitchen" ? C.amber : C.warm, width: `${(e.sales / maxSales) * 100}%`, minWidth: e.sales > 0 ? 4 : 0 }} />
+                                        </div>
+                                        <span style={{ color: C.text, whiteSpace: "nowrap" }}>{e.sales > 0 ? `£${e.sales}` : "—"}</span>
+                                    </div>
+                                </td>
+                                <td style={{ padding: "10px", borderBottom: `1px solid ${C.pale}`, color: C.muted, whiteSpace: "nowrap" }}>{e.avgTime}</td>
+                                <td style={{ padding: "10px", borderBottom: `1px solid ${C.pale}`, fontWeight: 600, fontSize: 11, color: statusColor[e.status] || C.muted, whiteSpace: "nowrap" }}>{e.status}</td>
+                                <td style={{ padding: "10px", borderBottom: `1px solid ${C.pale}` }}>
+                                    <button onClick={() => toggleStatus(e.id)} style={{ fontSize: 10, padding: "3px 8px", borderRadius: 4, border: `1px solid ${C.border}`, background: "white", cursor: "pointer", color: C.muted, fontFamily: "Jost, sans-serif", whiteSpace: "nowrap" }}>Change</button>
+                                </td>
+                            </tr>
+                        );
+                    })}
+                    </tbody>
+                </table>
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 12 }}>
+                {summaryCards.map((s, i) => (
+                    <div key={i} style={{ background: C.pale, borderRadius: 6, padding: "12px 14px", textAlign: "center" }}>
+                        <div style={{ fontFamily: "Cormorant Garamond, serif", fontSize: 26, fontWeight: 700, color: C.dark }}>{s.val}</div>
+                        <div style={{ fontSize: 10, letterSpacing: ".1em", textTransform: "uppercase", color: C.muted, fontWeight: 600, marginTop: 2 }}>{s.label}</div>
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+}
 function StockTab()     { return <div style={{ gridColumn: "1/-1", background: C.panel, border: `1.5px solid ${C.border}`, borderRadius: 8, padding: 18 }}><span style={{ fontFamily: "Cormorant Garamond, serif", fontSize: 20, fontWeight: 700, color: C.dark }}>Stock Levels</span></div>; }
 
 export default function ManagerDashboard() {
@@ -422,6 +530,7 @@ export default function ManagerDashboard() {
     const [tables,        setTables]        = useState(INIT_TABLES);
     const [requests,      setRequests]      = useState(INIT_REQUESTS);
     const [menu,          setMenu]          = useState(INIT_MENU);
+    const [employees,     setEmployees]     = useState(INIT_EMPLOYEES);
     const [notifications, setNotifications] = useState(INIT_NOTIFICATIONS);
     const [toasts,        setToasts]        = useState([]);
     const [showNotifs,    setShowNotifs]    = useState(false);
@@ -487,7 +596,7 @@ export default function ManagerDashboard() {
             <div style={{ padding: "20px 28px 40px", display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16 }}>
                 {tab === "Overview"  && <OverviewTab tables={tables} setTables={setTables} requests={requests} setRequests={setRequests} addToast={addToast} />}
                 {tab === "Menu"      && <MenuTab menu={menu} setMenu={setMenu} addToast={addToast} />}
-                {tab === "Employees" && <EmployeesTab />}
+                {tab === "Employees" && <EmployeesTab employees={employees} setEmployees={setEmployees} addToast={addToast} />}
                 {tab === "Stock"     && <StockTab />}
             </div>
 
