@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import "./ManagerDashboard.css";
 
 const C = {
     bg: "#f5f0e8", panel: "#faf7f2", dark: "#3b1f0e", mid: "#8b4513",
@@ -47,12 +46,12 @@ const INIT_NOTIFICATIONS = [
 ];
 
 const tileColors = (status) => ({
-    "Free":      { bg: "#f0f7f2", border: "#b8d4c0", num: "#4a7c59", label: "#4a7c59" },
-    "Ordering":  { bg: "#fff8f0", border: "#f0c97a", num: "#d4870e", label: "#d4870e" },
-    "Waiting":   { bg: "#f0f4ff", border: "#9db4e8", num: "#3b5fc0", label: "#3b5fc0" },
-    "Eating":    { bg: "#faf0f7", border: "#d4a0c8", num: "#8b3a7a", label: "#8b3a7a" },
-    "Bill Req.": { bg: "#fde8e6", border: "#e8a09b", num: "#c0392b", label: "#c0392b" },
-    "Service":   { bg: "#fef9e7", border: "#f7dc6f", num: "#9a7d0a", label: "#9a7d0a" },
+    "Free":      { bg: "#f0f7f2", border: "#b8d4c0", num: "#4a7c59",  label: "#4a7c59"  },
+    "Ordering":  { bg: "#fff8f0", border: "#f0c97a", num: "#d4870e",  label: "#d4870e"  },
+    "Waiting":   { bg: "#f0f4ff", border: "#9db4e8", num: "#3b5fc0",  label: "#3b5fc0"  },
+    "Eating":    { bg: "#faf0f7", border: "#d4a0c8", num: "#8b3a7a",  label: "#8b3a7a"  },
+    "Bill Req.": { bg: "#fde8e6", border: "#e8a09b", num: "#c0392b",  label: "#c0392b"  },
+    "Service":   { bg: "#fef9e7", border: "#f7dc6f", num: "#9a7d0a",  label: "#9a7d0a"  },
 }[status] || { bg: "#f0f7f2", border: "#b8d4c0", num: C.green, label: C.green });
 
 const urgencyColor   = { urgent: C.red, normal: C.amber, info: C.green };
@@ -66,27 +65,16 @@ function useOutsideClick(ref, cb) {
     }, [ref, cb]);
 }
 
-const IconBell = () => (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-        <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
-    </svg>
-);
-const IconDoor = () => (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={C.red} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-        <polyline points="16 17 21 12 16 7"/>
-        <line x1="21" y1="12" x2="9" y2="12"/>
-    </svg>
-);
+const IconBell = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>;
+const IconDoor = () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={C.red} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>;
 
 function Modal({ title, onClose, children }) {
     return (
-        <div className="manager-modal-overlay" onClick={onClose}>
-            <div className="manager-modal" onClick={e => e.stopPropagation()}>
-                <div className="manager-modal__header">
-                    <span className="manager-modal__title">{title}</span>
-                    <button className="manager-modal__close" onClick={onClose}>✕</button>
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.45)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 600 }} onClick={onClose}>
+            <div style={{ background: C.panel, border: `1.5px solid ${C.border}`, borderRadius: 10, padding: 24, minWidth: 360, maxWidth: 480, width: "90%", boxShadow: "0 8px 32px rgba(0,0,0,.18)", maxHeight: "85vh", overflowY: "auto" }} onClick={e => e.stopPropagation()}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+                    <span style={{ fontFamily: "Cormorant Garamond, serif", fontSize: 20, fontWeight: 700, color: C.dark }}>{title}</span>
+                    <button onClick={onClose} style={{ background: "none", border: "none", fontSize: 18, cursor: "pointer", color: C.muted }}>✕</button>
                 </div>
                 {children}
             </div>
@@ -104,53 +92,52 @@ function NotificationsPanel({ notifications, setNotifications }) {
     const filtered = notifications.filter(n =>
         filter === "Urgent" ? n.type === "urgent" : filter === "Unread" ? !n.read : true
     );
-
     return (
-        <div className="manager-dropdown manager-notifs">
-            <div className="manager-notifs__header">
-                <div className="manager-notifs__title-row">
-                    <span className="manager-notifs__title">Notifications</span>
-                    {unread > 0 && <span className="manager-notifs__unread-badge">{unread}</span>}
+        <div style={{ position: "absolute", top: "calc(100% + 10px)", right: 0, width: 380, background: C.panel, border: `1.5px solid ${C.border}`, borderRadius: 10, boxShadow: "0 8px 32px rgba(0,0,0,.2)", zIndex: 800, animation: "dropIn .15s ease" }}>
+            <div style={{ padding: "14px 16px 10px", borderBottom: `1px solid ${C.border}`, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <span style={{ fontFamily: "Cormorant Garamond, serif", fontSize: 17, fontWeight: 700, color: C.dark }}>Notifications</span>
+                    {unread > 0 && <span style={{ background: C.red, color: "white", fontSize: 10, fontWeight: 700, padding: "1px 7px", borderRadius: 10 }}>{unread}</span>}
                 </div>
-                <div className="manager-notifs__actions">
-                    {unread > 0 && <button className="manager-notifs__action-btn" onClick={markAll}>Mark all read</button>}
-                    {notifications.length > 0 && <button className="manager-notifs__action-btn manager-notifs__action-btn--muted" onClick={clearAll}>Clear all</button>}
+                <div style={{ display: "flex", gap: 10 }}>
+                    {unread > 0 && <button onClick={markAll} style={{ fontSize: 10, color: C.mid, background: "none", border: "none", cursor: "pointer", fontFamily: "Jost, sans-serif", fontWeight: 600 }}>Mark all read</button>}
+                    {notifications.length > 0 && <button onClick={clearAll} style={{ fontSize: 10, color: C.muted, background: "none", border: "none", cursor: "pointer", fontFamily: "Jost, sans-serif" }}>Clear all</button>}
                 </div>
             </div>
-            <div className="manager-notifs__filters">
+            <div style={{ padding: "8px 16px", display: "flex", gap: 6, borderBottom: `1px solid ${C.border}` }}>
                 {["All", "Urgent", "Unread"].map(f => (
                     <button key={f} onClick={() => setFilter(f)}
-                            className={`manager-notifs__filter-btn${filter === f ? " manager-notifs__filter-btn--active" : ""}`}>
+                            style={{ fontSize: 10, fontWeight: 600, letterSpacing: ".06em", textTransform: "uppercase", padding: "3px 10px", borderRadius: 20, border: "none", cursor: "pointer", fontFamily: "Jost, sans-serif", background: filter === f ? C.dark : C.pale, color: filter === f ? C.bg : C.muted, transition: "all .15s" }}>
                         {f}
                     </button>
                 ))}
             </div>
-            <div className="manager-notifs__list">
+            <div style={{ maxHeight: 370, overflowY: "auto" }}>
                 {filtered.length === 0 && (
-                    <div className="manager-notifs__empty">
+                    <div style={{ padding: "32px 16px", textAlign: "center", color: C.muted, fontSize: 13 }}>
                         {filter === "Urgent" ? "No urgent alerts" : filter === "Unread" ? "All caught up ✓" : "No notifications"}
                     </div>
                 )}
                 {filtered.map(n => (
                     <div key={n.id} onClick={() => markRead(n.id)}
-                         className={`manager-notifs__item${!n.read ? " manager-notifs__item--unread" : ""}`}>
-                        <div className="manager-notifs__stripe" style={{ background: notifTypeColor[n.type] }} />
-                        <div className="manager-notifs__item-body">
-                            <div className="manager-notifs__item-row">
-                                <span className={`manager-notifs__item-title${!n.read ? " manager-notifs__item-title--unread" : ""}`}>
-                                    {n.title}
-                                </span>
-                                <span className="manager-notifs__item-time">{n.time}</span>
+                         style={{ padding: "11px 16px", borderBottom: `1px solid ${C.pale}`, display: "flex", gap: 10, cursor: "pointer", background: n.read ? "transparent" : "rgba(196,118,58,.04)", transition: "background .15s" }}
+                         onMouseEnter={e => e.currentTarget.style.background = C.pale}
+                         onMouseLeave={e => e.currentTarget.style.background = n.read ? "transparent" : "rgba(196,118,58,.04)"}>
+                        <div style={{ width: 3, borderRadius: 2, background: notifTypeColor[n.type], flexShrink: 0, alignSelf: "stretch" }} />
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ display: "flex", justifyContent: "space-between", gap: 6 }}>
+                                <span style={{ fontSize: 12, fontWeight: n.read ? 400 : 700, color: C.text, lineHeight: 1.3 }}>{n.title}</span>
+                                <span style={{ fontSize: 10, color: C.muted, whiteSpace: "nowrap", flexShrink: 0 }}>{n.time}</span>
                             </div>
-                            <p className="manager-notifs__item-desc">{n.body}</p>
+                            <p style={{ fontSize: 11, color: C.muted, marginTop: 3, lineHeight: 1.4 }}>{n.body}</p>
                         </div>
-                        {!n.read && <div className="manager-notifs__item-dot" />}
-                        <button className="manager-notifs__dismiss" onClick={e => { e.stopPropagation(); dismiss(n.id); }}>✕</button>
+                        {!n.read && <div style={{ width: 6, height: 6, borderRadius: "50%", background: C.warm, flexShrink: 0, marginTop: 4 }} />}
+                        <button onClick={e => { e.stopPropagation(); dismiss(n.id); }} style={{ background: "none", border: "none", color: C.muted, cursor: "pointer", fontSize: 14, flexShrink: 0, padding: "0 2px", alignSelf: "flex-start" }}>✕</button>
                     </div>
                 ))}
             </div>
             {filtered.length > 0 && (
-                <div className="manager-notifs__footer">
+                <div style={{ padding: "9px 16px", borderTop: `1px solid ${C.border}`, fontSize: 11, color: C.muted, textAlign: "center" }}>
                     {filtered.filter(n => !n.read).length} unread · {filtered.length} shown
                 </div>
             )}
@@ -160,20 +147,21 @@ function NotificationsPanel({ notifications, setNotifications }) {
 
 function AccountPanel() {
     const navigate = useNavigate();
-
     return (
-        <div className="manager-dropdown manager-account">
-            <div className="manager-account__profile">
-                <div className="manager-account__avatar">MG</div>
+        <div style={{ position: "absolute", top: "calc(100% + 10px)", right: 0, width: 250, background: C.panel, border: `1.5px solid ${C.border}`, borderRadius: 10, boxShadow: "0 8px 32px rgba(0,0,0,.2)", zIndex: 800, animation: "dropIn .15s ease" }}>
+            <div style={{ padding: "14px 16px", display: "flex", alignItems: "center", gap: 12, borderBottom: `1px solid ${C.border}` }}>
+                <div style={{ width: 42, height: 42, borderRadius: "50%", background: C.warm, display: "grid", placeItems: "center", color: "white", fontSize: 13, fontWeight: 700, flexShrink: 0 }}>MG</div>
                 <div>
-                    <div className="manager-account__name">Maria G.</div>
-                    <div className="manager-account__email">maria.g@oaxaca.com</div>
-                    <div className="manager-account__role">Manager</div>
+                    <div style={{ fontSize: 13, fontWeight: 600, color: C.text }}>Maria G.</div>
+                    <div style={{ fontSize: 11, color: C.muted }}>maria.g@oaxaca.com</div>
+                    <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: ".08em", textTransform: "uppercase", color: C.mid, marginTop: 2 }}>Manager</div>
                 </div>
             </div>
-            <div className="manager-account__signout" onClick={() => navigate('/')}>
-                <IconDoor />
-                <span className="manager-account__signout-label">Sign Out</span>
+            <div onClick={() => navigate('/')}
+                 style={{ padding: "13px 16px", display: "flex", alignItems: "center", gap: 10, cursor: "pointer", transition: "background .15s", borderRadius: "0 0 10px 10px" }}
+                 onMouseEnter={e => e.currentTarget.style.background = C.redL}
+                 onMouseLeave={e => e.currentTarget.style.background = "transparent"}>
+                <IconDoor /><span style={{ fontSize: 13, fontWeight: 600, color: C.red }}>Sign Out</span>
             </div>
         </div>
     );
@@ -184,97 +172,93 @@ function OverviewTab({ tables, setTables, requests, setRequests, addToast }) {
     const serviceCount = tables.filter(t => t.status === "Service" || t.status === "Bill Req.").length;
     const [selectedTable, setSelectedTable] = useState(null);
 
-    const resolveRequest = (id) => { setRequests(p => p.filter(r => r.id !== id)); addToast("Request resolved ✓"); };
-    const updateTableStatus = (id, status) => {
-        setTables(p => p.map(t => t.id === id ? { ...t, status } : t));
-        setSelectedTable(null);
-        addToast(`Table ${String(id).padStart(2, "0")} → ${status}`);
-    };
+    const resolveRequest    = (id) => { setRequests(p => p.filter(r => r.id !== id)); addToast("Request resolved ✓"); };
+    const updateTableStatus = (id, status) => { setTables(p => p.map(t => t.id === id ? { ...t, status } : t)); setSelectedTable(null); addToast(`Table ${String(id).padStart(2, "0")} → ${status}`); };
 
     const statCards = [
-        { label: "Active Tables",    val: `${occupied}/15`, delta: `${occupied} occupied`, up: true, accent: C.amber },
-        { label: "Service Requests", val: requests.length, delta: requests.length > 0 ? `${requests.length} need attention` : "All clear", up: requests.length === 0, accent: C.red },
+        { label: "Active Tables",    val: `${occupied}/15`, delta: `${occupied} occupied`,                                         up: true,              accent: C.amber },
+        { label: "Service Requests", val: requests.length,  delta: requests.length > 0 ? `${requests.length} need attention` : "All clear", up: requests.length === 0, accent: C.red },
     ];
 
     return (
         <>
-            <div className="manager-stats">
+            <div style={{ gridColumn: "1/-1", display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: 14 }}>
                 {statCards.map((s, i) => (
-                    <div key={i} className="manager-stat-card">
-                        <div className="manager-stat-card__accent" style={{ background: s.accent }} />
-                        <div className="manager-stat-card__label">{s.label}</div>
-                        <div className="manager-stat-card__value">{s.val}</div>
-                        <div className={`manager-stat-card__delta manager-stat-card__delta--${s.up ? "up" : "down"}`}>{s.delta}</div>
+                    <div key={i} style={{ background: C.panel, border: `1.5px solid ${C.border}`, borderRadius: 8, padding: "16px 18px", position: "relative", overflow: "hidden" }}>
+                        <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: s.accent }} />
+                        <div style={{ fontSize: 10, letterSpacing: ".12em", textTransform: "uppercase", color: C.muted, fontWeight: 600 }}>{s.label}</div>
+                        <div style={{ fontFamily: "Cormorant Garamond, serif", fontSize: 34, fontWeight: 700, color: C.dark, lineHeight: 1.1, margin: "4px 0 2px" }}>{s.val}</div>
+                        <div style={{ fontSize: 11, color: s.up ? C.green : C.red, fontWeight: 500 }}>{s.delta}</div>
                     </div>
                 ))}
             </div>
 
-            <div className="manager-section manager-section--span2">
-                <div className="manager-section__header">
-                    <h2 className="manager-section__title">Table Overview</h2>
-                    <div className="manager-section__badges">
-                        <span className="manager-badge" style={{ background: C.greenL, color: C.green }}>{occupied} Occupied</span>
-                        <span className="manager-badge" style={{ background: C.amberL, color: C.amber }}>{serviceCount} Service</span>
+            <div style={{ gridColumn: "span 2", background: C.panel, border: `1.5px solid ${C.border}`, borderRadius: 8, padding: 18, display: "flex", flexDirection: "column", gap: 12 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <span style={{ fontFamily: "Cormorant Garamond, serif", fontSize: 17, fontWeight: 700, color: C.dark }}>Table Overview</span>
+                    <div style={{ display: "flex", gap: 6 }}>
+                        <span style={{ fontSize: 10, fontWeight: 600, letterSpacing: ".08em", textTransform: "uppercase", padding: "3px 9px", borderRadius: 20, background: C.greenL, color: C.green }}>{occupied} Occupied</span>
+                        <span style={{ fontSize: 10, fontWeight: 600, letterSpacing: ".08em", textTransform: "uppercase", padding: "3px 9px", borderRadius: 20, background: C.amberL, color: C.amber }}>{serviceCount} Service</span>
                     </div>
                 </div>
-                <div className="manager-divider" />
-                <div className="manager-table-grid">
+                <div style={{ height: 1, background: C.border }} />
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(5,1fr)", gap: 8 }}>
                     {tables.map(t => {
                         const s = tileColors(t.status);
                         return (
-                            <div key={t.id} className="manager-table-tile"
-                                 style={{ background: s.bg, borderColor: s.border }}
-                                 onClick={() => setSelectedTable(t)}>
-                                <div className="manager-table-tile__num" style={{ color: s.num }}>{String(t.id).padStart(2, "0")}</div>
-                                <div className="manager-table-tile__status" style={{ color: s.label }}>{t.status}</div>
-                                <div className="manager-table-tile__info">
+                            <div key={t.id} onClick={() => setSelectedTable(t)}
+                                 style={{ background: s.bg, border: `1.5px solid ${s.border}`, borderRadius: 6, padding: "10px 8px", textAlign: "center", cursor: "pointer", transition: "transform .15s, box-shadow .15s" }}
+                                 onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,.08)"; }}
+                                 onMouseLeave={e => { e.currentTarget.style.transform = ""; e.currentTarget.style.boxShadow = ""; }}>
+                                <div style={{ fontFamily: "Cormorant Garamond, serif", fontSize: 20, fontWeight: 700, color: s.num, lineHeight: 1 }}>{String(t.id).padStart(2, "0")}</div>
+                                <div style={{ fontSize: 9, letterSpacing: ".08em", textTransform: "uppercase", fontWeight: 600, color: s.label, marginTop: 3 }}>{t.status}</div>
+                                <div style={{ fontSize: 10, color: C.muted, marginTop: 4 }}>
                                     {t.status === "Free" ? "—" : t.status === "Bill Req." ? `£${t.bill?.toFixed(2)}` : `${t.items} item${t.items !== 1 ? "s" : ""}`}
                                 </div>
                             </div>
                         );
                     })}
                 </div>
-                <div className="manager-table-summary">
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 8 }}>
                     {[
                         { label: "Ordering", val: tables.filter(t => t.status === "Ordering").length },
-                        { label: "Waiting",  val: tables.filter(t => t.status === "Waiting").length },
-                        { label: "Eating",   val: tables.filter(t => t.status === "Eating").length },
+                        { label: "Waiting",  val: tables.filter(t => t.status === "Waiting").length  },
+                        { label: "Eating",   val: tables.filter(t => t.status === "Eating").length   },
                         { label: "Service",  val: tables.filter(t => t.status === "Service" || t.status === "Bill Req.").length },
                     ].map((o, i) => (
-                        <div key={i} className="manager-summary-card">
-                            <div className="manager-summary-card__val">{o.val}</div>
-                            <div className="manager-summary-card__label">{o.label}</div>
+                        <div key={i} style={{ background: C.pale, borderRadius: 6, padding: "10px 12px", textAlign: "center" }}>
+                            <div style={{ fontFamily: "Cormorant Garamond, serif", fontSize: 28, fontWeight: 700, color: C.dark, lineHeight: 1 }}>{o.val}</div>
+                            <div style={{ fontSize: 9, letterSpacing: ".1em", textTransform: "uppercase", color: C.muted, fontWeight: 600, marginTop: 3 }}>{o.label}</div>
                         </div>
                     ))}
                 </div>
             </div>
 
-            <div className="manager-section">
-                <div className="manager-section__header">
-                    <h2 className="manager-section__title">Service Requests</h2>
-                    <span className="manager-badge" style={{ background: C.redL, color: C.red }}>{requests.length} Active</span>
+            <div style={{ background: C.panel, border: `1.5px solid ${C.border}`, borderRadius: 8, padding: 18, display: "flex", flexDirection: "column", gap: 12 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <span style={{ fontFamily: "Cormorant Garamond, serif", fontSize: 17, fontWeight: 700, color: C.dark }}>Service Requests</span>
+                    <span style={{ fontSize: 10, fontWeight: 600, letterSpacing: ".08em", textTransform: "uppercase", padding: "3px 9px", borderRadius: 20, background: C.redL, color: C.red }}>{requests.length} Active</span>
                 </div>
-                <div className="manager-divider" />
-                {requests.length === 0 && <p className="manager-empty">All requests resolved ✓</p>}
+                <div style={{ height: 1, background: C.border }} />
+                {requests.length === 0 && <div style={{ textAlign: "center", padding: "16px 0", color: C.muted, fontSize: 13 }}>All requests resolved ✓</div>}
                 {requests.map(r => (
-                    <div key={r.id} className="manager-request">
-                        <div className="manager-request__dot" style={{ background: urgencyColor[r.urgency] }} />
-                        <span className="manager-request__text">{r.text}</span>
-                        <span className="manager-request__meta">T{String(r.table).padStart(2, "0")}</span>
-                        <span className="manager-request__meta">{r.mins}m ago</span>
-                        <button className="manager-request__resolve" onClick={() => resolveRequest(r.id)}>Resolve</button>
+                    <div key={r.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "9px 12px", background: C.bg, borderRadius: 6, border: `1px solid ${C.border}` }}>
+                        <div style={{ width: 8, height: 8, borderRadius: "50%", background: urgencyColor[r.urgency], flexShrink: 0 }} />
+                        <span style={{ fontSize: 12, color: C.text, flex: 1, fontWeight: 500 }}>{r.text}</span>
+                        <span style={{ fontSize: 10, color: C.muted }}>T{String(r.table).padStart(2, "0")}</span>
+                        <span style={{ fontSize: 10, color: C.muted }}>{r.mins}m ago</span>
+                        <button onClick={() => resolveRequest(r.id)} style={{ fontSize: 10, fontWeight: 600, letterSpacing: ".06em", textTransform: "uppercase", color: C.mid, cursor: "pointer", padding: "3px 8px", border: `1px solid ${C.light}`, borderRadius: 4, background: "white", fontFamily: "Jost, sans-serif" }}>Resolve</button>
                     </div>
                 ))}
             </div>
 
             {selectedTable && (
                 <Modal title={`Table ${String(selectedTable.id).padStart(2, "0")}`} onClose={() => setSelectedTable(null)}>
-                    <p className="manager-modal__hint">Update status:</p>
-                    <div className="manager-status-grid">
+                    <p style={{ fontSize: 12, color: C.muted, marginBottom: 14 }}>Update status:</p>
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
                         {TABLE_STATUSES.map(s => (
-                            <button key={s}
-                                    className={`manager-status-btn${selectedTable.status === s ? " manager-status-btn--active" : ""}`}
-                                    onClick={() => updateTableStatus(selectedTable.id, s)}>
+                            <button key={s} onClick={() => updateTableStatus(selectedTable.id, s)}
+                                    style={{ padding: "10px 12px", borderRadius: 6, border: `1.5px solid ${selectedTable.status === s ? C.warm : C.border}`, background: selectedTable.status === s ? C.pale : "white", color: C.text, fontSize: 12, fontWeight: selectedTable.status === s ? 600 : 400, cursor: "pointer", fontFamily: "Jost, sans-serif" }}>
                                 {s}
                             </button>
                         ))}
@@ -285,29 +269,9 @@ function OverviewTab({ tables, setTables, requests, setRequests, addToast }) {
     );
 }
 
-function MenuTab() {
-    return (
-        <div className="manager-section manager-section--full">
-            <h2 className="manager-section__title">Menu Management</h2>
-        </div>
-    );
-}
-
-function EmployeesTab() {
-    return (
-        <div className="manager-section manager-section--full">
-            <h2 className="manager-section__title">Employee Performance</h2>
-        </div>
-    );
-}
-
-function StockTab() {
-    return (
-        <div className="manager-section manager-section--full">
-            <h2 className="manager-section__title">Stock Levels</h2>
-        </div>
-    );
-}
+function MenuTab()      { return <div style={{ gridColumn: "1/-1", background: C.panel, border: `1.5px solid ${C.border}`, borderRadius: 8, padding: 18 }}><span style={{ fontFamily: "Cormorant Garamond, serif", fontSize: 20, fontWeight: 700, color: C.dark }}>Menu Management</span></div>; }
+function EmployeesTab() { return <div style={{ gridColumn: "1/-1", background: C.panel, border: `1.5px solid ${C.border}`, borderRadius: 8, padding: 18 }}><span style={{ fontFamily: "Cormorant Garamond, serif", fontSize: 20, fontWeight: 700, color: C.dark }}>Employee Performance</span></div>; }
+function StockTab()     { return <div style={{ gridColumn: "1/-1", background: C.panel, border: `1.5px solid ${C.border}`, borderRadius: 8, padding: 18 }}><span style={{ fontFamily: "Cormorant Garamond, serif", fontSize: 20, fontWeight: 700, color: C.dark }}>Stock Levels</span></div>; }
 
 export default function ManagerDashboard() {
     const [tab,           setTab]           = useState("Overview");
@@ -332,22 +296,29 @@ export default function ManagerDashboard() {
     const unread = notifications.filter(n => !n.read).length;
 
     return (
-        <div className="manager-app">
-            <nav className="manager-nav">
-                <span className="manager-nav__wordmark">O A X A C A</span>
-                <div className="manager-nav__right">
-                    <span className="manager-nav__label">Manager View</span>
+        <div style={{ fontFamily: "Jost, sans-serif", background: C.bg, color: C.text, minHeight: "100vh" }}>
+            <style>{`
+                @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Jost:wght@300;400;500;600&display=swap');
+                @keyframes fadeInUp { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+                @keyframes dropIn   { from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:translateY(0)} }
+                * { box-sizing:border-box; margin:0; padding:0; }
+            `}</style>
+
+            <nav style={{ background: C.dark, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 28px", height: 56, position: "relative", zIndex: 700 }}>
+                <span style={{ fontFamily: "Cormorant Garamond, serif", fontSize: 22, letterSpacing: ".25em", color: C.bg, fontWeight: 600 }}>O A X A C A</span>
+                <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+                    <span style={{ fontSize: 11, letterSpacing: ".1em", textTransform: "uppercase", color: "rgba(245,240,232,.55)", fontWeight: 500 }}>Manager View</span>
                     <div ref={notifRef} style={{ position: "relative" }}>
-                        <div className={`manager-nav-btn${showNotifs ? " manager-nav-btn--active" : ""}`}
-                             onClick={() => { setShowNotifs(v => !v); setShowAccount(false); }}>
+                        <div onClick={() => { setShowNotifs(v => !v); setShowAccount(false); }}
+                             style={{ width: 36, height: 36, borderRadius: "50%", border: `1.5px solid ${showNotifs ? C.warm : "rgba(245,240,232,.3)"}`, background: showNotifs ? "rgba(196,118,58,.3)" : "rgba(245,240,232,.08)", display: "grid", placeItems: "center", cursor: "pointer", color: C.bg, position: "relative", transition: "all .15s", userSelect: "none" }}>
                             <IconBell />
-                            {unread > 0 && <div className="manager-nav-btn__badge">{unread > 9 ? "9+" : unread}</div>}
+                            {unread > 0 && <div style={{ position: "absolute", top: -3, right: -3, minWidth: 16, height: 16, borderRadius: 8, background: C.red, border: `2px solid ${C.dark}`, display: "grid", placeItems: "center", fontSize: 8, fontWeight: 700, color: "white", padding: "0 3px" }}>{unread > 9 ? "9+" : unread}</div>}
                         </div>
                         {showNotifs && <NotificationsPanel notifications={notifications} setNotifications={setNotifications} />}
                     </div>
                     <div ref={accountRef} style={{ position: "relative" }}>
-                        <div className={`manager-avatar${showAccount ? " manager-avatar--active" : ""}`}
-                             onClick={() => { setShowAccount(v => !v); setShowNotifs(false); }}>
+                        <div onClick={() => { setShowAccount(v => !v); setShowNotifs(false); }}
+                             style={{ width: 36, height: 36, borderRadius: "50%", background: showAccount ? C.mid : C.warm, display: "grid", placeItems: "center", cursor: "pointer", color: "white", fontSize: 11, fontWeight: 700, border: `2px solid ${showAccount ? C.light : "transparent"}`, transition: "all .15s", userSelect: "none" }}>
                             MG
                         </div>
                         {showAccount && <AccountPanel />}
@@ -355,26 +326,29 @@ export default function ManagerDashboard() {
                 </div>
             </nav>
 
-            <div className="manager-header">
-                <h1 className="manager-header__title">Manager Dashboard</h1>
+            <div style={{ padding: "22px 28px 0" }}>
+                <h1 style={{ fontFamily: "Cormorant Garamond, serif", fontSize: 32, fontWeight: 700, color: C.dark }}>Manager Dashboard</h1>
             </div>
 
-            <div className="manager-tabs">
+            <div style={{ padding: "16px 28px 0", display: "flex", gap: 4, borderBottom: `1.5px solid ${C.border}` }}>
                 {["Overview", "Menu", "Employees", "Stock"].map(t => (
-                    <button key={t} className={`manager-tab${tab === t ? " manager-tab--active" : ""}`} onClick={() => setTab(t)}>{t}</button>
+                    <div key={t} onClick={() => setTab(t)}
+                         style={{ padding: "9px 18px", fontSize: 12, letterSpacing: ".08em", textTransform: "uppercase", fontWeight: 500, cursor: "pointer", borderBottom: `2.5px solid ${tab === t ? C.mid : "transparent"}`, marginBottom: -1.5, color: tab === t ? C.mid : C.muted, transition: "color .2s", userSelect: "none" }}>
+                        {t}
+                    </div>
                 ))}
             </div>
 
-            <div className="manager-content">
+            <div style={{ padding: "20px 28px 40px", display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16 }}>
                 {tab === "Overview"  && <OverviewTab tables={tables} setTables={setTables} requests={requests} setRequests={setRequests} addToast={addToast} />}
                 {tab === "Menu"      && <MenuTab />}
                 {tab === "Employees" && <EmployeesTab />}
                 {tab === "Stock"     && <StockTab />}
             </div>
 
-            <div className="manager-toasts">
+            <div style={{ position: "fixed", bottom: 24, right: 24, display: "flex", flexDirection: "column", gap: 8, zIndex: 9999, pointerEvents: "none" }}>
                 {toasts.map(t => (
-                    <div key={t.id} className="manager-toast">{t.msg}</div>
+                    <div key={t.id} style={{ background: C.dark, color: C.bg, padding: "10px 18px", borderRadius: 6, fontSize: 12, fontFamily: "Jost, sans-serif", fontWeight: 500, boxShadow: "0 4px 16px rgba(0,0,0,.25)", animation: "fadeInUp .2s ease" }}>{t.msg}</div>
                 ))}
             </div>
         </div>
