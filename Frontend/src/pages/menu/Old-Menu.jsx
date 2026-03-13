@@ -1,6 +1,6 @@
 import { useState } from "react";
+import { useLocation } from "react-router-dom"; 
 import "./Menu.css";
-// NEW: Import INGREDIENTS and EXTRAS from menuData.js
 import { MENU_DATA, INGREDIENTS, EXTRAS_BY_ID } from "./menuData.js";
 
 // MENU DATA : tags
@@ -36,7 +36,11 @@ function Header({ tableNumber, cartCount, onCartClick }) {
     return (
         <header className="header">
             <span className="table-number">{tableNumber}</span>
-            <h1 className="restaurant-title">OAXACA</h1>
+            
+            <a href="/" style={{ textDecoration: 'none', color: 'inherit' }} className="no-style-link">
+                <h1 className="restaurant-title">OAXACA</h1>
+            </a>
+
             <div className="header-right">
                 <CartIcon count={cartCount} onClick={onCartClick} />
                 <div className="hamburger-wrapper">
@@ -90,7 +94,7 @@ function AllergenDropdown({ selected, onChange }) {
 }
 
 // FILTERS : dietary filter buttons
-function FilterBar({ activeFilters, onFilterToggle, excludedAllergens, onAllergenChange, onTrackOrder, hasActiveOrder }) {
+function FilterBar({ activeFilters, onFilterToggle, excludedAllergens, onAllergenChange }) {
     return (
         <div className="filter-bar">
             <div className="filter-row">
@@ -103,20 +107,12 @@ function FilterBar({ activeFilters, onFilterToggle, excludedAllergens, onAllerge
                     ))}
                 </div>
                 <AllergenDropdown selected={excludedAllergens} onChange={onAllergenChange} />
-                {/* Track Order Button - Only enabled after order placed */}
-                <button
-                    className={`track-order-btn ${hasActiveOrder ? 'track-order-btn--active' : 'track-order-btn--disabled'}`}
-                    onClick={onTrackOrder}
-                    disabled={!hasActiveOrder}
-                >
-                    🧾 Track Order
-                </button>
             </div>
         </div>
     );
 }
 
-// ========== CUSTOMIZATION POPUP ==========
+// POPUP CUSTOMISATION
 function CustomizationPopup({ item, onClose, onAddToCart }) {
     const [removedIngredients, setRemovedIngredients] = useState([]);
     const [selectedExtras, setSelectedExtras] = useState([]);
@@ -124,7 +120,8 @@ function CustomizationPopup({ item, onClose, onAddToCart }) {
 
     const itemIngredients = INGREDIENTS[item.id] || ["Food1", "Food2", "Food3", "Food4", "Food5"];
 
-    // Get extras specific to this item ID
+    // MODIFIED: Get extras specific to this item ID
+    // If no extras found for this ID, show an empty array (no extras section will be displayed)
     const itemExtras = EXTRAS_BY_ID[item.id] || [];
 
     const handleToggleIngredient = (ingredient) => {
@@ -186,7 +183,7 @@ function CustomizationPopup({ item, onClose, onAddToCart }) {
                         </div>
                     </div>
 
-                    {/* Add Extras Section */}
+                    {/* Add Extras Section - Only show if there are extras for this item */}
                     {itemExtras.length > 0 && (
                         <div className="customization-section">
                             <h3 className="section-title">Add Extras</h3>
@@ -258,12 +255,15 @@ function MenuItemCard({ item, dimmed, onCustomize }) {
             <div className="card-image-placeholder">
                 <span className="card-image-text">IMG</span>
             </div>
+
             <div className="card-body">
                 <div className="card-top-row">
                     <span className="card-name">{item.name}</span>
                     <span className="card-price">{item.price}</span>
                 </div>
+
                 <p className="card-description">{item.description}</p>
+
                 <div className="card-footer">
                     {item.dietary.length > 0 && (
                         <div className="card-tags">
@@ -292,6 +292,7 @@ function MenuItemCard({ item, dimmed, onCustomize }) {
 function MenuSection({ sectionName, items, isOpen, onToggle, matchesFilter, onCustomize }) {
     return (
         <div className={`menu-section ${isOpen ? "menu-section--open" : ""}`}>
+
             <button className="section-header" onClick={onToggle}>
                 <span className="section-name">{sectionName}</span>
                 <div className="section-header-right">
@@ -303,12 +304,7 @@ function MenuSection({ sectionName, items, isOpen, onToggle, matchesFilter, onCu
             {isOpen && (
                 <div className="section-items">
                     {items.map((item) => (
-                        <MenuItemCard
-                            key={item.id}
-                            item={item}
-                            dimmed={!matchesFilter(item)}
-                            onCustomize={onCustomize}
-                        />
+                        <MenuItemCard key={item.id} item={item} dimmed={!matchesFilter(item)} onCustomize={onCustomize} />
                     ))}
                 </div>
             )}
@@ -318,11 +314,9 @@ function MenuSection({ sectionName, items, isOpen, onToggle, matchesFilter, onCu
 
 // CART ITEMS : cartModal popup with quantity controls, modifications, placing order
 function CartModal({ cart, onClose, onUpdateQty, onRemove, onPlaceOrder }) {
-    const entries = Object.entries(cart).map(([key, value]) => ({
-        key,
-        ...value
-    }));
+    const entries = Object.entries(cart).map(([key, value]) => ({ key, ...value }));
 
+    // MODIFIED: Updated total calculation to include extras
     const total = entries.reduce((sum, { item, qty }) => {
         const basePrice = parseFloat(item.price.replace("£", ""));
         const extrasTotal = item.customization?.selectedExtras?.reduce((sum, extra) => sum + extra.price, 0) || 0;
@@ -330,17 +324,12 @@ function CartModal({ cart, onClose, onUpdateQty, onRemove, onPlaceOrder }) {
         return sum + itemTotal;
     }, 0);
 
+    // NEW: Function to format customization text for display
     const formatCustomizations = (item) => {
         const parts = [];
-        if (item.customization?.removedIngredients?.length > 0) {
-            parts.push(`No: ${item.customization.removedIngredients.join(', ')}`);
-        }
-        if (item.customization?.selectedExtras?.length > 0) {
-            parts.push(`Extra: ${item.customization.selectedExtras.map(e => e.name).join(', ')}`);
-        }
-        if (item.customization?.specialRequest) {
-            parts.push(`Note: ${item.customization.specialRequest}`);
-        }
+        if (item.customization?.removedIngredients?.length > 0) { parts.push(`No: ${item.customization.removedIngredients.join(', ')}`); }
+        if (item.customization?.selectedExtras?.length > 0) { parts.push(`Extra: ${item.customization.selectedExtras.map(e => e.name).join(', ')}`); }
+        if (item.customization?.specialRequest) { parts.push(`Note: ${item.customization.specialRequest}`);}
         return parts;
     };
 
@@ -361,6 +350,7 @@ function CartModal({ cart, onClose, onUpdateQty, onRemove, onPlaceOrder }) {
                                 const extrasTotal = item.customization?.selectedExtras?.reduce((sum, extra) => sum + extra.price, 0) || 0;
                                 const itemPrice = basePrice + extrasTotal;
                                 const linePrice = (itemPrice * qty).toFixed(2);
+                                // NEW: Get customizations for display
                                 const customizations = formatCustomizations(item);
 
                                 return (
@@ -370,6 +360,7 @@ function CartModal({ cart, onClose, onUpdateQty, onRemove, onPlaceOrder }) {
                                             <span className="modal-item-price">£{linePrice}</span>
                                         </div>
 
+                                        {/* NEW: Display customizations if any */}
                                         {customizations.length > 0 && (
                                             <div className="modal-item-customizations">
                                                 {customizations.map((custom, idx) => (
@@ -406,230 +397,11 @@ function CartModal({ cart, onClose, onUpdateQty, onRemove, onPlaceOrder }) {
     );
 }
 
-// ========== TRACKING POPUP  ==========
-function TrackingPopup({ orderId, tableNumber, orderItems, total, onClose, onPaymentClick, currentStep, onStepClick }) {
-    const steps = [
-        { id: 1, name: "Order Placed" },
-        { id: 2, name: "Confirmed by Kitchen" },
-        { id: 3, name: "Being Prepared" },
-        { id: 4, name: "Ready for Service" },
-        { id: 5, name: "Delivered" }
-    ];
-
-    const entries = Object.entries(orderItems).map(([key, value]) => ({
-        key,
-        ...value
-    }));
-
-    const formatCustomizations = (item) => {
-        const parts = [];
-
-        // Show removed ingredients
-        if (item.customization?.removedIngredients?.length > 0) {
-            parts.push(`No: ${item.customization.removedIngredients.join(', ')}`);
-        }
-
-        // Show selected extras with prices
-        if (item.customization?.selectedExtras?.length > 0) {
-            const extrasText = item.customization.selectedExtras
-                .map(extra => `${extra.name} (+£${extra.price.toFixed(2)})`)
-                .join(', ');
-            parts.push(`Extra: ${extrasText}`);
-        }
-
-        // Show special request
-        if (item.customization?.specialRequest) {
-            parts.push(`Note: "${item.customization.specialRequest}"`);
-        }
-
-        return parts;
-    };
-
-    const handlePayNow = () => {
-        onClose();
-        onPaymentClick();
-    };
-
-    return (
-        <div className="customization-overlay" onClick={onClose}>
-            <div className="customization-modal tracking-modal" onClick={(e) => e.stopPropagation()}>
-                <div className="customization-header">
-                    <h2 className="customization-title">Order Progress</h2>
-                    <button className="customization-close" onClick={onClose}>✕</button>
-                </div>
-
-                <div className="customization-content">
-                    <div className="order-info">
-                        <span className="table-number-display">Table: {tableNumber}</span>
-                        <span className="order-id-display">Order ID: #{orderId}</span>
-                    </div>
-
-                    {/* Progress Steps - Clickable */}
-                    <div className="progress-steps">
-                        {steps.map((step) => (
-                            <div
-                                key={step.id}
-                                className={`step-item ${currentStep >= step.id ? 'step-completed' : ''} ${currentStep === step.id ? 'step-current' : ''}`}
-                                onClick={() => onStepClick(step.id)}
-                            >
-                                <div className="step-indicator">
-                                    {currentStep > step.id ? '✓' : step.id}
-                                </div>
-                                <div className="step-content">
-                                    <span className="step-name">{step.name}</span>
-                                    <span className="step-status">
-                                        {currentStep > step.id ? 'Completed' :
-                                            currentStep === step.id ? 'In Progress' :
-                                                'Pending'}
-                                    </span>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-
-                    {/* Order Summary with Full Customizations */}
-                    <div className="tracking-order-summary">
-                        <h3 className="summary-title">Order Summary</h3>
-                        <div className="summary-items">
-                            {entries.map(({ key, item, qty }) => {
-                                const basePrice = parseFloat(item.price.replace("£", ""));
-                                const extrasTotal = item.customization?.selectedExtras?.reduce((sum, extra) => sum + extra.price, 0) || 0;
-                                const itemPrice = basePrice + extrasTotal;
-                                const linePrice = (itemPrice * qty).toFixed(2);
-                                const customizations = formatCustomizations(item);
-
-                                return (
-                                    <div key={key} className="summary-item">
-                                        <div className="summary-item-header">
-                                            <span className="summary-item-name">{item.name} ×{qty}</span>
-                                            <span className="summary-item-price">£{linePrice}</span>
-                                        </div>
-
-                                        {/* Show all customizations */}
-                                        {customizations.length > 0 && (
-                                            <div className="summary-item-customizations">
-                                                {customizations.map((custom, idx) => {
-                                                    // Apply different styling based on customization type
-                                                    let customClass = "summary-custom-text";
-                                                    if (custom.startsWith('No:')) {
-                                                        customClass += " customization-removed";
-                                                    } else if (custom.startsWith('Extra:')) {
-                                                        customClass += " customization-extra";
-                                                    } else if (custom.startsWith('Note:')) {
-                                                        customClass += " customization-note";
-                                                    }
-
-                                                    return (
-                                                        <p key={idx} className={customClass}>
-                                                            {custom}
-                                                        </p>
-                                                    );
-                                                })}
-                                            </div>
-                                        )}
-
-                                        {/* Show item total breakdown */}
-                                        {item.customization?.selectedExtras?.length > 0 && (
-                                            <div className="summary-item-breakdown">
-                                                <span className="breakdown-text">
-                                                    Base: {item.price} + Extras: £{extrasTotal.toFixed(2)}
-                                                </span>
-                                            </div>
-                                        )}
-                                    </div>
-                                );
-                            })}
-                        </div>
-
-                        {/* Order Total */}
-                        <div className="summary-total">
-                            <span>Total Amount</span>
-                            <span>£{total.toFixed(2)}</span>
-                        </div>
-                    </div>
-
-                    {/* Payment Message or Button */}
-                    {currentStep === 5 ? (
-                        <button className="pay-now-tracking-btn" onClick={handlePayNow}>
-                            PAY NOW • £{total.toFixed(2)}
-                        </button>
-                    ) : (
-                        <p className="payment-message">
-                            Payment will be available once your order has been delivered
-                        </p>
-                    )}
-                </div>
-            </div>
-        </div>
-    );
-}
-
-// ========== PAYMENT POPUP ==========
-function PaymentPopup({ orderId, tableNumber, total, onClose, onConfirm }) {
-    const [paymentMethod, setPaymentMethod] = useState('card');
-
-    return (
-        <div className="customization-overlay" onClick={onClose}>
-            <div className="customization-modal payment-modal" onClick={(e) => e.stopPropagation()}>
-                <div className="customization-header">
-                    <h2 className="customization-title">Payment</h2>
-                    <button className="customization-close" onClick={onClose}>✕</button>
-                </div>
-
-                <div className="customization-content">
-                    <div className="order-info">
-                        <span className="table-number-display">Table: {tableNumber}</span>
-                        <span className="order-id-display">Order ID: #{orderId}</span>
-                    </div>
-
-                    <div className="payment-methods">
-                        <button
-                            className={`payment-method-btn ${paymentMethod === 'card' ? 'payment-method-selected' : ''}`}
-                            onClick={() => setPaymentMethod('card')}
-                        >
-                            <span className="payment-method-icon">💳</span>
-                            <span>Card</span>
-                        </button>
-                        <button
-                            className={`payment-method-btn ${paymentMethod === 'cash' ? 'payment-method-selected' : ''}`}
-                            onClick={() => setPaymentMethod('cash')}
-                        >
-                            <span className="payment-method-icon">💵</span>
-                            <span>Cash</span>
-                        </button>
-                    </div>
-
-                    <div className="payment-instructions">
-                        {paymentMethod === 'card' ? (
-                            <p className="instruction-text">
-                                Please Tap or Insert Your Card To Complete The Payment
-                            </p>
-                        ) : (
-                            <p className="instruction-text">
-                                A Waiter Will Come To Your Table To Collect The Payment
-                            </p>
-                        )}
-                    </div>
-
-                    <div className="payment-total-due">
-                        <span>Total Due</span>
-                        <span>£{total.toFixed(2)}</span>
-                    </div>
-
-                    <button className="confirm-payment-btn" onClick={() => onConfirm(paymentMethod)}>
-                        Confirm Payment
-                    </button>
-                </div>
-            </div>
-        </div>
-    );
-}
-
-// Order Confirmation shown after a successfully placed order
+// CART ITEMS : Order confirmation shown after a successfully placed order
 function OrderConfirmation() {
     return (
-        <div className="customization-overlay">
-            <div className="customization-modal confirmation-modal">
+        <div className="modal-overlay">
+            <div className="modal confirmation-modal">
                 <div className="confirmation-icon">✓</div>
                 <h2 className="confirmation-title">Order Placed!</h2>
                 <p className="confirmation-msg">
@@ -647,24 +419,16 @@ export default function App() {
     const [activeFilters, setActiveFilters] = useState([]);
     const [excludedAllergens, setExcludedAllergens] = useState([]);
 
-    // CART
+    const { state } = useLocation();
+    const { cust_id, table_id } = state || {};
+
+    // CART ICON SHAPING
     const [cart, setCart] = useState({});
     const [cartOpen, setCartOpen] = useState(false);
     const [confirmed, setConfirmed] = useState(false);
+
+    // NEW: State for customization popup
     const [customizingItem, setCustomizingItem] = useState(null);
-
-    // Tracking and Payment states
-    const [trackingOpen, setTrackingOpen] = useState(false);
-    const [paymentOpen, setPaymentOpen] = useState(false);
-    const [orderId, setOrderId] = useState('');
-    const [hasActiveOrder, setHasActiveOrder] = useState(false);
-    const [currentStep, setCurrentStep] = useState(1);
-    const [placedOrder, setPlacedOrder] = useState({}); // Store the placed order items
-
-    // Generate random order ID
-    const generateOrderId = () => {
-        return Math.floor(1000 + Math.random() * 9000).toString();
-    };
 
     // MENU : SECTION OPEN/CLOSE
     function handleSectionToggle(sectionName) {
@@ -678,7 +442,7 @@ export default function App() {
         );
     }
 
-    // FILTER: MATCHING
+    // FILTER: MATCHING - dims the transparency of unrelated item
     function matchesFilter(item) {
         const passesDietary =
             activeFilters.length === 0 ||
@@ -691,10 +455,13 @@ export default function App() {
         return passesDietary && passesAllergens;
     }
 
-    // CART : ADDING ITEMS
+    // MODIFIED: CART : ADDING ITEMS (updated to handle customized items with unique IDs)
     function handleAddToCart(item) {
+        // Check if this exact customization already exists in cart
         const existingItemKey = Object.keys(cart).find(key => {
             const cartItem = cart[key].item;
+
+            // If it's a customized item, compare customizations
             if (item.customization) {
                 return cartItem.id === item.id &&
                     JSON.stringify(cartItem.customization) === JSON.stringify(item.customization);
@@ -703,6 +470,7 @@ export default function App() {
         });
 
         if (existingItemKey) {
+            // If same customization exists, increase quantity
             setCart((prev) => ({
                 ...prev,
                 [existingItemKey]: {
@@ -711,6 +479,7 @@ export default function App() {
                 }
             }));
         } else {
+            // If new customization, create new entry with unique ID
             const uniqueId = item.customization
                 ? `${item.id}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
                 : item.id;
@@ -747,51 +516,36 @@ export default function App() {
     }
 
     // CART : PLACING ORDERS
-    function handlePlaceOrder() {
-        const newOrderId = generateOrderId();
-        setOrderId(newOrderId);
-        setHasActiveOrder(true);
-        setCurrentStep(1); // Reset to first step
-        setPlacedOrder(cart); // Store the order before clearing
-        setCartOpen(false);
-        setCart({}); // Clear cart after placing order
-        setConfirmed(true);
-        setTimeout(() => {
-            setConfirmed(false);
-        }, 2500);
+    async function handlePlaceOrder() {
+    const items = Object.values(cart).map(({ item, qty }) => ({
+        item_id: item.id,
+        quantity: qty,
+        price: parseFloat(item.price.replace("£", "")) +
+               (item.customization?.selectedExtras?.reduce((s, e) => s + e.price, 0) || 0),
+    }));
+
+    try {
+        const res = await fetch('http://127.0.0.1:8000/orders', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ cust_id, table_id, items }),
+        });
+        if (!res.ok) {
+            console.error('Order failed:', await res.json());
+            return;
+        }
+    } catch (err) {
+        console.error('Could not reach server:', err);
+        return;
     }
 
-    // Handle step click in tracking
-    function handleStepClick(stepId) {
-        setCurrentStep(stepId);
-    }
-
-    // Handle payment confirmation
-    function handlePaymentConfirm(method) {
-        setPaymentOpen(false);
-        setHasActiveOrder(false); // Order completed
-        setPlacedOrder({}); // Clear placed order
-        setCurrentStep(1); // Reset steps
-        alert(`Payment confirmed with ${method}. Thank you!`);
-    }
+    setCartOpen(false);
+    setCart({});
+    setConfirmed(true);
+    setTimeout(() => { window.location.href = "/"; }, 2500);
+}
 
     const cartCount = Object.values(cart).reduce((sum, { qty }) => sum + qty, 0);
-
-    // Calculate cart total
-    const cartTotal = Object.values(cart).reduce((sum, { item, qty }) => {
-        const basePrice = parseFloat(item.price.replace("£", ""));
-        const extrasTotal = item.customization?.selectedExtras?.reduce((sum, extra) => sum + extra.price, 0) || 0;
-        const itemTotal = (basePrice + extrasTotal) * qty;
-        return sum + itemTotal;
-    }, 0);
-
-    // Calculate placed order total
-    const placedOrderTotal = Object.values(placedOrder).reduce((sum, { item, qty }) => {
-        const basePrice = parseFloat(item.price.replace("£", ""));
-        const extrasTotal = item.customization?.selectedExtras?.reduce((sum, extra) => sum + extra.price, 0) || 0;
-        const itemTotal = (basePrice + extrasTotal) * qty;
-        return sum + itemTotal;
-    }, 0);
 
     return (
         <div className="app">
@@ -807,8 +561,6 @@ export default function App() {
                     onFilterToggle={handleFilterToggle}
                     excludedAllergens={excludedAllergens}
                     onAllergenChange={setExcludedAllergens}
-                    onTrackOrder={() => setTrackingOpen(true)}
-                    hasActiveOrder={hasActiveOrder}
                 />
 
                 <div className="menu-sections">
@@ -838,36 +590,12 @@ export default function App() {
 
             {confirmed && <OrderConfirmation />}
 
+            {/* NEW: Render customization popup when an item is selected */}
             {customizingItem && (
                 <CustomizationPopup
                     item={customizingItem}
                     onClose={() => setCustomizingItem(null)}
                     onAddToCart={handleAddToCart}
-                />
-            )}
-
-            {/* Tracking Popup - Only opens if there's an active order */}
-            {trackingOpen && hasActiveOrder && (
-                <TrackingPopup
-                    orderId={orderId}
-                    tableNumber="Table 10"
-                    orderItems={placedOrder} // Pass the placed order items
-                    total={placedOrderTotal} // Pass the placed order total
-                    onClose={() => setTrackingOpen(false)}
-                    onPaymentClick={() => setPaymentOpen(true)}
-                    currentStep={currentStep}
-                    onStepClick={handleStepClick}
-                />
-            )}
-
-            {/* Payment Popup */}
-            {paymentOpen && (
-                <PaymentPopup
-                    orderId={orderId}
-                    tableNumber="Table 10"
-                    total={placedOrderTotal} // Pass the placed order total
-                    onClose={() => setPaymentOpen(false)}
-                    onConfirm={handlePaymentConfirm}
                 />
             )}
         </div>
