@@ -1,6 +1,6 @@
 import { useState } from "react";
+import { useLocation } from "react-router-dom"; 
 import "./Menu.css";
-// NEW: Import INGREDIENTS and EXTRAS from menuData.js
 import { MENU_DATA, INGREDIENTS, EXTRAS_BY_ID } from "./menuData.js";
 
 // MENU DATA : tags
@@ -36,7 +36,11 @@ function Header({ tableNumber, cartCount, onCartClick }) {
     return (
         <header className="header">
             <span className="table-number">{tableNumber}</span>
-            <h1 className="restaurant-title">OAXACA</h1>
+            
+            <a href="/" style={{ textDecoration: 'none', color: 'inherit' }} className="no-style-link">
+                <h1 className="restaurant-title">OAXACA</h1>
+            </a>
+
             <div className="header-right">
                 <CartIcon count={cartCount} onClick={onCartClick} />
                 <div className="hamburger-wrapper">
@@ -108,8 +112,7 @@ function FilterBar({ activeFilters, onFilterToggle, excludedAllergens, onAllerge
     );
 }
 
-// ========== NEW CUSTOMIZATION POPUP CODE START ==========
-// ========== CUSTOMIZATION POPUP ==========
+// POPUP CUSTOMISATION
 function CustomizationPopup({ item, onClose, onAddToCart }) {
     const [removedIngredients, setRemovedIngredients] = useState([]);
     const [selectedExtras, setSelectedExtras] = useState([]);
@@ -244,7 +247,6 @@ function CustomizationPopup({ item, onClose, onAddToCart }) {
         </div>
     );
 }
-// ========== NEW CUSTOMIZATION POPUP CODE END ==========
 
 // MENU : menu item card, with names and info
 function MenuItemCard({ item, dimmed, onCustomize }) {
@@ -253,12 +255,15 @@ function MenuItemCard({ item, dimmed, onCustomize }) {
             <div className="card-image-placeholder">
                 <span className="card-image-text">IMG</span>
             </div>
+
             <div className="card-body">
                 <div className="card-top-row">
                     <span className="card-name">{item.name}</span>
                     <span className="card-price">{item.price}</span>
                 </div>
+
                 <p className="card-description">{item.description}</p>
+
                 <div className="card-footer">
                     {item.dietary.length > 0 && (
                         <div className="card-tags">
@@ -287,6 +292,7 @@ function MenuItemCard({ item, dimmed, onCustomize }) {
 function MenuSection({ sectionName, items, isOpen, onToggle, matchesFilter, onCustomize }) {
     return (
         <div className={`menu-section ${isOpen ? "menu-section--open" : ""}`}>
+
             <button className="section-header" onClick={onToggle}>
                 <span className="section-name">{sectionName}</span>
                 <div className="section-header-right">
@@ -298,12 +304,7 @@ function MenuSection({ sectionName, items, isOpen, onToggle, matchesFilter, onCu
             {isOpen && (
                 <div className="section-items">
                     {items.map((item) => (
-                        <MenuItemCard
-                            key={item.id}
-                            item={item}
-                            dimmed={!matchesFilter(item)}
-                            onCustomize={onCustomize}
-                        />
+                        <MenuItemCard key={item.id} item={item} dimmed={!matchesFilter(item)} onCustomize={onCustomize} />
                     ))}
                 </div>
             )}
@@ -313,10 +314,7 @@ function MenuSection({ sectionName, items, isOpen, onToggle, matchesFilter, onCu
 
 // CART ITEMS : cartModal popup with quantity controls, modifications, placing order
 function CartModal({ cart, onClose, onUpdateQty, onRemove, onPlaceOrder }) {
-    const entries = Object.entries(cart).map(([key, value]) => ({
-        key,
-        ...value
-    }));
+    const entries = Object.entries(cart).map(([key, value]) => ({ key, ...value }));
 
     // MODIFIED: Updated total calculation to include extras
     const total = entries.reduce((sum, { item, qty }) => {
@@ -329,15 +327,9 @@ function CartModal({ cart, onClose, onUpdateQty, onRemove, onPlaceOrder }) {
     // NEW: Function to format customization text for display
     const formatCustomizations = (item) => {
         const parts = [];
-        if (item.customization?.removedIngredients?.length > 0) {
-            parts.push(`No: ${item.customization.removedIngredients.join(', ')}`);
-        }
-        if (item.customization?.selectedExtras?.length > 0) {
-            parts.push(`Extra: ${item.customization.selectedExtras.map(e => e.name).join(', ')}`);
-        }
-        if (item.customization?.specialRequest) {
-            parts.push(`Note: ${item.customization.specialRequest}`);
-        }
+        if (item.customization?.removedIngredients?.length > 0) { parts.push(`No: ${item.customization.removedIngredients.join(', ')}`); }
+        if (item.customization?.selectedExtras?.length > 0) { parts.push(`Extra: ${item.customization.selectedExtras.map(e => e.name).join(', ')}`); }
+        if (item.customization?.specialRequest) { parts.push(`Note: ${item.customization.specialRequest}`);}
         return parts;
     };
 
@@ -426,6 +418,9 @@ export default function App() {
     const [openSection, setOpenSection] = useState(null);
     const [activeFilters, setActiveFilters] = useState([]);
     const [excludedAllergens, setExcludedAllergens] = useState([]);
+
+    const { state } = useLocation();
+    const { cust_id, table_id } = state || {};
 
     // CART ICON SHAPING
     const [cart, setCart] = useState({});
@@ -521,14 +516,34 @@ export default function App() {
     }
 
     // CART : PLACING ORDERS
-    function handlePlaceOrder() {
-        setCartOpen(false);
-        setCart({});
-        setConfirmed(true);
-        setTimeout(() => {
-            window.location.href = "/";
-        }, 2500);
+    async function handlePlaceOrder() {
+    const items = Object.values(cart).map(({ item, qty }) => ({
+        item_id: item.id,
+        quantity: qty,
+        price: parseFloat(item.price.replace("£", "")) +
+               (item.customization?.selectedExtras?.reduce((s, e) => s + e.price, 0) || 0),
+    }));
+
+    try {
+        const res = await fetch('http://127.0.0.1:8000/orders', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ cust_id, table_id, items }),
+        });
+        if (!res.ok) {
+            console.error('Order failed:', await res.json());
+            return;
+        }
+    } catch (err) {
+        console.error('Could not reach server:', err);
+        return;
     }
+
+    setCartOpen(false);
+    setCart({});
+    setConfirmed(true);
+    setTimeout(() => { window.location.href = "/"; }, 2500);
+}
 
     const cartCount = Object.values(cart).reduce((sum, { qty }) => sum + qty, 0);
 
