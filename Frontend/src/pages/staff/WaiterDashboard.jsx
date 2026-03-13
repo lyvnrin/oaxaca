@@ -516,7 +516,8 @@ function OrdersTab({ orders, setOrders, menu, addToast }) {
 
 function TablesTab({ unpaidTables, addToast, raiseAlert }) {
     const [showUnpaidModal, setShowUnpaidModal] = useState(false);
-    const [alertTable,      setAlertTable]      = useState("");
+    const [alertTable,  setAlertTable]  = useState("");
+    const [customTable, setCustomTable] = useState("");
 
     return (
         <div style={{ padding: "20px 28px 32px" }}>
@@ -558,9 +559,15 @@ function TablesTab({ unpaidTables, addToast, raiseAlert }) {
                                 <input
                                     type="number"
                                     min="1"
+                                    max="20"
                                     placeholder="Other…"
-                                    value={typeof alertTable === "number" && !MY_TABLES.includes(alertTable) ? alertTable : ""}
-                                    onChange={e => setAlertTable(e.target.value ? parseInt(e.target.value) : "")}
+                                    value={customTable}
+                                    onChange={e => {
+                                        const val = parseInt(e.target.value);
+                                        setCustomTable(e.target.value);
+                                        if (!e.target.value) { setAlertTable(""); return; }
+                                        if (val >= 1 && val <= 20) { setAlertTable(val); }
+                                    }}
                                     style={{ width: 72, padding: "6px 10px", borderRadius: 6, border: `1.5px solid ${C.border}`, background: C.bg, fontSize: 12, fontFamily: "Jost, sans-serif", color: C.text }} />
                             </div>
                         </div>
@@ -571,6 +578,7 @@ function TablesTab({ unpaidTables, addToast, raiseAlert }) {
                                 raiseAlert(alertTable);
                                 addToast(`Alert raised for Table ${alertTable} — team notified`);
                                 setAlertTable("");
+                                setCustomTable("");
                             }}
                             style={{ width: "100%", padding: "12px", background: alertTable ? C.dark : C.light, color: alertTable ? C.bg : C.muted, border: "none", borderRadius: 8, fontSize: 12, fontWeight: 600, letterSpacing: ".1em", textTransform: "uppercase", cursor: alertTable ? "pointer" : "not-allowed", fontFamily: "Jost, sans-serif", transition: "all .15s", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}
                             onMouseEnter={e => { if (alertTable) e.currentTarget.style.opacity = ".85"; }}
