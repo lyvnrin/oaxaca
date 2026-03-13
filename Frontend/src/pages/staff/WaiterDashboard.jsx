@@ -448,7 +448,6 @@ function OrderCard({ order, onConfirm, onCancel, onDeliver, onAddItems, onStatus
     );
 }
 
-// ── Tab: Orders ────────────────────────────────────────────────────────────────
 function OrdersTab({ orders, setOrders, menu, addToast }) {
     const [addItemsOrder, setAddItemsOrder] = useState(null);
 
@@ -515,7 +514,6 @@ function OrdersTab({ orders, setOrders, menu, addToast }) {
     );
 }
 
-// ── Tab: Tables ────────────────────────────────────────────────────────────────
 function TablesTab({ unpaidTables, addToast, raiseAlert }) {
     const [showUnpaidModal, setShowUnpaidModal] = useState(false);
     const [alertTable,      setAlertTable]      = useState("");
@@ -620,7 +618,6 @@ function TablesTab({ unpaidTables, addToast, raiseAlert }) {
     );
 }
 
-// ── Tab: Menu ──────────────────────────────────────────────────────────────────
 function MenuTab({ menu, setMenu, addToast }) {
     const [search, setSearch] = useState("");
 
@@ -711,7 +708,6 @@ function MenuTab({ menu, setMenu, addToast }) {
     );
 }
 
-// ── Menu Item Card (shared between search results and section view) ─────────────
 function MenuItemCard({ item, onToggle }) {
     return (
         <div
@@ -741,6 +737,104 @@ function MenuItemCard({ item, onToggle }) {
                         ))}
                     </div>
                 )}
+            </div>
+        </div>
+    );
+}
+
+export default function App() {
+    const [tab,           setTab]           = useState("Orders");
+    const [orders,        setOrders]        = useState(INIT_ORDERS);
+    const [menu,          setMenu]          = useState(INIT_MENU);
+    const [notifications, setNotifications] = useState(INIT_NOTIFICATIONS);
+    const [toasts,        setToasts]        = useState([]);
+    const [showNotifs,    setShowNotifs]    = useState(false);
+    const [showAccount,   setShowAccount]   = useState(false);
+
+    const notifRef   = useRef(null);
+    const accountRef = useRef(null);
+    useOutsideClick(notifRef,   () => setShowNotifs(false));
+    useOutsideClick(accountRef, () => setShowAccount(false));
+
+    const addToast = msg => { const id = Date.now(); setToasts(p => [...p, { id, msg }]); setTimeout(() => setToasts(p => p.filter(t => t.id !== id)), 2000); };
+    const raiseAlert = (table) => { const id = Date.now(); setNotifications(p => [{ id, order: "–", table, status: `Table ${table} needs assistance`, type: "alert", read: false }, ...p]); };
+
+    const unread     = notifications.filter(n => !n.read).length;
+    const alertCount = notifications.filter(n => n.type === "alert").length;
+
+    const TABS = ["Orders", "Tables", "Menu"];
+
+    return (
+        <div style={{ fontFamily: "Jost, sans-serif", background: C.bg, color: C.text, minHeight: "100vh" }}>
+            <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Jost:wght@300;400;500;600&display=swap');
+        @keyframes fadeInUp { from{opacity:0;transform:translateY(8px)}  to{opacity:1;transform:translateY(0)} }
+        @keyframes dropIn   { from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:translateY(0)} }
+        @keyframes pulse    { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(1.3)} }
+        * { box-sizing:border-box; margin:0; padding:0; }
+        ::-webkit-scrollbar { width:4px; } ::-webkit-scrollbar-track { background:#f0e6d3; } ::-webkit-scrollbar-thumb { background:#e8d5b7; border-radius:2px; }
+        select:focus, input:focus { outline: 2px solid #c4763a; outline-offset: 1px; }
+      `}</style>
+
+            {/* NAV */}
+            <nav style={{ background: C.dark, height: 56, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 28px", position: "sticky", top: 0, zIndex: 800 }}>
+                <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 22, fontWeight: 600, letterSpacing: ".25em", color: C.bg }}>O A X A C A</span>
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                    <span style={{ fontSize: 11, letterSpacing: ".1em", textTransform: "uppercase", color: "rgba(245,240,232,.5)", fontWeight: 500 }}>Waiter View</span>
+                    <div ref={notifRef} style={{ position: "relative" }}>
+                        <NavIcon icon={<IconBell />} onClick={() => { setShowNotifs(v => !v); setShowAccount(false); }} active={showNotifs} badge={unread} badgeColor={alertCount > 0 ? C.blue : C.warm} />
+                        {showNotifs && <NotificationsPanel notifications={notifications} setNotifications={setNotifications} />}
+                    </div>
+                    <div ref={accountRef} style={{ position: "relative" }}>
+                        <div onClick={() => { setShowAccount(v => !v); setShowNotifs(false); }}
+                             style={{ width: 36, height: 36, borderRadius: "50%", background: showAccount ? C.mid : C.green, display: "grid", placeItems: "center", cursor: "pointer", color: "white", fontSize: 11, fontWeight: 700, border: `2px solid ${showAccount ? C.light : "transparent"}`, transition: "all .15s", userSelect: "none" }}>
+                            JD
+                        </div>
+                        {showAccount && <AccountPanel addToast={addToast} />}
+                    </div>
+                </div>
+            </nav>
+
+            {/* ALERT BANNER */}
+            {alertCount > 0 && (
+                <div style={{ background: C.blue, color: "white", padding: "9px 28px", display: "flex", alignItems: "center", gap: 10, fontSize: 12, fontWeight: 600, letterSpacing: ".04em" }}>
+                    <div style={{ width: 8, height: 8, borderRadius: "50%", background: "white", animation: "pulse 1.4s infinite", flexShrink: 0 }} />
+                    {alertCount} table{alertCount > 1 ? "s" : ""} need{alertCount === 1 ? "s" : ""} assistance — check notifications
+                </div>
+            )}
+
+            {/* PAGE HEADER + TABS */}
+            <div style={{ background: C.panel, borderBottom: `1.5px solid ${C.border}` }}>
+                <div style={{ padding: "18px 28px 0", display: "flex", alignItems: "flex-end", justifyContent: "space-between" }}>
+                    <div>
+                        <h1 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 28, fontWeight: 700, color: C.dark }}>Waiter Dashboard</h1>
+                        <p style={{ fontSize: 12, color: C.muted, marginTop: 2, letterSpacing: ".05em" }}>
+                            {new Date().toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" })} · Tables: {MY_TABLES.join(", ")}
+                        </p>
+                    </div>
+                    <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11, letterSpacing: ".1em", textTransform: "uppercase", color: C.green, fontWeight: 600, background: C.greenL, padding: "5px 12px", borderRadius: 20, marginBottom: 4 }}>
+                        <div style={{ width: 7, height: 7, borderRadius: "50%", background: C.green, animation: "pulse 1.6s infinite" }} />
+                        On Shift
+                    </div>
+                </div>
+                <div style={{ display: "flex", padding: "0 28px", marginTop: 12 }}>
+                    {TABS.map(t => (
+                        <button key={t} onClick={() => setTab(t)}
+                                style={{ padding: "9px 18px", fontSize: 12, letterSpacing: ".08em", textTransform: "uppercase", fontWeight: 500, cursor: "pointer", color: tab === t ? C.mid : C.muted, transition: "color .2s", userSelect: "none", background: "none", border: "none", borderBottom: `2.5px solid ${tab === t ? C.mid : "transparent"}`, fontFamily: "Jost, sans-serif" }}>
+                            {t}
+                        </button>
+                    ))}
+                </div>
+            </div>
+
+            {/* TAB CONTENT */}
+            {tab === "Orders" && <OrdersTab orders={orders} setOrders={setOrders} menu={menu} addToast={addToast} />}
+            {tab === "Tables" && <TablesTab unpaidTables={INIT_UNPAID} addToast={addToast} raiseAlert={raiseAlert} />}
+            {tab === "Menu"   && <MenuTab   menu={menu} setMenu={setMenu} addToast={addToast} />}
+
+            {/* TOASTS */}
+            <div style={{ position: "fixed", bottom: 24, right: 24, display: "flex", flexDirection: "column", gap: 8, zIndex: 9999, pointerEvents: "none" }}>
+                {toasts.map(t => <div key={t.id} style={{ background: C.dark, color: C.bg, padding: "10px 18px", borderRadius: 6, fontSize: 12, fontWeight: 500, boxShadow: "0 4px 16px rgba(0,0,0,.25)", animation: "fadeInUp .2s ease" }}>{t.msg}</div>)}
             </div>
         </div>
     );
