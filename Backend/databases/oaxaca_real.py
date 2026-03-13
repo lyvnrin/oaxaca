@@ -99,9 +99,8 @@ def place_order(payload: OrderIn):
     total = sum(i["price"] * i["quantity"] for i in payload.items)
 
     cursor.execute(
-        "INSERT INTO orders (cust_id, table_id, total_cost) VALUES (?, ?, ?)",
-        (payload.cust_id, payload.table_id, total),
-    )
+    "INSERT INTO orders (cust_id, table_id, total_cost, status) VALUES (?, ?, ?, ?)",
+    (payload.cust_id, payload.table_id, total, "Pending"),)
     order_id = cursor.lastrowid
 
     cursor.executemany(
@@ -128,3 +127,17 @@ def get_orders():
         result.append({ **dict(order), "items": [dict(i) for i in items] })
     conn.close()
     return result
+
+class OrderStatusUpdate(BaseModel):
+    status: str
+
+@app.patch("/orders/{order_id}")
+def update_order_status(order_id: int, payload: OrderStatusUpdate):
+    conn = get_conn()
+    conn.execute(
+        "UPDATE orders SET status = ? WHERE order_id = ?",
+        (payload.status, order_id)
+    )
+    conn.commit()
+    conn.close()
+    return {"order_id": order_id, "status": payload.status}

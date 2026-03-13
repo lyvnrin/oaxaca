@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 
 const C = {
     bg: "#f5f0e8", panel: "#faf7f2", dark: "#3b1f0e", mid: "#8b4513",
@@ -50,31 +50,6 @@ const INIT_MENU = [
     { id: 19, section: "Drinks",   name: "Mexican Lager",         price: 5.00,  avail: true,  dietary: [],                                   allergens: [],                    calories: "150 kcal (per 12 oz)",   description: "Ice-cold bottle served with lime. Ask your server for today's selection." },
     { id: 20, section: "Drinks",   name: "Water",                 price: 2.50,  avail: true,  dietary: [],                                   allergens: [],                    calories: "0 kcal",                 description: "Ice-cold and refreshing. Ask your server for alternative temperatures." },
 ];
-
-const [orders, setOrders] = useState([]);
-
-useEffect(() => {
-    const fetchOrders = async () => {
-        const res = await fetch('http://127.0.0.1:8000/orders');
-        const data = await res.json();
-        setOrders(data.map(o => ({
-            id: String(o.order_id),
-            table: o.table_id,
-            status: "Pending Confirmation",
-            startedAt: Date.now(),
-            items: o.items.map(i => ({
-                menuId: null,
-                name: i.item_name,
-                qty: i.quantity,
-                price: i.price,
-            }))
-        })));
-    };
-
-    fetchOrders();
-    const poll = setInterval(fetchOrders, 15000); // refresh every 15s
-    return () => clearInterval(poll);
-}, []);
 
 const INIT_UNPAID = [
     { table: 2,  order: "1230", total: 34.50, waiting: "12 mins" },
@@ -466,7 +441,17 @@ function OrdersTab({ orders, setOrders, menu, addToast }) {
     const confirmOrder    = id => { setOrders(p => p.map(o => o.id === id ? { ...o, status: "Confirmed" } : o)); addToast("Order confirmed ✓"); };
     const deliverOrder    = id => { setOrders(p => p.map(o => o.id === id ? { ...o, status: "Delivered" } : o)); addToast("Order marked as delivered"); };
     const cancelOrder     = id => { setOrders(p => p.filter(o => o.id !== id)); addToast("Order cancelled"); };
-    const changeStatus    = (id, status) => { setOrders(p => p.map(o => o.id === id ? { ...o, status } : o)); addToast(`Status updated to "${status}"`); };
+    const changeStatus = async (id, status) => {
+    setOrders(p => p.map(o => o.id === id ? { ...o, status } : o));
+    await fetch(`http://127.0.0.1:8000/orders/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status }),
+    });
+    addToast(`Status updated to "${status}"`);
+};
+    
+    
     const removeItem      = (orderId, itemIndex) => {
         setOrders(p => p.map(o => {
             if (o.id !== orderId) return o;
@@ -764,7 +749,7 @@ function MenuItemCard({ item, onToggle }) {
 
 export default function App() {
     const [tab,           setTab]           = useState("Orders");
-    const [orders,        setOrders]        = useState(INIT_ORDERS);
+    const [orders, setOrders] = useState([]);
     const [menu,          setMenu]          = useState(INIT_MENU);
     const [notifications, setNotifications] = useState(INIT_NOTIFICATIONS);
     const [toasts,        setToasts]        = useState([]);
@@ -783,6 +768,28 @@ export default function App() {
     const alertCount = notifications.filter(n => n.type === "alert").length;
 
     const TABS = ["Orders", "Tables", "Menu"];
+
+    useEffect(() => {
+        const fetchOrders = async () => {
+            const res = await fetch('http://127.0.0.1:8000/orders');
+            const data = await res.json();
+            setOrders(data.map(o => ({
+                id: String(o.order_id),
+                table: o.table_id,
+                status: o.status ?? "Pending",
+                startedAt: Date.now(),
+                items: o.items.map(i => ({
+                    menuId: null,
+                    name: i.item_name,
+                    qty: i.quantity,
+                    price: i.price,
+                }))
+            })));
+        };
+        fetchOrders();
+        const poll = setInterval(fetchOrders, 15000);
+        return () => clearInterval(poll);
+    }, []);
 
     return (
         <div style={{ fontFamily: "Jost, sans-serif", background: C.bg, color: C.text, minHeight: "100vh" }}>
