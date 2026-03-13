@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useLocation } from "react-router-dom"; 
 import "./Menu.css";
 import { MENU_DATA, INGREDIENTS, EXTRAS_BY_ID } from "./menuData.js";
 
@@ -418,6 +419,9 @@ export default function App() {
     const [activeFilters, setActiveFilters] = useState([]);
     const [excludedAllergens, setExcludedAllergens] = useState([]);
 
+    const { state } = useLocation();
+    const { cust_id, table_id } = state || {};
+
     // CART ICON SHAPING
     const [cart, setCart] = useState({});
     const [cartOpen, setCartOpen] = useState(false);
@@ -512,14 +516,34 @@ export default function App() {
     }
 
     // CART : PLACING ORDERS
-    function handlePlaceOrder() {
-        setCartOpen(false);
-        setCart({});
-        setConfirmed(true);
-        setTimeout(() => {
-            window.location.href = "/";
-        }, 2500);
+    async function handlePlaceOrder() {
+    const items = Object.values(cart).map(({ item, qty }) => ({
+        item_id: item.id,
+        quantity: qty,
+        price: parseFloat(item.price.replace("£", "")) +
+               (item.customization?.selectedExtras?.reduce((s, e) => s + e.price, 0) || 0),
+    }));
+
+    try {
+        const res = await fetch('http://127.0.0.1:8000/orders', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ cust_id, table_id, items }),
+        });
+        if (!res.ok) {
+            console.error('Order failed:', await res.json());
+            return;
+        }
+    } catch (err) {
+        console.error('Could not reach server:', err);
+        return;
     }
+
+    setCartOpen(false);
+    setCart({});
+    setConfirmed(true);
+    setTimeout(() => { window.location.href = "/"; }, 2500);
+}
 
     const cartCount = Object.values(cart).reduce((sum, { qty }) => sum + qty, 0);
 

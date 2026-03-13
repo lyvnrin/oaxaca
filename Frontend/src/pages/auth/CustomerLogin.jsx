@@ -40,29 +40,35 @@ function CustomerLogin() {
     const isFormValid = () => tableNumber !== '';
 
     const handleContinue = async () => {
-        if (!tableNumber) {
-            setError('Please select a table number');
+    if (!tableNumber) {
+        setError('Please select a table number');
+        return;
+    }
+    try {
+        const res = await fetch('http://127.0.0.1:8000/customers', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                name: `Table ${tableNumber}`, 
+                table_id: parseInt(tableNumber) 
+            }),
+        });
+        if (!res.ok) {
+            const data = await res.json();
+            setError(data.detail || 'Something went wrong');
             return;
         }
-
-        try {
-            const res = await fetch('http://127.0.0.1:8000/customers', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name: `Table ${tableNumber}`, table_id: parseInt(tableNumber) }),
-            });
-
-            if (!res.ok) {
-                const data = await res.json();
-                setError(data.detail || 'Something went wrong');
-                return;
-            }
-
-            goToMenu();
-        } catch (err) {
-            setError('Could not reach server');
-        }
-    };
+        const customer = await res.json();
+        navigate('/menu', { 
+            state: { 
+                cust_id: customer.cust_id, 
+                table_id: customer.table_id 
+            } 
+        });
+    } catch (err) {
+        setError('Could not reach server');
+    }
+};
 
     return (
         <div className="customer-page">
