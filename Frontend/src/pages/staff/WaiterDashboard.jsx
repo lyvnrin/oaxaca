@@ -13,13 +13,7 @@ const C = {
 const MY_TABLES = [3, 7, 12];
 const now = () => Date.now();
 
-const ORDER_STATUSES = [
-    "Pending Confirmation",
-    "Confirmed",
-    "In Progress",
-    "Ready for Delivery",
-    "Delivered",
-];
+const ORDER_STATUSES = ["Pending", "In Progress", "Ready", "Completed", "Cancelled"];
 
 const INIT_NOTIFICATIONS = [
     { id: 1, order: "1234", table: 12, status: "Ready For Service", type: "ready",   read: false },
@@ -57,12 +51,30 @@ const INIT_MENU = [
     { id: 20, section: "Drinks",   name: "Water",                 price: 2.50,  avail: true,  dietary: [],                                   allergens: [],                    calories: "0 kcal",                 description: "Ice-cold and refreshing. Ask your server for alternative temperatures." },
 ];
 
-const INIT_ORDERS = [
-    { id: "1234", table: 12, status: "Confirmed",            startedAt: now() - 8*60000,  items: [{ menuId: 6,  name: "Barbacoa Tacos",       qty: 2, price: 16.00 }, { menuId: 4,  name: "Elote Esquites",    qty: 1, price: 8.00  }] },
-    { id: "1235", table: 7,  status: "Pending Confirmation", startedAt: now() - 3*60000,  items: [{ menuId: 5,  name: "Mole Negro Chicken",   qty: 1, price: 18.00 }, { menuId: 18, name: "Horchata",          qty: 2, price: 4.50  }] },
-    { id: "1238", table: 3,  status: "In Progress",          startedAt: now() - 14*60000, items: [{ menuId: 7,  name: "Portobello Enchiladas",qty: 2, price: 14.00 }, { menuId: 9,  name: "Churro Sundae",     qty: 1, price: 8.00  }] },
-    { id: "1240", table: 5,  status: "Ready for Delivery",   startedAt: now() - 20*60000, items: [{ menuId: 8,  name: "Snapper Veracruz",     qty: 1, price: 22.00 }, { menuId: 17, name: "Mezcal Margarita",  qty: 2, price: 11.00 }] },
-];
+const [orders, setOrders] = useState([]);
+
+useEffect(() => {
+    const fetchOrders = async () => {
+        const res = await fetch('http://127.0.0.1:8000/orders');
+        const data = await res.json();
+        setOrders(data.map(o => ({
+            id: String(o.order_id),
+            table: o.table_id,
+            status: "Pending Confirmation",
+            startedAt: Date.now(),
+            items: o.items.map(i => ({
+                menuId: null,
+                name: i.item_name,
+                qty: i.quantity,
+                price: i.price,
+            }))
+        })));
+    };
+
+    fetchOrders();
+    const poll = setInterval(fetchOrders, 15000); // refresh every 15s
+    return () => clearInterval(poll);
+}, []);
 
 const INIT_UNPAID = [
     { table: 2,  order: "1230", total: 34.50, waiting: "12 mins" },
@@ -72,11 +84,11 @@ const INIT_UNPAID = [
 
 const notifColor  = { ready: C.green, alert: C.blue, allergy: C.amber };
 const statusColor = {
-    "Pending Confirmation": C.amber,
-    "Confirmed":            C.blue,
-    "In Progress":          C.warm,
-    "Ready for Delivery":   C.green,
-    "Delivered":            C.mid,
+    "Pending":     C.amber,
+    "In Progress": C.warm,
+    "Ready":       C.green,
+    "Completed":   C.mid,
+    "Cancelled":   C.red,
 };
 
 function useOutsideClick(ref, cb) {
@@ -355,9 +367,9 @@ function OrderCard({ order, onConfirm, onCancel, onDeliver, onAddItems, onStatus
     const elapsed     = useElapsed(order.startedAt);
     const isMine      = MY_TABLES.includes(order.table);
     const rowTotal    = order.items.reduce((s, i) => s + i.price * i.qty, 0);
-    const isPending   = order.status === "Pending Confirmation";
-    const isReady     = order.status === "Ready for Delivery";
-    const isDelivered = order.status === "Delivered";
+    const isPending   = order.status === "Pending";
+    const isReady     = order.status === "Ready";
+    const isDelivered = order.status === "Completed";
 
     return (
         <div style={{ background: C.bg, border: `1.5px solid ${isMine ? C.warm : C.border}`, borderRadius: 8, padding: "12px 14px", marginBottom: 10, opacity: isDelivered ? .65 : 1, transition: "box-shadow .15s" }}
