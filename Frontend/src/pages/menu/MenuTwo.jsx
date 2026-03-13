@@ -1,6 +1,6 @@
 import { useState } from "react";
-import "./Menu.css";
-// NEW: Import INGREDIENTS and EXTRAS from menuData.js
+import { useLocation } from 'react-router-dom';
+import "./MenuTwo.css";
 import { MENU_DATA, INGREDIENTS, EXTRAS_BY_ID } from "./menuData.js";
 
 // MENU DATA : tags
@@ -647,6 +647,9 @@ export default function App() {
     const [activeFilters, setActiveFilters] = useState([]);
     const [excludedAllergens, setExcludedAllergens] = useState([]);
 
+    const { state } = useLocation();
+    const { cust_id, table_id } = state || {};
+
     // CART
     const [cart, setCart] = useState({});
     const [cartOpen, setCartOpen] = useState(false);
@@ -747,19 +750,40 @@ export default function App() {
     }
 
     // CART : PLACING ORDERS
-    function handlePlaceOrder() {
-        const newOrderId = generateOrderId();
-        setOrderId(newOrderId);
-        setHasActiveOrder(true);
-        setCurrentStep(1); // Reset to first step
-        setPlacedOrder(cart); // Store the order before clearing
-        setCartOpen(false);
-        setCart({}); // Clear cart after placing order
-        setConfirmed(true);
-        setTimeout(() => {
-            setConfirmed(false);
-        }, 2500);
+    async function handlePlaceOrder() {
+    const items = Object.values(cart).map(({ item, qty }) => ({
+        item_id: item.id,
+        quantity: qty,
+        price: parseFloat(item.price.replace("£", "")) +
+               (item.customization?.selectedExtras?.reduce((s, e) => s + e.price, 0) || 0),
+    }));
+
+    try {
+        const res = await fetch('http://127.0.0.1:8000/orders', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ cust_id, table_id, items }),
+        });
+        if (!res.ok) {
+            console.error('Order failed:', await res.json());
+            return;
+        }
+    } catch (err) {
+        console.error('Could not reach server:', err);
+        return;
     }
+
+    // everything below is unchanged from MenuTwo
+    const newOrderId = generateOrderId();
+    setOrderId(newOrderId);
+    setHasActiveOrder(true);
+    setCurrentStep(1);
+    setPlacedOrder(cart);
+    setCartOpen(false);
+    setCart({});
+    setConfirmed(true);
+    setTimeout(() => { setConfirmed(false); }, 2500);
+}
 
     // Handle step click in tracking
     function handleStepClick(stepId) {
@@ -796,7 +820,7 @@ export default function App() {
     return (
         <div className="app">
             <Header
-                tableNumber="Table 10"
+                tableNumber={table_id ? `Table ${table_id}` : "Table"}
                 cartCount={cartCount}
                 onCartClick={() => setCartOpen(true)}
             />
