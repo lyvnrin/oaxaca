@@ -22,8 +22,7 @@ const ORDER_STATUSES = [
 ];
 
 const INIT_NOTIFICATIONS = [
-    { id: 3, order: "1236", table: 4,  status: "Needs Assistance",  type: "alert",   read: false },
-    { id: 4, order: "1237", table: 9,  status: "Has Nut Allergy",   type: "allergy", read: false },
+    { id: 3, order: "1236", table: 4,  status: "Needs Assistance",  type: "alert",   read: false }
 ];
 
 const INIT_MENU = [
