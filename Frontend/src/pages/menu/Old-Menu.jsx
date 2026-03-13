@@ -1,6 +1,7 @@
 import { useState } from "react";
+import { useLocation } from "react-router-dom"; 
 import "./Menu.css";
-import { MENU_DATA } from "./menuData.js";
+import { MENU_DATA, INGREDIENTS, EXTRAS_BY_ID } from "./menuData.js";
 
 // MENU DATA : tags
 const ALLERGEN_OPTIONS = ["Fish", "Soy", "Milk", "Nuts", "Eggs", "Wheat", "Sesame", "Shellfish"];
@@ -8,358 +9,595 @@ const DIET_FILTERS = ["Vegetarian", "Gluten-Free", "Vegan"];
 
 // NAVBAR : cartIcon
 function CartIcon({ count, onClick }) {
-  return ( <button className="cart-icon" title="View cart" onClick={onClick}>
-      <svg
-        width="20"
-        height="20"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        <circle cx="9" cy="21" r="1" />
-        <circle cx="20" cy="21" r="1" />
-        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
-      </svg>
-      {count > 0 && <span className="cart-badge">{count}</span>}
-    </button>
-  );
+    return ( <button className="cart-icon" title="View cart" onClick={onClick}>
+            <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+            >
+                <circle cx="9" cy="21" r="1" />
+                <circle cx="20" cy="21" r="1" />
+                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
+            </svg>
+            {count > 0 && <span className="cart-badge">{count}</span>}
+        </button>
+    );
 }
 
 // NAVBAR : Header components - restaurant title, table number
 function Header({ tableNumber, cartCount, onCartClick }) {
-  const [menuOpen, setMenuOpen] = useState(false);
+    const [menuOpen, setMenuOpen] = useState(false);
 
-  return (
-    <header className="header">
-      <span className="table-number">{tableNumber}</span>
-      <a href="/" style={{ textDecoration: 'none', color: 'inherit' }} className="no-style-link">
-  <h1 className="restaurant-title">OAXACA</h1>
-</a>
-      <div className="header-right">
-        <CartIcon count={cartCount} onClick={onCartClick} />
-        <div className="hamburger-wrapper">
-        <button className={`hamburger ${menuOpen ? "hamburger--open" : ""}`} aria-label="Open navigation menu" onClick={() => setMenuOpen((v) => !v)} >
-          <span className="hamburger-bar" />
-          <span className="hamburger-bar" />
-          <span className="hamburger-bar" />
-        </button>
-        {menuOpen && ( <>
-          <div className="menu-popup-backdrop" onClick={() => setMenuOpen(false)} />
-            <div className="menu-popup">
-              <button className="menu-popup-item" onClick={() => setMenuOpen(false)}>📞 Contact Waiter </button>
-              <button className="menu-popup-item" onClick={() => setMenuOpen(false)}>⚙️ Settings</button>
-            </div> </>
-          )}
-        </div>
-      </div>
-    </header>
-  );
+    return (
+        <header className="header">
+            <span className="table-number">{tableNumber}</span>
+            
+            <a href="/" style={{ textDecoration: 'none', color: 'inherit' }} className="no-style-link">
+                <h1 className="restaurant-title">OAXACA</h1>
+            </a>
+
+            <div className="header-right">
+                <CartIcon count={cartCount} onClick={onCartClick} />
+                <div className="hamburger-wrapper">
+                    <button className={`hamburger ${menuOpen ? "hamburger--open" : ""}`} aria-label="Open navigation menu" onClick={() => setMenuOpen((v) => !v)} >
+                        <span className="hamburger-bar" />
+                        <span className="hamburger-bar" />
+                        <span className="hamburger-bar" />
+                    </button>
+                    {menuOpen && ( <>
+                            <div className="menu-popup-backdrop" onClick={() => setMenuOpen(false)} />
+                            <div className="menu-popup">
+                                <button className="menu-popup-item" onClick={() => setMenuOpen(false)}>📞 Contact Waiter </button>
+                                <button className="menu-popup-item" onClick={() => setMenuOpen(false)}>⚙️ Settings</button>
+                            </div> </>
+                    )}
+                </div>
+            </div>
+        </header>
+    );
 }
 
 // FILTERS : Allergens dropdown
 function AllergenDropdown({ selected, onChange }) {
-  const [open, setOpen] = useState(false);
+    const [open, setOpen] = useState(false);
 
-  function handleToggle(allergen) {
-    if (selected.includes(allergen)) { onChange(selected.filter((a) => a !== allergen));
-     } else { onChange([...selected, allergen]);
+    function handleToggle(allergen) {
+        if (selected.includes(allergen)) { onChange(selected.filter((a) => a !== allergen));
+        } else { onChange([...selected, allergen]);
+        }
     }
-  }
 
-  return (
-    <div className="allergen-wrapper">
-      <button className={`allergen-toggle ${selected.length > 0 ? "allergen-toggle--active" : ""}`} onClick={() => setOpen((v) => !v)} >
-        <span>Does Not Contain</span>
-        {selected.length > 0 && <span className="allergen-count">{selected.length}</span>}
-        <span className="dropdown-arrow">{open ? "▲" : "▼"}</span>
-      </button>
+    return (
+        <div className="allergen-wrapper">
+            <button className={`allergen-toggle ${selected.length > 0 ? "allergen-toggle--active" : ""}`} onClick={() => setOpen((v) => !v)} >
+                <span>Does Not Contain</span>
+                {selected.length > 0 && <span className="allergen-count">{selected.length}</span>}
+                <span className="dropdown-arrow">{open ? "▲" : "▼"}</span>
+            </button>
 
-      {open && (
-        <div className="allergen-list"> {ALLERGEN_OPTIONS.map((allergen) => (
-            <label key={allergen} className="allergen-option">
-              <input type="checkbox" checked={selected.includes(allergen)} onChange={() => handleToggle(allergen)}/> 
-              {allergen}
-            </label>
-          ))}
+            {open && (
+                <div className="allergen-list"> {ALLERGEN_OPTIONS.map((allergen) => (
+                    <label key={allergen} className="allergen-option">
+                        <input type="checkbox" checked={selected.includes(allergen)} onChange={() => handleToggle(allergen)}/>
+                        {allergen}
+                    </label>
+                ))}
+                </div>
+            )}
         </div>
-      )}
-    </div>
-  );
+    );
 }
 
 // FILTERS : dietary filter buttons
 function FilterBar({ activeFilters, onFilterToggle, excludedAllergens, onAllergenChange }) {
-  return (
-    <div className="filter-bar">
-      <div className="filter-row">
-        <span className="filter-label">Show me</span>
-        <div className="filter-buttons">
-          {DIET_FILTERS.map((filter) => (
-            <button key={filter} className={`filter-btn ${activeFilters.includes(filter) ? "filter-btn--active" : ""}`} onClick={() => onFilterToggle(filter)} >
-              {filter}
-            </button>
-          ))}
+    return (
+        <div className="filter-bar">
+            <div className="filter-row">
+                <span className="filter-label">Show me</span>
+                <div className="filter-buttons">
+                    {DIET_FILTERS.map((filter) => (
+                        <button key={filter} className={`filter-btn ${activeFilters.includes(filter) ? "filter-btn--active" : ""}`} onClick={() => onFilterToggle(filter)} >
+                            {filter}
+                        </button>
+                    ))}
+                </div>
+                <AllergenDropdown selected={excludedAllergens} onChange={onAllergenChange} />
+            </div>
         </div>
-        <AllergenDropdown selected={excludedAllergens} onChange={onAllergenChange} />
-      </div>
-    </div>
-  );
+    );
+}
+
+// POPUP CUSTOMISATION
+function CustomizationPopup({ item, onClose, onAddToCart }) {
+    const [removedIngredients, setRemovedIngredients] = useState([]);
+    const [selectedExtras, setSelectedExtras] = useState([]);
+    const [specialRequest, setSpecialRequest] = useState('');
+
+    const itemIngredients = INGREDIENTS[item.id] || ["Food1", "Food2", "Food3", "Food4", "Food5"];
+
+    // MODIFIED: Get extras specific to this item ID
+    // If no extras found for this ID, show an empty array (no extras section will be displayed)
+    const itemExtras = EXTRAS_BY_ID[item.id] || [];
+
+    const handleToggleIngredient = (ingredient) => {
+        setRemovedIngredients(prev =>
+            prev.includes(ingredient)
+                ? prev.filter(i => i !== ingredient)
+                : [...prev, ingredient]
+        );
+    };
+
+    const handleToggleExtra = (extra) => {
+        setSelectedExtras(prev =>
+            prev.find(e => e.name === extra.name)
+                ? prev.filter(e => e.name !== extra.name)
+                : [...prev, extra]
+        );
+    };
+
+    const handleAddToOrder = () => {
+        const customizedItem = {
+            ...item,
+            customization: {
+                removedIngredients,
+                selectedExtras,
+                specialRequest: specialRequest.trim()
+            }
+        };
+        onAddToCart(customizedItem);
+        onClose();
+    };
+
+    const extrasTotal = selectedExtras.reduce((sum, extra) => sum + extra.price, 0);
+    const basePrice = parseFloat(item.price.replace("£", ""));
+    const totalPrice = (basePrice + extrasTotal).toFixed(2);
+
+    return (
+        <div className="customization-overlay" onClick={onClose}>
+            <div className="customization-modal" onClick={(e) => e.stopPropagation()}>
+                <div className="customization-header">
+                    <h2 className="customization-title">Customize {item.name}</h2>
+                    <button className="customization-close" onClick={onClose}>✕</button>
+                </div>
+
+                <div className="customization-content">
+                    {/* Remove Ingredients Section */}
+                    <div className="customization-section">
+                        <h3 className="section-title">Remove Ingredients</h3>
+                        <div className="ingredients-grid">
+                            {itemIngredients.map((ingredient) => (
+                                <button
+                                    key={ingredient}
+                                    className={`ingredient-btn ${removedIngredients.includes(ingredient) ? 'ingredient-btn--removed' : ''}`}
+                                    onClick={() => handleToggleIngredient(ingredient)}
+                                >
+                                    {ingredient}
+                                    {removedIngredients.includes(ingredient) && <span className="remove-icon">✕</span>}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Add Extras Section - Only show if there are extras for this item */}
+                    {itemExtras.length > 0 && (
+                        <div className="customization-section">
+                            <h3 className="section-title">Add Extras</h3>
+                            <div className="extras-list">
+                                {itemExtras.map((extra) => {
+                                    const isSelected = selectedExtras.some(e => e.name === extra.name);
+                                    return (
+                                        <button
+                                            key={extra.name}
+                                            className={`extra-item ${isSelected ? 'extra-item--selected' : ''}`}
+                                            onClick={() => handleToggleExtra(extra)}
+                                        >
+                                            <span className="extra-name">{extra.name}</span>
+                                            <span className="extra-price">£{extra.price.toFixed(2)}</span>
+                                            {isSelected && <span className="check-icon">✓</span>}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Special Request Section */}
+                    <div className="customization-section">
+                        <h3 className="section-title">Special Request</h3>
+                        <textarea
+                            className="special-request-input"
+                            placeholder="Any special instructions? (allergies, cooking preferences, etc.)"
+                            value={specialRequest}
+                            onChange={(e) => setSpecialRequest(e.target.value)}
+                            rows="3"
+                        />
+                    </div>
+
+                    {/* Price Summary */}
+                    <div className="customization-summary">
+                        <div className="price-breakdown">
+                            <span>Base price:</span>
+                            <span>{item.price}</span>
+                        </div>
+                        {selectedExtras.length > 0 && (
+                            <div className="price-breakdown">
+                                <span>Extras:</span>
+                                <span>£{extrasTotal.toFixed(2)}</span>
+                            </div>
+                        )}
+                        <div className="total-price">
+                            <span>Total:</span>
+                            <span>£{totalPrice}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="customization-footer">
+                    <button className="cancel-btn" onClick={onClose}>Cancel</button>
+                    <button className="add-to-order-final-btn" onClick={handleAddToOrder}>
+                        Add to Order • £{totalPrice}
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
 }
 
 // MENU : menu item card, with names and info
-function MenuItemCard({ item, dimmed, onAddToCart }) {
-  return (
-    <div className={`menu-item-card ${dimmed ? "menu-item-card--dimmed" : ""}`}>
-      <div className="card-image-placeholder">
-        <span className="card-image-text">IMG</span>
-      </div>
-      <div className="card-body">
-        <div className="card-top-row">
-          <span className="card-name">{item.name}</span>
-          <span className="card-price">{item.price}</span>
-        </div>
-        <p className="card-description">{item.description}</p>
-        <div className="card-footer">
-          {item.dietary.length > 0 && (
-            <div className="card-tags">
-              {item.dietary.map((tag) => ( <span key={tag} className="diet-tag">{tag}</span> ))}
+function MenuItemCard({ item, dimmed, onCustomize }) {
+    return (
+        <div className={`menu-item-card ${dimmed ? "menu-item-card--dimmed" : ""}`}>
+            <div className="card-image-placeholder">
+                <span className="card-image-text">IMG</span>
             </div>
-          )}
-          {item.allergens.length > 0 && (
-            <p className="card-allergens">Contains: {item.allergens.join(", ")}</p>
-          )}
-          <span className="card-calories">{item.calories}</span>
-        </div>
 
-        <button className="add-to-order-btn" onClick={() => !dimmed && onAddToCart(item)} disabled={dimmed} >
-          + Add to Order
-        </button>
-      </div>
-    </div>
-  );
+            <div className="card-body">
+                <div className="card-top-row">
+                    <span className="card-name">{item.name}</span>
+                    <span className="card-price">{item.price}</span>
+                </div>
+
+                <p className="card-description">{item.description}</p>
+
+                <div className="card-footer">
+                    {item.dietary.length > 0 && (
+                        <div className="card-tags">
+                            {item.dietary.map((tag) => ( <span key={tag} className="diet-tag">{tag}</span> ))}
+                        </div>
+                    )}
+                    {item.allergens.length > 0 && (
+                        <p className="card-allergens">Contains: {item.allergens.join(", ")}</p>
+                    )}
+                    <span className="card-calories">{item.calories}</span>
+                </div>
+
+                <button
+                    className="add-to-order-btn"
+                    onClick={() => !dimmed && onCustomize(item)}
+                    disabled={dimmed}
+                >
+                    + Add to Order
+                </button>
+            </div>
+        </div>
+    );
 }
 
 // MENU : menu section components, dropdown
-function MenuSection({ sectionName, items, isOpen, onToggle, matchesFilter, onAddToCart }) {
-  return (
-    <div className={`menu-section ${isOpen ? "menu-section--open" : ""}`}>
-      <button className="section-header" onClick={onToggle}>
-        <span className="section-name">{sectionName}</span>
-        <div className="section-header-right">
-          <span className="section-count">{items.length} items</span>
-          <span className="section-toggle-icon">{isOpen ? "−" : "+"}</span>
-        </div>
-      </button>
+function MenuSection({ sectionName, items, isOpen, onToggle, matchesFilter, onCustomize }) {
+    return (
+        <div className={`menu-section ${isOpen ? "menu-section--open" : ""}`}>
 
-      {isOpen && (
-        <div className="section-items">
-          {items.map((item) => (
-            <MenuItemCard key={item.id} item={item} dimmed={!matchesFilter(item)} onAddToCart={onAddToCart} />
-          ))}
+            <button className="section-header" onClick={onToggle}>
+                <span className="section-name">{sectionName}</span>
+                <div className="section-header-right">
+                    <span className="section-count">{items.length} items</span>
+                    <span className="section-toggle-icon">{isOpen ? "−" : "+"}</span>
+                </div>
+            </button>
+
+            {isOpen && (
+                <div className="section-items">
+                    {items.map((item) => (
+                        <MenuItemCard key={item.id} item={item} dimmed={!matchesFilter(item)} onCustomize={onCustomize} />
+                    ))}
+                </div>
+            )}
         </div>
-      )}
-    </div>  
-  );
+    );
 }
 
 // CART ITEMS : cartModal popup with quantity controls, modifications, placing order
 function CartModal({ cart, onClose, onUpdateQty, onRemove, onPlaceOrder }) {
-  const entries = Object.values(cart);
+    const entries = Object.entries(cart).map(([key, value]) => ({ key, ...value }));
 
-  const total = entries.reduce((sum, { item, qty }) => {
-    const price = parseFloat(item.price.replace("£", ""));
-    return sum + price * qty;
-  }, 0);
+    // MODIFIED: Updated total calculation to include extras
+    const total = entries.reduce((sum, { item, qty }) => {
+        const basePrice = parseFloat(item.price.replace("£", ""));
+        const extrasTotal = item.customization?.selectedExtras?.reduce((sum, extra) => sum + extra.price, 0) || 0;
+        const itemTotal = (basePrice + extrasTotal) * qty;
+        return sum + itemTotal;
+    }, 0);
 
-  return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal" onClick={(e) => e.stopPropagation()}>
+    // NEW: Function to format customization text for display
+    const formatCustomizations = (item) => {
+        const parts = [];
+        if (item.customization?.removedIngredients?.length > 0) { parts.push(`No: ${item.customization.removedIngredients.join(', ')}`); }
+        if (item.customization?.selectedExtras?.length > 0) { parts.push(`Extra: ${item.customization.selectedExtras.map(e => e.name).join(', ')}`); }
+        if (item.customization?.specialRequest) { parts.push(`Note: ${item.customization.specialRequest}`);}
+        return parts;
+    };
 
-        <div className="modal-header">
-          <h2 className="modal-title">Your Order</h2>
-          <button className="modal-close" onClick={onClose}>✕</button>
+    return (
+        <div className="modal-overlay" onClick={onClose}>
+            <div className="modal" onClick={(e) => e.stopPropagation()}>
+
+                <div className="modal-header">
+                    <h2 className="modal-title">Your Order</h2>
+                    <button className="modal-close" onClick={onClose}>✕</button>
+                </div>
+
+                {entries.length === 0 ? (
+                    <p className="modal-empty">Your order is empty. Add some items from the menu!</p> ) : ( <>
+                        <div className="modal-items">
+                            {entries.map(({ key, item, qty }) => {
+                                const basePrice = parseFloat(item.price.replace("£", ""));
+                                const extrasTotal = item.customization?.selectedExtras?.reduce((sum, extra) => sum + extra.price, 0) || 0;
+                                const itemPrice = basePrice + extrasTotal;
+                                const linePrice = (itemPrice * qty).toFixed(2);
+                                // NEW: Get customizations for display
+                                const customizations = formatCustomizations(item);
+
+                                return (
+                                    <div key={key} className="modal-item">
+                                        <div className="modal-item-info">
+                                            <span className="modal-item-name">{item.name}</span>
+                                            <span className="modal-item-price">£{linePrice}</span>
+                                        </div>
+
+                                        {/* NEW: Display customizations if any */}
+                                        {customizations.length > 0 && (
+                                            <div className="modal-item-customizations">
+                                                {customizations.map((custom, idx) => (
+                                                    <p key={idx} className="customization-text">{custom}</p>
+                                                ))}
+                                            </div>
+                                        )}
+
+                                        <div className="modal-item-controls">
+                                            <button className="qty-btn" onClick={() => onUpdateQty(key, qty - 1)}>−</button>
+                                            <span className="qty-value">{qty}</span>
+                                            <button className="qty-btn" onClick={() => onUpdateQty(key, qty + 1)}>+</button>
+                                            <button className="remove-btn" onClick={() => onRemove(key)}>✕</button>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+
+                        <div className="modal-footer">
+                            <div className="modal-total">
+                                <span>Total</span>
+                                <span>£{total.toFixed(2)}</span>
+                            </div>
+                            <button className="place-order-btn" onClick={onPlaceOrder}>
+                                Place Order
+                            </button>
+                        </div>
+                    </>
+                )}
+
+            </div>
         </div>
-
-        {entries.length === 0 ? (
-          <p className="modal-empty">Your order is empty. Add some items from the menu!</p> ) : ( <>
-            <div className="modal-items">
-              {entries.map(({ item, qty }) => {
-                const linePrice = (parseFloat(item.price.replace("£", "")) * qty).toFixed(2);
-                return (
-                  <div key={item.id} className="modal-item">
-                    <div className="modal-item-info">
-                      <span className="modal-item-name">{item.name}</span>
-                      <span className="modal-item-price">£{linePrice}</span>
-                    </div>
-                    <div className="modal-item-controls">
-                      <button className="qty-btn" onClick={() => onUpdateQty(item.id, qty - 1)}>−</button>
-                      <span className="qty-value">{qty}</span>
-                      <button className="qty-btn" onClick={() => onUpdateQty(item.id, qty + 1)}>+</button>
-                      <button className="remove-btn" onClick={() => onRemove(item.id)}>✕</button>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-
-            <div className="modal-footer">
-              <div className="modal-total">
-                <span>Total</span>
-                <span>£{total.toFixed(2)}</span>
-              </div>
-              <button className="place-order-btn" onClick={onPlaceOrder}>
-                Place Order
-              </button>
-            </div>
-          </>
-        )}
-
-      </div>
-    </div>
-  );
+    );
 }
 
 // CART ITEMS : Order confirmation shown after a successfully placed order
 function OrderConfirmation() {
-  return (
-    <div className="modal-overlay">
-      <div className="modal confirmation-modal">
-        <div className="confirmation-icon">✓</div>
-        <h2 className="confirmation-title">Order Placed!</h2>
-        <p className="confirmation-msg">
-          Your order has been sent to the kitchen.<br />Your waiter will be with you shortly.
-        </p>
-        <p className="confirmation-redirect">Returning you home...</p>
-      </div>
-    </div>
-  );
+    return (
+        <div className="modal-overlay">
+            <div className="modal confirmation-modal">
+                <div className="confirmation-icon">✓</div>
+                <h2 className="confirmation-title">Order Placed!</h2>
+                <p className="confirmation-msg">
+                    Your order has been sent to the kitchen.<br />Your waiter will be with you shortly.
+                </p>
+                <p className="confirmation-redirect">Returning you home...</p>
+            </div>
+        </div>
+    );
 }
 
 // APP ROOT COMPONENT : main structure handling functions, menuData, filter operations
 export default function App() {
-  const [openSection, setOpenSection] = useState(null);
-  const [activeFilters, setActiveFilters] = useState([]);
-  const [excludedAllergens, setExcludedAllergens] = useState([]);
+    const [openSection, setOpenSection] = useState(null);
+    const [activeFilters, setActiveFilters] = useState([]);
+    const [excludedAllergens, setExcludedAllergens] = useState([]);
 
-  // CART ICON SHAPING
-  const [cart, setCart] = useState({});
-  const [cartOpen, setCartOpen] = useState(false);
-  const [confirmed, setConfirmed] = useState(false);
+    const { state } = useLocation();
+    const { cust_id, table_id } = state || {};
 
-  // MENU : SECTION OPEN/CLOSE
-  function handleSectionToggle(sectionName) {
-    setOpenSection((prev) => (prev === sectionName ? null : sectionName));
-  }
+    // CART ICON SHAPING
+    const [cart, setCart] = useState({});
+    const [cartOpen, setCartOpen] = useState(false);
+    const [confirmed, setConfirmed] = useState(false);
 
-  // FILTER : DIETARY TOGGLING
-  function handleFilterToggle(filter) {
-    setActiveFilters((prev) =>
-      prev.includes(filter) ? prev.filter((f) => f !== filter) : [...prev, filter]
-    );
-  }
+    // NEW: State for customization popup
+    const [customizingItem, setCustomizingItem] = useState(null);
 
-  // FILTER: MATCHING - dims the transparency of unrelated item
-  function matchesFilter(item) {
-    const passesDietary =
-      activeFilters.length === 0 ||
-      activeFilters.every((f) => item.dietary.includes(f));
-
-    const passesAllergens =
-      excludedAllergens.length === 0 ||
-      excludedAllergens.every((a) => !item.allergens.includes(a));
-
-    return passesDietary && passesAllergens;
-  }
-
-  // CART : ADDING ITEMS
-  function handleAddToCart(item) {
-    setCart((prev) => ({
-      ...prev,
-      [item.id]: {
-        item,
-        qty: prev[item.id] ? prev[item.id].qty + 1 : 1,
-      },
-    }));
-  }
-
-  // CART : UPDATING ITEMS
-  function handleUpdateQty(itemId, newQty) {
-    if (newQty <= 0) {
-      handleRemove(itemId);
-      return;
+    // MENU : SECTION OPEN/CLOSE
+    function handleSectionToggle(sectionName) {
+        setOpenSection((prev) => (prev === sectionName ? null : sectionName));
     }
-    setCart((prev) => ({
-      ...prev,
-      [itemId]: { ...prev[itemId], qty: newQty },
+
+    // FILTER : DIETARY TOGGLING
+    function handleFilterToggle(filter) {
+        setActiveFilters((prev) =>
+            prev.includes(filter) ? prev.filter((f) => f !== filter) : [...prev, filter]
+        );
+    }
+
+    // FILTER: MATCHING - dims the transparency of unrelated item
+    function matchesFilter(item) {
+        const passesDietary =
+            activeFilters.length === 0 ||
+            activeFilters.every((f) => item.dietary.includes(f));
+
+        const passesAllergens =
+            excludedAllergens.length === 0 ||
+            excludedAllergens.every((a) => !item.allergens.includes(a));
+
+        return passesDietary && passesAllergens;
+    }
+
+    // MODIFIED: CART : ADDING ITEMS (updated to handle customized items with unique IDs)
+    function handleAddToCart(item) {
+        // Check if this exact customization already exists in cart
+        const existingItemKey = Object.keys(cart).find(key => {
+            const cartItem = cart[key].item;
+
+            // If it's a customized item, compare customizations
+            if (item.customization) {
+                return cartItem.id === item.id &&
+                    JSON.stringify(cartItem.customization) === JSON.stringify(item.customization);
+            }
+            return false;
+        });
+
+        if (existingItemKey) {
+            // If same customization exists, increase quantity
+            setCart((prev) => ({
+                ...prev,
+                [existingItemKey]: {
+                    ...prev[existingItemKey],
+                    qty: prev[existingItemKey].qty + 1
+                }
+            }));
+        } else {
+            // If new customization, create new entry with unique ID
+            const uniqueId = item.customization
+                ? `${item.id}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+                : item.id;
+
+            setCart((prev) => ({
+                ...prev,
+                [uniqueId]: {
+                    item,
+                    qty: 1,
+                },
+            }));
+        }
+    }
+
+    // CART : UPDATING ITEMS
+    function handleUpdateQty(itemKey, newQty) {
+        if (newQty <= 0) {
+            handleRemove(itemKey);
+            return;
+        }
+        setCart((prev) => ({
+            ...prev,
+            [itemKey]: { ...prev[itemKey], qty: newQty },
+        }));
+    }
+
+    // CART : REMOVING ITEMS
+    function handleRemove(itemKey) {
+        setCart((prev) => {
+            const next = { ...prev };
+            delete next[itemKey];
+            return next;
+        });
+    }
+
+    // CART : PLACING ORDERS
+    async function handlePlaceOrder() {
+    const items = Object.values(cart).map(({ item, qty }) => ({
+        item_id: item.id,
+        quantity: qty,
+        price: parseFloat(item.price.replace("£", "")) +
+               (item.customization?.selectedExtras?.reduce((s, e) => s + e.price, 0) || 0),
     }));
-  }
 
-  // CART : REMOVING ITEMS
-  function handleRemove(itemId) {
-    setCart((prev) => {
-      const next = { ...prev };
-      delete next[itemId];
-      return next;
-    });
-  }
+    try {
+        const res = await fetch('http://127.0.0.1:8000/orders', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ cust_id, table_id, items }),
+        });
+        if (!res.ok) {
+            console.error('Order failed:', await res.json());
+            return;
+        }
+    } catch (err) {
+        console.error('Could not reach server:', err);
+        return;
+    }
 
-  // CART : PLACING ORDERS
-  function handlePlaceOrder() {
     setCartOpen(false);
     setCart({});
     setConfirmed(true);
-    setTimeout(() => {
-      window.location.href = "/";
-    }, 2500);
-  }
+    setTimeout(() => { window.location.href = "/"; }, 2500);
+}
 
-  const cartCount = Object.values(cart).reduce((sum, { qty }) => sum + qty, 0);
+    const cartCount = Object.values(cart).reduce((sum, { qty }) => sum + qty, 0);
 
-  return (
-    <div className="app">
-      <Header
-        tableNumber="Table 10"
-        cartCount={cartCount}
-        onCartClick={() => setCartOpen(true)}
-      />
-
-      <main className="main-content">
-        <FilterBar
-          activeFilters={activeFilters}
-          onFilterToggle={handleFilterToggle}
-          excludedAllergens={excludedAllergens}
-          onAllergenChange={setExcludedAllergens}
-        />
-
-        <div className="menu-sections">
-          {Object.entries(MENU_DATA).map(([sectionName, items]) => (
-            <MenuSection
-              key={sectionName}
-              sectionName={sectionName}
-              items={items}
-              isOpen={openSection === sectionName}
-              onToggle={() => handleSectionToggle(sectionName)}
-              matchesFilter={matchesFilter}
-              onAddToCart={handleAddToCart}
+    return (
+        <div className="app">
+            <Header
+                tableNumber="Table 10"
+                cartCount={cartCount}
+                onCartClick={() => setCartOpen(true)}
             />
-          ))}
+
+            <main className="main-content">
+                <FilterBar
+                    activeFilters={activeFilters}
+                    onFilterToggle={handleFilterToggle}
+                    excludedAllergens={excludedAllergens}
+                    onAllergenChange={setExcludedAllergens}
+                />
+
+                <div className="menu-sections">
+                    {Object.entries(MENU_DATA).map(([sectionName, items]) => (
+                        <MenuSection
+                            key={sectionName}
+                            sectionName={sectionName}
+                            items={items}
+                            isOpen={openSection === sectionName}
+                            onToggle={() => handleSectionToggle(sectionName)}
+                            matchesFilter={matchesFilter}
+                            onCustomize={setCustomizingItem}
+                        />
+                    ))}
+                </div>
+            </main>
+
+            {cartOpen && (
+                <CartModal
+                    cart={cart}
+                    onClose={() => setCartOpen(false)}
+                    onUpdateQty={handleUpdateQty}
+                    onRemove={handleRemove}
+                    onPlaceOrder={handlePlaceOrder}
+                />
+            )}
+
+            {confirmed && <OrderConfirmation />}
+
+            {/* NEW: Render customization popup when an item is selected */}
+            {customizingItem && (
+                <CustomizationPopup
+                    item={customizingItem}
+                    onClose={() => setCustomizingItem(null)}
+                    onAddToCart={handleAddToCart}
+                />
+            )}
         </div>
-      </main>
-
-      {cartOpen && (
-        <CartModal
-          cart={cart}
-          onClose={() => setCartOpen(false)}
-          onUpdateQty={handleUpdateQty}
-          onRemove={handleRemove}
-          onPlaceOrder={handlePlaceOrder}
-        />
-      )}
-
-      {confirmed && <OrderConfirmation />}
-    </div>
-  );
+    );
 }

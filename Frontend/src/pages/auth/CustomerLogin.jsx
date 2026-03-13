@@ -61,7 +61,7 @@ function CustomerLogin() {
                 return;
             }
             const customer = await res.json();
-            navigate('/menu-two', { 
+            navigate('/menu', { 
                 state: { 
                     cust_id: customer.cust_id, 
                     table_id: customer.table_id 
