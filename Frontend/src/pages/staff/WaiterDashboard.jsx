@@ -1,145 +1,840 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import "./WaiterDashboard.css";
+import { useState, useEffect, useRef } from "react";
 
-export default function Dashboard() {
-    const navigate = useNavigate();
-    const [showNotifications, setShowNotifications] = useState(false);
+const C = {
+    bg: "#f5f0e8", panel: "#faf7f2", dark: "#3b1f0e", mid: "#8b4513",
+    warm: "#c4763a", light: "#e8d5b7", pale: "#f0e6d3",
+    green: "#4a7c59", greenL: "#d4edda",
+    red: "#c0392b", redL: "#fde8e6",
+    amber: "#d4870e", amberL: "#fef3cd",
+    blue: "#c4763a", blueL: "#f5e6d3",
+    text: "#2c1810", muted: "#7a5c44", border: "#d4b896",
+};
 
-    const notifications = [
-        { order: "1234", table: "12", status: "Ready For Service", type: "ready" },
-        { order: "1235", table: "7", status: "Ready For Service", type: "ready" },
-        { order: "1236", table: "4", status: "Needs Assistance", type: "alert" },
-        { order: "1237", table: "9", status: "Has Nut Allergy", type: "allergy" },
-        { order: "1238", table: "3", status: "Ready For Service", type: "ready" },
-        { order: "1239", table: "5", status: "Ready For Service", type: "ready" },
-    ];
+const MY_TABLES = [3, 7, 12];
+const now = () => Date.now();
+
+const ORDER_STATUSES = [
+    "Pending Confirmation",
+    "Confirmed",
+    "In Progress",
+    "Ready for Delivery",
+    "Delivered",
+];
+
+const INIT_NOTIFICATIONS = [
+    { id: 1, order: "1234", table: 12, status: "Ready For Service", type: "ready",   read: false },
+    { id: 2, order: "1235", table: 7,  status: "Ready For Service", type: "ready",   read: false },
+    { id: 3, order: "1236", table: 4,  status: "Needs Assistance",  type: "alert",   read: false },
+    { id: 4, order: "1237", table: 9,  status: "Has Nut Allergy",   type: "allergy", read: false },
+    { id: 5, order: "1238", table: 3,  status: "Ready For Service", type: "ready",   read: true  },
+];
+
+const INIT_MENU = [
+    // ── Starters ──
+    { id: 1,  section: "Starters", name: "Guacamole & Chips",     price: 7.00,  avail: true,  dietary: ["Vegan","Gluten-Free"],              allergens: [],                    calories: "350 kcal",               description: "Hand-mashed avocado, jalapeño, lime zest & Oaxacan pink salt." },
+    { id: 2,  section: "Starters", name: "Tlayuda Tostada",       price: 9.00,  avail: true,  dietary: ["Gluten-Free"],                      allergens: ["Milk","Soy"],         calories: "500 kcal",               description: "Crispy corn base, black bean, quesillo, chorizo & fresh avocado." },
+    { id: 3,  section: "Starters", name: "Ceviche Verde",         price: 12.00, avail: true,  dietary: ["Gluten-Free"],                      allergens: ["Fish"],               calories: "180 kcal",               description: "Sea bass, tomatillo, cucumber, coriander & tiger's milk." },
+    { id: 4,  section: "Starters", name: "Elote Esquites",        price: 8.00,  avail: true,  dietary: ["Vegetarian","Gluten-Free"],         allergens: ["Milk"],               calories: "250 kcal",               description: "Charred corn, crema, cotija cheese, ancho chilli & epazote." },
+    // ── Mains ──
+    { id: 5,  section: "Mains",    name: "Mole Negro Chicken",    price: 18.00, avail: true,  dietary: [],                                   allergens: ["Soy","Nuts"],         calories: "600 kcal",               description: "Free-range thigh braised in a 30-ingredient black mole, sesame rice." },
+    { id: 6,  section: "Mains",    name: "Barbacoa Tacos",        price: 16.00, avail: true,  dietary: [],                                   allergens: [],                    calories: "300 kcal (per taco)",    description: "Slow-braised beef cheek, white onion, coriander & salsa roja. Three pieces." },
+    { id: 7,  section: "Mains",    name: "Portobello Enchiladas", price: 14.00, avail: true,  dietary: ["Vegan"],                            allergens: [],                    calories: "400 kcal",               description: "Roasted mushrooms, black bean, chipotle sauce & cashew crema." },
+    { id: 8,  section: "Mains",    name: "Snapper Veracruz",      price: 22.00, avail: true,  dietary: ["Gluten-Free"],                      allergens: ["Fish"],               calories: "450 kcal",               description: "Pan-seared whole snapper, olives, capers & fresh tomato broth." },
+    // ── Dessert ──
+    { id: 9,  section: "Dessert",  name: "Churro Sundae",         price: 8.00,  avail: true,  dietary: ["Vegetarian"],                       allergens: ["Milk","Gluten","Eggs"],calories: "550 kcal",              description: "Crispy churros, vanilla bean ice cream & dark chocolate mole sauce." },
+    { id: 10, section: "Dessert",  name: "Mezcal Flan",           price: 7.00,  avail: true,  dietary: ["Vegetarian","Gluten-Free"],         allergens: ["Milk","Eggs"],        calories: "320 kcal",               description: "Silky caramel custard with a smoky mezcal caramel drizzle." },
+    { id: 11, section: "Dessert",  name: "Mango Sorbet",          price: 6.00,  avail: true,  dietary: ["Vegan","Gluten-Free"],              allergens: [],                    calories: "120 kcal",               description: "Alphonso mango, chilli salt & fresh lime. Completely dairy free." },
+    // ── Sides ──
+    { id: 12, section: "Sides",    name: "Black Bean Pot",        price: 4.00,  avail: true,  dietary: ["Vegan","Gluten-Free"],              allergens: [],                    calories: "200 kcal",               description: "Slow-cooked with avocado leaf, epazote & lime crema." },
+    { id: 13, section: "Sides",    name: "Corn Tortillas",        price: 3.00,  avail: true,  dietary: ["Vegan","Gluten-Free"],              allergens: [],                    calories: "60 kcal (per tortilla)", description: "Fresh nixtamal masa, made in-house daily. Four pieces." },
+    { id: 14, section: "Sides",    name: "Pickled Jalapeños",     price: 3.00,  avail: true,  dietary: ["Vegan","Gluten-Free"],              allergens: [],                    calories: "5 kcal (per tbsp)",      description: "House-pickled chillies, carrots & white onion in apple cider vinegar." },
+    { id: 15, section: "Sides",    name: "Mexican Rice",          price: 4.00,  avail: true,  dietary: ["Vegan","Gluten-Free"],              allergens: [],                    calories: "200 kcal",               description: "Tomato-braised rice with cumin, garlic & fresh coriander." },
+    // ── Drinks ──
+    { id: 16, section: "Drinks",   name: "Hibiscus Agua Fresca",  price: 4.00,  avail: true,  dietary: ["Vegan","Gluten-Free"],              allergens: [],                    calories: "70 kcal (per cup)",      description: "House-dried hibiscus, lime, cane sugar & still water." },
+    { id: 17, section: "Drinks",   name: "Mezcal Margarita",      price: 11.00, avail: true,  dietary: ["Vegan","Gluten-Free"],              allergens: [],                    calories: "250 kcal",               description: "Joven mezcal, fresh lime juice, agave syrup & smoked salt rim." },
+    { id: 18, section: "Drinks",   name: "Horchata",              price: 4.50,  avail: true,  dietary: ["Vegan","Gluten-Free"],              allergens: ["Nuts"],               calories: "150 kcal (per cup)",     description: "Rice milk, cinnamon, vanilla & a hint of almond. Served chilled." },
+    { id: 19, section: "Drinks",   name: "Mexican Lager",         price: 5.00,  avail: true,  dietary: [],                                   allergens: [],                    calories: "150 kcal (per 12 oz)",   description: "Ice-cold bottle served with lime. Ask your server for today's selection." },
+    { id: 20, section: "Drinks",   name: "Water",                 price: 2.50,  avail: true,  dietary: [],                                   allergens: [],                    calories: "0 kcal",                 description: "Ice-cold and refreshing. Ask your server for alternative temperatures." },
+];
+
+const INIT_ORDERS = [
+    { id: "1234", table: 12, status: "Confirmed",            startedAt: now() - 8*60000,  items: [{ menuId: 6,  name: "Barbacoa Tacos",       qty: 2, price: 16.00 }, { menuId: 4,  name: "Elote Esquites",    qty: 1, price: 8.00  }] },
+    { id: "1235", table: 7,  status: "Pending Confirmation", startedAt: now() - 3*60000,  items: [{ menuId: 5,  name: "Mole Negro Chicken",   qty: 1, price: 18.00 }, { menuId: 18, name: "Horchata",          qty: 2, price: 4.50  }] },
+    { id: "1238", table: 3,  status: "In Progress",          startedAt: now() - 14*60000, items: [{ menuId: 7,  name: "Portobello Enchiladas",qty: 2, price: 14.00 }, { menuId: 9,  name: "Churro Sundae",     qty: 1, price: 8.00  }] },
+    { id: "1240", table: 5,  status: "Ready for Delivery",   startedAt: now() - 20*60000, items: [{ menuId: 8,  name: "Snapper Veracruz",     qty: 1, price: 22.00 }, { menuId: 17, name: "Mezcal Margarita",  qty: 2, price: 11.00 }] },
+];
+
+const INIT_UNPAID = [
+    { table: 2,  order: "1230", total: 34.50, waiting: "12 mins" },
+    { table: 6,  order: "1231", total: 22.00, waiting: "5 mins"  },
+    { table: 11, order: "1232", total: 67.00, waiting: "28 mins" },
+];
+
+const notifColor  = { ready: C.green, alert: C.blue, allergy: C.amber };
+const statusColor = {
+    "Pending Confirmation": C.amber,
+    "Confirmed":            C.blue,
+    "In Progress":          C.warm,
+    "Ready for Delivery":   C.green,
+    "Delivered":            C.mid,
+};
+
+function useOutsideClick(ref, cb) {
+    useEffect(() => {
+        const fn = e => { if (ref.current && !ref.current.contains(e.target)) cb(); };
+        document.addEventListener("mousedown", fn);
+        return () => document.removeEventListener("mousedown", fn);
+    }, [ref, cb]);
+}
+
+function useElapsed(startedAt) {
+    const [, tick] = useState(0);
+    useEffect(() => { const t = setInterval(() => tick(n => n + 1), 30000); return () => clearInterval(t); }, []);
+    const mins = Math.floor((Date.now() - startedAt) / 60000);
+    if (mins < 1)  return "< 1 min";
+    if (mins < 60) return `${mins} min${mins !== 1 ? "s" : ""}`;
+    const h = Math.floor(mins / 60), m = mins % 60;
+    return `${h}h ${m}m`;
+}
+
+function elapsedColor(startedAt) {
+    const mins = Math.floor((Date.now() - startedAt) / 60000);
+    return mins > 20 ? C.red : mins > 10 ? C.amber : C.green;
+}
+
+const IconAlert = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>;
+const IconBell  = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>;
+const IconClock = () => <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>;
+const IconDoor  = () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={C.red} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>;
+
+function Dropdown({ children, width = 360 }) {
+    return (
+        <div style={{ position: "absolute", top: "calc(100% + 10px)", right: 0, width, background: C.panel, border: `1.5px solid ${C.border}`, borderRadius: 10, boxShadow: "0 8px 32px rgba(0,0,0,.2)", zIndex: 900, animation: "dropIn .15s ease" }}>
+            {children}
+        </div>
+    );
+}
+
+function NavIcon({ icon, onClick, active, badge, badgeColor }) {
+    return (
+        <div onClick={onClick}
+             style={{ width: 36, height: 36, borderRadius: "50%", border: `1.5px solid ${active ? C.warm : "rgba(245,240,232,.3)"}`, background: active ? "rgba(196,118,58,.3)" : "rgba(245,240,232,.08)", display: "grid", placeItems: "center", cursor: "pointer", color: "rgba(245,240,232,.85)", position: "relative", transition: "all .15s", userSelect: "none" }}
+             onMouseEnter={e => { if (!active) { e.currentTarget.style.borderColor = C.warm; e.currentTarget.style.background = "rgba(196,118,58,.25)"; } }}
+             onMouseLeave={e => { if (!active) { e.currentTarget.style.borderColor = "rgba(245,240,232,.3)"; e.currentTarget.style.background = "rgba(245,240,232,.08)"; } }}>
+            {icon}
+            {badge > 0 && <div style={{ position: "absolute", top: -3, right: -3, minWidth: 16, height: 16, borderRadius: 8, background: badgeColor || C.warm, border: `2px solid ${C.dark}`, display: "grid", placeItems: "center", fontSize: 8, fontWeight: 700, color: "white", padding: "0 3px" }}>{badge > 9 ? "9+" : badge}</div>}
+        </div>
+    );
+}
+
+function SectionCard({ accentColor, title, badge, children, action }) {
+    return (
+        <div style={{ background: C.panel, border: `1.5px solid ${C.border}`, borderRadius: 10, overflow: "hidden" }}>
+            <div style={{ height: 3, background: accentColor }} />
+            <div style={{ padding: "14px 18px 10px", borderBottom: `1.5px solid ${C.border}`, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 20, fontWeight: 700, color: C.dark }}>{title}</span>
+                <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                    {badge}
+                    {action}
+                </div>
+            </div>
+            {children}
+        </div>
+    );
+}
+
+function NotificationsPanel({ notifications, setNotifications }) {
+    const [filter, setFilter] = useState("All");
+    const unread   = notifications.filter(n => !n.read).length;
+    const markRead = id => setNotifications(p => p.map(n => n.id === id ? { ...n, read: true } : n));
+    const dismiss  = id => setNotifications(p => p.filter(n => n.id !== id));
+    const markAll  = ()  => setNotifications(p => p.map(n => ({ ...n, read: true })));
+    const clearAll = ()  => setNotifications([]);
+    const filtered = notifications.filter(n =>
+        filter === "Alerts" ? n.type === "alert" || n.type === "allergy" :
+            filter === "Ready"  ? n.type === "ready" : true
+    );
+    return (
+        <Dropdown width={370}>
+            <div style={{ padding: "13px 16px 10px", borderBottom: `1px solid ${C.border}`, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 17, fontWeight: 700, color: C.dark }}>Notifications</span>
+                    {unread > 0 && <span style={{ background: C.warm, color: "white", fontSize: 10, fontWeight: 700, padding: "1px 7px", borderRadius: 10 }}>{unread}</span>}
+                </div>
+                <div style={{ display: "flex", gap: 10 }}>
+                    {unread > 0 && <button onClick={markAll} style={{ fontSize: 10, color: C.mid, background: "none", border: "none", cursor: "pointer", fontFamily: "Jost, sans-serif", fontWeight: 600 }}>Mark all read</button>}
+                    {notifications.length > 0 && <button onClick={clearAll} style={{ fontSize: 10, color: C.muted, background: "none", border: "none", cursor: "pointer", fontFamily: "Jost, sans-serif" }}>Clear all</button>}
+                </div>
+            </div>
+            <div style={{ padding: "8px 16px", display: "flex", gap: 6, borderBottom: `1px solid ${C.border}` }}>
+                {["All","Alerts","Ready"].map(f => (
+                    <button key={f} onClick={() => setFilter(f)} style={{ fontSize: 10, fontWeight: 600, letterSpacing: ".06em", textTransform: "uppercase", padding: "3px 10px", borderRadius: 20, border: "none", cursor: "pointer", fontFamily: "Jost, sans-serif", background: filter === f ? C.dark : C.pale, color: filter === f ? C.bg : C.muted, transition: "all .15s" }}>{f}</button>
+                ))}
+            </div>
+            <div style={{ maxHeight: 320, overflowY: "auto" }}>
+                {filtered.length === 0 && <div style={{ padding: "24px 16px", textAlign: "center", color: C.muted, fontSize: 13 }}>No notifications</div>}
+                {filtered.map(n => (
+                    <div key={n.id} onClick={() => markRead(n.id)}
+                         style={{ padding: "11px 16px", borderBottom: `1px solid ${C.pale}`, display: "flex", gap: 10, cursor: "pointer", background: n.read ? "transparent" : "rgba(196,118,58,.04)", transition: "background .15s" }}
+                         onMouseEnter={e => e.currentTarget.style.background = C.pale}
+                         onMouseLeave={e => e.currentTarget.style.background = n.read ? "transparent" : "rgba(196,118,58,.04)"}>
+                        <div style={{ width: 3, borderRadius: 2, background: notifColor[n.type], flexShrink: 0, alignSelf: "stretch" }} />
+                        <div style={{ flex: 1 }}>
+                            <div style={{ fontSize: 12, fontWeight: n.read ? 400 : 700, color: C.text }}>Table {n.table} — Order #{n.order}</div>
+                            <p style={{ fontSize: 11, color: notifColor[n.type], marginTop: 3, fontWeight: 600 }}>{n.status}</p>
+                        </div>
+                        {!n.read && <div style={{ width: 6, height: 6, borderRadius: "50%", background: C.warm, flexShrink: 0, marginTop: 4 }} />}
+                        <button onClick={e => { e.stopPropagation(); dismiss(n.id); }} style={{ background: "none", border: "none", color: C.muted, cursor: "pointer", fontSize: 14, flexShrink: 0 }}>✕</button>
+                    </div>
+                ))}
+            </div>
+            {filtered.length > 0 && <div style={{ padding: "9px 16px", borderTop: `1px solid ${C.border}`, fontSize: 11, color: C.muted, textAlign: "center" }}>{filtered.filter(n => !n.read).length} unread · {filtered.length} shown</div>}
+        </Dropdown>
+    );
+}
+
+function AccountPanel({ addToast }) {
+    return (
+        <Dropdown width={240}>
+            <div style={{ padding: "14px 16px", display: "flex", alignItems: "center", gap: 12, borderBottom: `1px solid ${C.border}` }}>
+                <div style={{ width: 42, height: 42, borderRadius: "50%", background: C.mid, display: "grid", placeItems: "center", color: "white", fontSize: 13, fontWeight: 700, flexShrink: 0 }}>JD</div>
+                <div>
+                    <div style={{ fontSize: 13, fontWeight: 600, color: C.text }}>Jamie D.</div>
+                    <div style={{ fontSize: 11, color: C.muted }}>jamie.d@oaxaca.com</div>
+                    <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: ".08em", textTransform: "uppercase", color: C.mid, marginTop: 2 }}>Waiter</div>
+                </div>
+            </div>
+            <div onClick={() => { window.location.href = "/"; }}
+                 style={{ padding: "13px 16px", display: "flex", alignItems: "center", gap: 10, cursor: "pointer", transition: "background .15s", borderRadius: "0 0 10px 10px" }}
+                 onMouseEnter={e => e.currentTarget.style.background = C.redL}
+                 onMouseLeave={e => e.currentTarget.style.background = "transparent"}>
+                <IconDoor /><span style={{ fontSize: 13, fontWeight: 600, color: C.red }}>Sign Out</span>
+            </div>
+        </Dropdown>
+    );
+}
+
+function Modal({ title, subtitle, onClose, children, footer }) {
+    return (
+        <>
+            <div onClick={onClose} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.4)", zIndex: 998 }} />
+            <div style={{ position: "fixed", top: "50%", left: "50%", transform: "translate(-50%,-50%)", width: 460, maxHeight: "80vh", background: C.panel, border: `1.5px solid ${C.border}`, borderRadius: 12, zIndex: 999, boxShadow: "0 12px 40px rgba(0,0,0,.25)", display: "flex", flexDirection: "column", animation: "dropIn .2s ease" }}>
+                <div style={{ padding: "16px 20px", borderBottom: `1.5px solid ${C.border}`, display: "flex", justifyContent: "space-between", alignItems: "center", flexShrink: 0 }}>
+                    <div>
+                        <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 20, fontWeight: 700, color: C.dark }}>{title}</span>
+                        {subtitle && <span style={{ fontSize: 12, color: C.muted, marginLeft: 8 }}>{subtitle}</span>}
+                    </div>
+                    <button onClick={onClose} style={{ background: "none", border: "none", cursor: "pointer", color: C.muted, fontSize: 18 }}>✕</button>
+                </div>
+                <div style={{ overflowY: "auto", flex: 1 }}>{children}</div>
+                {footer && <div style={{ padding: "12px 20px", borderTop: `1.5px solid ${C.border}`, flexShrink: 0 }}>{footer}</div>}
+            </div>
+        </>
+    );
+}
+
+function UnpaidModal({ unpaidTables, onClose }) {
+    return (
+        <Modal title="Unpaid Tables" onClose={onClose}>
+            <p style={{ fontSize: 12, color: C.muted, padding: "10px 20px 0" }}>Tables that have been served but have not yet paid.</p>
+            <div style={{ padding: "10px 20px 20px" }}>
+                {unpaidTables.length === 0
+                    ? <div style={{ textAlign: "center", color: C.green, fontWeight: 600, padding: "24px 0" }}>All tables are settled ✓</div>
+                    : unpaidTables.map((t, i) => (
+                        <div key={i} style={{ background: C.bg, border: `1.5px solid ${C.border}`, borderRadius: 8, padding: "12px 14px", marginTop: 10, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                            <div>
+                                <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 17, fontWeight: 700, color: C.dark }}>Table {t.table}</div>
+                                <div style={{ fontSize: 11, color: C.muted, marginTop: 2 }}>Order #{t.order} · Waiting {t.waiting}</div>
+                            </div>
+                            <div style={{ textAlign: "right" }}>
+                                <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 22, fontWeight: 700, color: C.warm }}>£{t.total.toFixed(2)}</div>
+                                <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: ".08em", color: C.red, textTransform: "uppercase" }}>Unpaid</div>
+                            </div>
+                        </div>
+                    ))}
+            </div>
+        </Modal>
+    );
+}
+
+function AddItemsModal({ order, menu, onAdd, onClose }) {
+    const [selected, setSelected] = useState({});
+    const [search,   setSearch]   = useState("");
+
+    const q         = search.trim().toLowerCase();
+    const availMenu = menu.filter(m => m.avail);
+    const filtered  = q ? availMenu.filter(m => m.name.toLowerCase().includes(q) || m.section.toLowerCase().includes(q)) : availMenu;
+
+    const toggle    = item => setSelected(p => { const n = { ...p }; if (n[item.id]) delete n[item.id]; else n[item.id] = { ...item, qty: 1 }; return n; });
+    const changeQty = (id, delta) => setSelected(p => { const n = { ...p }; if (!n[id]) return n; const q = n[id].qty + delta; if (q < 1) { delete n[id]; return n; } n[id] = { ...n[id], qty: q }; return n; });
+    const totalAdded  = Object.values(selected).reduce((s, i) => s + i.price * i.qty, 0);
+    const hasSelected = Object.keys(selected).length > 0;
 
     return (
-        <div className="dashboard-page">
+        <Modal title="Add Items" subtitle={`Table ${order.table} · Order #${order.id}`} onClose={onClose}
+               footer={
+                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                       <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 15, fontWeight: 700, color: C.dark }}>{hasSelected ? `+£${totalAdded.toFixed(2)} to add` : "Select items above"}</span>
+                       <div style={{ display: "flex", gap: 8 }}>
+                           <button onClick={onClose} style={{ padding: "8px 14px", border: `1px solid ${C.border}`, borderRadius: 6, background: "transparent", fontSize: 11, cursor: "pointer", fontFamily: "Jost, sans-serif", color: C.muted }}>Cancel</button>
+                           <button onClick={() => { if (hasSelected) { onAdd(order.id, Object.values(selected)); onClose(); } }} disabled={!hasSelected}
+                                   style={{ padding: "8px 16px", border: "none", borderRadius: 6, background: hasSelected ? C.dark : C.light, color: hasSelected ? C.bg : C.muted, fontSize: 11, fontWeight: 600, cursor: hasSelected ? "pointer" : "not-allowed", fontFamily: "Jost, sans-serif", letterSpacing: ".06em", textTransform: "uppercase" }}>
+                               Add to Order
+                           </button>
+                       </div>
+                   </div>
+               }>
+            <div style={{ padding: "10px 20px 0" }}>
+                {/* Search */}
+                <div style={{ position: "relative", marginBottom: 10 }}>
+                    <span style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", color: C.muted, fontSize: 13, pointerEvents: "none" }}>🔍</span>
+                    <input
+                        value={search}
+                        onChange={e => setSearch(e.target.value)}
+                        placeholder="Search menu…"
+                        style={{ width: "100%", padding: "8px 30px 8px 30px", border: `1.5px solid ${q ? C.warm : C.border}`, borderRadius: 7, fontSize: 12, fontFamily: "Jost, sans-serif", background: C.bg, color: C.text, outline: "none" }} />
+                    {q && (
+                        <button onClick={() => setSearch("")} style={{ position: "absolute", right: 8, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", color: C.muted, fontSize: 13 }}>✕</button>
+                    )}
+                </div>
+                {filtered.length === 0 && (
+                    <div style={{ textAlign: "center", padding: "16px 0", color: C.muted, fontSize: 12 }}>No items match "{search}"</div>
+                )}
+            </div>
+            <div style={{ padding: "0 20px 10px" }}>
+                {filtered.map(item => {
+                    const sel = selected[item.id];
+                    return (
+                        <div key={item.id} onClick={() => !sel && toggle(item)}
+                             style={{ background: sel ? C.pale : C.bg, border: `1.5px solid ${sel ? C.warm : C.border}`, borderRadius: 8, padding: "10px 14px", marginBottom: 8, display: "flex", justifyContent: "space-between", alignItems: "center", cursor: sel ? "default" : "pointer", transition: "all .15s" }}>
+                            <div>
+                                <div style={{ fontSize: 13, fontWeight: 600, color: C.text }}>{item.name}</div>
+                                <div style={{ fontSize: 11, color: C.muted }}>£{item.price.toFixed(2)} · {item.section}</div>
+                            </div>
+                            {sel ? (
+                                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                                    <button onClick={e => { e.stopPropagation(); changeQty(item.id, -1); }} style={{ width: 26, height: 26, borderRadius: "50%", border: `1px solid ${C.border}`, background: C.bg, cursor: "pointer", fontSize: 14, display: "grid", placeItems: "center" }}>−</button>
+                                    <span style={{ fontSize: 13, fontWeight: 700, color: C.dark, minWidth: 16, textAlign: "center" }}>{sel.qty}</span>
+                                    <button onClick={e => { e.stopPropagation(); changeQty(item.id, +1); }} style={{ width: 26, height: 26, borderRadius: "50%", border: `1px solid ${C.border}`, background: C.bg, cursor: "pointer", fontSize: 14, display: "grid", placeItems: "center" }}>+</button>
+                                    <span style={{ fontSize: 11, fontWeight: 700, color: C.warm, minWidth: 42, textAlign: "right" }}>£{(sel.price * sel.qty).toFixed(2)}</span>
+                                </div>
+                            ) : (
+                                <span style={{ fontSize: 11, fontWeight: 600, color: C.warm }}>+ Add</span>
+                            )}
+                        </div>
+                    );
+                })}
+            </div>
+        </Modal>
+    );
+}
 
-            {/* header */}
-            <div className="dashboard-header">
-                <button className="waiter-back-button" onClick={() => navigate("/waiter-login")}>←</button>
-                <h1 className="dashboard-title">Waiter Dashboard</h1>
+function AddMenuItemModal({ onAdd, onClose }) {
+    const [name, setName] = useState(""); const [price, setPrice] = useState("");
+    const IS = { width: "100%", padding: "8px 10px", border: `1px solid ${C.border}`, borderRadius: 5, fontSize: 13, fontFamily: "Jost, sans-serif", background: C.bg, color: C.text, marginTop: 4 };
+    const LS = { fontSize: 11, color: C.muted, fontWeight: 600, letterSpacing: ".08em", textTransform: "uppercase", display: "block", marginTop: 10 };
+    const valid = name.trim() && parseFloat(price) > 0;
+    return (
+        <Modal title="Add Menu Item" onClose={onClose}>
+            <div style={{ padding: "14px 20px 20px" }}>
+                <label style={LS}>Item Name</label>
+                <input value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Elote" style={IS} />
+                <label style={LS}>Price (£)</label>
+                <input type="number" value={price} onChange={e => setPrice(e.target.value)} placeholder="0.00" min="0" step="0.50" style={IS} />
+                <button onClick={() => { if (valid) { onAdd(name.trim(), parseFloat(price)); onClose(); } }} disabled={!valid}
+                        style={{ marginTop: 16, width: "100%", padding: 10, border: "none", borderRadius: 6, background: valid ? C.dark : C.light, color: valid ? C.bg : C.muted, fontSize: 12, fontWeight: 600, cursor: valid ? "pointer" : "not-allowed", fontFamily: "Jost, sans-serif", letterSpacing: ".08em", textTransform: "uppercase", transition: "background .2s" }}>
+                    Add Item
+                </button>
+            </div>
+        </Modal>
+    );
+}
 
-                <div className="dashboard-icons">
-                    <button
-                        className="icon-button"
-                        onClick={() => setShowNotifications(!showNotifications)}
-                    >
-                        🔔
-                    </button>
-                    <button className="icon-button">👤</button>
+function OrderCard({ order, onConfirm, onCancel, onDeliver, onAddItems, onStatusChange, onRemoveItem }) {
+    const [showStatusMenu, setShowStatusMenu] = useState(false);
+    const elapsed     = useElapsed(order.startedAt);
+    const isMine      = MY_TABLES.includes(order.table);
+    const rowTotal    = order.items.reduce((s, i) => s + i.price * i.qty, 0);
+    const isPending   = order.status === "Pending Confirmation";
+    const isReady     = order.status === "Ready for Delivery";
+    const isDelivered = order.status === "Delivered";
+
+    return (
+        <div style={{ background: C.bg, border: `1.5px solid ${isMine ? C.warm : C.border}`, borderRadius: 8, padding: "12px 14px", marginBottom: 10, opacity: isDelivered ? .65 : 1, transition: "box-shadow .15s" }}
+             onMouseEnter={e => e.currentTarget.style.boxShadow = "0 3px 12px rgba(0,0,0,.08)"}
+             onMouseLeave={e => e.currentTarget.style.boxShadow = ""}>
+
+            {/* Header row */}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8 }}>
+                <div>
+                    <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+                        <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 17, fontWeight: 700, color: C.dark }}>Table {order.table}</span>
+                        {isMine && <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: ".08em", textTransform: "uppercase", background: C.warm, color: "white", borderRadius: 4, padding: "2px 6px" }}>My Table</span>}
+                    </div>
+                    <div style={{ fontSize: 11, marginTop: 3, display: "flex", alignItems: "center", gap: 4 }}>
+                        <span style={{ color: elapsedColor(order.startedAt), fontWeight: 700, display: "flex", alignItems: "center", gap: 3 }}><IconClock />{elapsed}</span>
+                        <span style={{ color: C.muted }}>· Order #{order.id}</span>
+                    </div>
+                </div>
+
+                {/* Clickable status badge */}
+                <div style={{ position: "relative" }}>
+                    <div
+                        onClick={() => !isDelivered && setShowStatusMenu(v => !v)}
+                        style={{ fontSize: 9, fontWeight: 700, letterSpacing: ".07em", textTransform: "uppercase", background: statusColor[order.status] + "22", color: statusColor[order.status], border: `1px solid ${statusColor[order.status]}44`, borderRadius: 5, padding: "3px 8px", whiteSpace: "nowrap", cursor: isDelivered ? "default" : "pointer", userSelect: "none", display: "flex", alignItems: "center", gap: 4 }}>
+                        {order.status}
+                        {!isDelivered && <span style={{ fontSize: 8 }}>▾</span>}
+                    </div>
+                    {showStatusMenu && (
+                        <div style={{ position: "absolute", top: "calc(100% + 4px)", right: 0, background: C.panel, border: `1.5px solid ${C.border}`, borderRadius: 8, boxShadow: "0 6px 20px rgba(0,0,0,.15)", zIndex: 50, minWidth: 190, overflow: "hidden", animation: "dropIn .12s ease" }}>
+                            <div style={{ padding: "8px 12px 6px", fontSize: 9, fontWeight: 700, letterSpacing: ".1em", textTransform: "uppercase", color: C.muted, borderBottom: `1px solid ${C.pale}` }}>Change Status</div>
+                            {ORDER_STATUSES.filter(s => s !== order.status).map(s => (
+                                <div key={s}
+                                     onClick={() => { onStatusChange(order.id, s); setShowStatusMenu(false); }}
+                                     style={{ padding: "9px 14px", fontSize: 12, color: statusColor[s], cursor: "pointer", fontWeight: 600, borderBottom: `1px solid ${C.pale}`, display: "flex", alignItems: "center", gap: 8, transition: "background .12s" }}
+                                     onMouseEnter={e => e.currentTarget.style.background = C.pale}
+                                     onMouseLeave={e => e.currentTarget.style.background = "transparent"}>
+                                    <span style={{ width: 8, height: 8, borderRadius: "50%", background: statusColor[s], flexShrink: 0, display: "inline-block" }} />
+                                    {s}
+                                </div>
+                            ))}
+                        </div>
+                    )}
                 </div>
             </div>
 
-            {/* notif popup */}
-            {showNotifications && (
-                <div className="notifications-popup">
-                    <div className="notif-header">
-                        <h2 className="notif-title">Notifications</h2>
-                        <button className="notif-close" onClick={() => setShowNotifications(false)}>✕</button>
-                    </div>
+            {/* Items — with remove button */}
+            {order.items.map((item, ii) => (
+                <div key={ii} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "5px 0", borderBottom: `1px solid ${C.pale}`, fontSize: 12, gap: 6 }}>
+                    <span style={{ color: C.text, flex: 1 }}>{item.name}</span>
+                    <span style={{ color: C.muted, fontSize: 11 }}>×{item.qty}</span>
+                    <span style={{ fontWeight: 600, color: C.mid, fontSize: 11, minWidth: 48, textAlign: "right" }}>£{(item.price * item.qty).toFixed(2)}</span>
+                    {!isDelivered && (
+                        <button
+                            onClick={() => onRemoveItem(order.id, ii)}
+                            title="Remove item"
+                            style={{ marginLeft: 4, width: 18, height: 18, borderRadius: "50%", border: "none", background: C.redL, color: C.red, fontSize: 11, lineHeight: 1, cursor: "pointer", display: "grid", placeItems: "center", flexShrink: 0 }}>
+                            ✕
+                        </button>
+                    )}
+                </div>
+            ))}
+            <div style={{ textAlign: "right", marginTop: 6, fontFamily: "'Cormorant Garamond', serif", fontSize: 14, fontWeight: 700, color: C.dark }}>Total: £{rowTotal.toFixed(2)}</div>
 
-                    <div className="notif-list">
-                        {notifications.map((n, i) => (
-                            <div key={i} className={`notif-item ${n.type}`}>
-                                <span>Order {n.order}</span>
-                                <span>Table {n.table}</span>
-                                <span className="notif-status">{n.status}</span>
+            {/* Action buttons */}
+            <div style={{ marginTop: 8, display: "flex", gap: 6, flexWrap: "wrap" }}>
+                {isPending && (
+                    <button onClick={() => onConfirm(order.id)} style={{ flex: 1, padding: "7px 10px", border: "none", borderRadius: 6, background: C.green, color: "white", fontSize: 10, fontWeight: 700, letterSpacing: ".07em", textTransform: "uppercase", cursor: "pointer", fontFamily: "Jost, sans-serif" }}>
+                        ✓ Confirm Order
+                    </button>
+                )}
+                {isReady && (
+                    <button onClick={() => onDeliver(order.id)} style={{ flex: 1, padding: "7px 10px", border: "none", borderRadius: 6, background: C.mid, color: "white", fontSize: 10, fontWeight: 700, letterSpacing: ".07em", textTransform: "uppercase", cursor: "pointer", fontFamily: "Jost, sans-serif" }}>
+                        Mark Delivered
+                    </button>
+                )}
+                {!isDelivered && (
+                    <button onClick={() => onAddItems(order)} style={{ padding: "7px 10px", border: `1px solid ${C.border}`, borderRadius: 6, background: C.panel, color: C.mid, fontSize: 10, fontWeight: 600, letterSpacing: ".06em", textTransform: "uppercase", cursor: "pointer", fontFamily: "Jost, sans-serif" }}>
+                        + Add Items
+                    </button>
+                )}
+                {!isDelivered && (
+                    <button onClick={() => onCancel(order.id)} style={{ padding: "7px 10px", border: "none", borderRadius: 6, background: C.redL, color: C.red, fontSize: 10, fontWeight: 600, letterSpacing: ".06em", textTransform: "uppercase", cursor: "pointer", fontFamily: "Jost, sans-serif" }}>
+                        ✕ Cancel
+                    </button>
+                )}
+            </div>
+        </div>
+    );
+}
+
+function OrdersTab({ orders, setOrders, menu, addToast }) {
+    const [addItemsOrder, setAddItemsOrder] = useState(null);
+
+    const confirmOrder    = id => { setOrders(p => p.map(o => o.id === id ? { ...o, status: "Confirmed" } : o)); addToast("Order confirmed ✓"); };
+    const deliverOrder    = id => { setOrders(p => p.map(o => o.id === id ? { ...o, status: "Delivered" } : o)); addToast("Order marked as delivered"); };
+    const cancelOrder     = id => { setOrders(p => p.filter(o => o.id !== id)); addToast("Order cancelled"); };
+    const changeStatus    = (id, status) => { setOrders(p => p.map(o => o.id === id ? { ...o, status } : o)); addToast(`Status updated to "${status}"`); };
+    const removeItem      = (orderId, itemIndex) => {
+        setOrders(p => p.map(o => {
+            if (o.id !== orderId) return o;
+            const items = o.items.filter((_, i) => i !== itemIndex);
+            return items.length === 0 ? null : { ...o, items };
+        }).filter(Boolean));
+        addToast("Item removed from order");
+    };
+    const addItemsToOrder = (orderId, newItems) => {
+        setOrders(p => p.map(o => {
+            if (o.id !== orderId) return o;
+            const merged = [...o.items];
+            newItems.forEach(ni => {
+                const ex = merged.find(i => i.menuId === ni.id);
+                if (ex) ex.qty += ni.qty;
+                else merged.push({ menuId: ni.id, name: ni.name, qty: ni.qty, price: ni.price });
+            });
+            return { ...o, items: merged };
+        }));
+        addToast("Items added to order ✓");
+    };
+
+    const active = orders.filter(o => o.status !== "Delivered");
+    const statCards = [
+        { label: "Pending",     value: orders.filter(o => o.status === "Pending Confirmation").length, accent: C.amber },
+        { label: "In Progress", value: orders.filter(o => o.status === "In Progress").length,          accent: C.warm  },
+        { label: "Ready",       value: orders.filter(o => o.status === "Ready for Delivery").length,   accent: C.green },
+    ];
+
+    return (
+        <div style={{ padding: "20px 28px 32px" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12, marginBottom: 20 }}>
+                {statCards.map((s, i) => (
+                    <div key={i} style={{ background: C.panel, border: `1.5px solid ${C.border}`, borderRadius: 8, padding: "12px 16px", position: "relative", overflow: "hidden" }}>
+                        <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: s.accent }} />
+                        <div style={{ fontSize: 9, letterSpacing: ".12em", textTransform: "uppercase", color: C.muted, fontWeight: 600, marginBottom: 4 }}>{s.label}</div>
+                        <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 30, fontWeight: 700, color: C.dark, lineHeight: 1 }}>{s.value}</div>
+                    </div>
+                ))}
+            </div>
+            <SectionCard accentColor={C.warm} title="Active Orders"
+                         badge={<span style={{ fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 10, background: C.pale, color: C.muted }}>{active.length} orders</span>}>
+                <div style={{ padding: "12px 16px 16px" }}>
+                    {active.length === 0 && <div style={{ textAlign: "center", padding: "24px 0", color: C.muted, fontSize: 12 }}>No active orders</div>}
+                    {active.map(order => (
+                        <OrderCard key={order.id} order={order}
+                                   onConfirm={confirmOrder} onCancel={cancelOrder}
+                                   onDeliver={deliverOrder} onAddItems={o => setAddItemsOrder(o)}
+                                   onStatusChange={changeStatus} onRemoveItem={removeItem} />
+                    ))}
+                </div>
+            </SectionCard>
+            {addItemsOrder && (
+                <AddItemsModal order={addItemsOrder} menu={menu} onAdd={addItemsToOrder} onClose={() => setAddItemsOrder(null)} />
+            )}
+        </div>
+    );
+}
+
+function TablesTab({ unpaidTables, addToast, raiseAlert }) {
+    const [showUnpaidModal, setShowUnpaidModal] = useState(false);
+    const [alertTable,      setAlertTable]      = useState("");
+
+    return (
+        <div style={{ padding: "20px 28px 32px" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
+
+                {/* Assigned Tables */}
+                <SectionCard accentColor={C.warm} title="Assigned Tables"
+                             badge={<span style={{ fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 10, background: C.pale, color: C.muted }}>{MY_TABLES.length} tables</span>}>
+                    <div style={{ padding: "12px 16px 16px" }}>
+                        <p style={{ fontSize: 12, color: C.muted, marginBottom: 12 }}>You are responsible for these tables during your shift.</p>
+                        <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+                            {MY_TABLES.map(t => (
+                                <div key={t} style={{ background: C.bg, border: `2px solid ${C.warm}`, borderRadius: 8, padding: "14px 20px", textAlign: "center", minWidth: 80 }}>
+                                    <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 26, fontWeight: 700, color: C.dark }}>T{t}</div>
+                                    <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: ".08em", textTransform: "uppercase", color: C.warm, marginTop: 2 }}>Active</div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </SectionCard>
+
+                {/* Team Alerts — with table selector */}
+                <SectionCard accentColor={C.blue} title="Team Alerts">
+                    <div style={{ padding: "12px 16px 16px" }}>
+                        <p style={{ fontSize: 12, color: C.muted, marginBottom: 12 }}>Select a table and raise an alert to notify all staff on shift.</p>
+
+                        {/* Table number selector */}
+                        <div style={{ marginBottom: 12 }}>
+                            <label style={{ fontSize: 10, fontWeight: 700, letterSpacing: ".08em", textTransform: "uppercase", color: C.muted, display: "block", marginBottom: 6 }}>Table Number</label>
+                            <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                                {MY_TABLES.map(t => (
+                                    <button key={t}
+                                            onClick={() => setAlertTable(alertTable === t ? "" : t)}
+                                            style={{ padding: "6px 14px", borderRadius: 6, border: `1.5px solid ${alertTable === t ? C.warm : C.border}`, background: alertTable === t ? C.pale : C.bg, color: alertTable === t ? C.dark : C.muted, fontSize: 12, fontWeight: alertTable === t ? 700 : 500, cursor: "pointer", fontFamily: "Jost, sans-serif", transition: "all .15s" }}>
+                                        T{t}
+                                    </button>
+                                ))}
+                                {/* Also allow typing a custom table number */}
+                                <input
+                                    type="number"
+                                    min="1"
+                                    placeholder="Other…"
+                                    value={typeof alertTable === "number" && !MY_TABLES.includes(alertTable) ? alertTable : ""}
+                                    onChange={e => setAlertTable(e.target.value ? parseInt(e.target.value) : "")}
+                                    style={{ width: 72, padding: "6px 10px", borderRadius: 6, border: `1.5px solid ${C.border}`, background: C.bg, fontSize: 12, fontFamily: "Jost, sans-serif", color: C.text }} />
                             </div>
+                        </div>
+
+                        <button
+                            onClick={() => {
+                                if (!alertTable) { addToast("Please select a table first"); return; }
+                                raiseAlert(alertTable);
+                                addToast(`Alert raised for Table ${alertTable} — team notified`);
+                                setAlertTable("");
+                            }}
+                            style={{ width: "100%", padding: "12px", background: alertTable ? C.dark : C.light, color: alertTable ? C.bg : C.muted, border: "none", borderRadius: 8, fontSize: 12, fontWeight: 600, letterSpacing: ".1em", textTransform: "uppercase", cursor: alertTable ? "pointer" : "not-allowed", fontFamily: "Jost, sans-serif", transition: "all .15s", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}
+                            onMouseEnter={e => { if (alertTable) e.currentTarget.style.opacity = ".85"; }}
+                            onMouseLeave={e => e.currentTarget.style.opacity = "1"}>
+                            <IconAlert /> Raise Team Alert{alertTable ? ` · T${alertTable}` : ""}
+                        </button>
+
+                        <div style={{ marginTop: 10, padding: "10px 12px", background: C.blueL, border: `1px solid ${C.warm}40`, borderRadius: 6, fontSize: 11, color: C.mid }}>
+                            Alert will appear in notifications for all staff on shift.
+                        </div>
+                    </div>
+                </SectionCard>
+
+                {/* Unpaid Tables */}
+                <div style={{ gridColumn: "1 / -1" }}>
+                    <SectionCard
+                        accentColor={unpaidTables.length > 0 ? C.amber : C.green}
+                        title="Unpaid Tables"
+                        badge={unpaidTables.length > 0 ? <span style={{ fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 10, background: C.amberL, color: C.amber }}>{unpaidTables.length} pending</span> : null}
+                        action={unpaidTables.length > 0 ? (
+                            <button onClick={() => setShowUnpaidModal(true)} style={{ padding: "5px 14px", background: C.dark, color: C.bg, border: "none", borderRadius: 5, fontSize: 10, fontWeight: 600, letterSpacing: ".07em", textTransform: "uppercase", cursor: "pointer", fontFamily: "Jost, sans-serif" }}>View All</button>
+                        ) : null}>
+                        <div style={{ padding: "12px 16px 16px" }}>
+                            {unpaidTables.length === 0
+                                ? <div style={{ fontSize: 13, color: C.green, fontWeight: 600, padding: "6px 0" }}>✓ All tables are settled</div>
+                                : (
+                                    <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10 }}>
+                                        {unpaidTables.map((t, i) => (
+                                            <div key={i} style={{ background: C.bg, border: `1.5px solid ${C.border}`, borderRadius: 8, padding: "12px 14px" }}>
+                                                <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 18, fontWeight: 700, color: C.dark }}>Table {t.table}</div>
+                                                <div style={{ fontSize: 11, color: C.muted, marginTop: 2 }}>Waiting {t.waiting}</div>
+                                                <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 20, fontWeight: 700, color: C.warm, marginTop: 6 }}>£{t.total.toFixed(2)}</div>
+                                                <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: ".08em", color: C.red, textTransform: "uppercase", marginTop: 2 }}>Unpaid</div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                        </div>
+                    </SectionCard>
+                </div>
+
+            </div>
+            {showUnpaidModal && <UnpaidModal unpaidTables={unpaidTables} onClose={() => setShowUnpaidModal(false)} />}
+        </div>
+    );
+}
+
+function MenuTab({ menu, setMenu, addToast }) {
+    const [search, setSearch] = useState("");
+
+    const toggleAvail = id => {
+        const item = menu.find(m => m.id === id);
+        setMenu(p => p.map(m => m.id === id ? { ...m, avail: !m.avail } : m));
+        addToast(`${item.name} marked ${item.avail ? "unavailable" : "available"} ✓`);
+    };
+
+    const sections    = ["Starters", "Mains", "Dessert", "Sides", "Drinks"];
+    const available   = menu.filter(m => m.avail).length;
+    const unavailable = menu.filter(m => !m.avail).length;
+    const q           = search.trim().toLowerCase();
+    const isFiltered  = q.length > 0;
+
+    const matchesSearch = item =>
+        item.name.toLowerCase().includes(q) ||
+        item.description.toLowerCase().includes(q) ||
+        item.section.toLowerCase().includes(q) ||
+        item.dietary.some(d => d.toLowerCase().includes(q)) ||
+        item.allergens.some(a => a.toLowerCase().includes(q));
+
+    return (
+        <div style={{ padding: "20px 28px 32px" }}>
+            {/* Summary strip */}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12, marginBottom: 20 }}>
+                {[
+                    { label: "Total Items",  value: menu.length,  accent: C.warm  },
+                    { label: "Available",    value: available,    accent: C.green },
+                    { label: "Unavailable",  value: unavailable,  accent: C.red   },
+                ].map((s, i) => (
+                    <div key={i} style={{ background: C.panel, border: `1.5px solid ${C.border}`, borderRadius: 8, padding: "12px 16px", position: "relative", overflow: "hidden" }}>
+                        <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: s.accent }} />
+                        <div style={{ fontSize: 9, letterSpacing: ".12em", textTransform: "uppercase", color: C.muted, fontWeight: 600, marginBottom: 4 }}>{s.label}</div>
+                        <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 30, fontWeight: 700, color: C.dark, lineHeight: 1 }}>{s.value}</div>
+                    </div>
+                ))}
+            </div>
+
+            {/* Search bar */}
+            <div style={{ marginBottom: 20, position: "relative" }}>
+                <span style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: C.muted, fontSize: 14, pointerEvents: "none" }}>🔍</span>
+                <input
+                    value={search}
+                    onChange={e => setSearch(e.target.value)}
+                    placeholder="Search by name, section, dietary or allergen…"
+                    style={{ width: "100%", padding: "10px 36px 10px 36px", border: `1.5px solid ${isFiltered ? C.warm : C.border}`, borderRadius: 8, fontSize: 13, fontFamily: "Jost, sans-serif", background: C.panel, color: C.text, outline: "none", transition: "border-color .15s" }} />
+                {isFiltered && (
+                    <button onClick={() => setSearch("")} style={{ position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", color: C.muted, fontSize: 14 }}>✕</button>
+                )}
+            </div>
+
+            {/* Results when searching — flat list */}
+            {isFiltered ? (
+                <SectionCard accentColor={C.warm} title="Search Results"
+                             badge={<span style={{ fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 10, background: C.pale, color: C.muted }}>{menu.filter(matchesSearch).length} items</span>}>
+                    <div style={{ padding: "12px 16px 16px" }}>
+                        {menu.filter(matchesSearch).length === 0 && (
+                            <div style={{ textAlign: "center", padding: "24px 0", color: C.muted, fontSize: 12 }}>No items match "{search}"</div>
+                        )}
+                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                            {menu.filter(matchesSearch).map(item => (
+                                <MenuItemCard key={item.id} item={item} onToggle={toggleAvail} />
+                            ))}
+                        </div>
+                    </div>
+                </SectionCard>
+            ) : (
+                /* Default — grouped by section */
+                sections.map(sec => {
+                    const items = menu.filter(m => m.section === sec);
+                    if (!items.length) return null;
+                    return (
+                        <div key={sec} style={{ marginBottom: 20 }}>
+                            <SectionCard accentColor={C.mid} title={sec}
+                                         badge={<span style={{ fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 10, background: C.pale, color: C.muted }}>{items.filter(m => m.avail).length}/{items.length} available</span>}>
+                                <div style={{ padding: "12px 16px 16px" }}>
+                                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                                        {items.map(item => <MenuItemCard key={item.id} item={item} onToggle={toggleAvail} />)}
+                                    </div>
+                                </div>
+                            </SectionCard>
+                        </div>
+                    );
+                })
+            )}
+        </div>
+    );
+}
+
+function MenuItemCard({ item, onToggle }) {
+    return (
+        <div
+            style={{ background: C.bg, border: `1.5px solid ${item.avail ? C.border : C.red + "55"}`, borderRadius: 8, padding: "12px 14px", opacity: item.avail ? 1 : .75, transition: "box-shadow .15s" }}
+            onMouseEnter={e => e.currentTarget.style.boxShadow = "0 2px 8px rgba(0,0,0,.06)"}
+            onMouseLeave={e => e.currentTarget.style.boxShadow = ""}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 4 }}>
+                <span style={{ fontSize: 13, fontWeight: 600, color: C.text, flex: 1, paddingRight: 8 }}>{item.name}</span>
+                <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 15, fontWeight: 700, color: C.mid, flexShrink: 0 }}>£{item.price.toFixed(2)}</span>
+            </div>
+            <p style={{ fontSize: 11, color: C.muted, marginBottom: 6, lineHeight: 1.45 }}>{item.description}</p>
+            <p style={{ fontSize: 10, color: C.muted, marginBottom: 4 }}>{item.calories}</p>
+            {item.allergens.length > 0 && (
+                <p style={{ fontSize: 10, color: C.amber, fontWeight: 700, marginBottom: 6 }}>⚠ Contains: {item.allergens.join(", ")}</p>
+            )}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 4 }}>
+                <div onClick={() => onToggle(item.id)} style={{ display: "flex", alignItems: "center", gap: 7, cursor: "pointer" }}>
+                    <div style={{ width: 36, height: 20, borderRadius: 10, background: item.avail ? C.green : C.light, position: "relative", transition: "background .2s" }}>
+                        <div style={{ width: 16, height: 16, borderRadius: "50%", background: "white", position: "absolute", top: 2, left: item.avail ? 18 : 2, transition: "left .2s", boxShadow: "0 1px 4px rgba(0,0,0,.2)" }} />
+                    </div>
+                    <span style={{ fontSize: 11, color: item.avail ? C.green : C.muted, fontWeight: 600 }}>{item.avail ? "Available" : "Unavailable"}</span>
+                </div>
+                {item.dietary.length > 0 && (
+                    <div style={{ display: "flex", gap: 3, flexWrap: "wrap", justifyContent: "flex-end" }}>
+                        {item.dietary.map(d => (
+                            <span key={d} style={{ fontSize: 9, fontWeight: 600, padding: "1px 6px", borderRadius: 8, background: C.pale, color: C.muted }}>{d}</span>
                         ))}
                     </div>
+                )}
+            </div>
+        </div>
+    );
+}
+
+export default function App() {
+    const [tab,           setTab]           = useState("Orders");
+    const [orders,        setOrders]        = useState(INIT_ORDERS);
+    const [menu,          setMenu]          = useState(INIT_MENU);
+    const [notifications, setNotifications] = useState(INIT_NOTIFICATIONS);
+    const [toasts,        setToasts]        = useState([]);
+    const [showNotifs,    setShowNotifs]    = useState(false);
+    const [showAccount,   setShowAccount]   = useState(false);
+
+    const notifRef   = useRef(null);
+    const accountRef = useRef(null);
+    useOutsideClick(notifRef,   () => setShowNotifs(false));
+    useOutsideClick(accountRef, () => setShowAccount(false));
+
+    const addToast = msg => { const id = Date.now(); setToasts(p => [...p, { id, msg }]); setTimeout(() => setToasts(p => p.filter(t => t.id !== id)), 2000); };
+    const raiseAlert = (table) => { const id = Date.now(); setNotifications(p => [{ id, order: "–", table, status: `Table ${table} needs assistance`, type: "alert", read: false }, ...p]); };
+
+    const unread     = notifications.filter(n => !n.read).length;
+    const alertCount = notifications.filter(n => n.type === "alert").length;
+
+    const TABS = ["Orders", "Tables", "Menu"];
+
+    return (
+        <div style={{ fontFamily: "Jost, sans-serif", background: C.bg, color: C.text, minHeight: "100vh" }}>
+            <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Jost:wght@300;400;500;600&display=swap');
+        @keyframes fadeInUp { from{opacity:0;transform:translateY(8px)}  to{opacity:1;transform:translateY(0)} }
+        @keyframes dropIn   { from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:translateY(0)} }
+        @keyframes pulse    { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(1.3)} }
+        * { box-sizing:border-box; margin:0; padding:0; }
+        ::-webkit-scrollbar { width:4px; } ::-webkit-scrollbar-track { background:#f0e6d3; } ::-webkit-scrollbar-thumb { background:#e8d5b7; border-radius:2px; }
+        select:focus, input:focus { outline: 2px solid #c4763a; outline-offset: 1px; }
+      `}</style>
+
+            {/* NAV */}
+            <nav style={{ background: C.dark, height: 56, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 28px", position: "sticky", top: 0, zIndex: 800 }}>
+                <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 22, fontWeight: 600, letterSpacing: ".25em", color: C.bg }}>O A X A C A</span>
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                    <span style={{ fontSize: 11, letterSpacing: ".1em", textTransform: "uppercase", color: "rgba(245,240,232,.5)", fontWeight: 500 }}>Waiter View</span>
+                    <div ref={notifRef} style={{ position: "relative" }}>
+                        <NavIcon icon={<IconBell />} onClick={() => { setShowNotifs(v => !v); setShowAccount(false); }} active={showNotifs} badge={unread} badgeColor={alertCount > 0 ? C.blue : C.warm} />
+                        {showNotifs && <NotificationsPanel notifications={notifications} setNotifications={setNotifications} />}
+                    </div>
+                    <div ref={accountRef} style={{ position: "relative" }}>
+                        <div onClick={() => { setShowAccount(v => !v); setShowNotifs(false); }}
+                             style={{ width: 36, height: 36, borderRadius: "50%", background: showAccount ? C.mid : C.green, display: "grid", placeItems: "center", cursor: "pointer", color: "white", fontSize: 11, fontWeight: 700, border: `2px solid ${showAccount ? C.light : "transparent"}`, transition: "all .15s", userSelect: "none" }}>
+                            JD
+                        </div>
+                        {showAccount && <AccountPanel addToast={addToast} />}
+                    </div>
+                </div>
+            </nav>
+
+            {/* ALERT BANNER */}
+            {alertCount > 0 && (
+                <div style={{ background: C.blue, color: "white", padding: "9px 28px", display: "flex", alignItems: "center", gap: 10, fontSize: 12, fontWeight: 600, letterSpacing: ".04em" }}>
+                    <div style={{ width: 8, height: 8, borderRadius: "50%", background: "white", animation: "pulse 1.4s infinite", flexShrink: 0 }} />
+                    {alertCount} table{alertCount > 1 ? "s" : ""} need{alertCount === 1 ? "s" : ""} assistance — check notifications
                 </div>
             )}
 
-            {/* main */}
-            <div className="dashboard-content">
-
-                {/* left */}
-                <div className="dashboard-left">
-                    <div className="panel">
-                        <h2 className="panel-title">Active Orders</h2>
-
-                        <div className="scroll-area">
-                            {[1,2,3,4].map((i) => (
-                                <div key={i} className="order-card">
-                                    <div className="order-header">
-                                        <span>Table Number</span>
-                                        <button className="cancel-btn">Cancel Order</button>
-                                    </div>
-
-                                    <div className="order-row">
-                                        <span>Item Name:</span>
-                                        <span>Qty:</span>
-                                        <span>£00.00</span>
-                                    </div>
-
-                                    <div className="order-row alt">
-                                        <span>Item Name:</span>
-                                        <span>Qty:</span>
-                                        <span>£00.00</span>
-                                    </div>
-
-                                    <div className="order-total">
-                                        Total: £00.00
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
+            {/* PAGE HEADER + TABS */}
+            <div style={{ background: C.panel, borderBottom: `1.5px solid ${C.border}` }}>
+                <div style={{ padding: "18px 28px 0", display: "flex", alignItems: "flex-end", justifyContent: "space-between" }}>
+                    <div>
+                        <h1 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 28, fontWeight: 700, color: C.dark }}>Waiter Dashboard</h1>
+                        <p style={{ fontSize: 12, color: C.muted, marginTop: 2, letterSpacing: ".05em" }}>
+                            {new Date().toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" })} · Tables: {MY_TABLES.join(", ")}
+                        </p>
+                    </div>
+                    <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11, letterSpacing: ".1em", textTransform: "uppercase", color: C.green, fontWeight: 600, background: C.greenL, padding: "5px 12px", borderRadius: 20, marginBottom: 4 }}>
+                        <div style={{ width: 7, height: 7, borderRadius: "50%", background: C.green, animation: "pulse 1.6s infinite" }} />
+                        On Shift
                     </div>
                 </div>
-
-                {/* right */}
-                <div className="dashboard-right">
-
-                    {/* orders */}
-                    <div className="panel">
-                        <h2 className="panel-title">Order Backlog</h2>
-
-                        <div className="backlog-box">
-                            <div>Pending Orders : 00</div>
-                            <div>Being Prepared : 00</div>
-                            <div>Ready for service : 00</div>
-                            <div>Delivered Today : 00</div>
-                        </div>
-                    </div>
-
-                    {/* management */}
-                    <div className="panel">
-                        <h2 className="panel-title">Menu Management</h2>
-
-                        <div className="scroll-area">
-                            {[1,2,3].map((i) => (
-                                <div key={i} className="menu-item-card">
-
-                                    <div className="menu-row">
-                                        <span><b>Item :</b> xxxxxxxxxxx</span>
-
-                                        <div className="menu-controls">
-                                            <select>
-                                                <option>Available</option>
-                                                <option>Unavailable</option>
-                                            </select>
-                                        </div>
-                                    </div>
-
-                                    <div className="menu-row">
-                                        <span><b>Price :</b> £00.00</span>
-
-                                        <div className="menu-actions">
-                                            <button className="delete-btn">Delete</button>
-                                            <button className="save-btn">Save</button>
-                                        </div>
-                                    </div>
-
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-
+                <div style={{ display: "flex", padding: "0 28px", marginTop: 12 }}>
+                    {TABS.map(t => (
+                        <button key={t} onClick={() => setTab(t)}
+                                style={{ padding: "9px 18px", fontSize: 12, letterSpacing: ".08em", textTransform: "uppercase", fontWeight: 500, cursor: "pointer", color: tab === t ? C.mid : C.muted, transition: "color .2s", userSelect: "none", background: "none", border: "none", borderBottom: `2.5px solid ${tab === t ? C.mid : "transparent"}`, fontFamily: "Jost, sans-serif" }}>
+                            {t}
+                        </button>
+                    ))}
                 </div>
+            </div>
+
+            {/* TAB CONTENT */}
+            {tab === "Orders" && <OrdersTab orders={orders} setOrders={setOrders} menu={menu} addToast={addToast} />}
+            {tab === "Tables" && <TablesTab unpaidTables={INIT_UNPAID} addToast={addToast} raiseAlert={raiseAlert} />}
+            {tab === "Menu"   && <MenuTab   menu={menu} setMenu={setMenu} addToast={addToast} />}
+
+            {/* TOASTS */}
+            <div style={{ position: "fixed", bottom: 24, right: 24, display: "flex", flexDirection: "column", gap: 8, zIndex: 9999, pointerEvents: "none" }}>
+                {toasts.map(t => <div key={t.id} style={{ background: C.dark, color: C.bg, padding: "10px 18px", borderRadius: 6, fontSize: 12, fontWeight: 500, boxShadow: "0 4px 16px rgba(0,0,0,.25)", animation: "fadeInUp .2s ease" }}>{t.msg}</div>)}
             </div>
         </div>
     );
