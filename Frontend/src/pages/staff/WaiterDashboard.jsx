@@ -22,11 +22,7 @@ const ORDER_STATUSES = [
 ];
 
 const INIT_NOTIFICATIONS = [
-    { id: 1, order: "1234", table: 12, status: "Ready For Service", type: "ready",   read: false },
-    { id: 2, order: "1235", table: 7,  status: "Ready For Service", type: "ready",   read: false },
-    { id: 3, order: "1236", table: 4,  status: "Needs Assistance",  type: "alert",   read: false },
-    { id: 4, order: "1237", table: 9,  status: "Has Nut Allergy",   type: "allergy", read: false },
-    { id: 5, order: "1238", table: 3,  status: "Ready For Service", type: "ready",   read: true  },
+    { id: 3, order: "1236", table: 4,  status: "Needs Assistance",  type: "alert",   read: false }
 ];
 
 const INIT_MENU = [
@@ -100,6 +96,26 @@ function useElapsed(startedAt) {
 function elapsedColor(startedAt) {
     const mins = Math.floor((Date.now() - startedAt) / 60000);
     return mins > 20 ? C.red : mins > 10 ? C.amber : C.green;
+}
+
+// Hook: listens for kitchen "NOTIFY WAITER" events from localStorage (cross-tab)
+function useKitchenNotifications(setNotifications, addToast) {
+    useEffect(() => {
+        const handler = (e) => {
+            if (e.key !== "oaxaca_kitchen_notify" || !e.newValue) return;
+            try {
+                const incoming = JSON.parse(e.newValue);
+                setNotifications(prev => {
+                    // Avoid duplicate if somehow fired twice
+                    if (prev.some(n => n.id === incoming.id)) return prev;
+                    return [incoming, ...prev];
+                });
+                addToast(`🍽 Table ${incoming.table} — Order #${incoming.order} is ready for collection!`);
+            } catch (_) {}
+        };
+        window.addEventListener("storage", handler);
+        return () => window.removeEventListener("storage", handler);
+    }, [setNotifications, addToast]);
 }
 
 const IconAlert = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>;
@@ -285,7 +301,6 @@ function AddItemsModal({ order, menu, onAdd, onClose }) {
                    </div>
                }>
             <div style={{ padding: "10px 20px 0" }}>
-                {/* Search */}
                 <div style={{ position: "relative", marginBottom: 10 }}>
                     <span style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", color: C.muted, fontSize: 13, pointerEvents: "none" }}>🔍</span>
                     <input
@@ -329,27 +344,6 @@ function AddItemsModal({ order, menu, onAdd, onClose }) {
     );
 }
 
-function AddMenuItemModal({ onAdd, onClose }) {
-    const [name, setName] = useState(""); const [price, setPrice] = useState("");
-    const IS = { width: "100%", padding: "8px 10px", border: `1px solid ${C.border}`, borderRadius: 5, fontSize: 13, fontFamily: "Jost, sans-serif", background: C.bg, color: C.text, marginTop: 4 };
-    const LS = { fontSize: 11, color: C.muted, fontWeight: 600, letterSpacing: ".08em", textTransform: "uppercase", display: "block", marginTop: 10 };
-    const valid = name.trim() && parseFloat(price) > 0;
-    return (
-        <Modal title="Add Menu Item" onClose={onClose}>
-            <div style={{ padding: "14px 20px 20px" }}>
-                <label style={LS}>Item Name</label>
-                <input value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Elote" style={IS} />
-                <label style={LS}>Price (£)</label>
-                <input type="number" value={price} onChange={e => setPrice(e.target.value)} placeholder="0.00" min="0" step="0.50" style={IS} />
-                <button onClick={() => { if (valid) { onAdd(name.trim(), parseFloat(price)); onClose(); } }} disabled={!valid}
-                        style={{ marginTop: 16, width: "100%", padding: 10, border: "none", borderRadius: 6, background: valid ? C.dark : C.light, color: valid ? C.bg : C.muted, fontSize: 12, fontWeight: 600, cursor: valid ? "pointer" : "not-allowed", fontFamily: "Jost, sans-serif", letterSpacing: ".08em", textTransform: "uppercase", transition: "background .2s" }}>
-                    Add Item
-                </button>
-            </div>
-        </Modal>
-    );
-}
-
 function OrderCard({ order, onConfirm, onCancel, onDeliver, onAddItems, onStatusChange, onRemoveItem }) {
     const [showStatusMenu, setShowStatusMenu] = useState(false);
     const elapsed     = useElapsed(order.startedAt);
@@ -363,8 +357,6 @@ function OrderCard({ order, onConfirm, onCancel, onDeliver, onAddItems, onStatus
         <div style={{ background: C.bg, border: `1.5px solid ${isMine ? C.warm : C.border}`, borderRadius: 8, padding: "12px 14px", marginBottom: 10, opacity: isDelivered ? .65 : 1, transition: "box-shadow .15s" }}
              onMouseEnter={e => e.currentTarget.style.boxShadow = "0 3px 12px rgba(0,0,0,.08)"}
              onMouseLeave={e => e.currentTarget.style.boxShadow = ""}>
-
-            {/* Header row */}
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8 }}>
                 <div>
                     <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
@@ -376,8 +368,6 @@ function OrderCard({ order, onConfirm, onCancel, onDeliver, onAddItems, onStatus
                         <span style={{ color: C.muted }}>· Order #{order.id}</span>
                     </div>
                 </div>
-
-                {/* Clickable status badge */}
                 <div style={{ position: "relative" }}>
                     <div
                         onClick={() => !isDelivered && setShowStatusMenu(v => !v)}
@@ -402,8 +392,6 @@ function OrderCard({ order, onConfirm, onCancel, onDeliver, onAddItems, onStatus
                     )}
                 </div>
             </div>
-
-            {/* Items — with remove button */}
             {order.items.map((item, ii) => (
                 <div key={ii} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "5px 0", borderBottom: `1px solid ${C.pale}`, fontSize: 12, gap: 6 }}>
                     <span style={{ color: C.text, flex: 1 }}>{item.name}</span>
@@ -420,8 +408,6 @@ function OrderCard({ order, onConfirm, onCancel, onDeliver, onAddItems, onStatus
                 </div>
             ))}
             <div style={{ textAlign: "right", marginTop: 6, fontFamily: "'Cormorant Garamond', serif", fontSize: 14, fontWeight: 700, color: C.dark }}>Total: £{rowTotal.toFixed(2)}</div>
-
-            {/* Action buttons */}
             <div style={{ marginTop: 8, display: "flex", gap: 6, flexWrap: "wrap" }}>
                 {isPending && (
                     <button onClick={() => onConfirm(order.id)} style={{ flex: 1, padding: "7px 10px", border: "none", borderRadius: 6, background: C.green, color: "white", fontSize: 10, fontWeight: 700, letterSpacing: ".07em", textTransform: "uppercase", cursor: "pointer", fontFamily: "Jost, sans-serif" }}>
@@ -522,8 +508,6 @@ function TablesTab({ unpaidTables, addToast, raiseAlert }) {
     return (
         <div style={{ padding: "20px 28px 32px" }}>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
-
-                {/* Assigned Tables */}
                 <SectionCard accentColor={C.warm} title="Assigned Tables"
                              badge={<span style={{ fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 10, background: C.pale, color: C.muted }}>{MY_TABLES.length} tables</span>}>
                     <div style={{ padding: "12px 16px 16px" }}>
@@ -538,13 +522,9 @@ function TablesTab({ unpaidTables, addToast, raiseAlert }) {
                         </div>
                     </div>
                 </SectionCard>
-
-                {/* Team Alerts — with table selector */}
                 <SectionCard accentColor={C.blue} title="Team Alerts">
                     <div style={{ padding: "12px 16px 16px" }}>
                         <p style={{ fontSize: 12, color: C.muted, marginBottom: 12 }}>Select a table and raise an alert to notify all staff on shift.</p>
-
-                        {/* Table number selector */}
                         <div style={{ marginBottom: 12 }}>
                             <label style={{ fontSize: 10, fontWeight: 700, letterSpacing: ".08em", textTransform: "uppercase", color: C.muted, display: "block", marginBottom: 6 }}>Table Number</label>
                             <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
@@ -555,12 +535,8 @@ function TablesTab({ unpaidTables, addToast, raiseAlert }) {
                                         T{t}
                                     </button>
                                 ))}
-                                {/* Also allow typing a custom table number */}
                                 <input
-                                    type="number"
-                                    min="1"
-                                    max="20"
-                                    placeholder="Other…"
+                                    type="number" min="1" max="20" placeholder="Other…"
                                     value={customTable}
                                     onChange={e => {
                                         const val = parseInt(e.target.value);
@@ -571,28 +547,23 @@ function TablesTab({ unpaidTables, addToast, raiseAlert }) {
                                     style={{ width: 72, padding: "6px 10px", borderRadius: 6, border: `1.5px solid ${C.border}`, background: C.bg, fontSize: 12, fontFamily: "Jost, sans-serif", color: C.text }} />
                             </div>
                         </div>
-
                         <button
                             onClick={() => {
                                 if (!alertTable) { addToast("Please select a table first"); return; }
                                 raiseAlert(alertTable);
                                 addToast(`Alert raised for Table ${alertTable} — team notified`);
-                                setAlertTable("");
-                                setCustomTable("");
+                                setAlertTable(""); setCustomTable("");
                             }}
                             style={{ width: "100%", padding: "12px", background: alertTable ? C.dark : C.light, color: alertTable ? C.bg : C.muted, border: "none", borderRadius: 8, fontSize: 12, fontWeight: 600, letterSpacing: ".1em", textTransform: "uppercase", cursor: alertTable ? "pointer" : "not-allowed", fontFamily: "Jost, sans-serif", transition: "all .15s", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}
                             onMouseEnter={e => { if (alertTable) e.currentTarget.style.opacity = ".85"; }}
                             onMouseLeave={e => e.currentTarget.style.opacity = "1"}>
                             <IconAlert /> Raise Team Alert{alertTable ? ` · T${alertTable}` : ""}
                         </button>
-
                         <div style={{ marginTop: 10, padding: "10px 12px", background: C.blueL, border: `1px solid ${C.warm}40`, borderRadius: 6, fontSize: 11, color: C.mid }}>
                             Alert will appear in notifications for all staff on shift.
                         </div>
                     </div>
                 </SectionCard>
-
-                {/* Unpaid Tables */}
                 <div style={{ gridColumn: "1 / -1" }}>
                     <SectionCard
                         accentColor={unpaidTables.length > 0 ? C.amber : C.green}
@@ -619,7 +590,6 @@ function TablesTab({ unpaidTables, addToast, raiseAlert }) {
                         </div>
                     </SectionCard>
                 </div>
-
             </div>
             {showUnpaidModal && <UnpaidModal unpaidTables={unpaidTables} onClose={() => setShowUnpaidModal(false)} />}
         </div>
@@ -650,7 +620,6 @@ function MenuTab({ menu, setMenu, addToast }) {
 
     return (
         <div style={{ padding: "20px 28px 32px" }}>
-            {/* Summary strip */}
             <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12, marginBottom: 20 }}>
                 {[
                     { label: "Total Items",  value: menu.length,  accent: C.warm  },
@@ -664,8 +633,6 @@ function MenuTab({ menu, setMenu, addToast }) {
                     </div>
                 ))}
             </div>
-
-            {/* Search bar */}
             <div style={{ marginBottom: 20, position: "relative" }}>
                 <span style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: C.muted, fontSize: 14, pointerEvents: "none" }}>🔍</span>
                 <input
@@ -677,8 +644,6 @@ function MenuTab({ menu, setMenu, addToast }) {
                     <button onClick={() => setSearch("")} style={{ position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", color: C.muted, fontSize: 14 }}>✕</button>
                 )}
             </div>
-
-            {/* Results when searching — flat list */}
             {isFiltered ? (
                 <SectionCard accentColor={C.warm} title="Search Results"
                              badge={<span style={{ fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 10, background: C.pale, color: C.muted }}>{menu.filter(matchesSearch).length} items</span>}>
@@ -694,7 +659,6 @@ function MenuTab({ menu, setMenu, addToast }) {
                     </div>
                 </SectionCard>
             ) : (
-                /* Default — grouped by section */
                 sections.map(sec => {
                     const items = menu.filter(m => m.section === sec);
                     if (!items.length) return null;
@@ -764,8 +728,11 @@ export default function App() {
     useOutsideClick(notifRef,   () => setShowNotifs(false));
     useOutsideClick(accountRef, () => setShowAccount(false));
 
-    const addToast = msg => { const id = Date.now(); setToasts(p => [...p, { id, msg }]); setTimeout(() => setToasts(p => p.filter(t => t.id !== id)), 2000); };
+    const addToast = msg => { const id = Date.now(); setToasts(p => [...p, { id, msg }]); setTimeout(() => setToasts(p => p.filter(t => t.id !== id)), 3000); };
     const raiseAlert = (table) => { const id = Date.now(); setNotifications(p => [{ id, order: "–", table, status: `Table ${table} needs assistance`, type: "alert", read: false }, ...p]); };
+
+    // ── Listen for kitchen "NOTIFY WAITER" events ──
+    useKitchenNotifications(setNotifications, addToast);
 
     const unread     = notifications.filter(n => !n.read).length;
     const alertCount = notifications.filter(n => n.type === "alert").length;
