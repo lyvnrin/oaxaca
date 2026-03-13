@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { CustomerLogin, WaiterLogin, KitchenLogin, Landing, StaffLanding, ManagerLogin } from "./pages/auth";
 import { KitchenDashboard, WaiterDashboard, ManagerDashboard } from "./pages/staff";
+// import Menu from "./pages/menu/Old-Menu.jsx";
 import Menu from "./pages/menu/Menu.jsx";
 
 function App() {
@@ -19,7 +20,9 @@ function App() {
                 <Route path="/kitchen-dashboard" element={<KitchenDashboard />} />
                 <Route path="/manager-dashboard" element={<ManagerDashboard />} />
 
+                {/* <Route path="/old-menu" element={<Old-Menu />} /> */}
                 <Route path="/menu" element={<Menu />} />
+
             </Routes>
         </BrowserRouter>
     );

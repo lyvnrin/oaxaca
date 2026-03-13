@@ -81,3 +81,47 @@ def get_tables():
     conn.close()
 
     return [dict(r) for r in rows]
+
+# ADDING /ORDERS POST AND GET SCHEMA
+class OrderIn(BaseModel):
+    cust_id: int
+    table_id: int
+    items: list[dict]  # [{ item_id, quantity, price }]
+
+@app.post("/orders", status_code=201)
+def place_order(payload: OrderIn):
+    conn = get_conn()
+    cursor = conn.cursor()
+
+    total = sum(i["price"] * i["quantity"] for i in payload.items)
+
+    cursor.execute(
+        "INSERT INTO orders (cust_id, table_id, total_cost) VALUES (?, ?, ?)",
+        (payload.cust_id, payload.table_id, total),
+    )
+    order_id = cursor.lastrowid
+
+    cursor.executemany(
+        "INSERT INTO order_item (order_id, item_id, quantity) VALUES (?, ?, ?)",
+        [(order_id, i["item_id"], i["quantity"]) for i in payload.items]
+    )
+
+    conn.commit()
+    conn.close()
+    return { "order_id": order_id, "total_cost": total }
+
+@app.get("/orders")
+def get_orders():
+    conn = get_conn()
+    orders = conn.execute("SELECT * FROM orders").fetchall()
+    result = []
+    for order in orders:
+        items = conn.execute("""
+            SELECT oi.quantity, mi.item_name, mi.price
+            FROM order_item oi
+            JOIN menu_items mi ON oi.item_id = mi.item_id
+            WHERE oi.order_id = ?
+        """, (order["order_id"],)).fetchall()
+        result.append({ **dict(order), "items": [dict(i) for i in items] })
+    conn.close()
+    return result
