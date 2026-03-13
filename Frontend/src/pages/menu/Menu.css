@@ -54,6 +54,16 @@ button {
   flex: 1;
 }
 
+.no-style-link {
+  text-decoration: none;
+  color: inherit;
+}
+
+.no-style-link:hover {
+  opacity: 0.8; 
+}
+
+
 .header-right {
   display: flex;
   align-items: center;
