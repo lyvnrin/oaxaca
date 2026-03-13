@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 
 const C = {
     bg: "#f5f0e8", panel: "#faf7f2", dark: "#3b1f0e", mid: "#8b4513",
@@ -13,51 +13,10 @@ const C = {
 const MY_TABLES = [3, 7, 12];
 const now = () => Date.now();
 
-const ORDER_STATUSES = [
-    "Pending Confirmation",
-    "Confirmed",
-    "In Progress",
-    "Ready for Delivery",
-    "Delivered",
-];
+const ORDER_STATUSES = ["Pending", "In Progress", "Ready", "Completed", "Cancelled"];
 
 const INIT_NOTIFICATIONS = [
     { id: 3, order: "1236", table: 4,  status: "Needs Assistance",  type: "alert",   read: false }
-];
-
-const INIT_MENU = [
-    // ── Starters ──
-    { id: 1,  section: "Starters", name: "Guacamole & Chips",     price: 7.00,  avail: true,  dietary: ["Vegan","Gluten-Free"],              allergens: [],                    calories: "350 kcal",               description: "Hand-mashed avocado, jalapeño, lime zest & Oaxacan pink salt." },
-    { id: 2,  section: "Starters", name: "Tlayuda Tostada",       price: 9.00,  avail: true,  dietary: ["Gluten-Free"],                      allergens: ["Milk","Soy"],         calories: "500 kcal",               description: "Crispy corn base, black bean, quesillo, chorizo & fresh avocado." },
-    { id: 3,  section: "Starters", name: "Ceviche Verde",         price: 12.00, avail: true,  dietary: ["Gluten-Free"],                      allergens: ["Fish"],               calories: "180 kcal",               description: "Sea bass, tomatillo, cucumber, coriander & tiger's milk." },
-    { id: 4,  section: "Starters", name: "Elote Esquites",        price: 8.00,  avail: true,  dietary: ["Vegetarian","Gluten-Free"],         allergens: ["Milk"],               calories: "250 kcal",               description: "Charred corn, crema, cotija cheese, ancho chilli & epazote." },
-    // ── Mains ──
-    { id: 5,  section: "Mains",    name: "Mole Negro Chicken",    price: 18.00, avail: true,  dietary: [],                                   allergens: ["Soy","Nuts"],         calories: "600 kcal",               description: "Free-range thigh braised in a 30-ingredient black mole, sesame rice." },
-    { id: 6,  section: "Mains",    name: "Barbacoa Tacos",        price: 16.00, avail: true,  dietary: [],                                   allergens: [],                    calories: "300 kcal (per taco)",    description: "Slow-braised beef cheek, white onion, coriander & salsa roja. Three pieces." },
-    { id: 7,  section: "Mains",    name: "Portobello Enchiladas", price: 14.00, avail: true,  dietary: ["Vegan"],                            allergens: [],                    calories: "400 kcal",               description: "Roasted mushrooms, black bean, chipotle sauce & cashew crema." },
-    { id: 8,  section: "Mains",    name: "Snapper Veracruz",      price: 22.00, avail: true,  dietary: ["Gluten-Free"],                      allergens: ["Fish"],               calories: "450 kcal",               description: "Pan-seared whole snapper, olives, capers & fresh tomato broth." },
-    // ── Dessert ──
-    { id: 9,  section: "Dessert",  name: "Churro Sundae",         price: 8.00,  avail: true,  dietary: ["Vegetarian"],                       allergens: ["Milk","Gluten","Eggs"],calories: "550 kcal",              description: "Crispy churros, vanilla bean ice cream & dark chocolate mole sauce." },
-    { id: 10, section: "Dessert",  name: "Mezcal Flan",           price: 7.00,  avail: true,  dietary: ["Vegetarian","Gluten-Free"],         allergens: ["Milk","Eggs"],        calories: "320 kcal",               description: "Silky caramel custard with a smoky mezcal caramel drizzle." },
-    { id: 11, section: "Dessert",  name: "Mango Sorbet",          price: 6.00,  avail: true,  dietary: ["Vegan","Gluten-Free"],              allergens: [],                    calories: "120 kcal",               description: "Alphonso mango, chilli salt & fresh lime. Completely dairy free." },
-    // ── Sides ──
-    { id: 12, section: "Sides",    name: "Black Bean Pot",        price: 4.00,  avail: true,  dietary: ["Vegan","Gluten-Free"],              allergens: [],                    calories: "200 kcal",               description: "Slow-cooked with avocado leaf, epazote & lime crema." },
-    { id: 13, section: "Sides",    name: "Corn Tortillas",        price: 3.00,  avail: true,  dietary: ["Vegan","Gluten-Free"],              allergens: [],                    calories: "60 kcal (per tortilla)", description: "Fresh nixtamal masa, made in-house daily. Four pieces." },
-    { id: 14, section: "Sides",    name: "Pickled Jalapeños",     price: 3.00,  avail: true,  dietary: ["Vegan","Gluten-Free"],              allergens: [],                    calories: "5 kcal (per tbsp)",      description: "House-pickled chillies, carrots & white onion in apple cider vinegar." },
-    { id: 15, section: "Sides",    name: "Mexican Rice",          price: 4.00,  avail: true,  dietary: ["Vegan","Gluten-Free"],              allergens: [],                    calories: "200 kcal",               description: "Tomato-braised rice with cumin, garlic & fresh coriander." },
-    // ── Drinks ──
-    { id: 16, section: "Drinks",   name: "Hibiscus Agua Fresca",  price: 4.00,  avail: true,  dietary: ["Vegan","Gluten-Free"],              allergens: [],                    calories: "70 kcal (per cup)",      description: "House-dried hibiscus, lime, cane sugar & still water." },
-    { id: 17, section: "Drinks",   name: "Mezcal Margarita",      price: 11.00, avail: true,  dietary: ["Vegan","Gluten-Free"],              allergens: [],                    calories: "250 kcal",               description: "Joven mezcal, fresh lime juice, agave syrup & smoked salt rim." },
-    { id: 18, section: "Drinks",   name: "Horchata",              price: 4.50,  avail: true,  dietary: ["Vegan","Gluten-Free"],              allergens: ["Nuts"],               calories: "150 kcal (per cup)",     description: "Rice milk, cinnamon, vanilla & a hint of almond. Served chilled." },
-    { id: 19, section: "Drinks",   name: "Mexican Lager",         price: 5.00,  avail: true,  dietary: [],                                   allergens: [],                    calories: "150 kcal (per 12 oz)",   description: "Ice-cold bottle served with lime. Ask your server for today's selection." },
-    { id: 20, section: "Drinks",   name: "Water",                 price: 2.50,  avail: true,  dietary: [],                                   allergens: [],                    calories: "0 kcal",                 description: "Ice-cold and refreshing. Ask your server for alternative temperatures." },
-];
-
-const INIT_ORDERS = [
-    { id: "1234", table: 12, status: "Confirmed",            startedAt: now() - 8*60000,  items: [{ menuId: 6,  name: "Barbacoa Tacos",       qty: 2, price: 16.00 }, { menuId: 4,  name: "Elote Esquites",    qty: 1, price: 8.00  }] },
-    { id: "1235", table: 7,  status: "Pending Confirmation", startedAt: now() - 3*60000,  items: [{ menuId: 5,  name: "Mole Negro Chicken",   qty: 1, price: 18.00 }, { menuId: 18, name: "Horchata",          qty: 2, price: 4.50  }] },
-    { id: "1238", table: 3,  status: "In Progress",          startedAt: now() - 14*60000, items: [{ menuId: 7,  name: "Portobello Enchiladas",qty: 2, price: 14.00 }, { menuId: 9,  name: "Churro Sundae",     qty: 1, price: 8.00  }] },
-    { id: "1240", table: 5,  status: "Ready for Delivery",   startedAt: now() - 20*60000, items: [{ menuId: 8,  name: "Snapper Veracruz",     qty: 1, price: 22.00 }, { menuId: 17, name: "Mezcal Margarita",  qty: 2, price: 11.00 }] },
 ];
 
 const INIT_UNPAID = [
@@ -68,11 +27,11 @@ const INIT_UNPAID = [
 
 const notifColor  = { ready: C.green, alert: C.blue, allergy: C.amber };
 const statusColor = {
-    "Pending Confirmation": C.amber,
-    "Confirmed":            C.blue,
-    "In Progress":          C.warm,
-    "Ready for Delivery":   C.green,
-    "Delivered":            C.mid,
+    "Pending":     C.amber,
+    "In Progress": C.warm,
+    "Ready":       C.green,
+    "Completed":   C.mid,
+    "Cancelled":   C.red,
 };
 
 function useOutsideClick(ref, cb) {
@@ -349,9 +308,9 @@ function OrderCard({ order, onConfirm, onCancel, onDeliver, onAddItems, onStatus
     const elapsed     = useElapsed(order.startedAt);
     const isMine      = MY_TABLES.includes(order.table);
     const rowTotal    = order.items.reduce((s, i) => s + i.price * i.qty, 0);
-    const isPending   = order.status === "Pending Confirmation";
-    const isReady     = order.status === "Ready for Delivery";
-    const isDelivered = order.status === "Delivered";
+    const isPending   = order.status === "Pending";
+    const isReady     = order.status === "Ready";
+    const isDelivered = order.status === "Completed";
 
     return (
         <div style={{ background: C.bg, border: `1.5px solid ${isMine ? C.warm : C.border}`, borderRadius: 8, padding: "12px 14px", marginBottom: 10, opacity: isDelivered ? .65 : 1, transition: "box-shadow .15s" }}
@@ -437,10 +396,30 @@ function OrderCard({ order, onConfirm, onCancel, onDeliver, onAddItems, onStatus
 function OrdersTab({ orders, setOrders, menu, addToast }) {
     const [addItemsOrder, setAddItemsOrder] = useState(null);
 
-    const confirmOrder    = id => { setOrders(p => p.map(o => o.id === id ? { ...o, status: "Confirmed" } : o)); addToast("Order confirmed ✓"); };
+    const confirmOrder = async (id) => {
+        setOrders(p => p.map(o => o.id === id ? { ...o, status: "In Progress" } : o));
+        await fetch(`http://127.0.0.1:8000/orders/${id}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: "In Progress" }),
+        });
+        addToast("Order confirmed ✓");
+    }; 
     const deliverOrder    = id => { setOrders(p => p.map(o => o.id === id ? { ...o, status: "Delivered" } : o)); addToast("Order marked as delivered"); };
+
     const cancelOrder     = id => { setOrders(p => p.filter(o => o.id !== id)); addToast("Order cancelled"); };
-    const changeStatus    = (id, status) => { setOrders(p => p.map(o => o.id === id ? { ...o, status } : o)); addToast(`Status updated to "${status}"`); };
+
+    const changeStatus = async (id, status) => { setOrders(p => p.map(o => o.id === id ? { ...o, status } : o));
+
+    await fetch(`http://127.0.0.1:8000/orders/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status }),
+    });
+    addToast(`Status updated to "${status}"`);
+};
+    
+    
     const removeItem      = (orderId, itemIndex) => {
         setOrders(p => p.map(o => {
             if (o.id !== orderId) return o;
@@ -463,11 +442,11 @@ function OrdersTab({ orders, setOrders, menu, addToast }) {
         addToast("Items added to order ✓");
     };
 
-    const active = orders.filter(o => o.status !== "Delivered");
+    const active = orders.filter(o => o.status !== "Completed" && o.status !== "Cancelled");
     const statCards = [
-        { label: "Pending",     value: orders.filter(o => o.status === "Pending Confirmation").length, accent: C.amber },
-        { label: "In Progress", value: orders.filter(o => o.status === "In Progress").length,          accent: C.warm  },
-        { label: "Ready",       value: orders.filter(o => o.status === "Ready for Delivery").length,   accent: C.green },
+    { label: "Pending",     value: orders.filter(o => o.status === "Pending").length,     accent: C.amber },
+    { label: "In Progress", value: orders.filter(o => o.status === "In Progress").length, accent: C.warm },
+    { label: "Ready",       value: orders.filter(o => o.status === "Ready").length,        accent: C.green },
     ];
 
     return (
@@ -716,8 +695,7 @@ function MenuItemCard({ item, onToggle }) {
 
 export default function App() {
     const [tab,           setTab]           = useState("Orders");
-    const [orders,        setOrders]        = useState(INIT_ORDERS);
-    const [menu,          setMenu]          = useState(INIT_MENU);
+    
     const [notifications, setNotifications] = useState(INIT_NOTIFICATIONS);
     const [toasts,        setToasts]        = useState([]);
     const [showNotifs,    setShowNotifs]    = useState(false);
@@ -739,27 +717,68 @@ export default function App() {
 
     const TABS = ["Orders", "Tables", "Menu"];
 
+    const [orders, setOrders] = useState([]);
+    useEffect(() => {
+        const fetchOrders = async () => {
+            const res = await fetch('http://127.0.0.1:8000/orders');
+            const data = await res.json();
+            setOrders(data.map(o => ({
+                id: String(o.order_id),
+                table: o.table_id,
+                status: o.status ?? "Pending",
+                startedAt: Date.now(),
+                items: o.items.map(i => ({
+                    menuId: null,
+                    name: i.item_name,
+                    qty: i.quantity,
+                    price: i.price,
+                }))
+            })));
+        };
+        fetchOrders();
+        const poll = setInterval(fetchOrders, 15000);
+        return () => clearInterval(poll);
+    }, []);
+
+
+    const [menu, setMenu] = useState([]);
+    useEffect(() => {
+        fetch('http://127.0.0.1:8000/menu_items')
+            .then(r => r.json())
+            .then(data => setMenu(data.map(item => ({
+                id: item.item_id,
+                name: item.item_name,
+                price: item.price,
+                section: item.menu_type ?? "Mains",
+                avail: true,
+                dietary: [],
+                allergens: [],
+                calories: "",
+                description: "",
+            }))));
+    }, []);
+
     return (
         <div style={{ fontFamily: "Jost, sans-serif", background: C.bg, color: C.text, minHeight: "100vh" }}>
-            <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Jost:wght@300;400;500;600&display=swap');
-        @keyframes fadeInUp { from{opacity:0;transform:translateY(8px)}  to{opacity:1;transform:translateY(0)} }
-        @keyframes dropIn   { from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:translateY(0)} }
-        @keyframes pulse    { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(1.3)} }
-        * { box-sizing:border-box; margin:0; padding:0; }
-        ::-webkit-scrollbar { width:4px; } ::-webkit-scrollbar-track { background:#f0e6d3; } ::-webkit-scrollbar-thumb { background:#e8d5b7; border-radius:2px; }
-        select:focus, input:focus { outline: 2px solid #c4763a; outline-offset: 1px; }
-      `}</style>
+            <style>{`@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Jost:wght@300;400;500;600&display=swap');
+            @keyframes fadeInUp { from{opacity:0;transform:translateY(8px)}  to{opacity:1;transform:translateY(0)} }
+            @keyframes dropIn   { from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:translateY(0)} }
+            @keyframes pulse    { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(1.3)} }
+            * { box-sizing:border-box; margin:0; padding:0; }
+            ::-webkit-scrollbar { width:4px; } ::-webkit-scrollbar-track { background:#f0e6d3; } ::-webkit-scrollbar-thumb { background:#e8d5b7; border-radius:2px; }
+            select:focus, input:focus { outline: 2px solid #c4763a; outline-offset: 1px; }
+            `}</style>
 
             {/* NAV */}
             <nav style={{ background: C.dark, height: 56, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 28px", position: "sticky", top: 0, zIndex: 800 }}>
-                <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 22, fontWeight: 600, letterSpacing: ".25em", color: C.bg }}>O A X A C A</span>
+                <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 22, fontWeight: 600, letterSpacing: ".25em", color: C.bg }}>OAXACA</span>
                 <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                     <span style={{ fontSize: 11, letterSpacing: ".1em", textTransform: "uppercase", color: "rgba(245,240,232,.5)", fontWeight: 500 }}>Waiter View</span>
                     <div ref={notifRef} style={{ position: "relative" }}>
                         <NavIcon icon={<IconBell />} onClick={() => { setShowNotifs(v => !v); setShowAccount(false); }} active={showNotifs} badge={unread} badgeColor={alertCount > 0 ? C.blue : C.warm} />
                         {showNotifs && <NotificationsPanel notifications={notifications} setNotifications={setNotifications} />}
                     </div>
+                    
                     <div ref={accountRef} style={{ position: "relative" }}>
                         <div onClick={() => { setShowAccount(v => !v); setShowNotifs(false); }}
                              style={{ width: 36, height: 36, borderRadius: "50%", background: showAccount ? C.mid : C.green, display: "grid", placeItems: "center", cursor: "pointer", color: "white", fontSize: 11, fontWeight: 700, border: `2px solid ${showAccount ? C.light : "transparent"}`, transition: "all .15s", userSelect: "none" }}>
