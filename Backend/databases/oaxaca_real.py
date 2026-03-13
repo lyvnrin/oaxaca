@@ -15,8 +15,9 @@ app.add_middleware(
 DB_FILE = "oaxaca-real.db"
 
 def get_conn():
-    conn = sqlite3.connect(DB_FILE)
+    conn = sqlite3.connect(DB_FILE, timeout=10)
     conn.execute("PRAGMA foreign_keys = ON")
+    conn.execute("PRAGMA journal_mode=WAL")
     conn.row_factory = sqlite3.Row
     return conn
 
@@ -40,17 +41,19 @@ def get_customers():
 def add_customer(payload: CustomerIn):
     conn = get_conn()
     cursor = conn.cursor()
-
-    cursor.execute(
-        "INSERT INTO customers (name, table_id) VALUES (?, ?)",
-        (payload.name, payload.table_id),
-    )
-
-    conn.commit()
-    row = conn.execute( "SELECT * FROM customers WHERE cust_id = ?", (cursor.lastrowid,) ).fetchone()
-    
-    conn.close()
-    return dict(row)
+    try:
+        cursor.execute(
+            "INSERT INTO customers (name, table_id) VALUES (?, ?)",
+            (payload.name, payload.table_id),
+        )
+        conn.commit()
+        row = conn.execute("SELECT * FROM customers WHERE cust_id = ?", (cursor.lastrowid,)).fetchone()
+        return dict(row)
+    except Exception as e:
+        conn.rollback()
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        conn.close()
 
 # DELETING A CUSTOMERS
 @app.delete("/customers/{cust_id}")
