@@ -124,7 +124,7 @@ return (
             </div>
         </div>
       </div>
-    </div>
+    
 
 
       {/* BOARD */}
@@ -237,5 +237,6 @@ return (
         </div>
       </div>
     </div>
+  </div>
 );
 }
