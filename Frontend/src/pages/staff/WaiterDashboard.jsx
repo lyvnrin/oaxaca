@@ -349,3 +349,399 @@ function AddMenuItemModal({ onAdd, onClose }) {
         </Modal>
     );
 }
+
+function OrderCard({ order, onConfirm, onCancel, onDeliver, onAddItems, onStatusChange, onRemoveItem }) {
+    const [showStatusMenu, setShowStatusMenu] = useState(false);
+    const elapsed     = useElapsed(order.startedAt);
+    const isMine      = MY_TABLES.includes(order.table);
+    const rowTotal    = order.items.reduce((s, i) => s + i.price * i.qty, 0);
+    const isPending   = order.status === "Pending Confirmation";
+    const isReady     = order.status === "Ready for Delivery";
+    const isDelivered = order.status === "Delivered";
+
+    return (
+        <div style={{ background: C.bg, border: `1.5px solid ${isMine ? C.warm : C.border}`, borderRadius: 8, padding: "12px 14px", marginBottom: 10, opacity: isDelivered ? .65 : 1, transition: "box-shadow .15s" }}
+             onMouseEnter={e => e.currentTarget.style.boxShadow = "0 3px 12px rgba(0,0,0,.08)"}
+             onMouseLeave={e => e.currentTarget.style.boxShadow = ""}>
+
+            {/* Header row */}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8 }}>
+                <div>
+                    <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+                        <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 17, fontWeight: 700, color: C.dark }}>Table {order.table}</span>
+                        {isMine && <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: ".08em", textTransform: "uppercase", background: C.warm, color: "white", borderRadius: 4, padding: "2px 6px" }}>My Table</span>}
+                    </div>
+                    <div style={{ fontSize: 11, marginTop: 3, display: "flex", alignItems: "center", gap: 4 }}>
+                        <span style={{ color: elapsedColor(order.startedAt), fontWeight: 700, display: "flex", alignItems: "center", gap: 3 }}><IconClock />{elapsed}</span>
+                        <span style={{ color: C.muted }}>· Order #{order.id}</span>
+                    </div>
+                </div>
+
+                {/* Clickable status badge */}
+                <div style={{ position: "relative" }}>
+                    <div
+                        onClick={() => !isDelivered && setShowStatusMenu(v => !v)}
+                        style={{ fontSize: 9, fontWeight: 700, letterSpacing: ".07em", textTransform: "uppercase", background: statusColor[order.status] + "22", color: statusColor[order.status], border: `1px solid ${statusColor[order.status]}44`, borderRadius: 5, padding: "3px 8px", whiteSpace: "nowrap", cursor: isDelivered ? "default" : "pointer", userSelect: "none", display: "flex", alignItems: "center", gap: 4 }}>
+                        {order.status}
+                        {!isDelivered && <span style={{ fontSize: 8 }}>▾</span>}
+                    </div>
+                    {showStatusMenu && (
+                        <div style={{ position: "absolute", top: "calc(100% + 4px)", right: 0, background: C.panel, border: `1.5px solid ${C.border}`, borderRadius: 8, boxShadow: "0 6px 20px rgba(0,0,0,.15)", zIndex: 50, minWidth: 190, overflow: "hidden", animation: "dropIn .12s ease" }}>
+                            <div style={{ padding: "8px 12px 6px", fontSize: 9, fontWeight: 700, letterSpacing: ".1em", textTransform: "uppercase", color: C.muted, borderBottom: `1px solid ${C.pale}` }}>Change Status</div>
+                            {ORDER_STATUSES.filter(s => s !== order.status).map(s => (
+                                <div key={s}
+                                     onClick={() => { onStatusChange(order.id, s); setShowStatusMenu(false); }}
+                                     style={{ padding: "9px 14px", fontSize: 12, color: statusColor[s], cursor: "pointer", fontWeight: 600, borderBottom: `1px solid ${C.pale}`, display: "flex", alignItems: "center", gap: 8, transition: "background .12s" }}
+                                     onMouseEnter={e => e.currentTarget.style.background = C.pale}
+                                     onMouseLeave={e => e.currentTarget.style.background = "transparent"}>
+                                    <span style={{ width: 8, height: 8, borderRadius: "50%", background: statusColor[s], flexShrink: 0, display: "inline-block" }} />
+                                    {s}
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            </div>
+
+            {/* Items — with remove button */}
+            {order.items.map((item, ii) => (
+                <div key={ii} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "5px 0", borderBottom: `1px solid ${C.pale}`, fontSize: 12, gap: 6 }}>
+                    <span style={{ color: C.text, flex: 1 }}>{item.name}</span>
+                    <span style={{ color: C.muted, fontSize: 11 }}>×{item.qty}</span>
+                    <span style={{ fontWeight: 600, color: C.mid, fontSize: 11, minWidth: 48, textAlign: "right" }}>£{(item.price * item.qty).toFixed(2)}</span>
+                    {!isDelivered && (
+                        <button
+                            onClick={() => onRemoveItem(order.id, ii)}
+                            title="Remove item"
+                            style={{ marginLeft: 4, width: 18, height: 18, borderRadius: "50%", border: "none", background: C.redL, color: C.red, fontSize: 11, lineHeight: 1, cursor: "pointer", display: "grid", placeItems: "center", flexShrink: 0 }}>
+                            ✕
+                        </button>
+                    )}
+                </div>
+            ))}
+            <div style={{ textAlign: "right", marginTop: 6, fontFamily: "'Cormorant Garamond', serif", fontSize: 14, fontWeight: 700, color: C.dark }}>Total: £{rowTotal.toFixed(2)}</div>
+
+            {/* Action buttons */}
+            <div style={{ marginTop: 8, display: "flex", gap: 6, flexWrap: "wrap" }}>
+                {isPending && (
+                    <button onClick={() => onConfirm(order.id)} style={{ flex: 1, padding: "7px 10px", border: "none", borderRadius: 6, background: C.green, color: "white", fontSize: 10, fontWeight: 700, letterSpacing: ".07em", textTransform: "uppercase", cursor: "pointer", fontFamily: "Jost, sans-serif" }}>
+                        ✓ Confirm Order
+                    </button>
+                )}
+                {isReady && (
+                    <button onClick={() => onDeliver(order.id)} style={{ flex: 1, padding: "7px 10px", border: "none", borderRadius: 6, background: C.mid, color: "white", fontSize: 10, fontWeight: 700, letterSpacing: ".07em", textTransform: "uppercase", cursor: "pointer", fontFamily: "Jost, sans-serif" }}>
+                        Mark Delivered
+                    </button>
+                )}
+                {!isDelivered && (
+                    <button onClick={() => onAddItems(order)} style={{ padding: "7px 10px", border: `1px solid ${C.border}`, borderRadius: 6, background: C.panel, color: C.mid, fontSize: 10, fontWeight: 600, letterSpacing: ".06em", textTransform: "uppercase", cursor: "pointer", fontFamily: "Jost, sans-serif" }}>
+                        + Add Items
+                    </button>
+                )}
+                {!isDelivered && (
+                    <button onClick={() => onCancel(order.id)} style={{ padding: "7px 10px", border: "none", borderRadius: 6, background: C.redL, color: C.red, fontSize: 10, fontWeight: 600, letterSpacing: ".06em", textTransform: "uppercase", cursor: "pointer", fontFamily: "Jost, sans-serif" }}>
+                        ✕ Cancel
+                    </button>
+                )}
+            </div>
+        </div>
+    );
+}
+
+// ── Tab: Orders ────────────────────────────────────────────────────────────────
+function OrdersTab({ orders, setOrders, menu, addToast }) {
+    const [addItemsOrder, setAddItemsOrder] = useState(null);
+
+    const confirmOrder    = id => { setOrders(p => p.map(o => o.id === id ? { ...o, status: "Confirmed" } : o)); addToast("Order confirmed ✓"); };
+    const deliverOrder    = id => { setOrders(p => p.map(o => o.id === id ? { ...o, status: "Delivered" } : o)); addToast("Order marked as delivered"); };
+    const cancelOrder     = id => { setOrders(p => p.filter(o => o.id !== id)); addToast("Order cancelled"); };
+    const changeStatus    = (id, status) => { setOrders(p => p.map(o => o.id === id ? { ...o, status } : o)); addToast(`Status updated to "${status}"`); };
+    const removeItem      = (orderId, itemIndex) => {
+        setOrders(p => p.map(o => {
+            if (o.id !== orderId) return o;
+            const items = o.items.filter((_, i) => i !== itemIndex);
+            return items.length === 0 ? null : { ...o, items };
+        }).filter(Boolean));
+        addToast("Item removed from order");
+    };
+    const addItemsToOrder = (orderId, newItems) => {
+        setOrders(p => p.map(o => {
+            if (o.id !== orderId) return o;
+            const merged = [...o.items];
+            newItems.forEach(ni => {
+                const ex = merged.find(i => i.menuId === ni.id);
+                if (ex) ex.qty += ni.qty;
+                else merged.push({ menuId: ni.id, name: ni.name, qty: ni.qty, price: ni.price });
+            });
+            return { ...o, items: merged };
+        }));
+        addToast("Items added to order ✓");
+    };
+
+    const active = orders.filter(o => o.status !== "Delivered");
+    const statCards = [
+        { label: "Pending",     value: orders.filter(o => o.status === "Pending Confirmation").length, accent: C.amber },
+        { label: "In Progress", value: orders.filter(o => o.status === "In Progress").length,          accent: C.warm  },
+        { label: "Ready",       value: orders.filter(o => o.status === "Ready for Delivery").length,   accent: C.green },
+    ];
+
+    return (
+        <div style={{ padding: "20px 28px 32px" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12, marginBottom: 20 }}>
+                {statCards.map((s, i) => (
+                    <div key={i} style={{ background: C.panel, border: `1.5px solid ${C.border}`, borderRadius: 8, padding: "12px 16px", position: "relative", overflow: "hidden" }}>
+                        <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: s.accent }} />
+                        <div style={{ fontSize: 9, letterSpacing: ".12em", textTransform: "uppercase", color: C.muted, fontWeight: 600, marginBottom: 4 }}>{s.label}</div>
+                        <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 30, fontWeight: 700, color: C.dark, lineHeight: 1 }}>{s.value}</div>
+                    </div>
+                ))}
+            </div>
+            <SectionCard accentColor={C.warm} title="Active Orders"
+                         badge={<span style={{ fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 10, background: C.pale, color: C.muted }}>{active.length} orders</span>}>
+                <div style={{ padding: "12px 16px 16px" }}>
+                    {active.length === 0 && <div style={{ textAlign: "center", padding: "24px 0", color: C.muted, fontSize: 12 }}>No active orders</div>}
+                    {active.map(order => (
+                        <OrderCard key={order.id} order={order}
+                                   onConfirm={confirmOrder} onCancel={cancelOrder}
+                                   onDeliver={deliverOrder} onAddItems={o => setAddItemsOrder(o)}
+                                   onStatusChange={changeStatus} onRemoveItem={removeItem} />
+                    ))}
+                </div>
+            </SectionCard>
+            {addItemsOrder && (
+                <AddItemsModal order={addItemsOrder} menu={menu} onAdd={addItemsToOrder} onClose={() => setAddItemsOrder(null)} />
+            )}
+        </div>
+    );
+}
+
+// ── Tab: Tables ────────────────────────────────────────────────────────────────
+function TablesTab({ unpaidTables, addToast, raiseAlert }) {
+    const [showUnpaidModal, setShowUnpaidModal] = useState(false);
+    const [alertTable,      setAlertTable]      = useState("");
+
+    return (
+        <div style={{ padding: "20px 28px 32px" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
+
+                {/* Assigned Tables */}
+                <SectionCard accentColor={C.warm} title="Assigned Tables"
+                             badge={<span style={{ fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 10, background: C.pale, color: C.muted }}>{MY_TABLES.length} tables</span>}>
+                    <div style={{ padding: "12px 16px 16px" }}>
+                        <p style={{ fontSize: 12, color: C.muted, marginBottom: 12 }}>You are responsible for these tables during your shift.</p>
+                        <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+                            {MY_TABLES.map(t => (
+                                <div key={t} style={{ background: C.bg, border: `2px solid ${C.warm}`, borderRadius: 8, padding: "14px 20px", textAlign: "center", minWidth: 80 }}>
+                                    <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 26, fontWeight: 700, color: C.dark }}>T{t}</div>
+                                    <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: ".08em", textTransform: "uppercase", color: C.warm, marginTop: 2 }}>Active</div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </SectionCard>
+
+                {/* Team Alerts — with table selector */}
+                <SectionCard accentColor={C.blue} title="Team Alerts">
+                    <div style={{ padding: "12px 16px 16px" }}>
+                        <p style={{ fontSize: 12, color: C.muted, marginBottom: 12 }}>Select a table and raise an alert to notify all staff on shift.</p>
+
+                        {/* Table number selector */}
+                        <div style={{ marginBottom: 12 }}>
+                            <label style={{ fontSize: 10, fontWeight: 700, letterSpacing: ".08em", textTransform: "uppercase", color: C.muted, display: "block", marginBottom: 6 }}>Table Number</label>
+                            <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                                {MY_TABLES.map(t => (
+                                    <button key={t}
+                                            onClick={() => setAlertTable(alertTable === t ? "" : t)}
+                                            style={{ padding: "6px 14px", borderRadius: 6, border: `1.5px solid ${alertTable === t ? C.warm : C.border}`, background: alertTable === t ? C.pale : C.bg, color: alertTable === t ? C.dark : C.muted, fontSize: 12, fontWeight: alertTable === t ? 700 : 500, cursor: "pointer", fontFamily: "Jost, sans-serif", transition: "all .15s" }}>
+                                        T{t}
+                                    </button>
+                                ))}
+                                {/* Also allow typing a custom table number */}
+                                <input
+                                    type="number"
+                                    min="1"
+                                    placeholder="Other…"
+                                    value={typeof alertTable === "number" && !MY_TABLES.includes(alertTable) ? alertTable : ""}
+                                    onChange={e => setAlertTable(e.target.value ? parseInt(e.target.value) : "")}
+                                    style={{ width: 72, padding: "6px 10px", borderRadius: 6, border: `1.5px solid ${C.border}`, background: C.bg, fontSize: 12, fontFamily: "Jost, sans-serif", color: C.text }} />
+                            </div>
+                        </div>
+
+                        <button
+                            onClick={() => {
+                                if (!alertTable) { addToast("Please select a table first"); return; }
+                                raiseAlert(alertTable);
+                                addToast(`Alert raised for Table ${alertTable} — team notified`);
+                                setAlertTable("");
+                            }}
+                            style={{ width: "100%", padding: "12px", background: alertTable ? C.dark : C.light, color: alertTable ? C.bg : C.muted, border: "none", borderRadius: 8, fontSize: 12, fontWeight: 600, letterSpacing: ".1em", textTransform: "uppercase", cursor: alertTable ? "pointer" : "not-allowed", fontFamily: "Jost, sans-serif", transition: "all .15s", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}
+                            onMouseEnter={e => { if (alertTable) e.currentTarget.style.opacity = ".85"; }}
+                            onMouseLeave={e => e.currentTarget.style.opacity = "1"}>
+                            <IconAlert /> Raise Team Alert{alertTable ? ` · T${alertTable}` : ""}
+                        </button>
+
+                        <div style={{ marginTop: 10, padding: "10px 12px", background: C.blueL, border: `1px solid ${C.warm}40`, borderRadius: 6, fontSize: 11, color: C.mid }}>
+                            Alert will appear in notifications for all staff on shift.
+                        </div>
+                    </div>
+                </SectionCard>
+
+                {/* Unpaid Tables */}
+                <div style={{ gridColumn: "1 / -1" }}>
+                    <SectionCard
+                        accentColor={unpaidTables.length > 0 ? C.amber : C.green}
+                        title="Unpaid Tables"
+                        badge={unpaidTables.length > 0 ? <span style={{ fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 10, background: C.amberL, color: C.amber }}>{unpaidTables.length} pending</span> : null}
+                        action={unpaidTables.length > 0 ? (
+                            <button onClick={() => setShowUnpaidModal(true)} style={{ padding: "5px 14px", background: C.dark, color: C.bg, border: "none", borderRadius: 5, fontSize: 10, fontWeight: 600, letterSpacing: ".07em", textTransform: "uppercase", cursor: "pointer", fontFamily: "Jost, sans-serif" }}>View All</button>
+                        ) : null}>
+                        <div style={{ padding: "12px 16px 16px" }}>
+                            {unpaidTables.length === 0
+                                ? <div style={{ fontSize: 13, color: C.green, fontWeight: 600, padding: "6px 0" }}>✓ All tables are settled</div>
+                                : (
+                                    <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10 }}>
+                                        {unpaidTables.map((t, i) => (
+                                            <div key={i} style={{ background: C.bg, border: `1.5px solid ${C.border}`, borderRadius: 8, padding: "12px 14px" }}>
+                                                <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 18, fontWeight: 700, color: C.dark }}>Table {t.table}</div>
+                                                <div style={{ fontSize: 11, color: C.muted, marginTop: 2 }}>Waiting {t.waiting}</div>
+                                                <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 20, fontWeight: 700, color: C.warm, marginTop: 6 }}>£{t.total.toFixed(2)}</div>
+                                                <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: ".08em", color: C.red, textTransform: "uppercase", marginTop: 2 }}>Unpaid</div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                        </div>
+                    </SectionCard>
+                </div>
+
+            </div>
+            {showUnpaidModal && <UnpaidModal unpaidTables={unpaidTables} onClose={() => setShowUnpaidModal(false)} />}
+        </div>
+    );
+}
+
+// ── Tab: Menu ──────────────────────────────────────────────────────────────────
+function MenuTab({ menu, setMenu, addToast }) {
+    const [search, setSearch] = useState("");
+
+    const toggleAvail = id => {
+        const item = menu.find(m => m.id === id);
+        setMenu(p => p.map(m => m.id === id ? { ...m, avail: !m.avail } : m));
+        addToast(`${item.name} marked ${item.avail ? "unavailable" : "available"} ✓`);
+    };
+
+    const sections    = ["Starters", "Mains", "Dessert", "Sides", "Drinks"];
+    const available   = menu.filter(m => m.avail).length;
+    const unavailable = menu.filter(m => !m.avail).length;
+    const q           = search.trim().toLowerCase();
+    const isFiltered  = q.length > 0;
+
+    const matchesSearch = item =>
+        item.name.toLowerCase().includes(q) ||
+        item.description.toLowerCase().includes(q) ||
+        item.section.toLowerCase().includes(q) ||
+        item.dietary.some(d => d.toLowerCase().includes(q)) ||
+        item.allergens.some(a => a.toLowerCase().includes(q));
+
+    return (
+        <div style={{ padding: "20px 28px 32px" }}>
+            {/* Summary strip */}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12, marginBottom: 20 }}>
+                {[
+                    { label: "Total Items",  value: menu.length,  accent: C.warm  },
+                    { label: "Available",    value: available,    accent: C.green },
+                    { label: "Unavailable",  value: unavailable,  accent: C.red   },
+                ].map((s, i) => (
+                    <div key={i} style={{ background: C.panel, border: `1.5px solid ${C.border}`, borderRadius: 8, padding: "12px 16px", position: "relative", overflow: "hidden" }}>
+                        <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: s.accent }} />
+                        <div style={{ fontSize: 9, letterSpacing: ".12em", textTransform: "uppercase", color: C.muted, fontWeight: 600, marginBottom: 4 }}>{s.label}</div>
+                        <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 30, fontWeight: 700, color: C.dark, lineHeight: 1 }}>{s.value}</div>
+                    </div>
+                ))}
+            </div>
+
+            {/* Search bar */}
+            <div style={{ marginBottom: 20, position: "relative" }}>
+                <span style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: C.muted, fontSize: 14, pointerEvents: "none" }}>🔍</span>
+                <input
+                    value={search}
+                    onChange={e => setSearch(e.target.value)}
+                    placeholder="Search by name, section, dietary or allergen…"
+                    style={{ width: "100%", padding: "10px 36px 10px 36px", border: `1.5px solid ${isFiltered ? C.warm : C.border}`, borderRadius: 8, fontSize: 13, fontFamily: "Jost, sans-serif", background: C.panel, color: C.text, outline: "none", transition: "border-color .15s" }} />
+                {isFiltered && (
+                    <button onClick={() => setSearch("")} style={{ position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", color: C.muted, fontSize: 14 }}>✕</button>
+                )}
+            </div>
+
+            {/* Results when searching — flat list */}
+            {isFiltered ? (
+                <SectionCard accentColor={C.warm} title="Search Results"
+                             badge={<span style={{ fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 10, background: C.pale, color: C.muted }}>{menu.filter(matchesSearch).length} items</span>}>
+                    <div style={{ padding: "12px 16px 16px" }}>
+                        {menu.filter(matchesSearch).length === 0 && (
+                            <div style={{ textAlign: "center", padding: "24px 0", color: C.muted, fontSize: 12 }}>No items match "{search}"</div>
+                        )}
+                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                            {menu.filter(matchesSearch).map(item => (
+                                <MenuItemCard key={item.id} item={item} onToggle={toggleAvail} />
+                            ))}
+                        </div>
+                    </div>
+                </SectionCard>
+            ) : (
+                /* Default — grouped by section */
+                sections.map(sec => {
+                    const items = menu.filter(m => m.section === sec);
+                    if (!items.length) return null;
+                    return (
+                        <div key={sec} style={{ marginBottom: 20 }}>
+                            <SectionCard accentColor={C.mid} title={sec}
+                                         badge={<span style={{ fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 10, background: C.pale, color: C.muted }}>{items.filter(m => m.avail).length}/{items.length} available</span>}>
+                                <div style={{ padding: "12px 16px 16px" }}>
+                                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                                        {items.map(item => <MenuItemCard key={item.id} item={item} onToggle={toggleAvail} />)}
+                                    </div>
+                                </div>
+                            </SectionCard>
+                        </div>
+                    );
+                })
+            )}
+        </div>
+    );
+}
+
+// ── Menu Item Card (shared between search results and section view) ─────────────
+function MenuItemCard({ item, onToggle }) {
+    return (
+        <div
+            style={{ background: C.bg, border: `1.5px solid ${item.avail ? C.border : C.red + "55"}`, borderRadius: 8, padding: "12px 14px", opacity: item.avail ? 1 : .75, transition: "box-shadow .15s" }}
+            onMouseEnter={e => e.currentTarget.style.boxShadow = "0 2px 8px rgba(0,0,0,.06)"}
+            onMouseLeave={e => e.currentTarget.style.boxShadow = ""}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 4 }}>
+                <span style={{ fontSize: 13, fontWeight: 600, color: C.text, flex: 1, paddingRight: 8 }}>{item.name}</span>
+                <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 15, fontWeight: 700, color: C.mid, flexShrink: 0 }}>£{item.price.toFixed(2)}</span>
+            </div>
+            <p style={{ fontSize: 11, color: C.muted, marginBottom: 6, lineHeight: 1.45 }}>{item.description}</p>
+            <p style={{ fontSize: 10, color: C.muted, marginBottom: 4 }}>{item.calories}</p>
+            {item.allergens.length > 0 && (
+                <p style={{ fontSize: 10, color: C.amber, fontWeight: 700, marginBottom: 6 }}>⚠ Contains: {item.allergens.join(", ")}</p>
+            )}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 4 }}>
+                <div onClick={() => onToggle(item.id)} style={{ display: "flex", alignItems: "center", gap: 7, cursor: "pointer" }}>
+                    <div style={{ width: 36, height: 20, borderRadius: 10, background: item.avail ? C.green : C.light, position: "relative", transition: "background .2s" }}>
+                        <div style={{ width: 16, height: 16, borderRadius: "50%", background: "white", position: "absolute", top: 2, left: item.avail ? 18 : 2, transition: "left .2s", boxShadow: "0 1px 4px rgba(0,0,0,.2)" }} />
+                    </div>
+                    <span style={{ fontSize: 11, color: item.avail ? C.green : C.muted, fontWeight: 600 }}>{item.avail ? "Available" : "Unavailable"}</span>
+                </div>
+                {item.dietary.length > 0 && (
+                    <div style={{ display: "flex", gap: 3, flexWrap: "wrap", justifyContent: "flex-end" }}>
+                        {item.dietary.map(d => (
+                            <span key={d} style={{ fontSize: 9, fontWeight: 600, padding: "1px 6px", borderRadius: 8, background: C.pale, color: C.muted }}>{d}</span>
+                        ))}
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+}
