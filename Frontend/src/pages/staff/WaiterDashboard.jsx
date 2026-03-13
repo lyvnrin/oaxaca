@@ -23,34 +23,6 @@ const INIT_NOTIFICATIONS = [
     { id: 5, order: "1238", table: 3,  status: "Ready For Service", type: "ready",   read: true  },
 ];
 
-const INIT_MENU = [
-    // ── Starters ──
-    { id: 1,  section: "Starters", name: "Guacamole & Chips",     price: 7.00,  avail: true,  dietary: ["Vegan","Gluten-Free"],              allergens: [],                    calories: "350 kcal",               description: "Hand-mashed avocado, jalapeño, lime zest & Oaxacan pink salt." },
-    { id: 2,  section: "Starters", name: "Tlayuda Tostada",       price: 9.00,  avail: true,  dietary: ["Gluten-Free"],                      allergens: ["Milk","Soy"],         calories: "500 kcal",               description: "Crispy corn base, black bean, quesillo, chorizo & fresh avocado." },
-    { id: 3,  section: "Starters", name: "Ceviche Verde",         price: 12.00, avail: true,  dietary: ["Gluten-Free"],                      allergens: ["Fish"],               calories: "180 kcal",               description: "Sea bass, tomatillo, cucumber, coriander & tiger's milk." },
-    { id: 4,  section: "Starters", name: "Elote Esquites",        price: 8.00,  avail: true,  dietary: ["Vegetarian","Gluten-Free"],         allergens: ["Milk"],               calories: "250 kcal",               description: "Charred corn, crema, cotija cheese, ancho chilli & epazote." },
-    // ── Mains ──
-    { id: 5,  section: "Mains",    name: "Mole Negro Chicken",    price: 18.00, avail: true,  dietary: [],                                   allergens: ["Soy","Nuts"],         calories: "600 kcal",               description: "Free-range thigh braised in a 30-ingredient black mole, sesame rice." },
-    { id: 6,  section: "Mains",    name: "Barbacoa Tacos",        price: 16.00, avail: true,  dietary: [],                                   allergens: [],                    calories: "300 kcal (per taco)",    description: "Slow-braised beef cheek, white onion, coriander & salsa roja. Three pieces." },
-    { id: 7,  section: "Mains",    name: "Portobello Enchiladas", price: 14.00, avail: true,  dietary: ["Vegan"],                            allergens: [],                    calories: "400 kcal",               description: "Roasted mushrooms, black bean, chipotle sauce & cashew crema." },
-    { id: 8,  section: "Mains",    name: "Snapper Veracruz",      price: 22.00, avail: true,  dietary: ["Gluten-Free"],                      allergens: ["Fish"],               calories: "450 kcal",               description: "Pan-seared whole snapper, olives, capers & fresh tomato broth." },
-    // ── Dessert ──
-    { id: 9,  section: "Dessert",  name: "Churro Sundae",         price: 8.00,  avail: true,  dietary: ["Vegetarian"],                       allergens: ["Milk","Gluten","Eggs"],calories: "550 kcal",              description: "Crispy churros, vanilla bean ice cream & dark chocolate mole sauce." },
-    { id: 10, section: "Dessert",  name: "Mezcal Flan",           price: 7.00,  avail: true,  dietary: ["Vegetarian","Gluten-Free"],         allergens: ["Milk","Eggs"],        calories: "320 kcal",               description: "Silky caramel custard with a smoky mezcal caramel drizzle." },
-    { id: 11, section: "Dessert",  name: "Mango Sorbet",          price: 6.00,  avail: true,  dietary: ["Vegan","Gluten-Free"],              allergens: [],                    calories: "120 kcal",               description: "Alphonso mango, chilli salt & fresh lime. Completely dairy free." },
-    // ── Sides ──
-    { id: 12, section: "Sides",    name: "Black Bean Pot",        price: 4.00,  avail: true,  dietary: ["Vegan","Gluten-Free"],              allergens: [],                    calories: "200 kcal",               description: "Slow-cooked with avocado leaf, epazote & lime crema." },
-    { id: 13, section: "Sides",    name: "Corn Tortillas",        price: 3.00,  avail: true,  dietary: ["Vegan","Gluten-Free"],              allergens: [],                    calories: "60 kcal (per tortilla)", description: "Fresh nixtamal masa, made in-house daily. Four pieces." },
-    { id: 14, section: "Sides",    name: "Pickled Jalapeños",     price: 3.00,  avail: true,  dietary: ["Vegan","Gluten-Free"],              allergens: [],                    calories: "5 kcal (per tbsp)",      description: "House-pickled chillies, carrots & white onion in apple cider vinegar." },
-    { id: 15, section: "Sides",    name: "Mexican Rice",          price: 4.00,  avail: true,  dietary: ["Vegan","Gluten-Free"],              allergens: [],                    calories: "200 kcal",               description: "Tomato-braised rice with cumin, garlic & fresh coriander." },
-    // ── Drinks ──
-    { id: 16, section: "Drinks",   name: "Hibiscus Agua Fresca",  price: 4.00,  avail: true,  dietary: ["Vegan","Gluten-Free"],              allergens: [],                    calories: "70 kcal (per cup)",      description: "House-dried hibiscus, lime, cane sugar & still water." },
-    { id: 17, section: "Drinks",   name: "Mezcal Margarita",      price: 11.00, avail: true,  dietary: ["Vegan","Gluten-Free"],              allergens: [],                    calories: "250 kcal",               description: "Joven mezcal, fresh lime juice, agave syrup & smoked salt rim." },
-    { id: 18, section: "Drinks",   name: "Horchata",              price: 4.50,  avail: true,  dietary: ["Vegan","Gluten-Free"],              allergens: ["Nuts"],               calories: "150 kcal (per cup)",     description: "Rice milk, cinnamon, vanilla & a hint of almond. Served chilled." },
-    { id: 19, section: "Drinks",   name: "Mexican Lager",         price: 5.00,  avail: true,  dietary: [],                                   allergens: [],                    calories: "150 kcal (per 12 oz)",   description: "Ice-cold bottle served with lime. Ask your server for today's selection." },
-    { id: 20, section: "Drinks",   name: "Water",                 price: 2.50,  avail: true,  dietary: [],                                   allergens: [],                    calories: "0 kcal",                 description: "Ice-cold and refreshing. Ask your server for alternative temperatures." },
-];
-
 const INIT_UNPAID = [
     { table: 2,  order: "1230", total: 34.50, waiting: "12 mins" },
     { table: 6,  order: "1231", total: 22.00, waiting: "5 mins"  },
@@ -474,11 +446,11 @@ function OrdersTab({ orders, setOrders, menu, addToast }) {
         addToast("Items added to order ✓");
     };
 
-    const active = orders.filter(o => o.status !== "Delivered");
+    const active = orders.filter(o => o.status !== "Completed" && o.status !== "Cancelled");
     const statCards = [
-        { label: "Pending",     value: orders.filter(o => o.status === "Pending Confirmation").length, accent: C.amber },
-        { label: "In Progress", value: orders.filter(o => o.status === "In Progress").length,          accent: C.warm  },
-        { label: "Ready",       value: orders.filter(o => o.status === "Ready for Delivery").length,   accent: C.green },
+    { label: "Pending",     value: orders.filter(o => o.status === "Pending").length,     accent: C.amber },
+    { label: "In Progress", value: orders.filter(o => o.status === "In Progress").length,  accent: C.warm  },
+    { label: "Ready",       value: orders.filter(o => o.status === "Ready").length,        accent: C.green },
     ];
 
     return (
@@ -749,8 +721,7 @@ function MenuItemCard({ item, onToggle }) {
 
 export default function App() {
     const [tab,           setTab]           = useState("Orders");
-    const [orders, setOrders] = useState([]);
-    const [menu,          setMenu]          = useState(INIT_MENU);
+    
     const [notifications, setNotifications] = useState(INIT_NOTIFICATIONS);
     const [toasts,        setToasts]        = useState([]);
     const [showNotifs,    setShowNotifs]    = useState(false);
@@ -769,6 +740,7 @@ export default function App() {
 
     const TABS = ["Orders", "Tables", "Menu"];
 
+    const [orders, setOrders] = useState([]);
     useEffect(() => {
         const fetchOrders = async () => {
             const res = await fetch('http://127.0.0.1:8000/orders');
@@ -789,6 +761,24 @@ export default function App() {
         fetchOrders();
         const poll = setInterval(fetchOrders, 15000);
         return () => clearInterval(poll);
+    }, []);
+
+
+    const [menu, setMenu] = useState([]);
+    useEffect(() => {
+        fetch('http://127.0.0.1:8000/menu_items')
+            .then(r => r.json())
+            .then(data => setMenu(data.map(item => ({
+                id: item.item_id,
+                name: item.item_name,
+                price: item.price,
+                section: item.menu_type ?? "Mains",
+                avail: true,
+                dietary: [],
+                allergens: [],
+                calories: "",
+                description: "",
+            }))));
     }, []);
 
     return (
