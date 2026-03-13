@@ -410,7 +410,15 @@ function OrderCard({ order, onConfirm, onCancel, onDeliver, onAddItems, onStatus
 function OrdersTab({ orders, setOrders, menu, addToast }) {
     const [addItemsOrder, setAddItemsOrder] = useState(null);
 
-    const confirmOrder    = id => { setOrders(p => p.map(o => o.id === id ? { ...o, status: "Confirmed" } : o)); addToast("Order confirmed ✓"); };
+    const confirmOrder = async (id) => {
+    setOrders(p => p.map(o => o.id === id ? { ...o, status: "In Progress" } : o));
+    await fetch(`http://127.0.0.1:8000/orders/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: "In Progress" }),
+    });
+    addToast("Order confirmed ✓");
+};
     const deliverOrder    = id => { setOrders(p => p.map(o => o.id === id ? { ...o, status: "Delivered" } : o)); addToast("Order marked as delivered"); };
     const cancelOrder     = id => { setOrders(p => p.filter(o => o.id !== id)); addToast("Order cancelled"); };
     const changeStatus = async (id, status) => {
@@ -449,7 +457,7 @@ function OrdersTab({ orders, setOrders, menu, addToast }) {
     const active = orders.filter(o => o.status !== "Completed" && o.status !== "Cancelled");
     const statCards = [
     { label: "Pending",     value: orders.filter(o => o.status === "Pending").length,     accent: C.amber },
-    { label: "In Progress", value: orders.filter(o => o.status === "In Progress").length,  accent: C.warm  },
+    { label: "In Progress", value: orders.filter(o => o.status === "In Progress").length, accent: C.warm },
     { label: "Ready",       value: orders.filter(o => o.status === "Ready").length,        accent: C.green },
     ];
 
