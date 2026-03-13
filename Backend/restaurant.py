@@ -403,8 +403,14 @@ class Table:
         self.occupied = True  # sets table as occupied
 
     def clear_table(self):
+        if self.current_customer and self.current_customer.current_order:
+            order = self.current_customer.current_order
+            if not order.is_paid():
+                raise ValueError(f"Cannot clear table {self.table_number} because the order has not been paid.")
+
         self.current_customer = None  # clears the current customer from the table
         self.occupied = False  # sets table as available
+        print(f"table {self.table_number} is now clear")
 
     def __str__(self):
         return f"Table {self.table_number} - Capacity: {self.capacity} - {'Occupied' if self.occupied else 'Available'}"
