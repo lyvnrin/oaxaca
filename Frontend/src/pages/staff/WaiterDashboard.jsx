@@ -411,18 +411,20 @@ function OrdersTab({ orders, setOrders, menu, addToast }) {
     const [addItemsOrder, setAddItemsOrder] = useState(null);
 
     const confirmOrder = async (id) => {
-    setOrders(p => p.map(o => o.id === id ? { ...o, status: "In Progress" } : o));
-    await fetch(`http://127.0.0.1:8000/orders/${id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: "In Progress" }),
-    });
-    addToast("Order confirmed ✓");
-};
+        setOrders(p => p.map(o => o.id === id ? { ...o, status: "In Progress" } : o));
+        await fetch(`http://127.0.0.1:8000/orders/${id}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: "In Progress" }),
+        });
+        addToast("Order confirmed ✓");
+    }; 
     const deliverOrder    = id => { setOrders(p => p.map(o => o.id === id ? { ...o, status: "Delivered" } : o)); addToast("Order marked as delivered"); };
+
     const cancelOrder     = id => { setOrders(p => p.filter(o => o.id !== id)); addToast("Order cancelled"); };
-    const changeStatus = async (id, status) => {
-    setOrders(p => p.map(o => o.id === id ? { ...o, status } : o));
+
+    const changeStatus = async (id, status) => { setOrders(p => p.map(o => o.id === id ? { ...o, status } : o));
+
     await fetch(`http://127.0.0.1:8000/orders/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
@@ -791,25 +793,25 @@ export default function App() {
 
     return (
         <div style={{ fontFamily: "Jost, sans-serif", background: C.bg, color: C.text, minHeight: "100vh" }}>
-            <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Jost:wght@300;400;500;600&display=swap');
-        @keyframes fadeInUp { from{opacity:0;transform:translateY(8px)}  to{opacity:1;transform:translateY(0)} }
-        @keyframes dropIn   { from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:translateY(0)} }
-        @keyframes pulse    { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(1.3)} }
-        * { box-sizing:border-box; margin:0; padding:0; }
-        ::-webkit-scrollbar { width:4px; } ::-webkit-scrollbar-track { background:#f0e6d3; } ::-webkit-scrollbar-thumb { background:#e8d5b7; border-radius:2px; }
-        select:focus, input:focus { outline: 2px solid #c4763a; outline-offset: 1px; }
-      `}</style>
+            <style>{`@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Jost:wght@300;400;500;600&display=swap');
+            @keyframes fadeInUp { from{opacity:0;transform:translateY(8px)}  to{opacity:1;transform:translateY(0)} }
+            @keyframes dropIn   { from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:translateY(0)} }
+            @keyframes pulse    { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(1.3)} }
+            * { box-sizing:border-box; margin:0; padding:0; }
+            ::-webkit-scrollbar { width:4px; } ::-webkit-scrollbar-track { background:#f0e6d3; } ::-webkit-scrollbar-thumb { background:#e8d5b7; border-radius:2px; }
+            select:focus, input:focus { outline: 2px solid #c4763a; outline-offset: 1px; }
+            `}</style>
 
             {/* NAV */}
             <nav style={{ background: C.dark, height: 56, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 28px", position: "sticky", top: 0, zIndex: 800 }}>
-                <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 22, fontWeight: 600, letterSpacing: ".25em", color: C.bg }}>O A X A C A</span>
+                <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 22, fontWeight: 600, letterSpacing: ".25em", color: C.bg }}>OAXACA</span>
                 <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                     <span style={{ fontSize: 11, letterSpacing: ".1em", textTransform: "uppercase", color: "rgba(245,240,232,.5)", fontWeight: 500 }}>Waiter View</span>
                     <div ref={notifRef} style={{ position: "relative" }}>
                         <NavIcon icon={<IconBell />} onClick={() => { setShowNotifs(v => !v); setShowAccount(false); }} active={showNotifs} badge={unread} badgeColor={alertCount > 0 ? C.blue : C.warm} />
                         {showNotifs && <NotificationsPanel notifications={notifications} setNotifications={setNotifications} />}
                     </div>
+                    
                     <div ref={accountRef} style={{ position: "relative" }}>
                         <div onClick={() => { setShowAccount(v => !v); setShowNotifs(false); }}
                              style={{ width: 36, height: 36, borderRadius: "50%", background: showAccount ? C.mid : C.green, display: "grid", placeItems: "center", cursor: "pointer", color: "white", fontSize: 11, fontWeight: 700, border: `2px solid ${showAccount ? C.light : "transparent"}`, transition: "all .15s", userSelect: "none" }}>
