@@ -114,15 +114,15 @@ return (
           <h1 className="kitchen-title">Kitchen Dashboard</h1>
           <p className="kitchen-date">{TODAY}</p>
         </div>
-      </div>
-      <div className="kitchen-header-right">
-          <div className="active-orders-box">
-            <div className="active-orders-label">ACTIVE ORDERS</div>
-            <div className="active-orders-count">{activeCount}</div>
-          </div>
-          <div className="live-pill">
-            <span className="live-dot" /> LIVE
-          </div>
+        <div className="kitchen-header-right">
+            <div className="active-orders-box">
+              <div className="active-orders-label">ACTIVE ORDERS</div>
+              <div className="active-orders-count">{activeCount}</div>
+            </div>
+            <div className="live-pill">
+              <span className="live-dot" /> LIVE
+            </div>
+        </div>
       </div>
     </div>
 
