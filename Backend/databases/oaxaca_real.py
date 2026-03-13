@@ -15,8 +15,9 @@ app.add_middleware(
 DB_FILE = "oaxaca-real.db"
 
 def get_conn():
-    conn = sqlite3.connect(DB_FILE)
+    conn = sqlite3.connect(DB_FILE, timeout=10)
     conn.execute("PRAGMA foreign_keys = ON")
+    conn.execute("PRAGMA journal_mode=WAL")
     conn.row_factory = sqlite3.Row
     return conn
 
@@ -40,17 +41,19 @@ def get_customers():
 def add_customer(payload: CustomerIn):
     conn = get_conn()
     cursor = conn.cursor()
-
-    cursor.execute(
-        "INSERT INTO customers (name, table_id) VALUES (?, ?)",
-        (payload.name, payload.table_id),
-    )
-
-    conn.commit()
-    row = conn.execute( "SELECT * FROM customers WHERE cust_id = ?", (cursor.lastrowid,) ).fetchone()
-    
-    conn.close()
-    return dict(row)
+    try:
+        cursor.execute(
+            "INSERT INTO customers (name, table_id) VALUES (?, ?)",
+            (payload.name, payload.table_id),
+        )
+        conn.commit()
+        row = conn.execute("SELECT * FROM customers WHERE cust_id = ?", (cursor.lastrowid,)).fetchone()
+        return dict(row)
+    except Exception as e:
+        conn.rollback()
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        conn.close()
 
 # DELETING A CUSTOMERS
 @app.delete("/customers/{cust_id}")
@@ -81,3 +84,47 @@ def get_tables():
     conn.close()
 
     return [dict(r) for r in rows]
+
+# ADDING /ORDERS POST AND GET SCHEMA
+class OrderIn(BaseModel):
+    cust_id: int
+    table_id: int
+    items: list[dict]  # [{ item_id, quantity, price }]
+
+@app.post("/orders", status_code=201)
+def place_order(payload: OrderIn):
+    conn = get_conn()
+    cursor = conn.cursor()
+
+    total = sum(i["price"] * i["quantity"] for i in payload.items)
+
+    cursor.execute(
+        "INSERT INTO orders (cust_id, table_id, total_cost) VALUES (?, ?, ?)",
+        (payload.cust_id, payload.table_id, total),
+    )
+    order_id = cursor.lastrowid
+
+    cursor.executemany(
+        "INSERT INTO order_item (order_id, item_id, quantity) VALUES (?, ?, ?)",
+        [(order_id, i["item_id"], i["quantity"]) for i in payload.items]
+    )
+
+    conn.commit()
+    conn.close()
+    return { "order_id": order_id, "total_cost": total }
+
+@app.get("/orders")
+def get_orders():
+    conn = get_conn()
+    orders = conn.execute("SELECT * FROM orders").fetchall()
+    result = []
+    for order in orders:
+        items = conn.execute("""
+            SELECT oi.quantity, mi.item_name, mi.price
+            FROM order_item oi
+            JOIN menu_items mi ON oi.item_id = mi.item_id
+            WHERE oi.order_id = ?
+        """, (order["order_id"],)).fetchall()
+        result.append({ **dict(order), "items": [dict(i) for i in items] })
+    conn.close()
+    return result
