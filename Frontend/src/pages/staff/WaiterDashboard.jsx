@@ -405,7 +405,16 @@ function OrdersTab({ orders, setOrders, menu, addToast }) {
         });
         addToast("Order confirmed ✓");
     }; 
-    const deliverOrder    = id => { setOrders(p => p.map(o => o.id === id ? { ...o, status: "Delivered" } : o)); addToast("Order marked as delivered"); };
+    
+    const deliverOrder = async (id) => {
+        setOrders(p => p.map(o => o.id === id ? { ...o, status: "Completed" } : o));
+        await fetch(`http://127.0.0.1:8000/orders/${id}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: "Completed" }),
+        });
+        addToast("Order marked as delivered");
+    };
 
     const cancelOrder     = id => { setOrders(p => p.filter(o => o.id !== id)); addToast("Order cancelled"); };
 
@@ -722,18 +731,20 @@ export default function App() {
         const fetchOrders = async () => {
             const res = await fetch('http://127.0.0.1:8000/orders');
             const data = await res.json();
-            setOrders(data.map(o => ({
-                id: String(o.order_id),
-                table: o.table_id,
-                status: o.status ?? "Pending",
-                startedAt: Date.now(),
-                items: o.items.map(i => ({
-                    menuId: null,
-                    name: i.item_name,
-                    qty: i.quantity,
-                    price: i.price,
-                }))
-            })));
+            setOrders(prev => {
+                return data.map(o => {
+                    const existing = prev.find(p => p.id === String(o.order_id));
+                    return existing
+                        ? { ...existing, items: o.items.map(i => ({ menuId: null, name: i.item_name, qty: i.quantity, price: i.price })) }
+                        : {
+                            id: String(o.order_id),
+                            table: o.table_id,
+                            status: o.status ?? "Pending",
+                            startedAt: Date.now(),
+                            items: o.items.map(i => ({ menuId: null, name: i.item_name, qty: i.quantity, price: i.price }))
+                        };
+                }).reverse();
+            });
         };
         fetchOrders();
         const poll = setInterval(fetchOrders, 15000);
