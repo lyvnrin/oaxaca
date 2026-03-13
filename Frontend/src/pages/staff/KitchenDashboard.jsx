@@ -57,7 +57,7 @@ const confirmOrder = (id) =>
     setPending,
     prepare,
     setPrepare,
-    id,
+    id
   );
 
 const prepareOrder = (id) =>
@@ -179,7 +179,7 @@ return (
               <div className="compact-card" key={o.id}>
                 <div className= "compact-card-header">
                   <span className="table-title">{o.table}</span>
-                  <span className="table-time">⏱ {o.time}</span>
+                  <span className="table-time">⏱ {o.mins}</span>
                 </div>
                 {o.items.map((it, idx) => (
                   <div className="compact-row" key={idx}>
