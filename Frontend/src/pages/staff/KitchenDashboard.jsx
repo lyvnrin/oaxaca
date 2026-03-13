@@ -37,6 +37,23 @@ const TODAY = new Date().toLocaleDateString("en-GB", {
   month: "long",
 });
 
+// Fires a cross-tab localStorage event so the Waiter Dashboard picks it up
+function notifyWaiter(order) {
+  const notification = {
+    id: Date.now(),
+    order: String(order.id),
+    table: parseInt(order.table.replace(/\D/g, ""), 10) || order.table,
+    status: "Ready For Service",
+    type: "ready",
+    read: false,
+    sentAt: Date.now(),
+  };
+  // localStorage.setItem triggers a "storage" event in other tabs
+  localStorage.setItem("oaxaca_kitchen_notify", JSON.stringify(notification));
+  // Remove immediately so the same value can be set again for future orders
+  setTimeout(() => localStorage.removeItem("oaxaca_kitchen_notify"), 200);
+}
+
 export default function KitchenDashboard() {
   const [pending, setPending] = useState(initialPending);
   const [prepare, setPrepare] = useState([]);
@@ -44,199 +61,190 @@ export default function KitchenDashboard() {
   const [completed, setCompleted] = useState([]);
   const [showProfile, setShowProfile] = useState(false);
 
-const move = (from, setFrom, to, setTo, orderId, msg) => {
-  const order = from.find((o) => o.id === orderId);
-  if (!order) return;
-  setFrom(from.filter((o) => o.id !== orderId));
-  setTo([order, ...to]);
-};
+  const move = (from, setFrom, to, setTo, orderId) => {
+    const order = from.find((o) => o.id === orderId);
+    if (!order) return;
+    setFrom(from.filter((o) => o.id !== orderId));
+    setTo([order, ...to]);
+  };
 
-const confirmOrder = (id) =>
-  move(
-    pending,
-    setPending,
-    prepare,
-    setPrepare,
-    id
-  );
+  const confirmOrder = (id) =>
+      move(pending, setPending, prepare, setPrepare, id);
 
-const prepareOrder = (id) =>
-  move(
-    prepare,
-    setPrepare,
-    service,
-    setService,
-    id
-  );
+  const prepareOrder = (id) => {
+    const order = prepare.find((o) => o.id === id);
+    if (!order) return;
+    move(prepare, setPrepare, service, setService, id);
+    // Fire notification to waiter dashboard
+    notifyWaiter(order);
+  };
 
-const deliveredOrder = (id) => {
-  const order = service.find((o) => o.id === id);
-  if (!order) return;
-  setService(service.filter((o) => o.id !== id));
-  setCompleted([order, ...completed]);
-};
+  const deliveredOrder = (id) => {
+    const order = service.find((o) => o.id === id);
+    if (!order) return;
+    setService(service.filter((o) => o.id !== id));
+    setCompleted([order, ...completed]);
+  };
 
-const activeCount = pending.length + prepare.length + service.length;
+  const activeCount = pending.length + prepare.length + service.length;
 
-return (
-  <div className="kitchen-page" onClick={() => setShowProfile(false)}>
-    {/* NAVBAR */}
-    <header className="kitchen-nav">
-      <div className="nav-brand">O A X A C A</div>
-      <div className="nav-icons">
-        <span className="nav-kitchen-label">KITCHEN VIEW</span>
-      <div
-        className="nav-avatar"
-        onClick={(e) => { e.stopPropagation(); setShowProfile(!showProfile); }}
-      >
-        AK
-        {showProfile && (
-          <div className="nav-profile-dropdown" onClick={(e) => e.stopPropagation()}>
-            <div className="nav-profile-header">
-              <div className="nav-profile-avatar">AK</div>
-                <div>
-                  <div className="nav-profile-name">Aisha K.</div>
-                  <div className="nav-profile-email">aisha.k@oaxaca.com</div>
-                  <div className="nav-profile-role">HEAD CHEF</div>
-                </div>
+  return (
+      <div className="kitchen-page" onClick={() => setShowProfile(false)}>
+        {/* NAVBAR */}
+        <header className="kitchen-nav">
+          <div className="nav-brand">O A X A C A</div>
+          <div className="nav-icons">
+            <span className="nav-kitchen-label">KITCHEN VIEW</span>
+            <div
+                className="nav-avatar"
+                onClick={(e) => { e.stopPropagation(); setShowProfile(!showProfile); }}
+            >
+              AK
+              {showProfile && (
+                  <div className="nav-profile-dropdown" onClick={(e) => e.stopPropagation()}>
+                    <div className="nav-profile-header">
+                      <div className="nav-profile-avatar">AK</div>
+                      <div>
+                        <div className="nav-profile-name">Aisha K.</div>
+                        <div className="nav-profile-email">aisha.k@oaxaca.com</div>
+                        <div className="nav-profile-role">HEAD CHEF</div>
+                      </div>
+                    </div>
+                    <button className="nav-signout-btn">→ Sign Out</button>
+                  </div>
+              )}
+            </div>
+          </div>
+        </header>
+
+        <div className="kitchen-content">
+          {/* PAGE HEADER */}
+          <div className="kitchen-page-header">
+            <div>
+              <h1 className="kitchen-title">Kitchen Dashboard</h1>
+              <p className="kitchen-date">{TODAY}</p>
+            </div>
+            <div className="kitchen-header-right">
+              <div className="active-orders-box">
+                <div className="active-orders-label">ACTIVE ORDERS</div>
+                <div className="active-orders-count">{activeCount}</div>
               </div>
-              <button className="nav-signout-btn">→ Sign Out</button>
+              <div className="live-pill">
+                <span className="live-dot" /> LIVE
+              </div>
             </div>
-          )}
-        </div>
-      </div>
-    </header>
+          </div>
 
-    <div className="kitchen-content">
-      {/* PAGE HEADER */}
-      <div className="kitchen-page-header">
-        <div>
-          <h1 className="kitchen-title">Kitchen Dashboard</h1>
-          <p className="kitchen-date">{TODAY}</p>
-        </div>
-        <div className="kitchen-header-right">
-            <div className="active-orders-box">
-              <div className="active-orders-label">ACTIVE ORDERS</div>
-              <div className="active-orders-count">{activeCount}</div>
-            </div>
-            <div className="live-pill">
-              <span className="live-dot" /> LIVE
-            </div>
-        </div>
-      </div>
-    
-
-
-      {/* BOARD */}
-      <div className="kitchen-board">
-        {/* Pending Confirmation */}
-        <div className="kitchen-column kitchen-column--pending">
-          <div className="column-header">
-            <span>Pending Confirmation</span>
-            <span className="column-badge column-badge--amber">
+          {/* BOARD */}
+          <div className="kitchen-board">
+            {/* Pending Confirmation */}
+            <div className="kitchen-column kitchen-column--pending">
+              <div className="column-header">
+                <span>Pending Confirmation</span>
+                <span className="column-badge column-badge--amber">
               {pending.length} {pending.length === 1 ? "order" : "orders"}
               </span>
-          </div>
-          <div className="column-scroll">
-            {pending.map((o) => (
-              <div className="compact-card" key={o.id}>
-                <div className="compact-card-header">
-                  <span className="table-title">{o.table}</span>
-                  <span className="table-time">{o.mins}</span>
-                </div>
-                {o.items.map((it, idx) => (
-                  <div className="compact-row" key={idx}>
-                    <span>{it.name}</span>
-                    <span className="compact-qty">Qty: {it.qty}</span>
-                  </div>
+              </div>
+              <div className="column-scroll">
+                {pending.map((o) => (
+                    <div className="compact-card" key={o.id}>
+                      <div className="compact-card-header">
+                        <span className="table-title">{o.table}</span>
+                        <span className="table-time">{o.mins}</span>
+                      </div>
+                      {o.items.map((it, idx) => (
+                          <div className="compact-row" key={idx}>
+                            <span>{it.name}</span>
+                            <span className="compact-qty">Qty: {it.qty}</span>
+                          </div>
+                      ))}
+
+                      <button
+                          className="confirm-btn"
+                          onClick={() => confirmOrder(o.id)}
+                      >
+                        CONFIRM ORDER
+                      </button>
+                    </div>
                 ))}
 
-                <button
-                  className="confirm-btn"
-                  onClick={() => confirmOrder(o.id)}
-                >
-                  CONFIRM ORDER
-                </button>
+                {pending.length === 0 && (
+                    <div className="empty">No pending orders</div>
+                )}
               </div>
-            ))}
+            </div>
 
-            {pending.length === 0 && (
-              <div className="empty">No pending orders</div>
-            )}
-          </div>
-        </div>
-
-        {/* Ready to Prepare */}
-        <div className="kitchen-column kitchen-column--preparing">
-          <div className="column-header">
-            <span>Preparing</span>
-            <span className="column-badge column-badge--olive">
+            {/* Ready to Prepare */}
+            <div className="kitchen-column kitchen-column--preparing">
+              <div className="column-header">
+                <span>Preparing</span>
+                <span className="column-badge column-badge--olive">
               {prepare.length} {prepare.length === 1 ? "order" : "orders"}
             </span>
-          </div>
-          <div className="column-scroll">
-            {prepare.map((o) => (
-              <div className="compact-card" key={o.id}>
-                <div className= "compact-card-header">
-                  <span className="table-title">{o.table}</span>
-                  <span className="table-time">⏱ {o.mins}</span>
-                </div>
-                {o.items.map((it, idx) => (
-                  <div className="compact-row" key={idx}>
-                    <span>{it.name}</span>
-                    <span className="compact-qty">×{it.qty}</span>
-                  </div>
+              </div>
+              <div className="column-scroll">
+                {prepare.map((o) => (
+                    <div className="compact-card" key={o.id}>
+                      <div className= "compact-card-header">
+                        <span className="table-title">{o.table}</span>
+                        <span className="table-time">⏱ {o.mins}</span>
+                      </div>
+                      {o.items.map((it, idx) => (
+                          <div className="compact-row" key={idx}>
+                            <span>{it.name}</span>
+                            <span className="compact-qty">×{it.qty}</span>
+                          </div>
+                      ))}
+
+                      <button
+                          className="prepare-btn"
+                          onClick={() => prepareOrder(o.id)}
+                      >
+                        NOTIFY WAITER
+                      </button>
+                    </div>
                 ))}
 
-                <button
-                  className="prepare-btn"
-                  onClick={() => prepareOrder(o.id)}
-                >
-                  NOTIFY WAITER
-                </button>
+                {prepare.length === 0 && (
+                    <div className="empty">No orders preparing</div>
+                )}
               </div>
-            ))}
+            </div>
 
-            {prepare.length === 0 && (
-              <div className="empty">No orders preparing</div>
-            )}
-          </div>
-        </div>
-
-        {/* Ready For Service */}
-        <div className="kitchen-column kitchen-column--service">
-          <div className="column-header">
-            <span>Ready For Service</span>
-            <span className="column-badge column-badge--green">
+            {/* Ready For Service */}
+            <div className="kitchen-column kitchen-column--service">
+              <div className="column-header">
+                <span>Ready For Service</span>
+                <span className="column-badge column-badge--green">
               {service.length} {service.length === 1 ? "order" : "orders"}
             </span>
-          </div>
-          <div className="column-scroll">
-            {service.map((o) => (
-              <div className="compact-card" key={o.id}>
-                <div className="compact-card-header">
-                  <span className="table-title">{o.table}</span>
-                  <span className="table-time">⏱ {o.mins} mins </span>
-                </div>
-                {o.items.map((it, idx) => (
-                  <div className="compact-row" key={idx}>
-                    <span>{it.name}</span>
-                    <span className="compact-qty">×{it.qty}</span>
-                  </div>
+              </div>
+              <div className="column-scroll">
+                {service.map((o) => (
+                    <div className="compact-card" key={o.id}>
+                      <div className="compact-card-header">
+                        <span className="table-title">{o.table}</span>
+                        <span className="table-time">⏱ {o.mins} mins </span>
+                      </div>
+                      {o.items.map((it, idx) => (
+                          <div className="compact-row" key={idx}>
+                            <span>{it.name}</span>
+                            <span className="compact-qty">×{it.qty}</span>
+                          </div>
+                      ))}
+
+                      <div className="awaiting-label">AWAITING COLLECTION BY WAITER</div>
+                      <button className="delivered-btn" onClick={() => deliveredOrder(o.id)}>
+                        DELIVERED
+                      </button>
+                    </div>
                 ))}
 
-                <div className="awaiting-label">AWAITING COLLECTION BY WAITER</div>
-                <button className="delivered-btn" onClick={() => deliveredOrder(o.id)}>
-                    DELIVERED
-                </button>
+                {service.length === 0 && <div className="empty">Nothing ready for service</div>}
               </div>
-            ))}
-          
-            {service.length === 0 && <div className="empty">Nothing ready for service</div>}
-          </div>      
+            </div>
+          </div>
         </div>
       </div>
-    </div>
-  </div>
-);
+  );
 }
