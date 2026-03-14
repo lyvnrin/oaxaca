@@ -11,13 +11,6 @@ const C = {
 
 const now = () => Date.now();
 
-const INIT_PENDING = [
-  { id: 1, table: "Table 01", startedAt: now() - 5 * 60000, items: [{ name: "Tacos al Pastor", qty: 2 }, { name: "Nachos Grande", qty: 1 }] },
-  { id: 2, table: "Table 02", startedAt: now() - 8 * 60000, items: [{ name: "Chicken Burrito", qty: 1 }] },
-  { id: 3, table: "Table 03", startedAt: now() - 12 * 60000, items: [{ name: "Quesadilla", qty: 2 }] },
-  { id: 4, table: "Table 04", startedAt: now() - 15 * 60000, items: [{ name: "Churros", qty: 3 }] },
-];
-
 function useOutsideClick(ref, cb) {
   useEffect(() => {
     const fn = e => { if (ref.current && !ref.current.contains(e.target)) cb(); };

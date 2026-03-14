@@ -469,22 +469,40 @@ function OrdersTab({ orders, setOrders, menu, addToast }) {
                     </div>
                 ))}
             </div>
-            <SectionCard accentColor={C.warm} title="Active Orders"
-                         badge={<span style={{ fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 10, background: C.pale, color: C.muted }}>{active.length} orders</span>}>
-                <div style={{ padding: "12px 16px 16px" }}>
-                    {active.length === 0 && <div style={{ textAlign: "center", padding: "24px 0", color: C.muted, fontSize: 12 }}>No active orders</div>}
-                    {active.map(order => (
-                        <OrderCard key={order.id} order={order}
-                                   onConfirm={confirmOrder} onCancel={cancelOrder}
-                                   onDeliver={deliverOrder} onAddItems={o => setAddItemsOrder(o)}
-                                   onStatusChange={changeStatus} onRemoveItem={removeItem} />
-                    ))}
+
+            {/* 3-COLUMN STYLE FOR ORDERS : better than elongated stacks */}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16 }}>
+            {[
+                { title: "Pending",     accent: C.amber, orders: active.filter(o => o.status === "Pending")     },
+                { title: "In Progress", accent: C.warm,  orders: active.filter(o => o.status === "In Progress") },
+                { title: "Ready",       accent: C.green, orders: active.filter(o => o.status === "Ready")       },
+            ].map(col => (
+                <div key={col.title} style={{ background: C.panel, border: `1.5px solid ${C.border}`, borderRadius: 10, overflow: "hidden" }}>
+                    <div style={{ height: 3, background: col.accent }} />
+                    <div style={{ padding: "14px 16px 10px", borderBottom: `1.5px solid ${C.border}`, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                        <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 17, fontWeight: 700, color: C.dark }}>{col.title}</span>
+                        <span style={{ fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 10, background: C.pale, color: C.muted }}>{col.orders.length} orders</span>
+                    </div>
+                    
+                    <div style={{ padding: "12px 14px" }}>
+                        {col.orders.length === 0
+                            ? <div style={{ textAlign: "center", padding: "24px 0", color: C.muted, fontSize: 12 }}>No orders</div>
+                            : col.orders.map(order => (
+                                <OrderCard key={order.id} order={order}
+                                    onConfirm={confirmOrder} onCancel={cancelOrder}
+                                    onDeliver={deliverOrder} onAddItems={o => setAddItemsOrder(o)}
+                                    onStatusChange={changeStatus} onRemoveItem={removeItem} />
+                            ))
+                        }
+                    </div>
                 </div>
-            </SectionCard>
-            {addItemsOrder && (
-                <AddItemsModal order={addItemsOrder} menu={menu} onAdd={addItemsToOrder} onClose={() => setAddItemsOrder(null)} />
-            )}
+            ))}
         </div>
+
+        {addItemsOrder && (
+            <AddItemsModal order={addItemsOrder} menu={menu} onAdd={addItemsToOrder} onClose={() => setAddItemsOrder(null)} />
+        )}
+    </div>
     );
 }
 
