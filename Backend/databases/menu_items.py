@@ -2,10 +2,9 @@ import csv
 import sqlite3
 import os
 
-
+# MENU ITEMS --------------------
 def load_menu_from_csv(csv_path: str, db_path: str):
-    # READS OAXACA MENU CSV + INSERTS ALL ITEMS 
-    
+    # READS OAXACA MENU CSV + INSERTS ALL ITEMS     
     items = []
 
     with open(csv_path, newline="", encoding="utf-8") as f:
