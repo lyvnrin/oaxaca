@@ -54,10 +54,10 @@ function AccountPanel({ addToast }) {
             <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: ".08em", textTransform: "uppercase", color: C.mid, marginTop: 2 }}>Head Chef</div>
           </div>
         </div>
-        <div onClick={() => addToast("Signed out (demo)")}
-             style={{ padding: "13px 16px", display: "flex", alignItems: "center", gap: 10, cursor: "pointer", transition: "background .15s", borderRadius: "0 0 10px 10px" }}
-             onMouseEnter={e => e.currentTarget.style.background = C.redL}
-             onMouseLeave={e => e.currentTarget.style.background = "transparent"}>
+        <div onClick={() => { window.location.href = "/"; }}
+          style={{ padding: "13px 16px", display: "flex", alignItems: "center", gap: 10, cursor: "pointer", transition: "background .15s", borderRadius: "0 0 10px 10px" }}
+          onMouseEnter={e => e.currentTarget.style.background = C.redL}
+          onMouseLeave={e => e.currentTarget.style.background = "transparent"}>
           <IconDoor /><span style={{ fontSize: 13, fontWeight: 600, color: C.red }}>Sign Out</span>
         </div>
       </div>

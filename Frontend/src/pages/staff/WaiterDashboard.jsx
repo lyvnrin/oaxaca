@@ -57,7 +57,7 @@ function elapsedColor(startedAt) {
     return mins > 20 ? C.red : mins > 10 ? C.amber : C.green;
 }
 
-// Hook: listens for kitchen "NOTIFY WAITER" events from localStorage (cross-tab)
+// HOOK: listens for kitchen "NOTIFY WAITER" events from localStorage (cross-tab)
 function useKitchenNotifications(setNotifications, addToast, onNewOrder) {
     useEffect(() => {
         const handler = (e) => {
@@ -69,7 +69,7 @@ function useKitchenNotifications(setNotifications, addToast, onNewOrder) {
                     return [incoming, ...prev];
                 });
                 addToast(`🍽 Table ${incoming.table} — Order #${incoming.order} is ready for collection!`);
-                onNewOrder(); // ← trigger immediate refetch
+                onNewOrder(); 
             } catch (_) {}
         };
         window.addEventListener("storage", handler);
