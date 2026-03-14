@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation } from 'react-router-dom';
 import "./Menu.css";
 import { MENU_DATA, INGREDIENTS, EXTRAS_BY_ID } from "./menuData.js";
@@ -410,14 +410,14 @@ function CartModal({ cart, onClose, onUpdateQty, onRemove, onPlaceOrder }) {
     );
 }
 
-// ========== TRACKING POPUP  ==========
+// TRACKING POPUP
 function TrackingPopup({ orderId, tableNumber, orderItems, total, onClose, onPaymentClick, currentStep, onStepClick }) {
     const steps = [
-        { id: 1, name: "Order Placed" },
-        { id: 2, name: "Confirmed by Kitchen" },
-        { id: 3, name: "Being Prepared" },
-        { id: 4, name: "Ready for Service" },
-        { id: 5, name: "Delivered" }
+    { id: 1, name: "Order Placed" },
+    { id: 2, name: "Confirmed by Waiter" },
+    { id: 3, name: "Being Prepared" },
+    { id: 4, name: "Ready for Service" },
+    { id: 5, name: "Delivered" },
     ];
 
     const entries = Object.entries(orderItems).map(([key, value]) => ({
@@ -473,9 +473,7 @@ function TrackingPopup({ orderId, tableNumber, orderItems, total, onClose, onPay
                         {steps.map((step) => (
                             <div
                                 key={step.id}
-                                className={`step-item ${currentStep >= step.id ? 'step-completed' : ''} ${currentStep === step.id ? 'step-current' : ''}`}
-                                onClick={() => onStepClick(step.id)}
-                            >
+                                className={`step-item ${currentStep >= step.id ? 'step-completed' : ''} ${currentStep === step.id ? 'step-current' : ''}`} >
                                 <div className="step-indicator">
                                     {currentStep > step.id ? '✓' : step.id}
                                 </div>
@@ -513,7 +511,6 @@ function TrackingPopup({ orderId, tableNumber, orderItems, total, onClose, onPay
                                         {customizations.length > 0 && (
                                             <div className="summary-item-customizations">
                                                 {customizations.map((custom, idx) => {
-                                                    // Apply different styling based on customization type
                                                     let customClass = "summary-custom-text";
                                                     if (custom.startsWith('No:')) {
                                                         customClass += " customization-removed";
@@ -651,8 +648,15 @@ export default function App() {
     const [activeFilters, setActiveFilters] = useState([]);
     const [excludedAllergens, setExcludedAllergens] = useState([]);
 
+    // SESSION STORAGE HANDLING CUST_ID + TABLE_ID
     const { state } = useLocation();
-    const { cust_id, table_id } = state || {};
+    if (state?.cust_id) {
+        sessionStorage.setItem('cust_id', state.cust_id);
+        sessionStorage.setItem('table_id', state.table_id);
+    }
+
+    const cust_id  = state?.cust_id  ?? sessionStorage.getItem('cust_id');
+    const table_id = state?.table_id ?? sessionStorage.getItem('table_id');
 
     // CART
     const [cart, setCart] = useState({});
@@ -664,9 +668,34 @@ export default function App() {
     const [trackingOpen, setTrackingOpen] = useState(false);
     const [paymentOpen, setPaymentOpen] = useState(false);
     const [orderId, setOrderId] = useState('');
-    const [hasActiveOrder, setHasActiveOrder] = useState(false);
     const [currentStep, setCurrentStep] = useState(1);
-    const [placedOrder, setPlacedOrder] = useState({}); // Store the placed order items
+    const [placedOrder, setPlacedOrder] = useState({});
+
+    // DYNAMIC ORDER PROGRESS WITH LIVESTEP ---------------------------------------
+    const [liveStep, setLiveStep] = useState(1);
+    const [liveOrderId, setLiveOrderId] = useState(
+        sessionStorage.getItem('liveOrderId') ?? null
+    );
+    const [hasActiveOrder, setHasActiveOrder] = useState(
+        !!sessionStorage.getItem('liveOrderId')
+    );
+
+    useEffect(() => {
+        if (!liveOrderId) return;
+        const statusToStep = {
+        "Pending":     2, // WAITER CONFIRMATION
+        "In Progress": 3, // BEING PREPARED : kitchen
+        "Ready":       4,  // READY FOR SERVICE : kitchen → waiter
+        "Completed":   5,  // DELIEVERED : waiter → customer
+        };
+        const poll = setInterval(async () => {
+            const res = await fetch(`http://127.0.0.1:8000/orders/${liveOrderId}`);
+            const data = await res.json();
+            setLiveStep(statusToStep[data.status] ?? 1);
+        }, 8000);
+        return () => clearInterval(poll);
+    }, [liveOrderId]);
+    // --------------------------------------------------------------------------------
 
     // Generate random order ID
     const generateOrderId = () => {
@@ -772,6 +801,11 @@ export default function App() {
             console.error('Order failed:', await res.json());
             return;
         }
+
+        const data = await res.json();
+        setLiveOrderId(data.order_id);
+        sessionStorage.setItem('liveOrderId', data.order_id);
+        setLiveStep(1);
     } catch (err) {
         console.error('Could not reach server:', err);
         return;
@@ -874,17 +908,17 @@ export default function App() {
                 />
             )}
 
-            {/* Tracking Popup - Only opens if there's an active order */}
+            {/* TRACKING POPUPS : only active when open */}
             {trackingOpen && hasActiveOrder && (
                 <TrackingPopup
-                    orderId={orderId}
-                    tableNumber="Table 10"
-                    orderItems={placedOrder} // Pass the placed order items
-                    total={placedOrderTotal} // Pass the placed order total
+                    orderId={liveOrderId}
+                    tableNumber={table_id ? `Table ${table_id}` : "Table"}
+                    orderItems={placedOrder}
+                    total={placedOrderTotal}
                     onClose={() => setTrackingOpen(false)}
                     onPaymentClick={() => setPaymentOpen(true)}
-                    currentStep={currentStep}
-                    onStepClick={handleStepClick}
+                    currentStep={liveStep}
+                    onStepClick={() => {}}
                 />
             )}
 

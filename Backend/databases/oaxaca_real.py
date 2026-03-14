@@ -141,3 +141,14 @@ def update_order_status(order_id: int, payload: OrderStatusUpdate):
     conn.commit()
     conn.close()
     return {"order_id": order_id, "status": payload.status}
+
+@app.get("/orders/{order_id}")
+def get_order(order_id: int):
+    conn = get_conn()
+    order = conn.execute(
+        "SELECT * FROM orders WHERE order_id = ?", (order_id,)
+    ).fetchone()
+    conn.close()
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+    return dict(order)
