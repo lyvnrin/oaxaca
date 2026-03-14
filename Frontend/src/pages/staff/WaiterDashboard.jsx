@@ -58,23 +58,23 @@ function elapsedColor(startedAt) {
 }
 
 // Hook: listens for kitchen "NOTIFY WAITER" events from localStorage (cross-tab)
-function useKitchenNotifications(setNotifications, addToast) {
+function useKitchenNotifications(setNotifications, addToast, onNewOrder) {
     useEffect(() => {
         const handler = (e) => {
             if (e.key !== "oaxaca_kitchen_notify" || !e.newValue) return;
             try {
                 const incoming = JSON.parse(e.newValue);
                 setNotifications(prev => {
-                    // Avoid duplicate if somehow fired twice
                     if (prev.some(n => n.id === incoming.id)) return prev;
                     return [incoming, ...prev];
                 });
                 addToast(`🍽 Table ${incoming.table} — Order #${incoming.order} is ready for collection!`);
+                onNewOrder(); // ← trigger immediate refetch
             } catch (_) {}
         };
         window.addEventListener("storage", handler);
         return () => window.removeEventListener("storage", handler);
-    }, [setNotifications, addToast]);
+    }, [setNotifications, addToast, onNewOrder]);
 }
 
 const IconAlert = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>;
@@ -483,7 +483,7 @@ function OrdersTab({ orders, setOrders, menu, addToast }) {
                         <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 17, fontWeight: 700, color: C.dark }}>{col.title}</span>
                         <span style={{ fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 10, background: C.pale, color: C.muted }}>{col.orders.length} orders</span>
                     </div>
-                    
+
                     <div style={{ padding: "12px 14px" }}>
                         {col.orders.length === 0
                             ? <div style={{ textAlign: "center", padding: "24px 0", color: C.muted, fontSize: 12 }}>No orders</div>
@@ -765,7 +765,7 @@ export default function App() {
             });
         };
         fetchOrders();
-        const poll = setInterval(fetchOrders, 15000);
+        const poll = setInterval(fetchOrders, 10000);
         return () => clearInterval(poll);
     }, []);
 

@@ -105,36 +105,36 @@ function OrderCard({ order, btnLabel, btnColor, onAction }) {
 export default function App() {
   // CONNECTIONS ROUTING ---------------------------------------
   const [pending, setPending] = useState([]);
-  const [preparing, setPreparing] = useState([]);
-  const [ready, setReady] = useState([]);
+const [preparing, setPreparing] = useState([]);
+const [ready, setReady] = useState([]);
 
-  useEffect(() => {
-      const fetchOrders = async () => {
-          const res = await fetch('http://127.0.0.1:8000/orders');
-          const data = await res.json();
-          setPending(data.filter(o => o.status === "Pending").map(o => ({
-              id: String(o.order_id),
-              table: `Table ${o.table_id}`,
-              startedAt: Date.now(),
-              items: o.items.map(i => ({ name: i.item_name, qty: i.quantity }))
-          })));
-          setPreparing(data.filter(o => o.status === "In Progress").map(o => ({
-              id: String(o.order_id),
-              table: `Table ${o.table_id}`,
-              startedAt: Date.now(),
-              items: o.items.map(i => ({ name: i.item_name, qty: i.quantity }))
-          })));
-          setReady(data.filter(o => o.status === "Ready").map(o => ({
-              id: String(o.order_id),
-              table: `Table ${o.table_id}`,
-              startedAt: Date.now(),
-              items: o.items.map(i => ({ name: i.item_name, qty: i.quantity }))
-          })));
-      };
-      fetchOrders();
-      const poll = setInterval(fetchOrders, 10000);
-      return () => clearInterval(poll);
-  }, []);
+useEffect(() => {
+    const fetchOrders = async () => {
+        const res = await fetch('http://127.0.0.1:8000/orders');
+        const data = await res.json();
+        setPending(data.filter(o => o.status === "Pending").map(o => ({
+            id: String(o.order_id),
+            table: `Table ${o.table_id}`,
+            startedAt: Date.now(),
+            items: o.items.map(i => ({ name: i.item_name, qty: i.quantity }))
+        })));
+        setPreparing(data.filter(o => o.status === "In Progress").map(o => ({
+            id: String(o.order_id),
+            table: `Table ${o.table_id}`,
+            startedAt: Date.now(),
+            items: o.items.map(i => ({ name: i.item_name, qty: i.quantity }))
+        })));
+        setReady(data.filter(o => o.status === "Ready").map(o => ({
+            id: String(o.order_id),
+            table: `Table ${o.table_id}`,
+            startedAt: Date.now(),
+            items: o.items.map(i => ({ name: i.item_name, qty: i.quantity }))
+        })));
+    };
+    fetchOrders();
+    const poll = setInterval(fetchOrders, 10000);
+    return () => clearInterval(poll);
+}, []);
 
   // ------------------------------------------------------------
 
