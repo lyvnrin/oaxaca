@@ -1,14 +1,9 @@
-import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useState } from 'react';
 import Grainient from '../../components/Grainient';
-import SettingsModal from '../../components/SettingsModal.jsx';
 import './Landing.css';
 
 function Landing() {
     const navigate = useNavigate();
-    // const [showSettings, setShowSettings] = useState(false);
-
     return (
         <div className="landing-wrapper">
 
@@ -29,15 +24,11 @@ function Landing() {
                     <a className="nav-link" href="#about">ABOUT</a>
                     <a className="nav-link" href="#footer">CONTACT</a>
                     <a className="nav-link" href="/staff">STAFF</a>
-                    {/* <a className="nav-link" onClick={() => setShowSettings(true)}>SETTINGS</a>                     */}
                 </div>
 
                 <div className="content">
                     <h1 className="title">OAXACA</h1>
                     <p className="welcome-text">Bold flavours, vibrant dining. Experience the taste of Mexico.</p>
-                    {/* <div className="button-group">
-                        <button className="choice-btn" onClick={() => navigate('/customer-login')}>CUSTOMER</button>
-                    </div> */}
                 </div>
 
                 <a className="scroll-hint" href="#about">
@@ -99,8 +90,6 @@ function Landing() {
                     <button className="staff-link" onClick={() => navigate('/staff')}>Staff Login</button>
                 </div>
             </footer>
-
-            {/* {showSettings && <SettingsModal onClose={() => setShowSettings(false)} />} */}
         </div>
     );
 }

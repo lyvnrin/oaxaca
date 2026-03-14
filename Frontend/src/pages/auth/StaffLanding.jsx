@@ -29,9 +29,9 @@ function StaffLanding() {
                 <p className="staff-role-label">Select your role</p>
                 <div className="button-group">
                     <button className="book-btn" onClick={() => navigate('/waiter-login')}>WAITER</button>
-                    <span className="or-text">or</span>
+                    <span className="or-text">|</span>
                     <button className="book-btn" onClick={() => navigate('/kitchen-login')}>KITCHEN</button>
-                    <span className="or-text">or</span>
+                    <span className="or-text">|</span>
                     <button className="book-btn" onClick={() => navigate('/manager-login')}>MANAGER</button>
                 </div>
             </div>
