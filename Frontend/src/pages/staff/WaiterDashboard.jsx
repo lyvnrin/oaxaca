@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const C = {
     bg: "#f5f0e8", panel: "#faf7f2", dark: "#3b1f0e", mid: "#8b4513",
@@ -740,6 +741,16 @@ function useCustomerAlerts(setNotifications, addToast) {
 }
 
 export default function App() {
+    // AUTH GUARD
+    const location = useLocation();
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        if (location.state?.role !== 'waiter') {
+            navigate('/');
+        }
+    }, []);
+
     const [tab,           setTab]           = useState("Orders");
     
     const [notifications, setNotifications] = useState(INIT_NOTIFICATIONS);

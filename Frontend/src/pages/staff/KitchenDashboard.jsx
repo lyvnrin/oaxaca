@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useLocation, useNavigate } from 'react-router-dom';
 
 // COLOUR PALETTE --------------------------
 const C = {
@@ -80,7 +81,6 @@ function OrderCard({ order, btnLabel, btnColor, onAction }) {
            onMouseLeave={e => e.currentTarget.style.boxShadow = ""}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
           <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 17, fontWeight: 700, color: C.dark }}>{order.table}</span>
-          {/* ⭐ Track order times */}
           <span style={{ fontSize: 11, fontWeight: 700, color: elapsedColor(order.startedAt), display: "flex", alignItems: "center", gap: 3 }}>
           <IconClock />{getElapsed(order.startedAt)}
         </span>
@@ -110,6 +110,15 @@ function OrderCard({ order, btnLabel, btnColor, onAction }) {
 
 // APP ROOT --------------------------
 export default function App() {
+  // AUTH GUARD --------------------------
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+      if (location.state?.role !== 'kitchen') {
+          navigate('/');
+      }
+  }, []);
 
   // DB CONNECTIONS + POLLING --------------------------
   const [pending, setPending] = useState([]);

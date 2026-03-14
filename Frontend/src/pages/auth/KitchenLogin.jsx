@@ -6,7 +6,7 @@ import "./KitchenLogin.css";
 function KitchenLogin() {
     const navigate = useNavigate();
     const goBack = () => navigate("/staff");
-    const goToDashboard = () => navigate("/kitchen-dashboard");
+    const goToDashboard = () => navigate('/kitchen-dashboard', { state: { role: 'kitchen' } });
 
     const [formData, setFormData] = useState({ username: '', password: '' });
     const [errors, setErrors] = useState({});
