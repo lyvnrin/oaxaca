@@ -3,97 +3,105 @@ import { useLocation } from 'react-router-dom';
 import "./Menu.css";
 import { MENU_DATA, INGREDIENTS, EXTRAS_BY_ID } from "./menuData.js";
 
-// MENU DATA : tags
 const ALLERGEN_OPTIONS = ["Fish", "Soy", "Milk", "Nuts", "Eggs", "Wheat", "Sesame", "Shellfish"];
 const DIET_FILTERS = ["Vegetarian", "Gluten-Free", "Vegan"];
 
-// NAVBAR : cartIcon
 function CartIcon({ count, onClick }) {
-    return ( <button className="cart-icon" title="View cart" onClick={onClick}>
-            <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-            >
-                <circle cx="9" cy="21" r="1" />
-                <circle cx="20" cy="21" r="1" />
-                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
-            </svg>
-            {count > 0 && <span className="cart-badge">{count}</span>}
-        </button>
+    return (<button className="cart-icon" title="View cart" onClick={onClick}>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="9" cy="21" r="1" />
+            <circle cx="20" cy="21" r="1" />
+            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
+        </svg>
+        {count > 0 && <span className="cart-badge">{count}</span>}
+    </button>
     );
 }
 
-// NAVBAR : Header components - restaurant title, table number
-function Header({ tableNumber, cartCount, onCartClick }) {
+function Header({ tableNumber, cartCount, onCartClick, onCloseTable }) {
     const [menuOpen, setMenuOpen] = useState(false);
+
+    const handleCloseTable = () => {
+        setMenuOpen(false);
+        onCloseTable();
+    };
 
     return (
         <header className="header">
             <span className="table-number">{tableNumber}</span>
-            
             <a href="/" style={{ textDecoration: 'none', color: 'inherit' }} className="no-style-link">
                 <h1 className="restaurant-title">OAXACA</h1>
             </a>
-
             <div className="header-right">
                 <CartIcon count={cartCount} onClick={onCartClick} />
                 <div className="hamburger-wrapper">
-                    <button className={`hamburger ${menuOpen ? "hamburger--open" : ""}`} aria-label="Open navigation menu" onClick={() => setMenuOpen((v) => !v)} >
+                    <button className={`hamburger ${menuOpen ? "hamburger--open" : ""}`} aria-label="Open navigation menu" onClick={() => setMenuOpen((v) => !v)}>
                         <span className="hamburger-bar" />
                         <span className="hamburger-bar" />
                         <span className="hamburger-bar" />
                     </button>
-                    {menuOpen && ( <>
-                            <div className="menu-popup-backdrop" onClick={() => setMenuOpen(false)} />
-                            <div className="menu-popup">
-                                <button className="menu-popup-item" onClick={() => {
-                                    localStorage.setItem("oaxaca_customer_alert", JSON.stringify({
-                                        id: Date.now(),
-                                        order: liveOrderId ?? "–",
-                                        table: table_id,
-                                        status: "Needs Assistance",
-                                        type: "Help_Needed",
-                                        read: false,
-                                    }));
-                                    setMenuOpen(false);
-                                    }}>📞 Contact Waiter</button>
-                                <button className="menu-popup-item" onClick={() => setMenuOpen(false)}>⚙️ Settings</button>
-                            </div> </>
-                    )}
+                    {menuOpen && (<>
+                        <div className="menu-popup-backdrop" onClick={() => setMenuOpen(false)} />
+                        <div className="menu-popup">
+                            <button className="menu-popup-item" onClick={() => {
+                                localStorage.setItem("oaxaca_customer_alert", JSON.stringify({
+                                    id: Date.now(),
+                                    status: "Needs Assistance",
+                                    type: "Help_Needed",
+                                    read: false,
+                                }));
+                                setMenuOpen(false);
+                            }}>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '8px', verticalAlign: 'middle' }}>
+                                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 1.27h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.96a16 16 0 0 0 6 6l.92-.92a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7a2 2 0 0 1 1.72 2.02z" />
+                                </svg>
+                                Contact Waiter
+                            </button>
+                            <button className="menu-popup-item" onClick={() => setMenuOpen(false)}>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '8px', verticalAlign: 'middle' }}>
+                                    <circle cx="12" cy="12" r="3" />
+                                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+                                </svg>
+                                Settings
+                            </button>
+                            <button className="menu-popup-item menu-popup-item--danger" onClick={handleCloseTable}>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '8px', verticalAlign: 'middle' }}>
+                                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                                    <polyline points="16 17 21 12 16 7" />
+                                    <line x1="21" y1="12" x2="9" y2="12" />
+                                </svg>
+                                Close Table
+                            </button>
+                        </div>
+                    </>)}
                 </div>
             </div>
         </header>
     );
 }
 
-// FILTERS : Allergens dropdown
 function AllergenDropdown({ selected, onChange }) {
     const [open, setOpen] = useState(false);
 
     function handleToggle(allergen) {
-        if (selected.includes(allergen)) { onChange(selected.filter((a) => a !== allergen));
-        } else { onChange([...selected, allergen]);
+        if (selected.includes(allergen)) {
+            onChange(selected.filter((a) => a !== allergen));
+        } else {
+            onChange([...selected, allergen]);
         }
     }
 
     return (
         <div className="allergen-wrapper">
-            <button className={`allergen-toggle ${selected.length > 0 ? "allergen-toggle--active" : ""}`} onClick={() => setOpen((v) => !v)} >
+            <button className={`allergen-toggle ${selected.length > 0 ? "allergen-toggle--active" : ""}`} onClick={() => setOpen((v) => !v)}>
                 <span>Does Not Contain</span>
                 {selected.length > 0 && <span className="allergen-count">{selected.length}</span>}
                 <span className="dropdown-arrow">{open ? "▲" : "▼"}</span>
             </button>
-
             {open && (
                 <div className="allergen-list"> {ALLERGEN_OPTIONS.map((allergen) => (
                     <label key={allergen} className="allergen-option">
-                        <input type="checkbox" checked={selected.includes(allergen)} onChange={() => handleToggle(allergen)}/>
+                        <input type="checkbox" checked={selected.includes(allergen)} onChange={() => handleToggle(allergen)} />
                         {allergen}
                     </label>
                 ))}
@@ -103,7 +111,6 @@ function AllergenDropdown({ selected, onChange }) {
     );
 }
 
-// FILTERS : dietary filter buttons
 function FilterBar({ activeFilters, onFilterToggle, excludedAllergens, onAllergenChange, onTrackOrder, hasActiveOrder }) {
     return (
         <div className="filter-bar">
@@ -111,60 +118,55 @@ function FilterBar({ activeFilters, onFilterToggle, excludedAllergens, onAllerge
                 <span className="filter-label">Show me</span>
                 <div className="filter-buttons">
                     {DIET_FILTERS.map((filter) => (
-                        <button key={filter} className={`filter-btn ${activeFilters.includes(filter) ? "filter-btn--active" : ""}`} onClick={() => onFilterToggle(filter)} >
+                        <button key={filter} className={`filter-btn ${activeFilters.includes(filter) ? "filter-btn--active" : ""}`} onClick={() => onFilterToggle(filter)}>
                             {filter}
                         </button>
                     ))}
                 </div>
                 <AllergenDropdown selected={excludedAllergens} onChange={onAllergenChange} />
-                {/* Track Order Button - Only enabled after order placed */}
                 <button
                     className={`track-order-btn ${hasActiveOrder ? 'track-order-btn--active' : 'track-order-btn--disabled'}`}
                     onClick={onTrackOrder}
                     disabled={!hasActiveOrder}
                 >
-                    🧾 Track Order
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '6px', verticalAlign: 'middle' }}>
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                        <polyline points="14 2 14 8 20 8" />
+                        <line x1="16" y1="13" x2="8" y2="13" />
+                        <line x1="16" y1="17" x2="8" y2="17" />
+                        <polyline points="10 9 9 9 8 9" />
+                    </svg>
+                    Track Order
                 </button>
             </div>
         </div>
     );
 }
 
-// ========== CUSTOMIZATION POPUP ==========
 function CustomizationPopup({ item, onClose, onAddToCart }) {
     const [removedIngredients, setRemovedIngredients] = useState([]);
     const [selectedExtras, setSelectedExtras] = useState([]);
     const [specialRequest, setSpecialRequest] = useState('');
 
     const itemIngredients = INGREDIENTS[item.id] || ["Food1", "Food2", "Food3", "Food4", "Food5"];
-
-    // Get extras specific to this item ID
     const itemExtras = EXTRAS_BY_ID[item.id] || [];
 
     const handleToggleIngredient = (ingredient) => {
         setRemovedIngredients(prev =>
-            prev.includes(ingredient)
-                ? prev.filter(i => i !== ingredient)
-                : [...prev, ingredient]
+            prev.includes(ingredient) ? prev.filter(i => i !== ingredient) : [...prev, ingredient]
         );
     };
 
     const handleToggleExtra = (extra) => {
         setSelectedExtras(prev =>
-            prev.find(e => e.name === extra.name)
-                ? prev.filter(e => e.name !== extra.name)
-                : [...prev, extra]
+            prev.find(e => e.name === extra.name) ? prev.filter(e => e.name !== extra.name) : [...prev, extra]
         );
     };
 
     const handleAddToOrder = () => {
         const customizedItem = {
             ...item,
-            customization: {
-                removedIngredients,
-                selectedExtras,
-                specialRequest: specialRequest.trim()
-            }
+            customization: { removedIngredients, selectedExtras, specialRequest: specialRequest.trim() }
         };
         onAddToCart(customizedItem);
         onClose();
@@ -181,26 +183,18 @@ function CustomizationPopup({ item, onClose, onAddToCart }) {
                     <h2 className="customization-title">Customize {item.name}</h2>
                     <button className="customization-close" onClick={onClose}>✕</button>
                 </div>
-
                 <div className="customization-content">
-                    {/* Remove Ingredients Section */}
                     <div className="customization-section">
                         <h3 className="section-title">Remove Ingredients</h3>
                         <div className="ingredients-grid">
                             {itemIngredients.map((ingredient) => (
-                                <button
-                                    key={ingredient}
-                                    className={`ingredient-btn ${removedIngredients.includes(ingredient) ? 'ingredient-btn--removed' : ''}`}
-                                    onClick={() => handleToggleIngredient(ingredient)}
-                                >
+                                <button key={ingredient} className={`ingredient-btn ${removedIngredients.includes(ingredient) ? 'ingredient-btn--removed' : ''}`} onClick={() => handleToggleIngredient(ingredient)}>
                                     {ingredient}
                                     {removedIngredients.includes(ingredient) && <span className="remove-icon">✕</span>}
                                 </button>
                             ))}
                         </div>
                     </div>
-
-                    {/* Add Extras Section */}
                     {itemExtras.length > 0 && (
                         <div className="customization-section">
                             <h3 className="section-title">Add Extras</h3>
@@ -208,11 +202,7 @@ function CustomizationPopup({ item, onClose, onAddToCart }) {
                                 {itemExtras.map((extra) => {
                                     const isSelected = selectedExtras.some(e => e.name === extra.name);
                                     return (
-                                        <button
-                                            key={extra.name}
-                                            className={`extra-item ${isSelected ? 'extra-item--selected' : ''}`}
-                                            onClick={() => handleToggleExtra(extra)}
-                                        >
+                                        <button key={extra.name} className={`extra-item ${isSelected ? 'extra-item--selected' : ''}`} onClick={() => handleToggleExtra(extra)}>
                                             <span className="extra-name">{extra.name}</span>
                                             <span className="extra-price">£{extra.price.toFixed(2)}</span>
                                             {isSelected && <span className="check-icon">✓</span>}
@@ -222,20 +212,10 @@ function CustomizationPopup({ item, onClose, onAddToCart }) {
                             </div>
                         </div>
                     )}
-
-                    {/* Special Request Section */}
                     <div className="customization-section">
                         <h3 className="section-title">Special Request</h3>
-                        <textarea
-                            className="special-request-input"
-                            placeholder="Any special instructions? (allergies, cooking preferences, etc.)"
-                            value={specialRequest}
-                            onChange={(e) => setSpecialRequest(e.target.value)}
-                            rows="3"
-                        />
+                        <textarea className="special-request-input" placeholder="Any special instructions? (allergies, cooking preferences, etc.)" value={specialRequest} onChange={(e) => setSpecialRequest(e.target.value)} rows="3" />
                     </div>
-
-                    {/* Price Summary */}
                     <div className="customization-summary">
                         <div className="price-breakdown">
                             <span>Base price:</span>
@@ -253,19 +233,15 @@ function CustomizationPopup({ item, onClose, onAddToCart }) {
                         </div>
                     </div>
                 </div>
-
                 <div className="customization-footer">
                     <button className="cancel-btn" onClick={onClose}>Cancel</button>
-                    <button className="add-to-order-final-btn" onClick={handleAddToOrder}>
-                        Add to Order • £{totalPrice}
-                    </button>
+                    <button className="add-to-order-final-btn" onClick={handleAddToOrder}>Add to Order • £{totalPrice}</button>
                 </div>
             </div>
         </div>
     );
 }
 
-// MENU : menu item card, with names and info
 function MenuItemCard({ item, dimmed, onCustomize }) {
     return (
         <div className={`menu-item-card ${dimmed ? "menu-item-card--dimmed" : ""}`}>
@@ -281,7 +257,7 @@ function MenuItemCard({ item, dimmed, onCustomize }) {
                 <div className="card-footer">
                     {item.dietary.length > 0 && (
                         <div className="card-tags">
-                            {item.dietary.map((tag) => ( <span key={tag} className="diet-tag">{tag}</span> ))}
+                            {item.dietary.map((tag) => (<span key={tag} className="diet-tag">{tag}</span>))}
                         </div>
                     )}
                     {item.allergens.length > 0 && (
@@ -289,12 +265,7 @@ function MenuItemCard({ item, dimmed, onCustomize }) {
                     )}
                     <span className="card-calories">{item.calories}</span>
                 </div>
-
-                <button
-                    className="add-to-order-btn"
-                    onClick={() => !dimmed && onCustomize(item)}
-                    disabled={dimmed}
-                >
+                <button className="add-to-order-btn" onClick={() => !dimmed && onCustomize(item)} disabled={dimmed}>
                     + Add to Order
                 </button>
             </div>
@@ -302,7 +273,6 @@ function MenuItemCard({ item, dimmed, onCustomize }) {
     );
 }
 
-// MENU : menu section components, dropdown
 function MenuSection({ sectionName, items, isOpen, onToggle, matchesFilter, onCustomize }) {
     return (
         <div className={`menu-section ${isOpen ? "menu-section--open" : ""}`}>
@@ -313,16 +283,10 @@ function MenuSection({ sectionName, items, isOpen, onToggle, matchesFilter, onCu
                     <span className="section-toggle-icon">{isOpen ? "−" : "+"}</span>
                 </div>
             </button>
-
             {isOpen && (
                 <div className="section-items">
                     {items.map((item) => (
-                        <MenuItemCard
-                            key={item.id}
-                            item={item}
-                            dimmed={!matchesFilter(item)}
-                            onCustomize={onCustomize}
-                        />
+                        <MenuItemCard key={item.id} item={item} dimmed={!matchesFilter(item)} onCustomize={onCustomize} />
                     ))}
                 </div>
             )}
@@ -330,132 +294,93 @@ function MenuSection({ sectionName, items, isOpen, onToggle, matchesFilter, onCu
     );
 }
 
-// CART ITEMS : cartModal popup with quantity controls, modifications, placing order
 function CartModal({ cart, onClose, onUpdateQty, onRemove, onPlaceOrder }) {
-    const entries = Object.entries(cart).map(([key, value]) => ({
-        key,
-        ...value
-    }));
+    const entries = Object.entries(cart).map(([key, value]) => ({ key, ...value }));
 
     const total = entries.reduce((sum, { item, qty }) => {
         const basePrice = parseFloat(item.price.replace("£", ""));
         const extrasTotal = item.customization?.selectedExtras?.reduce((sum, extra) => sum + extra.price, 0) || 0;
-        const itemTotal = (basePrice + extrasTotal) * qty;
-        return sum + itemTotal;
+        return sum + (basePrice + extrasTotal) * qty;
     }, 0);
 
     const formatCustomizations = (item) => {
         const parts = [];
-        if (item.customization?.removedIngredients?.length > 0) {
-            parts.push(`No: ${item.customization.removedIngredients.join(', ')}`);
-        }
-        if (item.customization?.selectedExtras?.length > 0) {
-            parts.push(`Extra: ${item.customization.selectedExtras.map(e => e.name).join(', ')}`);
-        }
-        if (item.customization?.specialRequest) {
-            parts.push(`Note: ${item.customization.specialRequest}`);
-        }
+        if (item.customization?.removedIngredients?.length > 0) parts.push(`No: ${item.customization.removedIngredients.join(', ')}`);
+        if (item.customization?.selectedExtras?.length > 0) parts.push(`Extra: ${item.customization.selectedExtras.map(e => e.name).join(', ')}`);
+        if (item.customization?.specialRequest) parts.push(`Note: ${item.customization.specialRequest}`);
         return parts;
     };
 
     return (
         <div className="modal-overlay" onClick={onClose}>
             <div className="modal" onClick={(e) => e.stopPropagation()}>
-
                 <div className="modal-header">
                     <h2 className="modal-title">Your Order</h2>
                     <button className="modal-close" onClick={onClose}>✕</button>
                 </div>
-
                 {entries.length === 0 ? (
-                    <p className="modal-empty">Your order is empty. Add some items from the menu!</p> ) : ( <>
-                        <div className="modal-items">
-                            {entries.map(({ key, item, qty }) => {
-                                const basePrice = parseFloat(item.price.replace("£", ""));
-                                const extrasTotal = item.customization?.selectedExtras?.reduce((sum, extra) => sum + extra.price, 0) || 0;
-                                const itemPrice = basePrice + extrasTotal;
-                                const linePrice = (itemPrice * qty).toFixed(2);
-                                const customizations = formatCustomizations(item);
-
-                                return (
-                                    <div key={key} className="modal-item">
-                                        <div className="modal-item-info">
-                                            <span className="modal-item-name">{item.name}</span>
-                                            <span className="modal-item-price">£{linePrice}</span>
-                                        </div>
-
-                                        {customizations.length > 0 && (
-                                            <div className="modal-item-customizations">
-                                                {customizations.map((custom, idx) => (
-                                                    <p key={idx} className="customization-text">{custom}</p>
-                                                ))}
-                                            </div>
-                                        )}
-
-                                        <div className="modal-item-controls">
-                                            <button className="qty-btn" onClick={() => onUpdateQty(key, qty - 1)}>−</button>
-                                            <span className="qty-value">{qty}</span>
-                                            <button className="qty-btn" onClick={() => onUpdateQty(key, qty + 1)}>+</button>
-                                            <button className="remove-btn" onClick={() => onRemove(key)}>✕</button>
-                                        </div>
+                    <p className="modal-empty">Your order is empty. Add some items from the menu!</p>
+                ) : (<>
+                    <div className="modal-items">
+                        {entries.map(({ key, item, qty }) => {
+                            const basePrice = parseFloat(item.price.replace("£", ""));
+                            const extrasTotal = item.customization?.selectedExtras?.reduce((sum, extra) => sum + extra.price, 0) || 0;
+                            const linePrice = ((basePrice + extrasTotal) * qty).toFixed(2);
+                            const customizations = formatCustomizations(item);
+                            return (
+                                <div key={key} className="modal-item">
+                                    <div className="modal-item-info">
+                                        <span className="modal-item-name">{item.name}</span>
+                                        <span className="modal-item-price">£{linePrice}</span>
                                     </div>
-                                );
-                            })}
+                                    {customizations.length > 0 && (
+                                        <div className="modal-item-customizations">
+                                            {customizations.map((custom, idx) => (
+                                                <p key={idx} className="customization-text">{custom}</p>
+                                            ))}
+                                        </div>
+                                    )}
+                                    <div className="modal-item-controls">
+                                        <button className="qty-btn" onClick={() => onUpdateQty(key, qty - 1)}>−</button>
+                                        <span className="qty-value">{qty}</span>
+                                        <button className="qty-btn" onClick={() => onUpdateQty(key, qty + 1)}>+</button>
+                                        <button className="remove-btn" onClick={() => onRemove(key)}>✕</button>
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+                    <div className="modal-footer">
+                        <div className="modal-total">
+                            <span>Total</span>
+                            <span>£{total.toFixed(2)}</span>
                         </div>
-
-                        <div className="modal-footer">
-                            <div className="modal-total">
-                                <span>Total</span>
-                                <span>£{total.toFixed(2)}</span>
-                            </div>
-                            <button className="place-order-btn" onClick={onPlaceOrder}>
-                                Place Order
-                            </button>
-                        </div>
-                    </>
-                )}
-
+                        <button className="place-order-btn" onClick={onPlaceOrder}>Place Order</button>
+                    </div>
+                </>)}
             </div>
         </div>
     );
 }
 
-// TRACKING POPUP
 function TrackingPopup({ orderId, tableNumber, orderItems, total, onClose, onPaymentClick, currentStep, onStepClick }) {
     const steps = [
-    { id: 1, name: "Order Placed" },
-    { id: 2, name: "Confirmed by Waiter" },
-    { id: 3, name: "Being Prepared" },
-    { id: 4, name: "Ready for Service" },
-    { id: 5, name: "Delivered" },
+        { id: 1, name: "Order Placed" },
+        { id: 2, name: "Confirmed by Waiter" },
+        { id: 3, name: "Being Prepared" },
+        { id: 4, name: "Ready for Service" },
+        { id: 5, name: "Delivered" },
     ];
 
-    const entries = Object.entries(orderItems).map(([key, value]) => ({
-        key,
-        ...value
-    }));
+    const entries = Object.entries(orderItems).map(([key, value]) => ({ key, ...value }));
 
     const formatCustomizations = (item) => {
         const parts = [];
-
-        // Show removed ingredients
-        if (item.customization?.removedIngredients?.length > 0) {
-            parts.push(`No: ${item.customization.removedIngredients.join(', ')}`);
-        }
-
-        // Show selected extras with prices
+        if (item.customization?.removedIngredients?.length > 0) parts.push(`No: ${item.customization.removedIngredients.join(', ')}`);
         if (item.customization?.selectedExtras?.length > 0) {
-            const extrasText = item.customization.selectedExtras
-                .map(extra => `${extra.name} (+£${extra.price.toFixed(2)})`)
-                .join(', ');
-            parts.push(`Extra: ${extrasText}`);
+            parts.push(`Extra: ${item.customization.selectedExtras.map(extra => `${extra.name} (+£${extra.price.toFixed(2)})`).join(', ')}`);
         }
-
-        // Show special request
-        if (item.customization?.specialRequest) {
-            parts.push(`Note: "${item.customization.specialRequest}"`);
-        }
-
+        if (item.customization?.specialRequest) parts.push(`Note: "${item.customization.specialRequest}"`);
         return parts;
     };
 
@@ -471,103 +396,67 @@ function TrackingPopup({ orderId, tableNumber, orderItems, total, onClose, onPay
                     <h2 className="customization-title">Order Progress</h2>
                     <button className="customization-close" onClick={onClose}>✕</button>
                 </div>
-
                 <div className="customization-content">
                     <div className="order-info">
                         <span className="table-number-display">Table: {tableNumber}</span>
                         <span className="order-id-display">Order ID: #{orderId}</span>
                     </div>
-
-                    {/* Progress Steps - Clickable */}
                     <div className="progress-steps">
                         {steps.map((step) => (
-                            <div
-                                key={step.id}
-                                className={`step-item ${currentStep >= step.id ? 'step-completed' : ''} ${currentStep === step.id ? 'step-current' : ''}`} >
-                                <div className="step-indicator">
-                                    {currentStep > step.id ? '✓' : step.id}
-                                </div>
+                            <div key={step.id} className={`step-item ${currentStep >= step.id ? 'step-completed' : ''} ${currentStep === step.id ? 'step-current' : ''}`}>
+                                <div className="step-indicator">{currentStep > step.id ? '✓' : step.id}</div>
                                 <div className="step-content">
                                     <span className="step-name">{step.name}</span>
                                     <span className="step-status">
-                                        {currentStep > step.id ? 'Completed' :
-                                            currentStep === step.id ? 'In Progress' :
-                                                'Pending'}
+                                        {currentStep > step.id ? 'Completed' : currentStep === step.id ? 'In Progress' : 'Pending'}
                                     </span>
                                 </div>
                             </div>
                         ))}
                     </div>
-
-                    {/* Order Summary with Full Customizations */}
                     <div className="tracking-order-summary">
                         <h3 className="summary-title">Order Summary</h3>
                         <div className="summary-items">
                             {entries.map(({ key, item, qty }) => {
                                 const basePrice = parseFloat(item.price.replace("£", ""));
                                 const extrasTotal = item.customization?.selectedExtras?.reduce((sum, extra) => sum + extra.price, 0) || 0;
-                                const itemPrice = basePrice + extrasTotal;
-                                const linePrice = (itemPrice * qty).toFixed(2);
+                                const linePrice = ((basePrice + extrasTotal) * qty).toFixed(2);
                                 const customizations = formatCustomizations(item);
-
                                 return (
                                     <div key={key} className="summary-item">
                                         <div className="summary-item-header">
                                             <span className="summary-item-name">{item.name} ×{qty}</span>
                                             <span className="summary-item-price">£{linePrice}</span>
                                         </div>
-
-                                        {/* Show all customizations */}
                                         {customizations.length > 0 && (
                                             <div className="summary-item-customizations">
                                                 {customizations.map((custom, idx) => {
                                                     let customClass = "summary-custom-text";
-                                                    if (custom.startsWith('No:')) {
-                                                        customClass += " customization-removed";
-                                                    } else if (custom.startsWith('Extra:')) {
-                                                        customClass += " customization-extra";
-                                                    } else if (custom.startsWith('Note:')) {
-                                                        customClass += " customization-note";
-                                                    }
-
-                                                    return (
-                                                        <p key={idx} className={customClass}>
-                                                            {custom}
-                                                        </p>
-                                                    );
+                                                    if (custom.startsWith('No:')) customClass += " customization-removed";
+                                                    else if (custom.startsWith('Extra:')) customClass += " customization-extra";
+                                                    else if (custom.startsWith('Note:')) customClass += " customization-note";
+                                                    return <p key={idx} className={customClass}>{custom}</p>;
                                                 })}
                                             </div>
                                         )}
-
-                                        {/* Show item total breakdown */}
                                         {item.customization?.selectedExtras?.length > 0 && (
                                             <div className="summary-item-breakdown">
-                                                <span className="breakdown-text">
-                                                    Base: {item.price} + Extras: £{extrasTotal.toFixed(2)}
-                                                </span>
+                                                <span className="breakdown-text">Base: {item.price} + Extras: £{extrasTotal.toFixed(2)}</span>
                                             </div>
                                         )}
                                     </div>
                                 );
                             })}
                         </div>
-
-                        {/* Order Total */}
                         <div className="summary-total">
                             <span>Total Amount</span>
                             <span>£{total.toFixed(2)}</span>
                         </div>
                     </div>
-
-                    {/* Payment Message or Button */}
                     {currentStep === 5 ? (
-                        <button className="pay-now-tracking-btn" onClick={handlePayNow}>
-                            PAY NOW • £{total.toFixed(2)}
-                        </button>
+                        <button className="pay-now-tracking-btn" onClick={handlePayNow}>PAY NOW • £{total.toFixed(2)}</button>
                     ) : (
-                        <p className="payment-message">
-                            Payment will be available once your order has been delivered
-                        </p>
+                        <p className="payment-message">Payment will be available once your order has been delivered</p>
                     )}
                 </div>
             </div>
@@ -575,60 +464,213 @@ function TrackingPopup({ orderId, tableNumber, orderItems, total, onClose, onPay
     );
 }
 
-// ========== PAYMENT POPUP ==========
+function validateCardNumber(value) {
+    const digits = value.replace(/\s/g, '');
+    if (!digits) return 'Card number is required';
+    if (!/^\d+$/.test(digits)) return 'Card number must contain only digits';
+    if (digits.length !== 16) return 'Card number must be 16 digits';
+    return null;
+}
+
+function validateExpiry(value) {
+    if (!value) return 'Expiry date is required';
+    const match = value.match(/^(\d{2})\/(\d{2})$/);
+    if (!match) return 'Use MM/YY format';
+    const month = parseInt(match[1], 10);
+    const year = parseInt(match[2], 10) + 2000;
+    if (month < 1 || month > 12) return 'Invalid month';
+    const now = new Date();
+    const expiry = new Date(year, month - 1, 1);
+    if (expiry < new Date(now.getFullYear(), now.getMonth(), 1)) return 'Card has expired';
+    return null;
+}
+
+function validateCVV(value) {
+    if (!value) return 'CVV is required';
+    if (!/^\d{3}$/.test(value)) return 'CVV must be 3 digits';
+    return null;
+}
+
+function validateCardholderName(value) {
+    if (!value.trim()) return 'Cardholder name is required';
+    if (value.trim().length < 2) return 'Please enter a valid name';
+    return null;
+}
+
+function formatCardNumber(value) {
+    const digits = value.replace(/\D/g, '').slice(0, 16);
+    return digits.replace(/(.{4})/g, '$1 ').trim();
+}
+
+function formatExpiry(value) {
+    const digits = value.replace(/\D/g, '').slice(0, 4);
+    if (digits.length >= 3) return `${digits.slice(0, 2)}/${digits.slice(2)}`;
+    return digits;
+}
+
 function PaymentPopup({ orderId, tableNumber, total, onClose, onConfirm }) {
     const [paymentMethod, setPaymentMethod] = useState('card');
+    const [cardNumber, setCardNumber] = useState('');
+    const [expiry, setExpiry] = useState('');
+    const [cvv, setCvv] = useState('');
+    const [cardholderName, setCardholderName] = useState('');
+    const [errors, setErrors] = useState({});
+    const [touched, setTouched] = useState({});
+    const [backendError, setBackendError] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const handleBlur = (field) => {
+        setTouched(prev => ({ ...prev, [field]: true }));
+        validateField(field);
+    };
+
+    const validateField = (field) => {
+        let error = null;
+        if (field === 'cardNumber') error = validateCardNumber(cardNumber);
+        if (field === 'expiry') error = validateExpiry(expiry);
+        if (field === 'cvv') error = validateCVV(cvv);
+        if (field === 'cardholderName') error = validateCardholderName(cardholderName);
+        setErrors(prev => ({ ...prev, [field]: error }));
+        return error;
+    };
+
+    const handleCardNumberChange = (e) => {
+        const formatted = formatCardNumber(e.target.value);
+        setCardNumber(formatted);
+        if (touched.cardNumber) setErrors(prev => ({ ...prev, cardNumber: validateCardNumber(formatted.replace(/\s/g, '')) }));
+    };
+
+    const handleExpiryChange = (e) => {
+        const formatted = formatExpiry(e.target.value);
+        setExpiry(formatted);
+        if (touched.expiry) setErrors(prev => ({ ...prev, expiry: validateExpiry(formatted) }));
+    };
+
+    const handleCVVChange = (e) => {
+        const val = e.target.value.replace(/\D/g, '').slice(0, 3);
+        setCvv(val);
+        if (touched.cvv) setErrors(prev => ({ ...prev, cvv: validateCVV(val) }));
+    };
+
+    const handleCardholderNameChange = (e) => {
+        setCardholderName(e.target.value);
+        if (touched.cardholderName) setErrors(prev => ({ ...prev, cardholderName: validateCardholderName(e.target.value) }));
+    };
+
+    const handleConfirm = async () => {
+        setBackendError('');
+        if (paymentMethod === 'card') {
+            setTouched({ cardNumber: true, expiry: true, cvv: true, cardholderName: true });
+            const newErrors = {
+                cardNumber: validateCardNumber(cardNumber),
+                expiry: validateExpiry(expiry),
+                cvv: validateCVV(cvv),
+                cardholderName: validateCardholderName(cardholderName),
+            };
+            setErrors(newErrors);
+            if (Object.values(newErrors).some(e => e !== null)) return;
+        }
+        setIsSubmitting(true);
+        try {
+            await onConfirm(paymentMethod);
+        } catch (err) {
+            setBackendError(err.message || 'Payment could not be processed. Please try again.');
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
 
     return (
-        <div className="customization-overlay" onClick={onClose}>
+        <div className="customization-overlay">
             <div className="customization-modal payment-modal" onClick={(e) => e.stopPropagation()}>
                 <div className="customization-header">
                     <h2 className="customization-title">Payment</h2>
                     <button className="customization-close" onClick={onClose}>✕</button>
                 </div>
-
                 <div className="customization-content">
                     <div className="order-info">
                         <span className="table-number-display">Table: {tableNumber}</span>
                         <span className="order-id-display">Order ID: #{orderId}</span>
                     </div>
-
+                    {backendError && (
+                        <div className="payment-error-banner">
+                            <span className="payment-error-icon">⚠</span>
+                            <span>{backendError}</span>
+                        </div>
+                    )}
                     <div className="payment-methods">
-                        <button
-                            className={`payment-method-btn ${paymentMethod === 'card' ? 'payment-method-selected' : ''}`}
-                            onClick={() => setPaymentMethod('card')}
-                        >
-                            <span className="payment-method-icon">💳</span>
+                        <button className={`payment-method-btn ${paymentMethod === 'card' ? 'payment-method-selected' : ''}`} onClick={() => setPaymentMethod('card')}>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginBottom: '4px' }}>
+                                <rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
+                                <line x1="1" y1="10" x2="23" y2="10" />
+                            </svg>
                             <span>Card</span>
                         </button>
-                        <button
-                            className={`payment-method-btn ${paymentMethod === 'cash' ? 'payment-method-selected' : ''}`}
-                            onClick={() => setPaymentMethod('cash')}
-                        >
-                            <span className="payment-method-icon">💵</span>
+                        <button className={`payment-method-btn ${paymentMethod === 'cash' ? 'payment-method-selected' : ''}`} onClick={() => setPaymentMethod('cash')}>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginBottom: '4px' }}>
+                                <line x1="12" y1="1" x2="12" y2="23" />
+                                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                            </svg>
                             <span>Cash</span>
                         </button>
                     </div>
-
-                    <div className="payment-instructions">
-                        {paymentMethod === 'card' ? (
-                            <p className="instruction-text">
-                                Please Tap or Insert Your Card To Complete The Payment
-                            </p>
-                        ) : (
-                            <p className="instruction-text">
-                                A Waiter Will Come To Your Table To Collect The Payment
-                            </p>
-                        )}
-                    </div>
-
+                    {paymentMethod === 'card' && (
+                        <div className="card-fields">
+                            <div className="card-field-group">
+                                <label className="card-field-label">Cardholder Name</label>
+                                <input
+                                    className={`card-field-input ${touched.cardholderName && errors.cardholderName ? 'card-field-input--error' : ''}`}
+                                    type="text" placeholder="Name as it appears on card"
+                                    value={cardholderName} onChange={handleCardholderNameChange}
+                                    onBlur={() => handleBlur('cardholderName')} autoComplete="cc-name"
+                                />
+                                {touched.cardholderName && errors.cardholderName && <span className="card-field-error">{errors.cardholderName}</span>}
+                            </div>
+                            <div className="card-field-group">
+                                <label className="card-field-label">Card Number</label>
+                                <input
+                                    className={`card-field-input card-field-input--mono ${touched.cardNumber && errors.cardNumber ? 'card-field-input--error' : ''}`}
+                                    type="text" inputMode="numeric" placeholder="0000 0000 0000 0000"
+                                    value={cardNumber} onChange={handleCardNumberChange}
+                                    onBlur={() => handleBlur('cardNumber')} maxLength={19} autoComplete="cc-number"
+                                />
+                                {touched.cardNumber && errors.cardNumber && <span className="card-field-error">{errors.cardNumber}</span>}
+                            </div>
+                            <div className="card-field-row">
+                                <div className="card-field-group">
+                                    <label className="card-field-label">Expiry Date</label>
+                                    <input
+                                        className={`card-field-input card-field-input--mono ${touched.expiry && errors.expiry ? 'card-field-input--error' : ''}`}
+                                        type="text" inputMode="numeric" placeholder="MM/YY"
+                                        value={expiry} onChange={handleExpiryChange}
+                                        onBlur={() => handleBlur('expiry')} maxLength={5} autoComplete="cc-exp"
+                                    />
+                                    {touched.expiry && errors.expiry && <span className="card-field-error">{errors.expiry}</span>}
+                                </div>
+                                <div className="card-field-group">
+                                    <label className="card-field-label">CVV</label>
+                                    <input
+                                        className={`card-field-input card-field-input--mono ${touched.cvv && errors.cvv ? 'card-field-input--error' : ''}`}
+                                        type="text" inputMode="numeric" placeholder="123"
+                                        value={cvv} onChange={handleCVVChange}
+                                        onBlur={() => handleBlur('cvv')} maxLength={3} autoComplete="cc-csc"
+                                    />
+                                    {touched.cvv && errors.cvv && <span className="card-field-error">{errors.cvv}</span>}
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                    {paymentMethod === 'cash' && (
+                        <div className="payment-instructions">
+                            <p className="instruction-text">A Waiter Will Come To Your Table To Collect The Payment</p>
+                        </div>
+                    )}
                     <div className="payment-total-due">
                         <span>Total Due</span>
                         <span>£{total.toFixed(2)}</span>
                     </div>
-
-                    <button className="confirm-payment-btn" onClick={() => onConfirm(paymentMethod)}>
-                        Confirm Payment
+                    <button className={`confirm-payment-btn ${isSubmitting ? 'confirm-payment-btn--loading' : ''}`} onClick={handleConfirm} disabled={isSubmitting}>
+                        {isSubmitting ? 'Processing...' : 'Confirm Payment'}
                     </button>
                 </div>
             </div>
@@ -636,7 +678,25 @@ function PaymentPopup({ orderId, tableNumber, total, onClose, onConfirm }) {
     );
 }
 
-// Order Confirmation shown after a successfully placed order
+function UnpaidOrderModal({ total, onClose, onPayNow }) {
+    return (
+        <div className="customization-overlay">
+            <div className="customization-modal unpaid-modal">
+                <div className="unpaid-modal-icon">!</div>
+                <h2 className="unpaid-modal-title">Outstanding Balance</h2>
+                <p className="unpaid-modal-message">
+                    You have an unpaid order of <strong>£{total.toFixed(2)}</strong>.<br />
+                    Please complete payment before closing your table.
+                </p>
+                <div className="unpaid-modal-actions">
+                    <button className="unpaid-dismiss-btn" onClick={onClose}>Go Back</button>
+                    <button className="unpaid-pay-btn" onClick={onPayNow}>Pay Now</button>
+                </div>
+            </div>
+        </div>
+    );
+}
+
 function OrderConfirmation() {
     return (
         <div className="customization-overlay">
@@ -652,51 +712,45 @@ function OrderConfirmation() {
     );
 }
 
-// APP ROOT COMPONENT : main structure handling functions, menuData, filter operations
 export default function App() {
     const [openSection, setOpenSection] = useState(null);
     const [activeFilters, setActiveFilters] = useState([]);
     const [excludedAllergens, setExcludedAllergens] = useState([]);
 
-    // SESSION STORAGE HANDLING CUST_ID + TABLE_ID
     const { state } = useLocation();
     if (state?.cust_id) {
         sessionStorage.setItem('cust_id', state.cust_id);
         sessionStorage.setItem('table_id', state.table_id);
     }
 
-    const cust_id  = state?.cust_id  ?? sessionStorage.getItem('cust_id');
+    const cust_id = state?.cust_id ?? sessionStorage.getItem('cust_id');
     const table_id = state?.table_id ?? sessionStorage.getItem('table_id');
 
-    // CART
     const [cart, setCart] = useState({});
     const [cartOpen, setCartOpen] = useState(false);
     const [confirmed, setConfirmed] = useState(false);
     const [customizingItem, setCustomizingItem] = useState(null);
 
-    // Tracking and Payment states
     const [trackingOpen, setTrackingOpen] = useState(false);
     const [paymentOpen, setPaymentOpen] = useState(false);
     const [orderId, setOrderId] = useState('');
     const [currentStep, setCurrentStep] = useState(1);
     const [placedOrder, setPlacedOrder] = useState({});
 
-    // DYNAMIC ORDER PROGRESS WITH LIVESTEP ---------------------------------------
+    const [isPaid, setIsPaid] = useState(false);
+    const [unpaidModalOpen, setUnpaidModalOpen] = useState(false);
+
     const [liveStep, setLiveStep] = useState(1);
-    const [liveOrderId, setLiveOrderId] = useState(
-        sessionStorage.getItem('liveOrderId') ?? null
-    );
-    const [hasActiveOrder, setHasActiveOrder] = useState(
-        !!sessionStorage.getItem('liveOrderId')
-    );
+    const [liveOrderId, setLiveOrderId] = useState(sessionStorage.getItem('liveOrderId') ?? null);
+    const [hasActiveOrder, setHasActiveOrder] = useState(!!sessionStorage.getItem('liveOrderId'));
 
     useEffect(() => {
         if (!liveOrderId) return;
         const statusToStep = {
-        "Pending":     2, // WAITER CONFIRMATION
-        "In Progress": 3, // BEING PREPARED : kitchen
-        "Ready":       4,  // READY FOR SERVICE : kitchen → waiter
-        "Completed":   5,  // DELIEVERED : waiter → customer
+            "Pending": 2,
+            "In Progress": 3,
+            "Ready": 4,
+            "Completed": 5,
         };
         const poll = setInterval(async () => {
             const res = await fetch(`http://127.0.0.1:8000/orders/${liveOrderId}`);
@@ -705,164 +759,118 @@ export default function App() {
         }, 8000);
         return () => clearInterval(poll);
     }, [liveOrderId]);
-    // --------------------------------------------------------------------------------
 
-    // Generate random order ID
-    const generateOrderId = () => {
-        return Math.floor(1000 + Math.random() * 9000).toString();
-    };
+    const generateOrderId = () => Math.floor(1000 + Math.random() * 9000).toString();
 
-    // MENU : SECTION OPEN/CLOSE
     function handleSectionToggle(sectionName) {
         setOpenSection((prev) => (prev === sectionName ? null : sectionName));
     }
 
-    // FILTER : DIETARY TOGGLING
     function handleFilterToggle(filter) {
         setActiveFilters((prev) =>
             prev.includes(filter) ? prev.filter((f) => f !== filter) : [...prev, filter]
         );
     }
 
-    // FILTER: MATCHING
     function matchesFilter(item) {
-        const passesDietary =
-            activeFilters.length === 0 ||
-            activeFilters.every((f) => item.dietary.includes(f));
-
-        const passesAllergens =
-            excludedAllergens.length === 0 ||
-            excludedAllergens.every((a) => !item.allergens.includes(a));
-
+        const passesDietary = activeFilters.length === 0 || activeFilters.every((f) => item.dietary.includes(f));
+        const passesAllergens = excludedAllergens.length === 0 || excludedAllergens.every((a) => !item.allergens.includes(a));
         return passesDietary && passesAllergens;
     }
 
-    // CART : ADDING ITEMS
     function handleAddToCart(item) {
         const existingItemKey = Object.keys(cart).find(key => {
             const cartItem = cart[key].item;
             if (item.customization) {
-                return cartItem.id === item.id &&
-                    JSON.stringify(cartItem.customization) === JSON.stringify(item.customization);
+                return cartItem.id === item.id && JSON.stringify(cartItem.customization) === JSON.stringify(item.customization);
             }
             return false;
         });
 
         if (existingItemKey) {
-            setCart((prev) => ({
-                ...prev,
-                [existingItemKey]: {
-                    ...prev[existingItemKey],
-                    qty: prev[existingItemKey].qty + 1
-                }
-            }));
+            setCart((prev) => ({ ...prev, [existingItemKey]: { ...prev[existingItemKey], qty: prev[existingItemKey].qty + 1 } }));
         } else {
-            const uniqueId = item.customization
-                ? `${item.id}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
-                : item.id;
-
-            setCart((prev) => ({
-                ...prev,
-                [uniqueId]: {
-                    item,
-                    qty: 1,
-                },
-            }));
+            const uniqueId = item.customization ? `${item.id}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}` : item.id;
+            setCart((prev) => ({ ...prev, [uniqueId]: { item, qty: 1 } }));
         }
     }
 
-    // CART : UPDATING ITEMS
     function handleUpdateQty(itemKey, newQty) {
-        if (newQty <= 0) {
-            handleRemove(itemKey);
-            return;
-        }
-        setCart((prev) => ({
-            ...prev,
-            [itemKey]: { ...prev[itemKey], qty: newQty },
-        }));
+        if (newQty <= 0) { handleRemove(itemKey); return; }
+        setCart((prev) => ({ ...prev, [itemKey]: { ...prev[itemKey], qty: newQty } }));
     }
 
-    // CART : REMOVING ITEMS
     function handleRemove(itemKey) {
-        setCart((prev) => {
-            const next = { ...prev };
-            delete next[itemKey];
-            return next;
-        });
+        setCart((prev) => { const next = { ...prev }; delete next[itemKey]; return next; });
     }
 
-    // CART : PLACING ORDERS
     async function handlePlaceOrder() {
-    const items = Object.values(cart).map(({ item, qty }) => ({
-        item_id: item.id,
-        quantity: qty,
-        price: parseFloat(item.price.replace("£", "")) +
-               (item.customization?.selectedExtras?.reduce((s, e) => s + e.price, 0) || 0),
-    }));
+        const items = Object.values(cart).map(({ item, qty }) => ({
+            item_id: item.id,
+            quantity: qty,
+            price: parseFloat(item.price.replace("£", "")) + (item.customization?.selectedExtras?.reduce((s, e) => s + e.price, 0) || 0),
+        }));
 
-    try {
-        const res = await fetch('http://127.0.0.1:8000/orders', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ cust_id, table_id, items }),
-        });
-        if (!res.ok) {
-            console.error('Order failed:', await res.json());
+        try {
+            const res = await fetch('http://127.0.0.1:8000/orders', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ cust_id, table_id, items }),
+            });
+            if (!res.ok) {
+                console.error('Order failed:', await res.json());
+                return;
+            }
+            const data = await res.json();
+            setLiveOrderId(data.order_id);
+            sessionStorage.setItem('liveOrderId', data.order_id);
+            setLiveStep(1);
+        } catch (err) {
+            console.error('Could not reach server:', err);
             return;
         }
 
-        const data = await res.json();
-        setLiveOrderId(data.order_id);
-        sessionStorage.setItem('liveOrderId', data.order_id);
-        setLiveStep(1);
-    } catch (err) {
-        console.error('Could not reach server:', err);
-        return;
+        const newOrderId = generateOrderId();
+        setOrderId(newOrderId);
+        setHasActiveOrder(true);
+        setIsPaid(false);
+        setCurrentStep(1);
+        setPlacedOrder(cart);
+        setCartOpen(false);
+        setCart({});
+        setConfirmed(true);
+        setTimeout(() => { setConfirmed(false); }, 2500);
     }
 
-    // everything below is unchanged from MenuTwo
-    const newOrderId = generateOrderId();
-    setOrderId(newOrderId);
-    setHasActiveOrder(true);
-    setCurrentStep(1);
-    setPlacedOrder(cart);
-    setCartOpen(false);
-    setCart({});
-    setConfirmed(true);
-    setTimeout(() => { setConfirmed(false); }, 2500);
-}
-
-    // Handle step click in tracking
     function handleStepClick(stepId) {
         setCurrentStep(stepId);
     }
 
-    // Handle payment confirmation
+    function handleCloseTable() {
+        if (hasActiveOrder && !isPaid) {
+            setUnpaidModalOpen(true);
+        } else {
+            sessionStorage.clear();
+            window.location.href = '/';
+        }
+    }
+
     function handlePaymentConfirm(method) {
+        setIsPaid(true);
         setPaymentOpen(false);
-        setHasActiveOrder(false); // Order completed
-        setPlacedOrder({}); // Clear placed order
-        setCurrentStep(1); // Reset steps
-        alert(`Payment confirmed with ${method}. Thank you!`);
+        setHasActiveOrder(false);
+        setPlacedOrder({});
+        setCurrentStep(1);
+        setLiveOrderId(null);
+        sessionStorage.removeItem('liveOrderId');
     }
 
     const cartCount = Object.values(cart).reduce((sum, { qty }) => sum + qty, 0);
 
-    // Calculate cart total
-    const cartTotal = Object.values(cart).reduce((sum, { item, qty }) => {
-        const basePrice = parseFloat(item.price.replace("£", ""));
-        const extrasTotal = item.customization?.selectedExtras?.reduce((sum, extra) => sum + extra.price, 0) || 0;
-        const itemTotal = (basePrice + extrasTotal) * qty;
-        return sum + itemTotal;
-    }, 0);
-
-    // Calculate placed order total
     const placedOrderTotal = Object.values(placedOrder).reduce((sum, { item, qty }) => {
         const basePrice = parseFloat(item.price.replace("£", ""));
         const extrasTotal = item.customization?.selectedExtras?.reduce((sum, extra) => sum + extra.price, 0) || 0;
-        const itemTotal = (basePrice + extrasTotal) * qty;
-        return sum + itemTotal;
+        return sum + (basePrice + extrasTotal) * qty;
     }, 0);
 
     return (
@@ -871,6 +879,7 @@ export default function App() {
                 tableNumber={table_id ? `Table ${table_id}` : "Table"}
                 cartCount={cartCount}
                 onCartClick={() => setCartOpen(true)}
+                onCloseTable={handleCloseTable}
             />
 
             <main className="main-content">
@@ -882,7 +891,6 @@ export default function App() {
                     onTrackOrder={() => setTrackingOpen(true)}
                     hasActiveOrder={hasActiveOrder}
                 />
-
                 <div className="menu-sections">
                     {Object.entries(MENU_DATA).map(([sectionName, items]) => (
                         <MenuSection
@@ -918,7 +926,6 @@ export default function App() {
                 />
             )}
 
-            {/* TRACKING POPUPS : only active when open */}
             {trackingOpen && hasActiveOrder && (
                 <TrackingPopup
                     orderId={liveOrderId}
@@ -928,18 +935,28 @@ export default function App() {
                     onClose={() => setTrackingOpen(false)}
                     onPaymentClick={() => setPaymentOpen(true)}
                     currentStep={liveStep}
-                    onStepClick={() => {}}
+                    onStepClick={() => { }}
                 />
             )}
 
-            {/* Payment Popup */}
             {paymentOpen && (
                 <PaymentPopup
-                    orderId={orderId}
-                    tableNumber="Table 10"
-                    total={placedOrderTotal} // Pass the placed order total
+                    orderId={liveOrderId}
+                    tableNumber={table_id ? `Table ${table_id}` : "Table"}
+                    total={placedOrderTotal}
                     onClose={() => setPaymentOpen(false)}
                     onConfirm={handlePaymentConfirm}
+                />
+            )}
+
+            {unpaidModalOpen && (
+                <UnpaidOrderModal
+                    total={placedOrderTotal}
+                    onClose={() => setUnpaidModalOpen(false)}
+                    onPayNow={() => {
+                        setUnpaidModalOpen(false);
+                        setPaymentOpen(true);
+                    }}
                 />
             )}
         </div>
