@@ -1,7 +1,7 @@
 import sqlite3
 
 
-def create_connection(db_file="Backend/databases/oaxaca.db"):
+def create_connection(db_file="Backend/test/oaxaca.db"):
     conn = sqlite3.connect(db_file)
     conn.execute("PRAGMA foreign_keys = ON")
     print(f"Connected to {db_file} successfully.")

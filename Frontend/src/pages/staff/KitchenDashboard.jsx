@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef } from "react";
+import { useLocation, useNavigate } from 'react-router-dom';
 
+// COLOUR PALETTE --------------------------
 const C = {
   bg: "#f5f0e8", panel: "#faf7f2", dark: "#3b1f0e", mid: "#8b4513",
   warm: "#c4763a", light: "#e8d5b7", pale: "#f0e6d3",
@@ -11,13 +13,7 @@ const C = {
 
 const now = () => Date.now();
 
-const INIT_PENDING = [
-  { id: 1, table: "Table 01", startedAt: now() - 5 * 60000, items: [{ name: "Tacos al Pastor", qty: 2 }, { name: "Nachos Grande", qty: 1 }] },
-  { id: 2, table: "Table 02", startedAt: now() - 8 * 60000, items: [{ name: "Chicken Burrito", qty: 1 }] },
-  { id: 3, table: "Table 03", startedAt: now() - 12 * 60000, items: [{ name: "Quesadilla", qty: 2 }] },
-  { id: 4, table: "Table 04", startedAt: now() - 15 * 60000, items: [{ name: "Churros", qty: 3 }] },
-];
-
+// HOOKS --------------------------
 function useOutsideClick(ref, cb) {
   useEffect(() => {
     const fn = e => { if (ref.current && !ref.current.contains(e.target)) cb(); };
@@ -26,6 +22,7 @@ function useOutsideClick(ref, cb) {
   }, [ref, cb]);
 }
 
+// ELASPED TIME HELPERS --------------------------
 function getElapsed(startedAt) {
   const mins = Math.floor((Date.now() - startedAt) / 60000);
   if (mins < 1) return "< 1 min";
@@ -39,6 +36,7 @@ function elapsedColor(startedAt) {
   return mins > 20 ? C.red : mins > 10 ? C.amber : C.green;
 }
 
+// ICONS --------------------------
 const IconClock = () => (
     <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
       <circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" />
@@ -50,6 +48,7 @@ const IconDoor = () => (
     </svg>
 );
 
+// ACCOUNT PANEL --------------------------
 function AccountPanel({ addToast }) {
   return (
       <div style={{ position: "absolute", top: "calc(100% + 10px)", right: 0, width: 240, background: C.panel, border: `1.5px solid ${C.border}`, borderRadius: 10, boxShadow: "0 8px 32px rgba(0,0,0,.2)", zIndex: 900, animation: "dropIn .15s ease" }}>
@@ -61,16 +60,17 @@ function AccountPanel({ addToast }) {
             <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: ".08em", textTransform: "uppercase", color: C.mid, marginTop: 2 }}>Head Chef</div>
           </div>
         </div>
-        <div onClick={() => addToast("Signed out (demo)")}
-             style={{ padding: "13px 16px", display: "flex", alignItems: "center", gap: 10, cursor: "pointer", transition: "background .15s", borderRadius: "0 0 10px 10px" }}
-             onMouseEnter={e => e.currentTarget.style.background = C.redL}
-             onMouseLeave={e => e.currentTarget.style.background = "transparent"}>
+        <div onClick={() => { window.location.href = "/"; }}
+          style={{ padding: "13px 16px", display: "flex", alignItems: "center", gap: 10, cursor: "pointer", transition: "background .15s", borderRadius: "0 0 10px 10px" }}
+          onMouseEnter={e => e.currentTarget.style.background = C.redL}
+          onMouseLeave={e => e.currentTarget.style.background = "transparent"}>
           <IconDoor /><span style={{ fontSize: 13, fontWeight: 600, color: C.red }}>Sign Out</span>
         </div>
       </div>
   );
 }
 
+// ORDER CARD --------------------------
 function OrderCard({ order, btnLabel, btnColor, onAction }) {
   const [, tick] = useState(0);
   useEffect(() => { const t = setInterval(() => tick(n => n + 1), 30000); return () => clearInterval(t); }, []);
@@ -81,7 +81,6 @@ function OrderCard({ order, btnLabel, btnColor, onAction }) {
            onMouseLeave={e => e.currentTarget.style.boxShadow = ""}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
           <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 17, fontWeight: 700, color: C.dark }}>{order.table}</span>
-          {/* ⭐ Track order times */}
           <span style={{ fontSize: 11, fontWeight: 700, color: elapsedColor(order.startedAt), display: "flex", alignItems: "center", gap: 3 }}>
           <IconClock />{getElapsed(order.startedAt)}
         </span>
@@ -109,36 +108,99 @@ function OrderCard({ order, btnLabel, btnColor, onAction }) {
   );
 }
 
+// APP ROOT --------------------------
 export default function App() {
-  const [pending, setPending] = useState(INIT_PENDING);
+  // AUTH GUARD --------------------------
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+      if (location.state?.role !== 'kitchen') {
+          navigate('/');
+      }
+  }, []);
+
+  // DB CONNECTIONS + POLLING --------------------------
+  const [pending, setPending] = useState([]);
   const [preparing, setPreparing] = useState([]);
   const [ready, setReady] = useState([]);
+
+  useEffect(() => {
+      const fetchOrders = async () => {
+          const res = await fetch('http://127.0.0.1:8000/orders');
+          const data = await res.json();
+          setPending(data.filter(o => o.status === "Pending").map(o => ({
+              id: String(o.order_id),
+              table: `Table ${o.table_id}`,
+              startedAt: Date.now(),
+              items: o.items.map(i => ({ name: i.item_name, qty: i.quantity }))
+          })));
+          setPreparing(data.filter(o => o.status === "In Progress").map(o => ({
+              id: String(o.order_id),
+              table: `Table ${o.table_id}`,
+              startedAt: Date.now(),
+              items: o.items.map(i => ({ name: i.item_name, qty: i.quantity }))
+          })));
+          setReady(data.filter(o => o.status === "Ready").map(o => ({
+              id: String(o.order_id),
+              table: `Table ${o.table_id}`,
+              startedAt: Date.now(),
+              items: o.items.map(i => ({ name: i.item_name, qty: i.quantity }))
+          })));
+      };
+      fetchOrders();
+      const poll = setInterval(fetchOrders, 10000);
+      return () => clearInterval(poll);
+  }, []);
+
+  // UI STATE --------------------------
   const [toasts, setToasts] = useState([]);
   const [showAccount, setShowAccount] = useState(false);
-
   const accountRef = useRef(null);
   useOutsideClick(accountRef, () => setShowAccount(false));
 
+  // TOAST NOTIFS --------------------------
   const addToast = msg => { const id = Date.now(); setToasts(p => [...p, { id, msg }]); setTimeout(() => setToasts(p => p.filter(t => t.id !== id)), 1800); };
 
-  const confirmOrder = id => {
+  // ORDER ACTIONS --------------------------
+  const confirmOrder = async (id) => {
     const order = pending.find(o => o.id === id);
     if (!order) return;
     setPending(p => p.filter(o => o.id !== id));
     setPreparing(p => [order, ...p]);
+    await fetch(`http://127.0.0.1:8000/orders/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: "In Progress" }),
+    });
     addToast(`${order.table} confirmed`);
   };
 
-  const notifyWaiter = id => {
-    const order = preparing.find(o => o.id === id);
-    if (!order) return;
-    setPreparing(p => p.filter(o => o.id !== id));
-    setReady(p => [order, ...p]);
-    addToast(`${order.table} — waiter notified`);
+  const notifyWaiter = async (id) => {
+      const order = preparing.find(o => o.id === id);
+      if (!order) return;
+      setPreparing(p => p.filter(o => o.id !== id));
+      setReady(p => [order, ...p]);
+      await fetch(`http://127.0.0.1:8000/orders/${id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: "Ready" }),
+      });
+  
+      // CROSS-TAB NOTIFS TO WAITER DASH --------------------------
+      localStorage.setItem("oaxaca_kitchen_notify", JSON.stringify({
+          id: Date.now(),
+          order: id,
+          table: parseInt(order.table.replace("Table ", "")),
+          status: "Ready for Collection",
+          type: "ready",
+          read: false,
+      }));
+      addToast(`${order.table} — waiter notified`);
   };
 
+  // 3-COLUMN LAYOUT (KANBAN)
   const activeCount = pending.length + preparing.length + ready.length;
-
   const columns = [
     { title: "Pending Confirmation", accent: C.warm, orders: pending, btnLabel: "Confirm Order", btnColor: C.warm, onAction: confirmOrder, empty: "No pending orders" },
     { title: "Preparing", accent: C.amber, orders: preparing, btnLabel: "Notify Waiter", btnColor: C.green, onAction: notifyWaiter, empty: "Nothing being prepared" },

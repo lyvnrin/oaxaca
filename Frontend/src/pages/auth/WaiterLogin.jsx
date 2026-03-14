@@ -6,7 +6,7 @@ import "./WaiterLogin.css";
 function WaiterLogin() {
     const navigate = useNavigate();
     const goBack = () => navigate("/staff");
-    const goToDashboard = () => navigate("/waiter-dashboard");
+    const goToDashboard = () => navigate("/waiter-dashboard", { state: { role: 'waiter' } });
 
     const [formData, setFormData] = useState({ username: '', password: '' });
     const [errors, setErrors] = useState({});

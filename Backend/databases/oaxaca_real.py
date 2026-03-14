@@ -14,6 +14,7 @@ app.add_middleware(
 
 DB_FILE = "oaxaca-real.db"
 
+# DATABASE CONNECTION --------------------------
 def get_conn():
     conn = sqlite3.connect(DB_FILE, timeout=10)
     conn.execute("PRAGMA foreign_keys = ON")
@@ -21,12 +22,20 @@ def get_conn():
     conn.row_factory = sqlite3.Row
     return conn
 
-# SCHEMAS
+# SCHEMAS --------------------------
 class CustomerIn(BaseModel):
     name: str
     table_id: int | None = None
 
-# FETCHING ALL CUSTOMERS
+class OrderIn(BaseModel):
+    cust_id: int
+    table_id: int
+    items: list[dict]  # [{ item_id, quantity, price }]
+
+class OrderStatusUpdate(BaseModel):
+    status: str
+
+# CUSTOMERS --------------------------
 @app.get("/customers")
 def get_customers():
     conn = get_conn()
@@ -35,8 +44,6 @@ def get_customers():
 
     return [dict(r) for r in rows]
 
-
-# ADDING A CUSTOMER: POST
 @app.post("/customers", status_code=201)
 def add_customer(payload: CustomerIn):
     conn = get_conn()
@@ -55,7 +62,6 @@ def add_customer(payload: CustomerIn):
     finally:
         conn.close()
 
-# DELETING A CUSTOMERS
 @app.delete("/customers/{cust_id}")
 def delete_customer(cust_id: int):
     conn = get_conn()
@@ -76,7 +82,7 @@ def delete_customer(cust_id: int):
     
     return {"deleted": cust_id}
 
-# FETCHING ALL TABLES
+# TABLES --------------------------
 @app.get("/tables")
 def get_tables():
     conn = get_conn()
@@ -85,12 +91,7 @@ def get_tables():
 
     return [dict(r) for r in rows]
 
-# ADDING /ORDERS POST AND GET SCHEMA
-class OrderIn(BaseModel):
-    cust_id: int
-    table_id: int
-    items: list[dict]  # [{ item_id, quantity, price }]
-
+# ORDERS --------------------------
 @app.post("/orders", status_code=201)
 def place_order(payload: OrderIn):
     conn = get_conn()
@@ -99,9 +100,8 @@ def place_order(payload: OrderIn):
     total = sum(i["price"] * i["quantity"] for i in payload.items)
 
     cursor.execute(
-        "INSERT INTO orders (cust_id, table_id, total_cost) VALUES (?, ?, ?)",
-        (payload.cust_id, payload.table_id, total),
-    )
+    "INSERT INTO orders (cust_id, table_id, total_cost, status) VALUES (?, ?, ?, ?)",
+    (payload.cust_id, payload.table_id, total, "Pending"),)
     order_id = cursor.lastrowid
 
     cursor.executemany(
@@ -128,3 +128,37 @@ def get_orders():
         result.append({ **dict(order), "items": [dict(i) for i in items] })
     conn.close()
     return result
+
+@app.patch("/orders/{order_id}")
+def update_order_status(order_id: int, payload: OrderStatusUpdate):
+    conn = get_conn()
+    conn.execute(
+        "UPDATE orders SET status = ? WHERE order_id = ?",
+        (payload.status, order_id)
+    )
+    conn.commit()
+    conn.close()
+    return {"order_id": order_id, "status": payload.status}
+
+@app.get("/orders/{order_id}")
+def get_order(order_id: int):
+    conn = get_conn()
+    order = conn.execute(
+        "SELECT * FROM orders WHERE order_id = ?", (order_id,)
+    ).fetchone()
+    conn.close()
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+    return dict(order)
+
+# CLEANUP COMPLETED ORDERS --------------------------
+@app.delete("/orders/cleanup")
+def cleanup_completed_orders():
+    conn = get_conn()
+    conn.execute(
+        "DELETE FROM order_item WHERE order_id IN (SELECT order_id FROM orders WHERE status = 'Completed')"
+    )
+    conn.execute("DELETE FROM orders WHERE status = 'Completed'")
+    conn.commit()
+    conn.close()
+    return {"message": "Completed orders cleared"}
