@@ -110,9 +110,41 @@ function OrderCard({ order, btnLabel, btnColor, onAction }) {
 }
 
 export default function App() {
-  const [pending, setPending] = useState(INIT_PENDING);
+  // CONNECTIONS ROUTING ---------------------------------------
+  const [pending, setPending] = useState([]);
   const [preparing, setPreparing] = useState([]);
   const [ready, setReady] = useState([]);
+
+  useEffect(() => {
+      const fetchOrders = async () => {
+          const res = await fetch('http://127.0.0.1:8000/orders');
+          const data = await res.json();
+          setPending(data.filter(o => o.status === "Pending").map(o => ({
+              id: String(o.order_id),
+              table: `Table ${o.table_id}`,
+              startedAt: Date.now(),
+              items: o.items.map(i => ({ name: i.item_name, qty: i.quantity }))
+          })));
+          setPreparing(data.filter(o => o.status === "In Progress").map(o => ({
+              id: String(o.order_id),
+              table: `Table ${o.table_id}`,
+              startedAt: Date.now(),
+              items: o.items.map(i => ({ name: i.item_name, qty: i.quantity }))
+          })));
+          setReady(data.filter(o => o.status === "Ready").map(o => ({
+              id: String(o.order_id),
+              table: `Table ${o.table_id}`,
+              startedAt: Date.now(),
+              items: o.items.map(i => ({ name: i.item_name, qty: i.quantity }))
+          })));
+      };
+      fetchOrders();
+      const poll = setInterval(fetchOrders, 10000);
+      return () => clearInterval(poll);
+  }, []);
+
+  // ------------------------------------------------------------
+
   const [toasts, setToasts] = useState([]);
   const [showAccount, setShowAccount] = useState(false);
 
@@ -121,20 +153,39 @@ export default function App() {
 
   const addToast = msg => { const id = Date.now(); setToasts(p => [...p, { id, msg }]); setTimeout(() => setToasts(p => p.filter(t => t.id !== id)), 1800); };
 
-  const confirmOrder = id => {
+  const confirmOrder = async (id) => {
     const order = pending.find(o => o.id === id);
     if (!order) return;
     setPending(p => p.filter(o => o.id !== id));
     setPreparing(p => [order, ...p]);
+    await fetch(`http://127.0.0.1:8000/orders/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: "In Progress" }),
+    });
     addToast(`${order.table} confirmed`);
   };
 
-  const notifyWaiter = id => {
-    const order = preparing.find(o => o.id === id);
-    if (!order) return;
-    setPreparing(p => p.filter(o => o.id !== id));
-    setReady(p => [order, ...p]);
-    addToast(`${order.table} — waiter notified`);
+  const notifyWaiter = async (id) => {
+      const order = preparing.find(o => o.id === id);
+      if (!order) return;
+      setPreparing(p => p.filter(o => o.id !== id));
+      setReady(p => [order, ...p]);
+      await fetch(`http://127.0.0.1:8000/orders/${id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: "Ready" }),
+      });
+  
+      localStorage.setItem("oaxaca_kitchen_notify", JSON.stringify({
+          id: Date.now(),
+          order: id,
+          table: parseInt(order.table.replace("Table ", "")),
+          status: "Ready for Collection",
+          type: "ready",
+          read: false,
+      }));
+      addToast(`${order.table} — waiter notified`);
   };
 
   const activeCount = pending.length + preparing.length + ready.length;
