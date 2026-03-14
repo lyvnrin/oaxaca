@@ -150,3 +150,15 @@ def get_order(order_id: int):
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
     return dict(order)
+
+# CLEANUP COMPLETED ORDERS --------------------------
+@app.delete("/orders/cleanup")
+def cleanup_completed_orders():
+    conn = get_conn()
+    conn.execute(
+        "DELETE FROM order_item WHERE order_id IN (SELECT order_id FROM orders WHERE status = 'Completed')"
+    )
+    conn.execute("DELETE FROM orders WHERE status = 'Completed'")
+    conn.commit()
+    conn.close()
+    return {"message": "Completed orders cleared"}

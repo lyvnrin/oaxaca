@@ -414,6 +414,9 @@ function OrdersTab({ orders, setOrders, menu, addToast }) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ status: "Completed" }),
         });
+        setTimeout(async () => {
+        await fetch('http://127.0.0.1:8000/orders/cleanup', { method: 'DELETE' });
+        }, 30000); 
         addToast("Order marked as delivered");
     };
 
