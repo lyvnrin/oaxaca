@@ -52,7 +52,17 @@ function Header({ tableNumber, cartCount, onCartClick }) {
                     {menuOpen && ( <>
                             <div className="menu-popup-backdrop" onClick={() => setMenuOpen(false)} />
                             <div className="menu-popup">
-                                <button className="menu-popup-item" onClick={() => setMenuOpen(false)}>📞 Contact Waiter </button>
+                                <button className="menu-popup-item" onClick={() => {
+                                    localStorage.setItem("oaxaca_customer_alert", JSON.stringify({
+                                        id: Date.now(),
+                                        order: liveOrderId ?? "–",
+                                        table: table_id,
+                                        status: "Needs Assistance",
+                                        type: "Help_Needed",
+                                        read: false,
+                                    }));
+                                    setMenuOpen(false);
+                                    }}>📞 Contact Waiter</button>
                                 <button className="menu-popup-item" onClick={() => setMenuOpen(false)}>⚙️ Settings</button>
                             </div> </>
                     )}

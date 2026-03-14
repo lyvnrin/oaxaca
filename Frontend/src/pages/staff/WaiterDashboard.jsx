@@ -25,7 +25,7 @@ const INIT_UNPAID = [
     { table: 11, order: "1232", total: 67.00, waiting: "28 mins" },
 ];
 
-const notifColor  = { ready: C.green, alert: C.blue, allergy: C.amber };
+const notifColor = { ready: C.green, alert: C.blue, allergy: C.amber, Help_Needed: C.blue };
 const statusColor = {
     "Pending":     C.amber,
     "In Progress": C.warm,
@@ -720,6 +720,25 @@ function MenuItemCard({ item, onToggle }) {
     );
 }
 
+// CUSTOMER ASSISTANCE ALERT
+function useCustomerAlerts(setNotifications, addToast) {
+    useEffect(() => {
+        const handler = (e) => {
+            if (e.key !== "oaxaca_customer_alert" || !e.newValue) return;
+            try {
+                const incoming = JSON.parse(e.newValue);
+                setNotifications(prev => {
+                    if (prev.some(n => n.id === incoming.id)) return prev;
+                    return [incoming, ...prev];
+                });
+                addToast(`🔔 Table ${incoming.table} needs assistance!`);
+            } catch (_) {}
+        };
+        window.addEventListener("storage", handler);
+        return () => window.removeEventListener("storage", handler);
+    }, [setNotifications, addToast]);
+}
+
 export default function App() {
     const [tab,           setTab]           = useState("Orders");
     
@@ -736,7 +755,7 @@ export default function App() {
     const addToast = msg => { const id = Date.now(); setToasts(p => [...p, { id, msg }]); setTimeout(() => setToasts(p => p.filter(t => t.id !== id)), 3000); };
     const raiseAlert = (table) => { const id = Date.now(); setNotifications(p => [{ id, order: "–", table, status: `Table ${table} needs assistance`, type: "alert", read: false }, ...p]); };
 
-    // ── Listen for kitchen "NOTIFY WAITER" events ──
+    // LISTENING FOR KITCHEN NOTIFY EVENTS
     useKitchenNotifications(setNotifications, addToast);
 
     const unread     = notifications.filter(n => !n.read).length;
@@ -769,6 +788,8 @@ export default function App() {
         return () => clearInterval(poll);
     }, []);
 
+    useCustomerAlerts(setNotifications, addToast);
+
 
     const [menu, setMenu] = useState([]);
     useEffect(() => {
@@ -798,7 +819,7 @@ export default function App() {
             select:focus, input:focus { outline: 2px solid #c4763a; outline-offset: 1px; }
             `}</style>
 
-            {/* NAV */}
+            {/* NAV BAR */}
             <nav style={{ background: C.dark, height: 56, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 28px", position: "sticky", top: 0, zIndex: 800 }}>
                 <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 22, fontWeight: 600, letterSpacing: ".25em", color: C.bg }}>OAXACA</span>
                 <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
