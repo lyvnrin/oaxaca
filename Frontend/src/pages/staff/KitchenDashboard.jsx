@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 
+// COLOUR PALETTE --------------------------
 const C = {
   bg: "#f5f0e8", panel: "#faf7f2", dark: "#3b1f0e", mid: "#8b4513",
   warm: "#c4763a", light: "#e8d5b7", pale: "#f0e6d3",
@@ -11,6 +12,7 @@ const C = {
 
 const now = () => Date.now();
 
+// HOOKS --------------------------
 function useOutsideClick(ref, cb) {
   useEffect(() => {
     const fn = e => { if (ref.current && !ref.current.contains(e.target)) cb(); };
@@ -19,6 +21,7 @@ function useOutsideClick(ref, cb) {
   }, [ref, cb]);
 }
 
+// ELASPED TIME HELPERS --------------------------
 function getElapsed(startedAt) {
   const mins = Math.floor((Date.now() - startedAt) / 60000);
   if (mins < 1) return "< 1 min";
@@ -32,6 +35,7 @@ function elapsedColor(startedAt) {
   return mins > 20 ? C.red : mins > 10 ? C.amber : C.green;
 }
 
+// ICONS --------------------------
 const IconClock = () => (
     <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
       <circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" />
@@ -43,6 +47,7 @@ const IconDoor = () => (
     </svg>
 );
 
+// ACCOUNT PANEL --------------------------
 function AccountPanel({ addToast }) {
   return (
       <div style={{ position: "absolute", top: "calc(100% + 10px)", right: 0, width: 240, background: C.panel, border: `1.5px solid ${C.border}`, borderRadius: 10, boxShadow: "0 8px 32px rgba(0,0,0,.2)", zIndex: 900, animation: "dropIn .15s ease" }}>
@@ -64,6 +69,7 @@ function AccountPanel({ addToast }) {
   );
 }
 
+// ORDER CARD --------------------------
 function OrderCard({ order, btnLabel, btnColor, onAction }) {
   const [, tick] = useState(0);
   useEffect(() => { const t = setInterval(() => tick(n => n + 1), 30000); return () => clearInterval(t); }, []);
@@ -102,50 +108,52 @@ function OrderCard({ order, btnLabel, btnColor, onAction }) {
   );
 }
 
+// APP ROOT --------------------------
 export default function App() {
-  // CONNECTIONS ROUTING ---------------------------------------
+
+  // DB CONNECTIONS + POLLING --------------------------
   const [pending, setPending] = useState([]);
-const [preparing, setPreparing] = useState([]);
-const [ready, setReady] = useState([]);
+  const [preparing, setPreparing] = useState([]);
+  const [ready, setReady] = useState([]);
 
-useEffect(() => {
-    const fetchOrders = async () => {
-        const res = await fetch('http://127.0.0.1:8000/orders');
-        const data = await res.json();
-        setPending(data.filter(o => o.status === "Pending").map(o => ({
-            id: String(o.order_id),
-            table: `Table ${o.table_id}`,
-            startedAt: Date.now(),
-            items: o.items.map(i => ({ name: i.item_name, qty: i.quantity }))
-        })));
-        setPreparing(data.filter(o => o.status === "In Progress").map(o => ({
-            id: String(o.order_id),
-            table: `Table ${o.table_id}`,
-            startedAt: Date.now(),
-            items: o.items.map(i => ({ name: i.item_name, qty: i.quantity }))
-        })));
-        setReady(data.filter(o => o.status === "Ready").map(o => ({
-            id: String(o.order_id),
-            table: `Table ${o.table_id}`,
-            startedAt: Date.now(),
-            items: o.items.map(i => ({ name: i.item_name, qty: i.quantity }))
-        })));
-    };
-    fetchOrders();
-    const poll = setInterval(fetchOrders, 10000);
-    return () => clearInterval(poll);
-}, []);
+  useEffect(() => {
+      const fetchOrders = async () => {
+          const res = await fetch('http://127.0.0.1:8000/orders');
+          const data = await res.json();
+          setPending(data.filter(o => o.status === "Pending").map(o => ({
+              id: String(o.order_id),
+              table: `Table ${o.table_id}`,
+              startedAt: Date.now(),
+              items: o.items.map(i => ({ name: i.item_name, qty: i.quantity }))
+          })));
+          setPreparing(data.filter(o => o.status === "In Progress").map(o => ({
+              id: String(o.order_id),
+              table: `Table ${o.table_id}`,
+              startedAt: Date.now(),
+              items: o.items.map(i => ({ name: i.item_name, qty: i.quantity }))
+          })));
+          setReady(data.filter(o => o.status === "Ready").map(o => ({
+              id: String(o.order_id),
+              table: `Table ${o.table_id}`,
+              startedAt: Date.now(),
+              items: o.items.map(i => ({ name: i.item_name, qty: i.quantity }))
+          })));
+      };
+      fetchOrders();
+      const poll = setInterval(fetchOrders, 10000);
+      return () => clearInterval(poll);
+  }, []);
 
-  // ------------------------------------------------------------
-
+  // UI STATE --------------------------
   const [toasts, setToasts] = useState([]);
   const [showAccount, setShowAccount] = useState(false);
-
   const accountRef = useRef(null);
   useOutsideClick(accountRef, () => setShowAccount(false));
 
+  // TOAST NOTIFS --------------------------
   const addToast = msg => { const id = Date.now(); setToasts(p => [...p, { id, msg }]); setTimeout(() => setToasts(p => p.filter(t => t.id !== id)), 1800); };
 
+  // ORDER ACTIONS --------------------------
   const confirmOrder = async (id) => {
     const order = pending.find(o => o.id === id);
     if (!order) return;
@@ -170,6 +178,7 @@ useEffect(() => {
           body: JSON.stringify({ status: "Ready" }),
       });
   
+      // CROSS-TAB NOTIFS TO WAITER DASH --------------------------
       localStorage.setItem("oaxaca_kitchen_notify", JSON.stringify({
           id: Date.now(),
           order: id,
@@ -181,8 +190,8 @@ useEffect(() => {
       addToast(`${order.table} — waiter notified`);
   };
 
+  // 3-COLUMN LAYOUT (KANBAN)
   const activeCount = pending.length + preparing.length + ready.length;
-
   const columns = [
     { title: "Pending Confirmation", accent: C.warm, orders: pending, btnLabel: "Confirm Order", btnColor: C.warm, onAction: confirmOrder, empty: "No pending orders" },
     { title: "Preparing", accent: C.amber, orders: preparing, btnLabel: "Notify Waiter", btnColor: C.green, onAction: notifyWaiter, empty: "Nothing being prepared" },

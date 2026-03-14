@@ -22,7 +22,7 @@ def get_conn():
     conn.row_factory = sqlite3.Row
     return conn
 
-# SCHEMAS --------------------------------------
+# SCHEMAS --------------------------
 class CustomerIn(BaseModel):
     name: str
     table_id: int | None = None
@@ -35,7 +35,7 @@ class OrderIn(BaseModel):
 class OrderStatusUpdate(BaseModel):
     status: str
 
-# CUSTOMERS ---------------------------------------
+# CUSTOMERS --------------------------
 @app.get("/customers")
 def get_customers():
     conn = get_conn()
@@ -82,7 +82,7 @@ def delete_customer(cust_id: int):
     
     return {"deleted": cust_id}
 
-# TABLES ------------------------------------
+# TABLES --------------------------
 @app.get("/tables")
 def get_tables():
     conn = get_conn()
@@ -91,7 +91,7 @@ def get_tables():
 
     return [dict(r) for r in rows]
 
-# ORDERS ---------------------------------------
+# ORDERS --------------------------
 @app.post("/orders", status_code=201)
 def place_order(payload: OrderIn):
     conn = get_conn()
