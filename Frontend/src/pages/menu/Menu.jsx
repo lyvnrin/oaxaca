@@ -855,7 +855,15 @@ export default function App() {
         }
     }
 
-    function handlePaymentConfirm(method) {
+    async function handlePaymentConfirm(method) {
+        const res = await fetch(`http://127.0.0.1:8000/orders/${liveOrderId}/pay`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+        });
+        if (!res.ok) {
+            const data = await res.json();
+            throw new Error(data.detail || 'Payment failed');
+        }
         setIsPaid(true);
         setPaymentOpen(false);
         setHasActiveOrder(false);
