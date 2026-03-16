@@ -628,7 +628,7 @@ function useCustomerAlerts(setNotifications, addToast) {
 
 export default function ManagerDashboard() {
     const [tab, setTab] = useState("Overview");
-    const [tables] = useState(INIT_TABLES);
+    const [tables, setTables] = useState(INIT_TABLES);
     const [menu, setMenu] = useState(INIT_MENU);
     const [employees] = useState(INIT_EMPLOYEES);
     const [stock] = useState(INIT_STOCK);
@@ -653,6 +653,46 @@ export default function ManagerDashboard() {
                 description: INIT_MENU.find(m => m.id === item.item_id)?.description ?? "",
             }))))
             .catch(() => { });
+    }, []);
+
+    useEffect(() => {
+        const fetchTables = async () => {
+            try {
+                const [tablesRes, ordersRes] = await Promise.all([
+                    fetch('http://127.0.0.1:8000/tables'),
+                    fetch('http://127.0.0.1:8000/orders'),
+                ]);
+                const tablesData = await tablesRes.json();
+                const ordersData = await ordersRes.json();
+
+                const activeOrders = ordersData.filter(o => o.status !== "Cancelled");
+
+                setTables(tablesData.map(t => {
+                    const tableOrders = activeOrders.filter(o => o.table_id === t.table_id);
+                    const hasOrders = tableOrders.length > 0;
+                    const latestOrder = tableOrders[tableOrders.length - 1];
+                    const status = !hasOrders ? "Free"
+                        : latestOrder.status === "Pending" ? "Ordering"
+                            : latestOrder.status === "In Progress" ? "Waiting"
+                                : latestOrder.status === "Ready" ? "Service"
+                                    : latestOrder.status === "Completed" ? "Eating"
+                                        : latestOrder.status === "Paid" ? "Bill Req."
+                                            : "Free";
+
+                    return {
+                        id: t.table_id,
+                        status,
+                        bill: null,
+                        orders: tableOrders.flatMap(o =>
+                            o.items.map(i => ({ name: i.item_name, qty: i.quantity, price: i.price }))
+                        ),
+                    };
+                }));
+            } catch (_) { }
+        };
+        fetchTables();
+        const poll = setInterval(fetchTables, 3000);
+        return () => clearInterval(poll);
     }, []);
 
     const notifRef = useRef(null);
