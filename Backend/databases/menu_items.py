@@ -23,6 +23,13 @@ def load_menu_from_csv(csv_path: str, db_path: str):
 
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
+    cursor.execute("""
+                   CREATE TABLE IF NOT EXISTS staff (
+                   Name TEXT PRIMARY KEY,
+                   Password TEXT NOT NULL,
+                   Role TEXT NOT NULL)
+            """)
+    
     cursor.executemany("""
         INSERT OR REPLACE INTO menu_items (item_id, item_name, price)
         VALUES (:item_id, :item_name, :price)
