@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from 'react-router-dom';
 
 const C = {
-    bg: "#f5f0e8", panel: "#faf7f2", dark: "#3b1f0e", mid: "#8b4513",
+    bg: "#f5f0e8", panel: "#faf7f2", dark: "#2D2218", mid: "#8b4513",
     warm: "#c4763a", light: "#e8d5b7", pale: "#f0e6d3",
     green: "#4a7c59", greenL: "#d4edda",
     red: "#c0392b", redL: "#fde8e6",
@@ -17,22 +17,22 @@ const now = () => Date.now();
 const ORDER_STATUSES = ["Pending", "In Progress", "Ready", "Completed", "Cancelled"];
 
 const INIT_NOTIFICATIONS = [
-    { id: 3, order: "1236", table: 4,  status: "Needs Assistance",  type: "alert",   read: false }
+    { id: 3, order: "1236", table: 4, status: "Needs Assistance", type: "alert", read: false }
 ];
 
 const INIT_UNPAID = [
-    { table: 2,  order: "1230", total: 34.50, waiting: "12 mins" },
-    { table: 6,  order: "1231", total: 22.00, waiting: "5 mins"  },
+    { table: 2, order: "1230", total: 34.50, waiting: "12 mins" },
+    { table: 6, order: "1231", total: 22.00, waiting: "5 mins" },
     { table: 11, order: "1232", total: 67.00, waiting: "28 mins" },
 ];
 
 const notifColor = { ready: C.green, alert: C.blue, allergy: C.amber, Help_Needed: C.blue };
 const statusColor = {
-    "Pending":     C.amber,
+    "Pending": C.amber,
     "In Progress": C.warm,
-    "Ready":       C.green,
-    "Completed":   C.mid,
-    "Cancelled":   C.red,
+    "Ready": C.green,
+    "Completed": C.mid,
+    "Cancelled": C.red,
 };
 
 function useOutsideClick(ref, cb) {
@@ -47,7 +47,7 @@ function useElapsed(startedAt) {
     const [, tick] = useState(0);
     useEffect(() => { const t = setInterval(() => tick(n => n + 1), 30000); return () => clearInterval(t); }, []);
     const mins = Math.floor((Date.now() - startedAt) / 60000);
-    if (mins < 1)  return "< 1 min";
+    if (mins < 1) return "< 1 min";
     if (mins < 60) return `${mins} min${mins !== 1 ? "s" : ""}`;
     const h = Math.floor(mins / 60), m = mins % 60;
     return `${h}h ${m}m`;
@@ -70,18 +70,18 @@ function useKitchenNotifications(setNotifications, addToast, onNewOrder) {
                     return [incoming, ...prev];
                 });
                 addToast(`🍽 Table ${incoming.table} — Order #${incoming.order} is ready for collection!`);
-                onNewOrder(); 
-            } catch (_) {}
+                onNewOrder();
+            } catch (_) { }
         };
         window.addEventListener("storage", handler);
         return () => window.removeEventListener("storage", handler);
     }, [setNotifications, addToast, onNewOrder]);
 }
 
-const IconAlert = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>;
-const IconBell  = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>;
-const IconClock = () => <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>;
-const IconDoor  = () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={C.red} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>;
+const IconAlert = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></svg>;
+const IconBell = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 0 1-3.46 0" /></svg>;
+const IconClock = () => <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>;
+const IconDoor = () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={C.red} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></svg>;
 
 function Dropdown({ children, width = 360 }) {
     return (
@@ -94,9 +94,9 @@ function Dropdown({ children, width = 360 }) {
 function NavIcon({ icon, onClick, active, badge, badgeColor }) {
     return (
         <div onClick={onClick}
-             style={{ width: 36, height: 36, borderRadius: "50%", border: `1.5px solid ${active ? C.warm : "rgba(245,240,232,.3)"}`, background: active ? "rgba(196,118,58,.3)" : "rgba(245,240,232,.08)", display: "grid", placeItems: "center", cursor: "pointer", color: "rgba(245,240,232,.85)", position: "relative", transition: "all .15s", userSelect: "none" }}
-             onMouseEnter={e => { if (!active) { e.currentTarget.style.borderColor = C.warm; e.currentTarget.style.background = "rgba(196,118,58,.25)"; } }}
-             onMouseLeave={e => { if (!active) { e.currentTarget.style.borderColor = "rgba(245,240,232,.3)"; e.currentTarget.style.background = "rgba(245,240,232,.08)"; } }}>
+            style={{ width: 36, height: 36, borderRadius: "50%", border: `1.5px solid ${active ? C.warm : "rgba(245,240,232,.3)"}`, background: active ? "rgba(196,118,58,.3)" : "rgba(245,240,232,.08)", display: "grid", placeItems: "center", cursor: "pointer", color: "rgba(245,240,232,.85)", position: "relative", transition: "all .15s", userSelect: "none" }}
+            onMouseEnter={e => { if (!active) { e.currentTarget.style.borderColor = C.warm; e.currentTarget.style.background = "rgba(196,118,58,.25)"; } }}
+            onMouseLeave={e => { if (!active) { e.currentTarget.style.borderColor = "rgba(245,240,232,.3)"; e.currentTarget.style.background = "rgba(245,240,232,.08)"; } }}>
             {icon}
             {badge > 0 && <div style={{ position: "absolute", top: -3, right: -3, minWidth: 16, height: 16, borderRadius: 8, background: badgeColor || C.warm, border: `2px solid ${C.dark}`, display: "grid", placeItems: "center", fontSize: 8, fontWeight: 700, color: "white", padding: "0 3px" }}>{badge > 9 ? "9+" : badge}</div>}
         </div>
@@ -121,14 +121,14 @@ function SectionCard({ accentColor, title, badge, children, action }) {
 
 function NotificationsPanel({ notifications, setNotifications }) {
     const [filter, setFilter] = useState("All");
-    const unread   = notifications.filter(n => !n.read).length;
+    const unread = notifications.filter(n => !n.read).length;
     const markRead = id => setNotifications(p => p.map(n => n.id === id ? { ...n, read: true } : n));
-    const dismiss  = id => setNotifications(p => p.filter(n => n.id !== id));
-    const markAll  = ()  => setNotifications(p => p.map(n => ({ ...n, read: true })));
-    const clearAll = ()  => setNotifications([]);
+    const dismiss = id => setNotifications(p => p.filter(n => n.id !== id));
+    const markAll = () => setNotifications(p => p.map(n => ({ ...n, read: true })));
+    const clearAll = () => setNotifications([]);
     const filtered = notifications.filter(n =>
         filter === "Alerts" ? n.type === "alert" || n.type === "allergy" :
-            filter === "Ready"  ? n.type === "ready" : true
+            filter === "Ready" ? n.type === "ready" : true
     );
     return (
         <Dropdown width={370}>
@@ -143,7 +143,7 @@ function NotificationsPanel({ notifications, setNotifications }) {
                 </div>
             </div>
             <div style={{ padding: "8px 16px", display: "flex", gap: 6, borderBottom: `1px solid ${C.border}` }}>
-                {["All","Alerts","Ready"].map(f => (
+                {["All", "Alerts", "Ready"].map(f => (
                     <button key={f} onClick={() => setFilter(f)} style={{ fontSize: 10, fontWeight: 600, letterSpacing: ".06em", textTransform: "uppercase", padding: "3px 10px", borderRadius: 20, border: "none", cursor: "pointer", fontFamily: "Jost, sans-serif", background: filter === f ? C.dark : C.pale, color: filter === f ? C.bg : C.muted, transition: "all .15s" }}>{f}</button>
                 ))}
             </div>
@@ -151,9 +151,9 @@ function NotificationsPanel({ notifications, setNotifications }) {
                 {filtered.length === 0 && <div style={{ padding: "24px 16px", textAlign: "center", color: C.muted, fontSize: 13 }}>No notifications</div>}
                 {filtered.map(n => (
                     <div key={n.id} onClick={() => markRead(n.id)}
-                         style={{ padding: "11px 16px", borderBottom: `1px solid ${C.pale}`, display: "flex", gap: 10, cursor: "pointer", background: n.read ? "transparent" : "rgba(196,118,58,.04)", transition: "background .15s" }}
-                         onMouseEnter={e => e.currentTarget.style.background = C.pale}
-                         onMouseLeave={e => e.currentTarget.style.background = n.read ? "transparent" : "rgba(196,118,58,.04)"}>
+                        style={{ padding: "11px 16px", borderBottom: `1px solid ${C.pale}`, display: "flex", gap: 10, cursor: "pointer", background: n.read ? "transparent" : "rgba(196,118,58,.04)", transition: "background .15s" }}
+                        onMouseEnter={e => e.currentTarget.style.background = C.pale}
+                        onMouseLeave={e => e.currentTarget.style.background = n.read ? "transparent" : "rgba(196,118,58,.04)"}>
                         <div style={{ width: 3, borderRadius: 2, background: notifColor[n.type], flexShrink: 0, alignSelf: "stretch" }} />
                         <div style={{ flex: 1 }}>
                             <div style={{ fontSize: 12, fontWeight: n.read ? 400 : 700, color: C.text }}>Table {n.table} — Order #{n.order}</div>
@@ -181,9 +181,9 @@ function AccountPanel({ addToast }) {
                 </div>
             </div>
             <div onClick={() => { window.location.href = "/"; }}
-                 style={{ padding: "13px 16px", display: "flex", alignItems: "center", gap: 10, cursor: "pointer", transition: "background .15s", borderRadius: "0 0 10px 10px" }}
-                 onMouseEnter={e => e.currentTarget.style.background = C.redL}
-                 onMouseLeave={e => e.currentTarget.style.background = "transparent"}>
+                style={{ padding: "13px 16px", display: "flex", alignItems: "center", gap: 10, cursor: "pointer", transition: "background .15s", borderRadius: "0 0 10px 10px" }}
+                onMouseEnter={e => e.currentTarget.style.background = C.redL}
+                onMouseLeave={e => e.currentTarget.style.background = "transparent"}>
                 <IconDoor /><span style={{ fontSize: 13, fontWeight: 600, color: C.red }}>Sign Out</span>
             </div>
         </Dropdown>
@@ -235,31 +235,31 @@ function UnpaidModal({ unpaidTables, onClose }) {
 
 function AddItemsModal({ order, menu, onAdd, onClose }) {
     const [selected, setSelected] = useState({});
-    const [search,   setSearch]   = useState("");
+    const [search, setSearch] = useState("");
 
-    const q         = search.trim().toLowerCase();
+    const q = search.trim().toLowerCase();
     const availMenu = menu.filter(m => m.avail);
-    const filtered  = q ? availMenu.filter(m => m.name.toLowerCase().includes(q) || m.section.toLowerCase().includes(q)) : availMenu;
+    const filtered = q ? availMenu.filter(m => m.name.toLowerCase().includes(q) || m.section.toLowerCase().includes(q)) : availMenu;
 
-    const toggle    = item => setSelected(p => { const n = { ...p }; if (n[item.id]) delete n[item.id]; else n[item.id] = { ...item, qty: 1 }; return n; });
+    const toggle = item => setSelected(p => { const n = { ...p }; if (n[item.id]) delete n[item.id]; else n[item.id] = { ...item, qty: 1 }; return n; });
     const changeQty = (id, delta) => setSelected(p => { const n = { ...p }; if (!n[id]) return n; const q = n[id].qty + delta; if (q < 1) { delete n[id]; return n; } n[id] = { ...n[id], qty: q }; return n; });
-    const totalAdded  = Object.values(selected).reduce((s, i) => s + i.price * i.qty, 0);
+    const totalAdded = Object.values(selected).reduce((s, i) => s + i.price * i.qty, 0);
     const hasSelected = Object.keys(selected).length > 0;
 
     return (
         <Modal title="Add Items" subtitle={`Table ${order.table} · Order #${order.id}`} onClose={onClose}
-               footer={
-                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                       <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 15, fontWeight: 700, color: C.dark }}>{hasSelected ? `+£${totalAdded.toFixed(2)} to add` : "Select items above"}</span>
-                       <div style={{ display: "flex", gap: 8 }}>
-                           <button onClick={onClose} style={{ padding: "8px 14px", border: `1px solid ${C.border}`, borderRadius: 6, background: "transparent", fontSize: 11, cursor: "pointer", fontFamily: "Jost, sans-serif", color: C.muted }}>Cancel</button>
-                           <button onClick={() => { if (hasSelected) { onAdd(order.id, Object.values(selected)); onClose(); } }} disabled={!hasSelected}
-                                   style={{ padding: "8px 16px", border: "none", borderRadius: 6, background: hasSelected ? C.dark : C.light, color: hasSelected ? C.bg : C.muted, fontSize: 11, fontWeight: 600, cursor: hasSelected ? "pointer" : "not-allowed", fontFamily: "Jost, sans-serif", letterSpacing: ".06em", textTransform: "uppercase" }}>
-                               Add to Order
-                           </button>
-                       </div>
-                   </div>
-               }>
+            footer={
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 15, fontWeight: 700, color: C.dark }}>{hasSelected ? `+£${totalAdded.toFixed(2)} to add` : "Select items above"}</span>
+                    <div style={{ display: "flex", gap: 8 }}>
+                        <button onClick={onClose} style={{ padding: "8px 14px", border: `1px solid ${C.border}`, borderRadius: 6, background: "transparent", fontSize: 11, cursor: "pointer", fontFamily: "Jost, sans-serif", color: C.muted }}>Cancel</button>
+                        <button onClick={() => { if (hasSelected) { onAdd(order.id, Object.values(selected)); onClose(); } }} disabled={!hasSelected}
+                            style={{ padding: "8px 16px", border: "none", borderRadius: 6, background: hasSelected ? C.dark : C.light, color: hasSelected ? C.bg : C.muted, fontSize: 11, fontWeight: 600, cursor: hasSelected ? "pointer" : "not-allowed", fontFamily: "Jost, sans-serif", letterSpacing: ".06em", textTransform: "uppercase" }}>
+                            Add to Order
+                        </button>
+                    </div>
+                </div>
+            }>
             <div style={{ padding: "10px 20px 0" }}>
                 <div style={{ position: "relative", marginBottom: 10 }}>
                     <span style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", color: C.muted, fontSize: 13, pointerEvents: "none" }}>🔍</span>
@@ -281,7 +281,7 @@ function AddItemsModal({ order, menu, onAdd, onClose }) {
                     const sel = selected[item.id];
                     return (
                         <div key={item.id} onClick={() => !sel && toggle(item)}
-                             style={{ background: sel ? C.pale : C.bg, border: `1.5px solid ${sel ? C.warm : C.border}`, borderRadius: 8, padding: "10px 14px", marginBottom: 8, display: "flex", justifyContent: "space-between", alignItems: "center", cursor: sel ? "default" : "pointer", transition: "all .15s" }}>
+                            style={{ background: sel ? C.pale : C.bg, border: `1.5px solid ${sel ? C.warm : C.border}`, borderRadius: 8, padding: "10px 14px", marginBottom: 8, display: "flex", justifyContent: "space-between", alignItems: "center", cursor: sel ? "default" : "pointer", transition: "all .15s" }}>
                             <div>
                                 <div style={{ fontSize: 13, fontWeight: 600, color: C.text }}>{item.name}</div>
                                 <div style={{ fontSize: 11, color: C.muted }}>£{item.price.toFixed(2)} · {item.section}</div>
@@ -306,17 +306,17 @@ function AddItemsModal({ order, menu, onAdd, onClose }) {
 
 function OrderCard({ order, onConfirm, onCancel, onDeliver, onAddItems, onStatusChange, onRemoveItem }) {
     const [showStatusMenu, setShowStatusMenu] = useState(false);
-    const elapsed     = useElapsed(order.startedAt);
-    const isMine      = MY_TABLES.includes(order.table);
-    const rowTotal    = order.items.reduce((s, i) => s + i.price * i.qty, 0);
-    const isPending   = order.status === "Pending";
-    const isReady     = order.status === "Ready";
+    const elapsed = useElapsed(order.startedAt);
+    const isMine = MY_TABLES.includes(order.table);
+    const rowTotal = order.items.reduce((s, i) => s + i.price * i.qty, 0);
+    const isPending = order.status === "Pending";
+    const isReady = order.status === "Ready";
     const isDelivered = order.status === "Completed";
 
     return (
         <div style={{ background: C.bg, border: `1.5px solid ${isMine ? C.warm : C.border}`, borderRadius: 8, padding: "12px 14px", marginBottom: 10, opacity: isDelivered ? .65 : 1, transition: "box-shadow .15s" }}
-             onMouseEnter={e => e.currentTarget.style.boxShadow = "0 3px 12px rgba(0,0,0,.08)"}
-             onMouseLeave={e => e.currentTarget.style.boxShadow = ""}>
+            onMouseEnter={e => e.currentTarget.style.boxShadow = "0 3px 12px rgba(0,0,0,.08)"}
+            onMouseLeave={e => e.currentTarget.style.boxShadow = ""}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8 }}>
                 <div>
                     <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
@@ -340,10 +340,10 @@ function OrderCard({ order, onConfirm, onCancel, onDeliver, onAddItems, onStatus
                             <div style={{ padding: "8px 12px 6px", fontSize: 9, fontWeight: 700, letterSpacing: ".1em", textTransform: "uppercase", color: C.muted, borderBottom: `1px solid ${C.pale}` }}>Change Status</div>
                             {ORDER_STATUSES.filter(s => s !== order.status).map(s => (
                                 <div key={s}
-                                     onClick={() => { onStatusChange(order.id, s); setShowStatusMenu(false); }}
-                                     style={{ padding: "9px 14px", fontSize: 12, color: statusColor[s], cursor: "pointer", fontWeight: 600, borderBottom: `1px solid ${C.pale}`, display: "flex", alignItems: "center", gap: 8, transition: "background .12s" }}
-                                     onMouseEnter={e => e.currentTarget.style.background = C.pale}
-                                     onMouseLeave={e => e.currentTarget.style.background = "transparent"}>
+                                    onClick={() => { onStatusChange(order.id, s); setShowStatusMenu(false); }}
+                                    style={{ padding: "9px 14px", fontSize: 12, color: statusColor[s], cursor: "pointer", fontWeight: 600, borderBottom: `1px solid ${C.pale}`, display: "flex", alignItems: "center", gap: 8, transition: "background .12s" }}
+                                    onMouseEnter={e => e.currentTarget.style.background = C.pale}
+                                    onMouseLeave={e => e.currentTarget.style.background = "transparent"}>
                                     <span style={{ width: 8, height: 8, borderRadius: "50%", background: statusColor[s], flexShrink: 0, display: "inline-block" }} />
                                     {s}
                                 </div>
@@ -405,8 +405,8 @@ function OrdersTab({ orders, setOrders, menu, addToast }) {
             body: JSON.stringify({ status: "In Progress" }),
         });
         addToast("Order confirmed ✓");
-    }; 
-    
+    };
+
     const deliverOrder = async (id) => {
         setOrders(p => p.map(o => o.id === id ? { ...o, status: "Completed" } : o));
         await fetch(`http://127.0.0.1:8000/orders/${id}`, {
@@ -415,25 +415,26 @@ function OrdersTab({ orders, setOrders, menu, addToast }) {
             body: JSON.stringify({ status: "Completed" }),
         });
         setTimeout(async () => {
-        await fetch('http://127.0.0.1:8000/orders/cleanup', { method: 'DELETE' });
-        }, 30000); 
+            await fetch('http://127.0.0.1:8000/orders/cleanup', { method: 'DELETE' });
+        }, 30000);
         addToast("Order marked as delivered");
     };
 
-    const cancelOrder     = id => { setOrders(p => p.filter(o => o.id !== id)); addToast("Order cancelled"); };
+    const cancelOrder = id => { setOrders(p => p.filter(o => o.id !== id)); addToast("Order cancelled"); };
 
-    const changeStatus = async (id, status) => { setOrders(p => p.map(o => o.id === id ? { ...o, status } : o));
+    const changeStatus = async (id, status) => {
+        setOrders(p => p.map(o => o.id === id ? { ...o, status } : o));
 
-    await fetch(`http://127.0.0.1:8000/orders/${id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status }),
-    });
-    addToast(`Status updated to "${status}"`);
-};
-    
-    
-    const removeItem      = (orderId, itemIndex) => {
+        await fetch(`http://127.0.0.1:8000/orders/${id}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status }),
+        });
+        addToast(`Status updated to "${status}"`);
+    };
+
+
+    const removeItem = (orderId, itemIndex) => {
         setOrders(p => p.map(o => {
             if (o.id !== orderId) return o;
             const items = o.items.filter((_, i) => i !== itemIndex);
@@ -457,9 +458,9 @@ function OrdersTab({ orders, setOrders, menu, addToast }) {
 
     const active = orders.filter(o => o.status !== "Completed" && o.status !== "Cancelled");
     const statCards = [
-    { label: "Pending",     value: orders.filter(o => o.status === "Pending").length,     accent: C.amber },
-    { label: "In Progress", value: orders.filter(o => o.status === "In Progress").length, accent: C.warm },
-    { label: "Ready",       value: orders.filter(o => o.status === "Ready").length,        accent: C.green },
+        { label: "Pending", value: orders.filter(o => o.status === "Pending").length, accent: C.amber },
+        { label: "In Progress", value: orders.filter(o => o.status === "In Progress").length, accent: C.warm },
+        { label: "Ready", value: orders.filter(o => o.status === "Ready").length, accent: C.green },
     ];
 
     return (
@@ -476,50 +477,50 @@ function OrdersTab({ orders, setOrders, menu, addToast }) {
 
             {/* 3-COLUMN STYLE FOR ORDERS : better than elongated stacks */}
             <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16 }}>
-            {[
-                { title: "Pending",     accent: C.amber, orders: active.filter(o => o.status === "Pending")     },
-                { title: "In Progress", accent: C.warm,  orders: active.filter(o => o.status === "In Progress") },
-                { title: "Ready",       accent: C.green, orders: active.filter(o => o.status === "Ready")       },
-            ].map(col => (
-                <div key={col.title} style={{ background: C.panel, border: `1.5px solid ${C.border}`, borderRadius: 10, overflow: "hidden" }}>
-                    <div style={{ height: 3, background: col.accent }} />
-                    <div style={{ padding: "14px 16px 10px", borderBottom: `1.5px solid ${C.border}`, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                        <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 17, fontWeight: 700, color: C.dark }}>{col.title}</span>
-                        <span style={{ fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 10, background: C.pale, color: C.muted }}>{col.orders.length} orders</span>
-                    </div>
+                {[
+                    { title: "Pending", accent: C.amber, orders: active.filter(o => o.status === "Pending") },
+                    { title: "In Progress", accent: C.warm, orders: active.filter(o => o.status === "In Progress") },
+                    { title: "Ready", accent: C.green, orders: active.filter(o => o.status === "Ready") },
+                ].map(col => (
+                    <div key={col.title} style={{ background: C.panel, border: `1.5px solid ${C.border}`, borderRadius: 10, overflow: "hidden" }}>
+                        <div style={{ height: 3, background: col.accent }} />
+                        <div style={{ padding: "14px 16px 10px", borderBottom: `1.5px solid ${C.border}`, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                            <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 17, fontWeight: 700, color: C.dark }}>{col.title}</span>
+                            <span style={{ fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 10, background: C.pale, color: C.muted }}>{col.orders.length} orders</span>
+                        </div>
 
-                    <div style={{ padding: "12px 14px" }}>
-                        {col.orders.length === 0
-                            ? <div style={{ textAlign: "center", padding: "24px 0", color: C.muted, fontSize: 12 }}>No orders</div>
-                            : col.orders.map(order => (
-                                <OrderCard key={order.id} order={order}
-                                    onConfirm={confirmOrder} onCancel={cancelOrder}
-                                    onDeliver={deliverOrder} onAddItems={o => setAddItemsOrder(o)}
-                                    onStatusChange={changeStatus} onRemoveItem={removeItem} />
-                            ))
-                        }
+                        <div style={{ padding: "12px 14px" }}>
+                            {col.orders.length === 0
+                                ? <div style={{ textAlign: "center", padding: "24px 0", color: C.muted, fontSize: 12 }}>No orders</div>
+                                : col.orders.map(order => (
+                                    <OrderCard key={order.id} order={order}
+                                        onConfirm={confirmOrder} onCancel={cancelOrder}
+                                        onDeliver={deliverOrder} onAddItems={o => setAddItemsOrder(o)}
+                                        onStatusChange={changeStatus} onRemoveItem={removeItem} />
+                                ))
+                            }
+                        </div>
                     </div>
-                </div>
-            ))}
+                ))}
+            </div>
+
+            {addItemsOrder && (
+                <AddItemsModal order={addItemsOrder} menu={menu} onAdd={addItemsToOrder} onClose={() => setAddItemsOrder(null)} />
+            )}
         </div>
-
-        {addItemsOrder && (
-            <AddItemsModal order={addItemsOrder} menu={menu} onAdd={addItemsToOrder} onClose={() => setAddItemsOrder(null)} />
-        )}
-    </div>
     );
 }
 
 function TablesTab({ unpaidTables, addToast, raiseAlert }) {
     const [showUnpaidModal, setShowUnpaidModal] = useState(false);
-    const [alertTable,  setAlertTable]  = useState("");
+    const [alertTable, setAlertTable] = useState("");
     const [customTable, setCustomTable] = useState("");
 
     return (
         <div style={{ padding: "20px 28px 32px" }}>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
                 <SectionCard accentColor={C.warm} title="Assigned Tables"
-                             badge={<span style={{ fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 10, background: C.pale, color: C.muted }}>{MY_TABLES.length} tables</span>}>
+                    badge={<span style={{ fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 10, background: C.pale, color: C.muted }}>{MY_TABLES.length} tables</span>}>
                     <div style={{ padding: "12px 16px 16px" }}>
                         <p style={{ fontSize: 12, color: C.muted, marginBottom: 12 }}>You are responsible for these tables during your shift.</p>
                         <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
@@ -540,8 +541,8 @@ function TablesTab({ unpaidTables, addToast, raiseAlert }) {
                             <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
                                 {MY_TABLES.map(t => (
                                     <button key={t}
-                                            onClick={() => setAlertTable(alertTable === t ? "" : t)}
-                                            style={{ padding: "6px 14px", borderRadius: 6, border: `1.5px solid ${alertTable === t ? C.warm : C.border}`, background: alertTable === t ? C.pale : C.bg, color: alertTable === t ? C.dark : C.muted, fontSize: 12, fontWeight: alertTable === t ? 700 : 500, cursor: "pointer", fontFamily: "Jost, sans-serif", transition: "all .15s" }}>
+                                        onClick={() => setAlertTable(alertTable === t ? "" : t)}
+                                        style={{ padding: "6px 14px", borderRadius: 6, border: `1.5px solid ${alertTable === t ? C.warm : C.border}`, background: alertTable === t ? C.pale : C.bg, color: alertTable === t ? C.dark : C.muted, fontSize: 12, fontWeight: alertTable === t ? 700 : 500, cursor: "pointer", fontFamily: "Jost, sans-serif", transition: "all .15s" }}>
                                         T{t}
                                     </button>
                                 ))}
@@ -615,11 +616,11 @@ function MenuTab({ menu, setMenu, addToast }) {
         addToast(`${item.name} marked ${item.avail ? "unavailable" : "available"} ✓`);
     };
 
-    const sections    = ["Starters", "Mains", "Dessert", "Sides", "Drinks"];
-    const available   = menu.filter(m => m.avail).length;
+    const sections = ["Starters", "Mains", "Dessert", "Sides", "Drinks"];
+    const available = menu.filter(m => m.avail).length;
     const unavailable = menu.filter(m => !m.avail).length;
-    const q           = search.trim().toLowerCase();
-    const isFiltered  = q.length > 0;
+    const q = search.trim().toLowerCase();
+    const isFiltered = q.length > 0;
 
     const matchesSearch = item =>
         item.name.toLowerCase().includes(q) ||
@@ -632,9 +633,9 @@ function MenuTab({ menu, setMenu, addToast }) {
         <div style={{ padding: "20px 28px 32px" }}>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12, marginBottom: 20 }}>
                 {[
-                    { label: "Total Items",  value: menu.length,  accent: C.warm  },
-                    { label: "Available",    value: available,    accent: C.green },
-                    { label: "Unavailable",  value: unavailable,  accent: C.red   },
+                    { label: "Total Items", value: menu.length, accent: C.warm },
+                    { label: "Available", value: available, accent: C.green },
+                    { label: "Unavailable", value: unavailable, accent: C.red },
                 ].map((s, i) => (
                     <div key={i} style={{ background: C.panel, border: `1.5px solid ${C.border}`, borderRadius: 8, padding: "12px 16px", position: "relative", overflow: "hidden" }}>
                         <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: s.accent }} />
@@ -656,7 +657,7 @@ function MenuTab({ menu, setMenu, addToast }) {
             </div>
             {isFiltered ? (
                 <SectionCard accentColor={C.warm} title="Search Results"
-                             badge={<span style={{ fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 10, background: C.pale, color: C.muted }}>{menu.filter(matchesSearch).length} items</span>}>
+                    badge={<span style={{ fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 10, background: C.pale, color: C.muted }}>{menu.filter(matchesSearch).length} items</span>}>
                     <div style={{ padding: "12px 16px 16px" }}>
                         {menu.filter(matchesSearch).length === 0 && (
                             <div style={{ textAlign: "center", padding: "24px 0", color: C.muted, fontSize: 12 }}>No items match "{search}"</div>
@@ -675,7 +676,7 @@ function MenuTab({ menu, setMenu, addToast }) {
                     return (
                         <div key={sec} style={{ marginBottom: 20 }}>
                             <SectionCard accentColor={C.mid} title={sec}
-                                         badge={<span style={{ fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 10, background: C.pale, color: C.muted }}>{items.filter(m => m.avail).length}/{items.length} available</span>}>
+                                badge={<span style={{ fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 10, background: C.pale, color: C.muted }}>{items.filter(m => m.avail).length}/{items.length} available</span>}>
                                 <div style={{ padding: "12px 16px 16px" }}>
                                     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
                                         {items.map(item => <MenuItemCard key={item.id} item={item} onToggle={toggleAvail} />)}
@@ -736,7 +737,7 @@ function useCustomerAlerts(setNotifications, addToast) {
                     return [incoming, ...prev];
                 });
                 addToast(`🔔 Table ${incoming.table} needs assistance!`);
-            } catch (_) {}
+            } catch (_) { }
         };
         window.addEventListener("storage", handler);
         return () => window.removeEventListener("storage", handler);
@@ -754,16 +755,16 @@ export default function App() {
         }
     }, []);
 
-    const [tab,           setTab]           = useState("Orders");
-    
-    const [notifications, setNotifications] = useState(INIT_NOTIFICATIONS);
-    const [toasts,        setToasts]        = useState([]);
-    const [showNotifs,    setShowNotifs]    = useState(false);
-    const [showAccount,   setShowAccount]   = useState(false);
+    const [tab, setTab] = useState("Orders");
 
-    const notifRef   = useRef(null);
+    const [notifications, setNotifications] = useState(INIT_NOTIFICATIONS);
+    const [toasts, setToasts] = useState([]);
+    const [showNotifs, setShowNotifs] = useState(false);
+    const [showAccount, setShowAccount] = useState(false);
+
+    const notifRef = useRef(null);
     const accountRef = useRef(null);
-    useOutsideClick(notifRef,   () => setShowNotifs(false));
+    useOutsideClick(notifRef, () => setShowNotifs(false));
     useOutsideClick(accountRef, () => setShowAccount(false));
 
     const addToast = msg => { const id = Date.now(); setToasts(p => [...p, { id, msg }]); setTimeout(() => setToasts(p => p.filter(t => t.id !== id)), 3000); };
@@ -772,7 +773,7 @@ export default function App() {
     // LISTENING FOR KITCHEN NOTIFY EVENTS
     useKitchenNotifications(setNotifications, addToast);
 
-    const unread     = notifications.filter(n => !n.read).length;
+    const unread = notifications.filter(n => !n.read).length;
     const alertCount = notifications.filter(n => n.type === "alert").length;
 
     const TABS = ["Orders", "Tables", "Menu"];
@@ -842,10 +843,10 @@ export default function App() {
                         <NavIcon icon={<IconBell />} onClick={() => { setShowNotifs(v => !v); setShowAccount(false); }} active={showNotifs} badge={unread} badgeColor={alertCount > 0 ? C.blue : C.warm} />
                         {showNotifs && <NotificationsPanel notifications={notifications} setNotifications={setNotifications} />}
                     </div>
-                    
+
                     <div ref={accountRef} style={{ position: "relative" }}>
                         <div onClick={() => { setShowAccount(v => !v); setShowNotifs(false); }}
-                             style={{ width: 36, height: 36, borderRadius: "50%", background: showAccount ? C.mid : C.green, display: "grid", placeItems: "center", cursor: "pointer", color: "white", fontSize: 11, fontWeight: 700, border: `2px solid ${showAccount ? C.light : "transparent"}`, transition: "all .15s", userSelect: "none" }}>
+                            style={{ width: 36, height: 36, borderRadius: "50%", background: showAccount ? C.mid : C.green, display: "grid", placeItems: "center", cursor: "pointer", color: "white", fontSize: 11, fontWeight: 700, border: `2px solid ${showAccount ? C.light : "transparent"}`, transition: "all .15s", userSelect: "none" }}>
                             JD
                         </div>
                         {showAccount && <AccountPanel addToast={addToast} />}
@@ -878,7 +879,7 @@ export default function App() {
                 <div style={{ display: "flex", padding: "0 28px", marginTop: 12 }}>
                     {TABS.map(t => (
                         <button key={t} onClick={() => setTab(t)}
-                                style={{ padding: "9px 18px", fontSize: 12, letterSpacing: ".08em", textTransform: "uppercase", fontWeight: 500, cursor: "pointer", color: tab === t ? C.mid : C.muted, transition: "color .2s", userSelect: "none", background: "none", border: "none", borderBottom: `2.5px solid ${tab === t ? C.mid : "transparent"}`, fontFamily: "Jost, sans-serif" }}>
+                            style={{ padding: "9px 18px", fontSize: 12, letterSpacing: ".08em", textTransform: "uppercase", fontWeight: 500, cursor: "pointer", color: tab === t ? C.mid : C.muted, transition: "color .2s", userSelect: "none", background: "none", border: "none", borderBottom: `2.5px solid ${tab === t ? C.mid : "transparent"}`, fontFamily: "Jost, sans-serif" }}>
                             {t}
                         </button>
                     ))}
@@ -888,7 +889,7 @@ export default function App() {
             {/* TAB CONTENT */}
             {tab === "Orders" && <OrdersTab orders={orders} setOrders={setOrders} menu={menu} addToast={addToast} />}
             {tab === "Tables" && <TablesTab unpaidTables={INIT_UNPAID} addToast={addToast} raiseAlert={raiseAlert} />}
-            {tab === "Menu"   && <MenuTab   menu={menu} setMenu={setMenu} addToast={addToast} />}
+            {tab === "Menu" && <MenuTab menu={menu} setMenu={setMenu} addToast={addToast} />}
 
             {/* TOASTS */}
             <div style={{ position: "fixed", bottom: 24, right: 24, display: "flex", flexDirection: "column", gap: 8, zIndex: 9999, pointerEvents: "none" }}>
