@@ -1951,3 +1951,16 @@ button {
     border-radius: 0;
   }
 }
+
+.menu-item-card--unavailable {
+  opacity: 0.5;
+  border-color: #c0392b55;
+  background: #fde8e6;
+  pointer-events: none;
+}
+
+.menu-item-card--unavailable .add-to-order-btn {
+  background: #c0392b;
+  color: white;
+  cursor: not-allowed;
+}
