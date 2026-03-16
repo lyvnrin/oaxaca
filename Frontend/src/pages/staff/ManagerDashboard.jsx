@@ -27,23 +27,8 @@ const INIT_TABLES = [
     { id: 14, status: "Waiting", bill: null, orders: [{ name: "Mezcal Flan", qty: 1, price: 7.00 }] },
     { id: 15, status: "Free", bill: null, orders: [] },
 ];
-const TABLE_STATUSES = ["Free", "Ordering", "Waiting", "Eating", "Bill Req.", "Service"];
 
-const INIT_REQUESTS = [
-    { id: 1, text: "Bill requested", table: 3, urgency: "urgent", mins: 2 },
-    { id: 2, text: "Waiter assistance", table: 6, urgency: "normal", mins: 4 },
-    { id: 3, text: "Extra napkins", table: 8, urgency: "normal", mins: 6 },
-    { id: 4, text: "Allergy query", table: 1, urgency: "info", mins: 9 },
-];
-
-const INIT_NOTIFICATIONS = [
-    { id: 1, type: "urgent", title: "Sea Bass critically low", body: "Stock at 12% — order required today.", time: "2m ago", read: false },
-    { id: 2, type: "urgent", title: "Bill overdue — Table 03", body: "Customer has been waiting 8 minutes.", time: "8m ago", read: false },
-    { id: 3, type: "warn", title: "Ceviche Verde below margin", body: "Current price yields only 31% profit margin.", time: "15m ago", read: false },
-    { id: 4, type: "warn", title: "Corn Tortillas running low", body: "Stock at 35%. Consider restocking soon.", time: "22m ago", read: true },
-    { id: 5, type: "info", title: "Sofia R. — top sales today", body: "£342 in sales, 22 orders handled this shift.", time: "1h ago", read: true },
-    { id: 6, type: "info", title: "Veggie Enchiladas marked off", body: "Item currently set to unavailable.", time: "1h ago", read: true },
-];
+const INIT_NOTIFICATIONS = [];
 
 const INIT_MENU = [
     { id: 1, section: "Starters", name: "Guacamole & Chips", cost: 2.80, price: 7.00, avail: true, description: "Hand-mashed avocado, jalapeño, lime zest & Oaxacan pink salt.", dietary: ["Vegan", "Gluten-Free"], allergens: [], calories: "350 kcal" },
@@ -209,33 +194,23 @@ function AccountPanel() {
     );
 }
 
-function OverviewTab({ tables, setTables, requests, setRequests, addToast }) {
+function OverviewTab({ tables }) {
     const occupied = tables.filter(t => t.status !== "Free").length;
     const serviceCount = tables.filter(t => t.status === "Service" || t.status === "Bill Req.").length;
     const [selectedTable, setSelectedTable] = useState(null);
 
-    const resolveRequest = (id) => { setRequests(p => p.filter(r => r.id !== id)); addToast("Request resolved ✓"); };
-    const updateTableStatus = (id, status) => { setTables(p => p.map(t => t.id === id ? { ...t, status } : t)); setSelectedTable(null); addToast(`Table ${String(id).padStart(2, "0")} → ${status}`); };
-
-    const statCards = [
-        { label: "Active Tables", val: `${occupied}/15`, delta: `${occupied} occupied`, up: true, accent: C.amber },
-        { label: "Service Requests", val: requests.length, delta: requests.length > 0 ? `${requests.length} need attention` : "All clear", up: requests.length === 0, accent: C.red },
-    ];
-
     return (
         <>
-            <div style={{ gridColumn: "1/-1", display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: 14 }}>
-                {statCards.map((s, i) => (
-                    <div key={i} style={{ background: C.panel, border: `1.5px solid ${C.border}`, borderRadius: 8, padding: "16px 18px", position: "relative", overflow: "hidden" }}>
-                        <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: s.accent }} />
-                        <div style={{ fontSize: 10, letterSpacing: ".12em", textTransform: "uppercase", color: C.muted, fontWeight: 600 }}>{s.label}</div>
-                        <div style={{ fontFamily: "Cormorant Garamond, serif", fontSize: 34, fontWeight: 700, color: C.dark, lineHeight: 1.1, margin: "4px 0 2px" }}>{s.val}</div>
-                        <div style={{ fontSize: 11, color: s.up ? C.green : C.red, fontWeight: 500 }}>{s.delta}</div>
-                    </div>
-                ))}
+            <div style={{ gridColumn: "1/-1" }}>
+                <div style={{ background: C.panel, border: `1.5px solid ${C.border}`, borderRadius: 8, padding: "16px 18px", position: "relative", overflow: "hidden" }}>
+                    <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: C.amber }} />
+                    <div style={{ fontSize: 10, letterSpacing: ".12em", textTransform: "uppercase", color: C.muted, fontWeight: 600 }}>Active Tables</div>
+                    <div style={{ fontFamily: "Cormorant Garamond, serif", fontSize: 34, fontWeight: 700, color: C.dark, lineHeight: 1.1, margin: "4px 0 2px" }}>{occupied}/20</div>
+                    <div style={{ fontSize: 11, color: C.green, fontWeight: 500 }}>{occupied} occupied</div>
+                </div>
             </div>
 
-            <div style={{ gridColumn: "span 2", background: C.panel, border: `1.5px solid ${C.border}`, borderRadius: 8, padding: 18, display: "flex", flexDirection: "column", gap: 12 }}>
+            <div style={{ gridColumn: "1/-1", background: C.panel, border: `1.5px solid ${C.border}`, borderRadius: 8, padding: 18, display: "flex", flexDirection: "column", gap: 12 }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                     <span style={{ fontFamily: "Cormorant Garamond, serif", fontSize: 17, fontWeight: 700, color: C.dark }}>Table Overview</span>
                     <div style={{ display: "flex", gap: 6 }}>
@@ -279,37 +254,16 @@ function OverviewTab({ tables, setTables, requests, setRequests, addToast }) {
                 </div>
             </div>
 
-            <div style={{ background: C.panel, border: `1.5px solid ${C.border}`, borderRadius: 8, padding: 18, display: "flex", flexDirection: "column", gap: 12 }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <span style={{ fontFamily: "Cormorant Garamond, serif", fontSize: 17, fontWeight: 700, color: C.dark }}>Service Requests</span>
-                    <span style={{ fontSize: 10, fontWeight: 600, letterSpacing: ".08em", textTransform: "uppercase", padding: "3px 9px", borderRadius: 20, background: C.redL, color: C.red }}>{requests.length} Active</span>
-                </div>
-                <div style={{ height: 1, background: C.border }} />
-                {requests.length === 0 && <div style={{ textAlign: "center", padding: "16px 0", color: C.muted, fontSize: 13 }}>All requests resolved ✓</div>}
-                {requests.map(r => (
-                    <div key={r.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "9px 12px", background: C.bg, borderRadius: 6, border: `1px solid ${C.border}` }}>
-                        <div style={{ width: 8, height: 8, borderRadius: "50%", background: urgencyColor[r.urgency], flexShrink: 0 }} />
-                        <span style={{ fontSize: 12, color: C.text, flex: 1, fontWeight: 500 }}>{r.text}</span>
-                        <span style={{ fontSize: 10, color: C.muted }}>T{String(r.table).padStart(2, "0")}</span>
-                        <span style={{ fontSize: 10, color: C.muted }}>{r.mins}m ago</span>
-                        <button onClick={() => resolveRequest(r.id)} style={{ fontSize: 10, fontWeight: 600, letterSpacing: ".06em", textTransform: "uppercase", color: C.mid, cursor: "pointer", padding: "3px 8px", border: `1px solid ${C.light}`, borderRadius: 4, background: "white", fontFamily: "Jost, sans-serif" }}>Resolve</button>
-                    </div>
-                ))}
-            </div>
-
             {selectedTable && (() => {
                 const t = tables.find(t => t.id === selectedTable.id) || selectedTable;
                 const total = t.orders.reduce((s, o) => s + o.price * o.qty, 0);
                 const sc = tileColors(t.status);
                 return (
                     <Modal title={`Table ${String(t.id).padStart(2, "0")}`} onClose={() => setSelectedTable(null)}>
-                        {/* Status badge */}
                         <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: sc.bg, border: `1px solid ${sc.border}`, borderRadius: 20, padding: "3px 12px", marginBottom: 16 }}>
                             <div style={{ width: 7, height: 7, borderRadius: "50%", background: sc.num }} />
                             <span style={{ fontSize: 11, fontWeight: 600, color: sc.label, letterSpacing: ".06em", textTransform: "uppercase" }}>{t.status}</span>
                         </div>
-
-                        {/* Order breakdown */}
                         {t.orders.length > 0 ? (
                             <div style={{ marginBottom: 18 }}>
                                 <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: ".1em", textTransform: "uppercase", color: C.muted, marginBottom: 10 }}>Current Order</p>
@@ -334,17 +288,6 @@ function OverviewTab({ tables, setTables, requests, setRequests, addToast }) {
                                 <p style={{ fontSize: 12, color: C.muted, fontStyle: "italic" }}>No items ordered yet.</p>
                             </div>
                         )}
-
-                        {/* Status controls */}
-                        <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: ".1em", textTransform: "uppercase", color: C.muted, marginBottom: 10 }}>Update Status</p>
-                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
-                            {TABLE_STATUSES.map(s => (
-                                <button key={s} onClick={() => updateTableStatus(t.id, s)}
-                                    style={{ padding: "10px 12px", borderRadius: 6, border: `1.5px solid ${t.status === s ? C.warm : C.border}`, background: t.status === s ? C.pale : "white", color: t.status === s ? C.dark : C.text, fontSize: 12, fontWeight: t.status === s ? 700 : 400, cursor: "pointer", fontFamily: "Jost, sans-serif", transition: "all .15s" }}>
-                                    {s}
-                                </button>
-                            ))}
-                        </div>
                     </Modal>
                 );
             })()}
@@ -375,8 +318,6 @@ function MenuTab({ menu, setMenu, addToast }) {
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <span style={{ fontFamily: "Cormorant Garamond, serif", fontSize: 20, fontWeight: 700, color: C.dark }}>Menu Management</span>
             </div>
-
-            {/* STAT CARDS */}
             <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12 }}>
                 {[
                     { label: "Total Items", value: menu.length, accent: C.warm },
@@ -390,19 +331,16 @@ function MenuTab({ menu, setMenu, addToast }) {
                     </div>
                 ))}
             </div>
-
             {belowMgn.length > 0 && (
                 <div style={{ fontSize: 11, background: C.amberL, border: `1px solid #f0c97a`, color: "#8a5e0a", borderRadius: 5, padding: "9px 14px" }}>
                     ⚠️ <strong>{belowMgn.length} item{belowMgn.length > 1 ? "s" : ""}</strong> ({belowMgn.map(i => i.name).join(", ")}) below 60% margin.
                 </div>
             )}
-
-            {/* TABLE */}
             <div style={{ background: C.bg, border: `1.5px solid ${C.border}`, borderRadius: 10, overflow: "hidden" }}>
                 <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
                     <thead>
                         <tr style={{ background: C.dark }}>
-                            {["Section", "Name", "Cost", "Price", "Margin", "Dietary", "Allergens", "Calories", "Available"].map(h => (
+                            {["Section", "Name", "Price", "Margin", "Dietary", "Allergens", "Calories", "Available"].map(h => (
                                 <th key={h} style={{ padding: "10px 14px", textAlign: "left", fontSize: 10, fontWeight: 700, letterSpacing: ".1em", textTransform: "uppercase", color: C.light, whiteSpace: "nowrap" }}>{h}</th>
                             ))}
                         </tr>
@@ -420,7 +358,6 @@ function MenuTab({ menu, setMenu, addToast }) {
                                         <span style={{ background: C.light, color: C.mid, padding: "2px 8px", borderRadius: 10, fontSize: 10, fontWeight: 600 }}>{item.section}</span>
                                     </td>
                                     <td style={{ padding: "10px 14px", fontWeight: 600, color: C.text }}>{item.name}</td>
-                                    <td style={{ padding: "10px 14px", fontSize: 11, color: C.muted, whiteSpace: "nowrap" }}>£{item.cost.toFixed(2)}</td>
                                     <td style={{ padding: "10px 14px", fontFamily: "Cormorant Garamond, serif", fontWeight: 700, color: C.mid, whiteSpace: "nowrap" }}>£{item.price.toFixed(2)}</td>
                                     <td style={{ padding: "10px 14px" }}>
                                         <span style={{ fontSize: 10, fontWeight: 600, padding: "3px 8px", borderRadius: 10, background: mc.bg, color: mc.text }}>{mc.label}</span>
@@ -446,95 +383,70 @@ function MenuTab({ menu, setMenu, addToast }) {
     );
 }
 
-function EmployeesTab({ employees, setEmployees, addToast }) {
-    const onShift = employees.filter(e => e.status !== "Off Shift").length;
-    const maxSales = Math.max(...employees.map(e => e.sales), 1);
-    const statusColor = { "Active": C.green, "On Break": C.amber, "Off Shift": C.muted };
+function EmployeesTab({ employees }) {
     const roleStyle = { "Waiter": { bg: C.pale, color: C.mid }, "Kitchen": { bg: C.amberL, color: C.amber } };
 
-    const toggleStatus = (id) => {
-        const emp = employees.find(e => e.id === id);
-        const next = emp.status === "Active" ? "On Break" : emp.status === "On Break" ? "Off Shift" : "Active";
-        setEmployees(prev => prev.map(e => e.id === id ? { ...e, status: next } : e));
-        addToast(`${emp.name} → ${next}`);
-    };
+    const waiters = employees.filter(e => e.role === "Waiter");
+    const kitchen = employees.filter(e => e.role === "Kitchen");
 
     const summaryCards = [
         { label: "Total Sales", val: `£${employees.reduce((a, e) => a + e.sales, 0)}` },
         { label: "Orders Handled", val: employees.reduce((a, e) => a + e.orders, 0) },
-        { label: "Top Performer", val: [...employees].sort((a, b) => b.sales - a.sales)[0]?.name.split(" ")[0] },
-        { label: "Active Staff", val: employees.filter(e => e.status === "Active").length },
     ];
+
+    const EmployeeTable = ({ rows }) => (
+        <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
+            <thead>
+                <tr>
+                    {["Employee", "Role", "Orders", "Sales Today"].map((h, i) => (
+                        <th key={i} style={{ textAlign: "left", fontSize: 9, letterSpacing: ".12em", textTransform: "uppercase", color: C.muted, fontWeight: 600, padding: "0 10px 10px", borderBottom: `1px solid ${C.border}`, width: "25%" }}>{h}</th>
+                    ))}
+                </tr>
+            </thead>
+            <tbody>
+                {rows.map(e => {
+                    const rs = roleStyle[e.role] || roleStyle["Waiter"];
+                    return (
+                        <tr key={e.id}
+                            onMouseEnter={ev => ev.currentTarget.style.background = C.pale}
+                            onMouseLeave={ev => ev.currentTarget.style.background = ""}>
+                            <td style={{ padding: "10px", borderBottom: `1px solid ${C.pale}`, width: "25%" }}>
+                                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                                    <div style={{ width: 28, height: 28, borderRadius: "50%", background: C.light, display: "grid", placeItems: "center", fontSize: 10, fontWeight: 700, color: C.mid, flexShrink: 0 }}>{e.initials}</div>
+                                    <span style={{ fontWeight: 500 }}>{e.name}</span>
+                                </div>
+                            </td>
+                            <td style={{ padding: "10px", borderBottom: `1px solid ${C.pale}`, width: "25%" }}>
+                                <span style={{ fontSize: 10, padding: "2px 8px", borderRadius: 10, fontWeight: 600, background: rs.bg, color: rs.color }}>{e.role}</span>
+                            </td>
+                            <td style={{ padding: "10px", borderBottom: `1px solid ${C.pale}`, width: "25%", color: C.text }}>{e.orders}</td>
+                            <td style={{ padding: "10px", borderBottom: `1px solid ${C.pale}`, width: "25%", fontFamily: "Cormorant Garamond, serif", fontSize: 15, fontWeight: 700, color: C.mid }}>
+                                {e.sales > 0 ? `£${e.sales}` : "—"}
+                            </td>
+                        </tr>
+                    );
+                })}
+            </tbody>
+        </table>
+    );
 
     return (
         <div style={{ gridColumn: "1/-1", background: C.panel, border: `1.5px solid ${C.border}`, borderRadius: 8, padding: 18, display: "flex", flexDirection: "column", gap: 14 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <span style={{ fontFamily: "Cormorant Garamond, serif", fontSize: 20, fontWeight: 700, color: C.dark }}>Employee Performance</span>
-                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                    <span style={{ fontSize: 11, color: C.muted }}>Today's Shift</span>
-                    <span style={{ fontSize: 10, fontWeight: 600, letterSpacing: ".08em", textTransform: "uppercase", padding: "3px 9px", borderRadius: 20, background: C.greenL, color: C.green }}>{onShift} On Shift</span>
-                </div>
-            </div>
+            <span style={{ fontFamily: "Cormorant Garamond, serif", fontSize: 20, fontWeight: 700, color: C.dark }}>Employee Performance</span>
             <div style={{ height: 1, background: C.border }} />
 
-            <div style={{ overflowX: "auto" }}>
-                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12, tableLayout: "fixed" }}>
-                    <colgroup>
-                        <col style={{ width: "20%" }} />
-                        <col style={{ width: "10%" }} />
-                        <col style={{ width: "8%" }} />
-                        <col style={{ width: "8%" }} />
-                        <col style={{ width: "20%" }} />
-                        <col style={{ width: "10%" }} />
-                        <col style={{ width: "12%" }} />
-                        <col style={{ width: "12%" }} />
-                    </colgroup>
-                    <thead>
-                        <tr>
-                            {["Employee", "Role", "Tables", "Orders", "Sales Today", "Avg. Time", "Status", ""].map((h, i) => (
-                                <th key={i} style={{ textAlign: "left", fontSize: 9, letterSpacing: ".12em", textTransform: "uppercase", color: C.muted, fontWeight: 600, padding: "0 10px 10px", borderBottom: `1px solid ${C.border}`, overflow: "hidden" }}>{h}</th>
-                            ))}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {employees.map(e => {
-                            const rs = roleStyle[e.role] || roleStyle["Waiter"];
-                            return (
-                                <tr key={e.id}
-                                    onMouseEnter={ev => ev.currentTarget.style.background = C.pale}
-                                    onMouseLeave={ev => ev.currentTarget.style.background = ""}>
-                                    <td style={{ padding: "10px", borderBottom: `1px solid ${C.pale}`, overflow: "hidden" }}>
-                                        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                                            <div style={{ width: 28, height: 28, borderRadius: "50%", background: C.light, display: "grid", placeItems: "center", fontSize: 10, fontWeight: 700, color: C.mid, flexShrink: 0 }}>{e.initials}</div>
-                                            <span style={{ fontWeight: 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{e.name}</span>
-                                        </div>
-                                    </td>
-                                    <td style={{ padding: "10px", borderBottom: `1px solid ${C.pale}` }}>
-                                        <span style={{ fontSize: 10, padding: "2px 8px", borderRadius: 10, fontWeight: 600, background: rs.bg, color: rs.color, whiteSpace: "nowrap" }}>{e.role}</span>
-                                    </td>
-                                    <td style={{ padding: "10px", borderBottom: `1px solid ${C.pale}`, color: C.text }}>{e.tables || "—"}</td>
-                                    <td style={{ padding: "10px", borderBottom: `1px solid ${C.pale}`, color: C.text }}>{e.orders}</td>
-                                    <td style={{ padding: "10px", borderBottom: `1px solid ${C.pale}` }}>
-                                        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                                            <div style={{ width: 80, flexShrink: 0 }}>
-                                                <div style={{ height: 6, borderRadius: 3, background: e.role === "Kitchen" ? C.amber : C.warm, width: `${(e.sales / maxSales) * 100}%`, minWidth: e.sales > 0 ? 4 : 0 }} />
-                                            </div>
-                                            <span style={{ color: C.text, whiteSpace: "nowrap" }}>{e.sales > 0 ? `£${e.sales}` : "—"}</span>
-                                        </div>
-                                    </td>
-                                    <td style={{ padding: "10px", borderBottom: `1px solid ${C.pale}`, color: C.muted, whiteSpace: "nowrap" }}>{e.avgTime}</td>
-                                    <td style={{ padding: "10px", borderBottom: `1px solid ${C.pale}`, fontWeight: 600, fontSize: 11, color: statusColor[e.status] || C.muted, whiteSpace: "nowrap" }}>{e.status}</td>
-                                    <td style={{ padding: "10px", borderBottom: `1px solid ${C.pale}` }}>
-                                        <button onClick={() => toggleStatus(e.id)} style={{ fontSize: 10, padding: "3px 8px", borderRadius: 4, border: `1px solid ${C.border}`, background: "white", cursor: "pointer", color: C.muted, fontFamily: "Jost, sans-serif", whiteSpace: "nowrap" }}>Change</button>
-                                    </td>
-                                </tr>
-                            );
-                        })}
-                    </tbody>
-                </table>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
+                <div>
+                    <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: ".1em", textTransform: "uppercase", color: C.mid, marginBottom: 10 }}>Waiters</div>
+                    <EmployeeTable rows={waiters} />
+                </div>
+                <div>
+                    <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: ".1em", textTransform: "uppercase", color: C.amber, marginBottom: 10 }}>Kitchen</div>
+                    <EmployeeTable rows={kitchen} />
+                </div>
             </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 12 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: 12 }}>
                 {summaryCards.map((s, i) => (
                     <div key={i} style={{ background: C.pale, borderRadius: 6, padding: "12px 14px", textAlign: "center" }}>
                         <div style={{ fontFamily: "Cormorant Garamond, serif", fontSize: 26, fontWeight: 700, color: C.dark }}>{s.val}</div>
@@ -545,8 +457,8 @@ function EmployeesTab({ employees, setEmployees, addToast }) {
         </div>
     );
 }
+
 const INIT_STOCK = [
-    // ── Produce ──────────────────────────────────────────────────────────────
     { id: 1, name: "Avocado", category: "Produce", level: 75, unit: "units", reorderAt: 30, usedIn: ["Guacamole & Chips", "Tlayuda Tostada", "+ Extra Guacamole"] },
     { id: 2, name: "Lime", category: "Produce", level: 85, unit: "units", reorderAt: 25, usedIn: ["Guacamole & Chips", "Ceviche Verde", "Barbacoa Tacos", "Hibiscus Agua Fresca", "Mezcal Margarita", "Mango Sorbet"] },
     { id: 3, name: "Jalapeño", category: "Produce", level: 60, unit: "units", reorderAt: 20, usedIn: ["Guacamole & Chips", "Pickled Jalapeños", "+ Extra Jalapeños"] },
@@ -564,20 +476,17 @@ const INIT_STOCK = [
     { id: 15, name: "Olives", category: "Produce", level: 44, unit: "kg", reorderAt: 15, usedIn: ["Snapper Veracruz"] },
     { id: 16, name: "Capers", category: "Produce", level: 50, unit: "kg", reorderAt: 15, usedIn: ["Snapper Veracruz"] },
     { id: 17, name: "Chilli Salt (Mango)", category: "Produce", level: 68, unit: "units", reorderAt: 15, usedIn: ["Mango Sorbet"] },
-    // ── Protein ──────────────────────────────────────────────────────────────
     { id: 18, name: "Sea Bass / Snapper", category: "Protein", level: 12, unit: "kg", reorderAt: 30, usedIn: ["Ceviche Verde", "Snapper Veracruz"] },
     { id: 19, name: "Beef Cheek", category: "Protein", level: 60, unit: "kg", reorderAt: 25, usedIn: ["Barbacoa Tacos", "+ Extra Beef"] },
     { id: 20, name: "Chicken (free-range)", category: "Protein", level: 55, unit: "kg", reorderAt: 25, usedIn: ["Mole Negro Chicken"] },
-    { id: 21, name: "Pork Shoulder", category: "Protein", level: 50, unit: "kg", reorderAt: 20, usedIn: ["Cochinita Pibil (Cochinita Pibil is not on MENU_DATA — retained from original menu)"] },
+    { id: 21, name: "Pork Shoulder", category: "Protein", level: 50, unit: "kg", reorderAt: 20, usedIn: ["Cochinita Pibil"] },
     { id: 22, name: "Chorizo", category: "Protein", level: 55, unit: "kg", reorderAt: 25, usedIn: ["Tlayuda Tostada", "+ Extra Chorizo"] },
-    // ── Dairy ────────────────────────────────────────────────────────────────
     { id: 23, name: "Cotija Cheese", category: "Dairy", level: 40, unit: "kg", reorderAt: 30, usedIn: ["Elote Esquites", "Tlayuda Tostada", "+ Extra Cheese"] },
     { id: 24, name: "Quesillo", category: "Dairy", level: 35, unit: "kg", reorderAt: 25, usedIn: ["Tlayuda Tostada", "+ Extra Quesillo"] },
     { id: 25, name: "Crema / Sour Cream", category: "Dairy", level: 68, unit: "kg", reorderAt: 25, usedIn: ["Elote Esquites", "Black Bean Pot", "+ Extra Sour Cream"] },
     { id: 26, name: "Eggs", category: "Dairy", level: 80, unit: "units", reorderAt: 30, usedIn: ["Churro Sundae", "Mezcal Flan"] },
     { id: 27, name: "Vanilla Ice Cream", category: "Dairy", level: 55, unit: "litres", reorderAt: 20, usedIn: ["Churro Sundae"] },
-    { id: 28, name: "Oat Milk", category: "Dairy", level: 60, unit: "litres", reorderAt: 20, usedIn: ["Mexican Hot Chocolate (not on shared menu — retained)"] },
-    // ── Dry Goods & Pantry ───────────────────────────────────────────────────
+    { id: 28, name: "Oat Milk", category: "Dairy", level: 60, unit: "litres", reorderAt: 20, usedIn: ["Mexican Hot Chocolate"] },
     { id: 29, name: "Corn Masa (nixtamal)", category: "Dry Goods", level: 35, unit: "kg", reorderAt: 40, usedIn: ["Corn Tortillas", "Tlayuda Tostada"] },
     { id: 30, name: "Black Beans (dried)", category: "Dry Goods", level: 90, unit: "kg", reorderAt: 20, usedIn: ["Black Bean Pot", "Tlayuda Tostada", "Portobello Enchiladas"] },
     { id: 31, name: "Rice", category: "Dry Goods", level: 78, unit: "kg", reorderAt: 20, usedIn: ["Mexican Rice", "Mole Negro Chicken", "Horchata"] },
@@ -596,7 +505,6 @@ const INIT_STOCK = [
     { id: 44, name: "Cumin", category: "Dry Goods", level: 80, unit: "units", reorderAt: 15, usedIn: ["Mexican Rice"] },
     { id: 45, name: "Almond (extract)", category: "Dry Goods", level: 55, unit: "units", reorderAt: 15, usedIn: ["Horchata"] },
     { id: 46, name: "Caramel", category: "Dry Goods", level: 48, unit: "kg", reorderAt: 20, usedIn: ["Mezcal Flan"] },
-    // ── Bar ──────────────────────────────────────────────────────────────────
     { id: 47, name: "Mezcal (Joven)", category: "Bar", level: 45, unit: "bottles", reorderAt: 30, usedIn: ["Mezcal Margarita", "Mezcal Flan"] },
     { id: 48, name: "Agave Syrup", category: "Bar", level: 55, unit: "litres", reorderAt: 20, usedIn: ["Mezcal Margarita"] },
     { id: 49, name: "Smoked Salt", category: "Bar", level: 70, unit: "units", reorderAt: 15, usedIn: ["Mezcal Margarita"] },
@@ -610,7 +518,7 @@ const stockStatus = (level) =>
         : level >= 25 ? { color: C.amber, bg: C.amberL, label: "Low" }
             : { color: C.red, bg: C.redL, label: "Critical" };
 
-function StockTab({ stock, setStock, addToast }) {
+function StockTab({ stock }) {
     const [search, setSearch] = useState("");
 
     const q = search.trim().toLowerCase();
@@ -626,31 +534,16 @@ function StockTab({ stock, setStock, addToast }) {
     const lowCount = stock.filter(s => s.level < 50).length;
     const critCount = stock.filter(s => s.level < 25).length;
 
-    const restock = (id) => {
-        const item = stock.find(s => s.id === id);
-        setStock(prev => prev.map(s => s.id === id ? { ...s, level: 100 } : s));
-        addToast(`${item.name} restocked ✓`);
-    };
-    const restockAll = () => {
-        setStock(prev => prev.map(s => s.level < 50 ? { ...s, level: 100 } : s));
-        addToast("All low stock restocked ✓");
-    };
-
     return (
         <div style={{ gridColumn: "1/-1", background: C.panel, border: `1.5px solid ${C.border}`, borderRadius: 8, padding: 18, display: "flex", flexDirection: "column", gap: 16 }}>
-
-            {/* Header */}
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <span style={{ fontFamily: "Cormorant Garamond, serif", fontSize: 20, fontWeight: 700, color: C.dark }}>Stock Levels</span>
                 <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
                     {critCount > 0 && <span style={{ fontSize: 10, fontWeight: 600, letterSpacing: ".08em", textTransform: "uppercase", padding: "3px 9px", borderRadius: 20, background: C.redL, color: C.red }}>{critCount} Critical</span>}
                     {lowCount > 0 && <span style={{ fontSize: 10, fontWeight: 600, letterSpacing: ".08em", textTransform: "uppercase", padding: "3px 9px", borderRadius: 20, background: C.amberL, color: C.amber }}>{lowCount} Low</span>}
-                    {lowCount > 0 && <button onClick={restockAll} style={{ fontSize: 11, fontWeight: 600, letterSpacing: ".06em", textTransform: "uppercase", padding: "6px 13px", borderRadius: 5, border: "none", background: C.mid, color: "white", cursor: "pointer", fontFamily: "Jost, sans-serif" }}>Restock All Low</button>}
                 </div>
             </div>
             <div style={{ height: 1, background: C.border }} />
-
-            {/* Summary cards + Search in one row */}
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 240px", gap: 12, alignItems: "stretch" }}>
                 {[
                     { label: "Good (≥50%)", val: stock.filter(s => s.level >= 50).length, color: C.green, bg: C.greenL },
@@ -662,7 +555,6 @@ function StockTab({ stock, setStock, addToast }) {
                         <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: ".08em", textTransform: "uppercase", color: s.color }}>{s.label}</div>
                     </div>
                 ))}
-                {/* Search box */}
                 <div style={{ display: "flex", alignItems: "center", gap: 8, background: C.bg, border: `1.5px solid ${q ? C.warm : C.border}`, borderRadius: 6, padding: "0 12px", transition: "border-color .15s" }}>
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={q ? C.warm : C.muted} strokeWidth="2.5" strokeLinecap="round"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
                     <input value={search} onChange={e => setSearch(e.target.value)}
@@ -671,15 +563,11 @@ function StockTab({ stock, setStock, addToast }) {
                     {search && <button onClick={() => setSearch("")} style={{ background: "none", border: "none", cursor: "pointer", color: C.muted, fontSize: 14, lineHeight: 1, padding: "0 2px" }}>✕</button>}
                 </div>
             </div>
-
-            {/* Search result hint */}
             {q && (
                 <div style={{ fontSize: 11, color: C.muted }}>
                     {filtered.length === 0 ? `No items match "${search}".` : `${filtered.length} item${filtered.length !== 1 ? "s" : ""} found for "${search}"`}
                 </div>
             )}
-
-            {/* Per-category sections */}
             {categories.map(cat => (
                 <div key={cat}>
                     <div style={{ fontSize: 11, letterSpacing: ".1em", textTransform: "uppercase", color: C.muted, fontWeight: 600, paddingBottom: 6, borderBottom: `1px solid ${C.border}`, marginBottom: 10 }}>{cat}</div>
@@ -696,18 +584,9 @@ function StockTab({ stock, setStock, addToast }) {
                                     <div style={{ fontSize: 10, color: C.muted, lineHeight: 1.5 }}>{s.usedIn.join(" · ")}</div>
                                     <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                                         <div style={{ flex: 1, height: 8, background: C.pale, borderRadius: 4, overflow: "hidden" }}>
-                                            <div style={{ height: "100%", width: `${s.level}%`, background: st.color, borderRadius: 4, transition: "width .3s" }} />
+                                            <div style={{ height: "100%", width: `${s.level}%`, background: st.color, borderRadius: 4 }} />
                                         </div>
                                         <span style={{ fontSize: 12, color: C.muted, width: 34, textAlign: "right", flexShrink: 0 }}>{s.level}%</span>
-                                    </div>
-                                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                                        <input type="range" min={0} max={100} value={s.level}
-                                            onChange={e => setStock(prev => prev.map(i => i.id === s.id ? { ...i, level: +e.target.value } : i))}
-                                            style={{ flex: 1, accentColor: C.warm }} />
-                                        <button onClick={() => restock(s.id)}
-                                            style={{ fontSize: 10, fontWeight: 600, padding: "4px 10px", borderRadius: 4, border: "none", background: C.mid, color: "white", cursor: "pointer", fontFamily: "Jost, sans-serif", whiteSpace: "nowrap" }}>
-                                            Restock
-                                        </button>
                                     </div>
                                     {belowReorder && (
                                         <div style={{ fontSize: 10, color: st.color, fontWeight: 600 }}>
@@ -720,7 +599,6 @@ function StockTab({ stock, setStock, addToast }) {
                     </div>
                 </div>
             ))}
-
             {filtered.length === 0 && q && (
                 <div style={{ textAlign: "center", padding: "32px 0", color: C.muted, fontSize: 13 }}>
                     No ingredients found for <strong>"{search}"</strong>
@@ -730,13 +608,30 @@ function StockTab({ stock, setStock, addToast }) {
     );
 }
 
+function useCustomerAlerts(setNotifications, addToast) {
+    useEffect(() => {
+        const handler = (e) => {
+            if (e.key !== "oaxaca_customer_alert" || !e.newValue) return;
+            try {
+                const incoming = JSON.parse(e.newValue);
+                setNotifications(prev => {
+                    if (prev.some(n => n.id === incoming.id)) return prev;
+                    return [incoming, ...prev];
+                });
+                addToast(`🔔 Table ${incoming.table} needs assistance!`);
+            } catch (_) { }
+        };
+        window.addEventListener("storage", handler);
+        return () => window.removeEventListener("storage", handler);
+    }, [setNotifications, addToast]);
+}
+
 export default function ManagerDashboard() {
     const [tab, setTab] = useState("Overview");
-    const [tables, setTables] = useState(INIT_TABLES);
-    const [requests, setRequests] = useState(INIT_REQUESTS);
+    const [tables] = useState(INIT_TABLES);
     const [menu, setMenu] = useState(INIT_MENU);
-    const [employees, setEmployees] = useState(INIT_EMPLOYEES);
-    const [stock, setStock] = useState(INIT_STOCK);
+    const [employees] = useState(INIT_EMPLOYEES);
+    const [stock] = useState(INIT_STOCK);
     const [notifications, setNotifications] = useState(INIT_NOTIFICATIONS);
     const [toasts, setToasts] = useState([]);
     const [showNotifs, setShowNotifs] = useState(false);
@@ -750,7 +645,7 @@ export default function ManagerDashboard() {
                 name: item.item_name,
                 price: item.price,
                 cost: INIT_MENU.find(m => m.id === item.item_id)?.cost ?? 0,
-                section: item.menu_type ?? "Mains",
+                section: INIT_MENU.find(m => m.id === item.item_id)?.section ?? "Mains",
                 avail: item.available === 1,
                 dietary: INIT_MENU.find(m => m.id === item.item_id)?.dietary ?? [],
                 allergens: INIT_MENU.find(m => m.id === item.item_id)?.allergens ?? [],
@@ -770,6 +665,8 @@ export default function ManagerDashboard() {
         setToasts(p => [...p, { id, msg }]);
         setTimeout(() => setToasts(p => p.filter(t => t.id !== id)), 2800);
     };
+
+    useCustomerAlerts(setNotifications, addToast);
 
     const unread = notifications.filter(n => !n.read).length;
 
@@ -818,10 +715,10 @@ export default function ManagerDashboard() {
             </div>
 
             <div style={{ padding: "20px 28px 40px", display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16 }}>
-                {tab === "Overview" && <OverviewTab tables={tables} setTables={setTables} requests={requests} setRequests={setRequests} addToast={addToast} />}
+                {tab === "Overview" && <OverviewTab tables={tables} />}
                 {tab === "Menu" && <MenuTab menu={menu} setMenu={setMenu} addToast={addToast} />}
-                {tab === "Employees" && <EmployeesTab employees={employees} setEmployees={setEmployees} addToast={addToast} />}
-                {tab === "Stock" && <StockTab stock={stock} setStock={setStock} addToast={addToast} />}
+                {tab === "Employees" && <EmployeesTab employees={employees} />}
+                {tab === "Stock" && <StockTab stock={stock} />}
             </div>
 
             <div style={{ position: "fixed", bottom: 24, right: 24, display: "flex", flexDirection: "column", gap: 8, zIndex: 9999, pointerEvents: "none" }}>
