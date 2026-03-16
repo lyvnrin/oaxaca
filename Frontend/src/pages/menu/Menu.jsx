@@ -242,9 +242,9 @@ function CustomizationPopup({ item, onClose, onAddToCart }) {
     );
 }
 
-function MenuItemCard({ item, dimmed, onCustomize }) {
+function MenuItemCard({ item, dimmed, unavailable, onCustomize }) {
     return (
-        <div className={`menu-item-card ${dimmed ? "menu-item-card--dimmed" : ""}`}>
+        <div className={`menu-item-card ${dimmed ? "menu-item-card--dimmed" : ""} ${unavailable ? "menu-item-card--unavailable" : ""}`}>
             <div className="card-image-placeholder">
                 <span className="card-image-text">IMG</span>
             </div>
@@ -265,15 +265,15 @@ function MenuItemCard({ item, dimmed, onCustomize }) {
                     )}
                     <span className="card-calories">{item.calories}</span>
                 </div>
-                <button className="add-to-order-btn" onClick={() => !dimmed && onCustomize(item)} disabled={dimmed}>
-                    + Add to Order
+                <button className="add-to-order-btn" onClick={() => !dimmed && !unavailable && onCustomize(item)} disabled={dimmed || unavailable}>
+                    {unavailable ? "Unavailable" : "+ Add to Order"}
                 </button>
             </div>
         </div>
     );
 }
 
-function MenuSection({ sectionName, items, isOpen, onToggle, matchesFilter, onCustomize }) {
+function MenuSection({ sectionName, items, isOpen, onToggle, matchesFilter, onCustomize, unavailableIds }) {
     return (
         <div className={`menu-section ${isOpen ? "menu-section--open" : ""}`}>
             <button className="section-header" onClick={onToggle}>
@@ -286,7 +286,7 @@ function MenuSection({ sectionName, items, isOpen, onToggle, matchesFilter, onCu
             {isOpen && (
                 <div className="section-items">
                     {items.map((item) => (
-                        <MenuItemCard key={item.id} item={item} dimmed={!matchesFilter(item)} onCustomize={onCustomize} />
+                        <MenuItemCard key={item.id} item={item} dimmed={!matchesFilter(item)} unavailable={unavailableIds.has(item.id)} onCustomize={onCustomize} />
                     ))}
                 </div>
             )}
@@ -732,6 +732,22 @@ export default function App() {
     const [liveOrderId, setLiveOrderId] = useState(sessionStorage.getItem('liveOrderId') ?? null);
     const [hasActiveOrder, setHasActiveOrder] = useState(!!sessionStorage.getItem('liveOrderId'));
 
+    const [unavailableIds, setUnavailableIds] = useState(new Set());
+
+    useEffect(() => {
+        const fetchAvailability = () => {
+            fetch('http://127.0.0.1:8000/menu_items')
+                .then(r => r.json())
+                .then(data => {
+                    const ids = new Set(data.filter(i => i.available === 0).map(i => i.item_id));
+                    setUnavailableIds(ids);
+                });
+        };
+        fetchAvailability();
+        const poll = setInterval(fetchAvailability, 10000);
+        return () => clearInterval(poll);
+    }, []);
+
     useEffect(() => {
         if (!liveOrderId) return;
         const statusToStep = {
@@ -897,6 +913,7 @@ export default function App() {
                             onToggle={() => handleSectionToggle(sectionName)}
                             matchesFilter={matchesFilter}
                             onCustomize={setCustomizingItem}
+                            unavailableIds={unavailableIds}
                         />
                     ))}
                 </div>

@@ -237,8 +237,8 @@ function AddItemsModal({ order, menu, onAdd, onClose }) {
     const [selected, setSelected] = useState({});
     const [search, setSearch] = useState("");
 
-    const q = search.trim().toLowerCase();
     const availMenu = menu.filter(m => m.avail);
+    const q = search.trim().toLowerCase();
     const filtered = q ? availMenu.filter(m => m.name.toLowerCase().includes(q) || m.section.toLowerCase().includes(q)) : availMenu;
 
     const toggle = item => setSelected(p => { const n = { ...p }; if (n[item.id]) delete n[item.id]; else n[item.id] = { ...item, qty: 1 }; return n; });
@@ -608,29 +608,26 @@ function TablesTab({ unpaidTables, addToast, raiseAlert }) {
 }
 
 function MenuTab({ menu, setMenu, addToast }) {
-    const [search, setSearch] = useState("");
 
-    const toggleAvail = id => {
+    const toggleAvail = async (id) => {
         const item = menu.find(m => m.id === id);
-        setMenu(p => p.map(m => m.id === id ? { ...m, avail: !m.avail } : m));
-        addToast(`${item.name} marked ${item.avail ? "unavailable" : "available"} ✓`);
+        const newAvail = !item.avail;
+        setMenu(p => p.map(m => m.id === id ? { ...m, avail: newAvail } : m));
+        await fetch(`http://127.0.0.1:8000/menu_items/${id}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ available: newAvail }),
+        });
+        addToast(`${item.name} marked ${newAvail ? "available" : "unavailable"} ✓`);
     };
 
     const sections = ["Starters", "Mains", "Dessert", "Sides", "Drinks"];
     const available = menu.filter(m => m.avail).length;
     const unavailable = menu.filter(m => !m.avail).length;
-    const q = search.trim().toLowerCase();
-    const isFiltered = q.length > 0;
-
-    const matchesSearch = item =>
-        item.name.toLowerCase().includes(q) ||
-        item.description.toLowerCase().includes(q) ||
-        item.section.toLowerCase().includes(q) ||
-        item.dietary.some(d => d.toLowerCase().includes(q)) ||
-        item.allergens.some(a => a.toLowerCase().includes(q));
 
     return (
         <div style={{ padding: "20px 28px 32px" }}>
+            {/* STAT CARDS */}
             <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12, marginBottom: 20 }}>
                 {[
                     { label: "Total Items", value: menu.length, accent: C.warm },
@@ -644,49 +641,44 @@ function MenuTab({ menu, setMenu, addToast }) {
                     </div>
                 ))}
             </div>
-            <div style={{ marginBottom: 20, position: "relative" }}>
-                <span style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: C.muted, fontSize: 14, pointerEvents: "none" }}>🔍</span>
-                <input
-                    value={search}
-                    onChange={e => setSearch(e.target.value)}
-                    placeholder="Search by name, section, dietary or allergen…"
-                    style={{ width: "100%", padding: "10px 36px 10px 36px", border: `1.5px solid ${isFiltered ? C.warm : C.border}`, borderRadius: 8, fontSize: 13, fontFamily: "Jost, sans-serif", background: C.panel, color: C.text, outline: "none", transition: "border-color .15s" }} />
-                {isFiltered && (
-                    <button onClick={() => setSearch("")} style={{ position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", color: C.muted, fontSize: 14 }}>✕</button>
-                )}
-            </div>
-            {isFiltered ? (
-                <SectionCard accentColor={C.warm} title="Search Results"
-                    badge={<span style={{ fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 10, background: C.pale, color: C.muted }}>{menu.filter(matchesSearch).length} items</span>}>
-                    <div style={{ padding: "12px 16px 16px" }}>
-                        {menu.filter(matchesSearch).length === 0 && (
-                            <div style={{ textAlign: "center", padding: "24px 0", color: C.muted, fontSize: 12 }}>No items match "{search}"</div>
-                        )}
-                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-                            {menu.filter(matchesSearch).map(item => (
-                                <MenuItemCard key={item.id} item={item} onToggle={toggleAvail} />
+
+            {/* TABLE */}
+            <div style={{ background: C.panel, border: `1.5px solid ${C.border}`, borderRadius: 10, overflow: "hidden" }}>
+                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+                    <thead>
+                        <tr style={{ background: C.dark }}>
+                            {["Section", "Name", "Price", "Dietary", "Allergens", "Calories", "Available"].map(h => (
+                                <th key={h} style={{ padding: "10px 14px", textAlign: "left", fontSize: 10, fontWeight: 700, letterSpacing: ".1em", textTransform: "uppercase", color: C.light, whiteSpace: "nowrap" }}>{h}</th>
                             ))}
-                        </div>
-                    </div>
-                </SectionCard>
-            ) : (
-                sections.map(sec => {
-                    const items = menu.filter(m => m.section === sec);
-                    if (!items.length) return null;
-                    return (
-                        <div key={sec} style={{ marginBottom: 20 }}>
-                            <SectionCard accentColor={C.mid} title={sec}
-                                badge={<span style={{ fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 10, background: C.pale, color: C.muted }}>{items.filter(m => m.avail).length}/{items.length} available</span>}>
-                                <div style={{ padding: "12px 16px 16px" }}>
-                                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-                                        {items.map(item => <MenuItemCard key={item.id} item={item} onToggle={toggleAvail} />)}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {sections.flatMap(sec => menu.filter(m => m.section === sec)).map((item, i) => (
+                            <tr key={item.id}
+                                style={{ background: i % 2 === 0 ? C.bg : C.panel, borderBottom: `1px solid ${C.border}`, opacity: item.avail ? 1 : 0.55, transition: "opacity .2s" }}
+                                onMouseEnter={e => e.currentTarget.style.background = C.pale}
+                                onMouseLeave={e => e.currentTarget.style.background = i % 2 === 0 ? C.bg : C.panel}>
+                                <td style={{ padding: "10px 14px", color: C.muted, fontSize: 11, whiteSpace: "nowrap" }}>
+                                    <span style={{ background: C.light, color: C.mid, padding: "2px 8px", borderRadius: 10, fontSize: 10, fontWeight: 600 }}>{item.section}</span>
+                                </td>
+                                <td style={{ padding: "10px 14px", fontWeight: 600, color: C.text }}>{item.name}</td>
+                                <td style={{ padding: "10px 14px", fontFamily: "'Cormorant Garamond', serif", fontWeight: 700, color: C.mid, whiteSpace: "nowrap" }}>£{Number(item.price).toFixed(2)}</td>
+                                <td style={{ padding: "10px 14px", fontSize: 11, color: C.green }}>{item.dietary?.join(", ") || "—"}</td>
+                                <td style={{ padding: "10px 14px", fontSize: 11, color: C.amber }}>{item.allergens?.length > 0 ? `⚠ ${item.allergens.join(", ")}` : "—"}</td>
+                                <td style={{ padding: "10px 14px", fontSize: 11, color: C.muted, whiteSpace: "nowrap" }}>{item.calories || "—"}</td>
+                                <td style={{ padding: "10px 14px" }}>
+                                    <div onClick={() => toggleAvail(item.id)} style={{ display: "flex", alignItems: "center", gap: 7, cursor: "pointer" }}>
+                                        <div style={{ width: 36, height: 20, borderRadius: 10, background: item.avail ? C.green : C.light, position: "relative", transition: "background .2s", flexShrink: 0 }}>
+                                            <div style={{ width: 16, height: 16, borderRadius: "50%", background: "white", position: "absolute", top: 2, left: item.avail ? 18 : 2, transition: "left .2s", boxShadow: "0 1px 4px rgba(0,0,0,.2)" }} />
+                                        </div>
+                                        <span style={{ fontSize: 11, color: item.avail ? C.green : C.muted, fontWeight: 600, whiteSpace: "nowrap" }}>{item.avail ? "Available" : "Unavailable"}</span>
                                     </div>
-                                </div>
-                            </SectionCard>
-                        </div>
-                    );
-                })
-            )}
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
         </div>
     );
 }
@@ -743,6 +735,29 @@ function useCustomerAlerts(setNotifications, addToast) {
         return () => window.removeEventListener("storage", handler);
     }, [setNotifications, addToast]);
 }
+
+const MENU_META = {
+    1: { dietary: ["Vegan", "Gluten-Free"], allergens: [], calories: "350" },
+    2: { dietary: ["Gluten-Free"], allergens: ["Milk", "Soy"], calories: "500" },
+    3: { dietary: ["Gluten-Free"], allergens: ["Fish"], calories: "180" },
+    4: { dietary: ["Vegetarian", "Gluten-Free"], allergens: ["Milk"], calories: "250" },
+    5: { dietary: [], allergens: ["Soy", "Nuts"], calories: "600" },
+    6: { dietary: [], allergens: [], calories: "300 (per taco)" },
+    7: { dietary: ["Vegan"], allergens: [], calories: "400" },
+    8: { dietary: ["Gluten-Free"], allergens: ["Fish"], calories: "450" },
+    9: { dietary: ["Vegetarian"], allergens: ["Milk", "Gluten", "Eggs"], calories: "550" },
+    10: { dietary: ["Vegetarian", "Gluten-Free"], allergens: ["Milk", "Eggs"], calories: "320" },
+    11: { dietary: ["Vegan", "Gluten-Free"], allergens: [], calories: "120" },
+    12: { dietary: ["Vegan", "Gluten-Free"], allergens: [], calories: "200" },
+    13: { dietary: ["Vegan", "Gluten-Free"], allergens: [], calories: "60 (per tortilla)" },
+    14: { dietary: ["Vegan", "Gluten-Free"], allergens: [], calories: "5 (per tbsp)" },
+    15: { dietary: ["Vegan", "Gluten-Free"], allergens: [], calories: "200" },
+    16: { dietary: ["Vegan", "Gluten-Free"], allergens: [], calories: "70 (per cup)" },
+    17: { dietary: ["Vegan", "Gluten-Free"], allergens: [], calories: "250" },
+    18: { dietary: ["Vegan", "Gluten-Free"], allergens: ["Nuts"], calories: "150 (per cup)" },
+    19: { dietary: [], allergens: [], calories: "150 (per 12 oz bottle)" },
+    20: { dietary: [], allergens: [], calories: "0" },
+};
 
 export default function App() {
     // AUTH GUARD
@@ -815,11 +830,10 @@ export default function App() {
                 name: item.item_name,
                 price: item.price,
                 section: item.menu_type ?? "Mains",
-                avail: true,
-                dietary: [],
-                allergens: [],
-                calories: "",
-                description: "",
+                avail: item.available === 1,
+                dietary: MENU_META[item.item_id]?.dietary ?? [],
+                allergens: MENU_META[item.item_id]?.allergens ?? [],
+                calories: MENU_META[item.item_id]?.calories ?? "",
             }))));
     }, []);
 
