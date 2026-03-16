@@ -1,0 +1,63 @@
+# schema for intialisation
+
+# python3 -c "
+# import sqlite3
+# conn = sqlite3.connect('oaxaca-real.db')
+
+# conn.execute('DROP TABLE IF EXISTS order_item')
+# conn.execute('DROP TABLE IF EXISTS orders')
+# conn.execute('DROP TABLE IF EXISTS customers')
+# conn.execute('DROP TABLE IF EXISTS tables')
+# conn.execute('DROP TABLE IF EXISTS menu_items')
+# conn.execute('DROP TABLE IF EXISTS staff')
+
+# conn.execute('''CREATE TABLE tables (
+#     table_id INTEGER PRIMARY KEY,
+#     capacity INTEGER NOT NULL,
+#     occupied INTEGER NOT NULL DEFAULT 0
+# )''')
+
+# conn.execute('''CREATE TABLE customers (
+#     cust_id    INTEGER PRIMARY KEY AUTOINCREMENT,
+#     name       TEXT,
+#     table_id   INTEGER,
+#     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+#     FOREIGN KEY (table_id) REFERENCES tables(table_id)
+# )''')
+
+# conn.execute('''CREATE TABLE menu_items (
+#     item_id   INTEGER PRIMARY KEY AUTOINCREMENT,
+#     item_name VARCHAR(100) NOT NULL,
+#     price     DECIMAL(10,2) NOT NULL
+# )''')
+
+# conn.execute('''CREATE TABLE staff (
+#     staff_id INTEGER PRIMARY KEY AUTOINCREMENT,
+#     name     VARCHAR(100) NOT NULL,
+#     password VARCHAR(255) NOT NULL,
+#     role     VARCHAR(50) NOT NULL
+# )''')
+
+# conn.execute('''CREATE TABLE orders (
+#     order_id   INTEGER PRIMARY KEY AUTOINCREMENT,
+#     cust_id    INTEGER,
+#     table_id   INTEGER,
+#     total_cost DECIMAL(10,2),
+#     status     TEXT DEFAULT \"Pending\",
+#     FOREIGN KEY (cust_id) REFERENCES customers(cust_id),
+#     FOREIGN KEY (table_id) REFERENCES tables(table_id)
+# )''')
+
+# conn.execute('''CREATE TABLE order_item (
+#     order_item_id INTEGER PRIMARY KEY AUTOINCREMENT,
+#     order_id      INTEGER,
+#     item_id       INTEGER,
+#     quantity      INTEGER NOT NULL DEFAULT 1,
+#     FOREIGN KEY (order_id) REFERENCES orders(order_id),
+#     FOREIGN KEY (item_id) REFERENCES menu_items(item_id)
+# )''')
+
+# conn.commit()
+# print('Done')
+# conn.close()
+# "
