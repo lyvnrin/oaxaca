@@ -744,7 +744,7 @@ export default function App() {
                 });
         };
         fetchAvailability();
-        const poll = setInterval(fetchAvailability, 10000);
+        const poll = setInterval(fetchAvailability, 3000);
         return () => clearInterval(poll);
     }, []);
 

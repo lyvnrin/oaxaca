@@ -353,35 +353,42 @@ function OverviewTab({ tables, setTables, requests, setRequests, addToast }) {
 }
 
 function MenuTab({ menu, setMenu, addToast }) {
-    const [editPrices, setEditPrices] = useState({});
-    const [editNames, setEditNames] = useState({});
-    const [showAdd, setShowAdd] = useState(false);
-    const [newItem, setNewItem] = useState({ section: "Starters", name: "", cost: "", price: "" });
-    const [savedIds, setSavedIds] = useState({});
-
-    const sections = [...new Set(menu.map(m => m.section))];
-    const getPrice = (item) => editPrices[item.id] !== undefined ? editPrices[item.id] : item.price;
-    const getName = (item) => editNames[item.id] !== undefined ? editNames[item.id] : item.name;
+    const sections = ["Starters", "Mains", "Desserts", "Sides", "Drinks"];
+    const available = menu.filter(m => m.avail).length;
+    const unavailable = menu.filter(m => !m.avail).length;
     const belowMgn = menu.filter(m => calcMargin(m.cost, m.price) < 60);
 
-    const handleSave = (item) => {
-        const p = parseFloat(getPrice(item)); const n = getName(item);
-        if (isNaN(p) || p <= 0) { addToast("Invalid price"); return; }
-        if (calcMargin(item.cost, p) < 60) addToast(`⚠ ${n} is below 60% margin`);
-        setMenu(prev => prev.map(i => i.id === item.id ? { ...i, price: p, name: n } : i));
-        setSavedIds(s => ({ ...s, [item.id]: true }));
-        setTimeout(() => setSavedIds(s => { const n = { ...s }; delete n[item.id]; return n; }), 1500);
-        addToast(`${n} saved ✓`);
+    const toggleAvail = async (id) => {
+        const item = menu.find(m => m.id === id);
+        const newAvail = !item.avail;
+        setMenu(p => p.map(m => m.id === id ? { ...m, avail: newAvail } : m));
+        await fetch(`http://127.0.0.1:8000/menu_items/${id}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ available: newAvail }),
+        });
+        addToast(`${item.name} marked ${newAvail ? "available" : "unavailable"} ✓`);
     };
-
-    const fieldStyle = { width: "100%", padding: "8px 10px", border: `1px solid ${C.border}`, borderRadius: 5, fontSize: 12, fontFamily: "Jost, sans-serif", background: C.bg, color: C.text };
-    const labelStyle = { fontSize: 11, color: C.muted, fontWeight: 600, letterSpacing: ".08em", textTransform: "uppercase", display: "block", marginBottom: 4 };
 
     return (
         <div style={{ gridColumn: "1/-1", background: C.panel, border: `1.5px solid ${C.border}`, borderRadius: 8, padding: 18, display: "flex", flexDirection: "column", gap: 14 }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <span style={{ fontFamily: "Cormorant Garamond, serif", fontSize: 20, fontWeight: 700, color: C.dark }}>Menu Management</span>
-                <button onClick={() => setShowAdd(true)} style={{ fontSize: 11, fontWeight: 600, letterSpacing: ".06em", textTransform: "uppercase", padding: "7px 14px", borderRadius: 5, border: "none", background: C.mid, color: "white", cursor: "pointer", fontFamily: "Jost, sans-serif" }}>+ Add Item</button>
+            </div>
+
+            {/* STAT CARDS */}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12 }}>
+                {[
+                    { label: "Total Items", value: menu.length, accent: C.warm },
+                    { label: "Available", value: available, accent: C.green },
+                    { label: "Unavailable", value: unavailable, accent: C.red },
+                ].map((s, i) => (
+                    <div key={i} style={{ background: C.bg, border: `1.5px solid ${C.border}`, borderRadius: 8, padding: "12px 16px", position: "relative", overflow: "hidden" }}>
+                        <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: s.accent }} />
+                        <div style={{ fontSize: 9, letterSpacing: ".12em", textTransform: "uppercase", color: C.muted, fontWeight: 600, marginBottom: 4 }}>{s.label}</div>
+                        <div style={{ fontFamily: "Cormorant Garamond, serif", fontSize: 30, fontWeight: 700, color: C.dark, lineHeight: 1 }}>{s.value}</div>
+                    </div>
+                ))}
             </div>
 
             {belowMgn.length > 0 && (
@@ -390,81 +397,55 @@ function MenuTab({ menu, setMenu, addToast }) {
                 </div>
             )}
 
-            {sections.map(sec => (
-                <div key={sec}>
-                    <div style={{ fontSize: 11, letterSpacing: ".1em", textTransform: "uppercase", color: C.muted, fontWeight: 600, paddingBottom: 6, borderBottom: `1px solid ${C.border}`, marginBottom: 4 }}>{sec}</div>
-                    <div style={{ display: "grid", gridTemplateColumns: "2fr 1.2fr 1.2fr 0.9fr 0.8fr auto", gap: 8, fontSize: 9, letterSpacing: ".1em", textTransform: "uppercase", color: C.muted, fontWeight: 600, padding: "2px 0 8px" }}>
-                        <span>Item</span><span>Cost</span><span>Sell Price</span><span>Margin</span><span>Avail.</span><span>Actions</span>
-                    </div>
-                    {menu.filter(m => m.section === sec).map(item => {
-                        const p = parseFloat(getPrice(item)) || 0;
-                        const m = calcMargin(item.cost, p);
-                        const mc = marginColor(m);
-                        const mn = calcMinPrice(item.cost);
-                        return (
-                            <div key={item.id} style={{ display: "grid", gridTemplateColumns: "2fr 1.2fr 1.2fr 0.9fr 0.8fr auto", gap: 8, alignItems: "center", padding: "9px 0", borderBottom: `1px solid ${C.pale}`, opacity: item.avail ? 1 : 0.5 }}>
-                                <input value={getName(item)} onChange={e => setEditNames(prev => ({ ...prev, [item.id]: e.target.value }))}
-                                    style={{ border: `1px solid ${C.border}`, borderRadius: 4, padding: "4px 8px", fontSize: 12, fontFamily: "Jost, sans-serif", background: C.bg, color: C.text, width: "100%" }} />
-                                <span style={{ fontSize: 11, color: C.muted }}>£{item.cost.toFixed(2)}<br /><span style={{ fontSize: 9 }}>min £{mn.toFixed(2)}</span></span>
-                                <div style={{ display: "flex", alignItems: "center", border: `1px solid ${p < mn ? C.red : C.border}`, borderRadius: 4, padding: "4px 6px", background: C.bg }}>
-                                    £<input value={getPrice(item)} onChange={e => setEditPrices(prev => ({ ...prev, [item.id]: e.target.value }))}
-                                        style={{ border: "none", background: "transparent", width: 46, fontSize: 12, fontFamily: "Jost, sans-serif", color: C.text }} />
-                                </div>
-                                <span style={{ fontSize: 10, fontWeight: 600, padding: "3px 8px", borderRadius: 10, background: mc.bg, color: mc.text, textAlign: "center" }}>{mc.label}</span>
-                                <button onClick={() => setMenu(prev => prev.map(i => i.id === item.id ? { ...i, avail: !i.avail } : i))}
-                                    style={{ fontSize: 10, fontWeight: 600, padding: "3px 8px", borderRadius: 10, background: item.avail ? C.greenL : C.pale, color: item.avail ? C.green : C.muted, border: "none", cursor: "pointer", fontFamily: "Jost, sans-serif" }}>
-                                    {item.avail ? "On" : "Off"}
-                                </button>
-                                <div style={{ display: "flex", gap: 4 }}>
-                                    <button onClick={() => handleSave(item)} style={{ fontSize: 10, fontWeight: 600, padding: "5px 10px", borderRadius: 4, border: "none", background: savedIds[item.id] ? C.green : C.mid, color: "white", cursor: "pointer", fontFamily: "Jost, sans-serif", transition: "background .3s" }}>{savedIds[item.id] ? "✓" : "Save"}</button>
-                                    <button onClick={() => { setMenu(prev => prev.filter(i => i.id !== item.id)); addToast(`${item.name} removed`); }}
-                                        style={{ fontSize: 10, fontWeight: 600, padding: "5px 10px", borderRadius: 4, border: "none", background: C.redL, color: C.red, cursor: "pointer", fontFamily: "Jost, sans-serif" }}>Del</button>
-                                </div>
-                            </div>
-                        );
-                    })}
-                </div>
-            ))}
-
-            {showAdd && (
-                <Modal title="Add Menu Item" onClose={() => setShowAdd(false)}>
-                    {[
-                        { label: "Item Name", key: "name", type: "text" },
-                        { label: "Section", key: "section", type: "select", options: ["Starters", "Mains", "Desserts", "Sides", "Drinks"] },
-                        { label: "Cost Price (£)", key: "cost", type: "number" },
-                        { label: "Sell Price (£)", key: "price", type: "number" },
-                    ].map(f => (
-                        <div key={f.key} style={{ marginBottom: 12 }}>
-                            <label style={labelStyle}>{f.label}</label>
-                            {f.type === "select"
-                                ? <select value={newItem[f.key]} onChange={e => setNewItem(p => ({ ...p, [f.key]: e.target.value }))} style={fieldStyle}>
-                                    {f.options.map(o => <option key={o}>{o}</option>)}
-                                </select>
-                                : <input type={f.type} value={newItem[f.key]} onChange={e => setNewItem(p => ({ ...p, [f.key]: e.target.value }))} placeholder={f.type === "number" ? "0.00" : ""} style={fieldStyle} />
-                            }
-                        </div>
-                    ))}
-                    {newItem.cost && newItem.price && (
-                        <div style={{ fontSize: 11, color: C.muted, marginBottom: 12 }}>
-                            Margin: <strong style={{ color: calcMargin(+newItem.cost, +newItem.price) >= 60 ? C.green : C.red }}>{calcMargin(+newItem.cost, +newItem.price)}%</strong> · Min price: £{calcMinPrice(+newItem.cost || 0).toFixed(2)}
-                        </div>
-                    )}
-                    <button onClick={() => {
-                        if (!newItem.name || !newItem.cost || !newItem.price) { addToast("Fill all fields"); return; }
-                        const cost = parseFloat(newItem.cost), price = parseFloat(newItem.price);
-                        if (isNaN(cost) || isNaN(price)) { addToast("Invalid numbers"); return; }
-                        setMenu(prev => [...prev, { id: Date.now(), section: newItem.section, name: newItem.name, cost, price, avail: true }]);
-                        setNewItem({ section: "Starters", name: "", cost: "", price: "" });
-                        setShowAdd(false);
-                        addToast(`${newItem.name} added ✓`);
-                    }} style={{ width: "100%", padding: 10, background: C.mid, color: "white", border: "none", borderRadius: 5, fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: "Jost, sans-serif" }}>
-                        Add to Menu
-                    </button>
-                </Modal>
-            )}
+            {/* TABLE */}
+            <div style={{ background: C.bg, border: `1.5px solid ${C.border}`, borderRadius: 10, overflow: "hidden" }}>
+                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+                    <thead>
+                        <tr style={{ background: C.dark }}>
+                            {["Section", "Name", "Cost", "Price", "Margin", "Dietary", "Allergens", "Calories", "Available"].map(h => (
+                                <th key={h} style={{ padding: "10px 14px", textAlign: "left", fontSize: 10, fontWeight: 700, letterSpacing: ".1em", textTransform: "uppercase", color: C.light, whiteSpace: "nowrap" }}>{h}</th>
+                            ))}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {sections.flatMap(sec => menu.filter(m => m.section === sec)).map((item, i) => {
+                            const m = calcMargin(item.cost, item.price);
+                            const mc = marginColor(m);
+                            return (
+                                <tr key={item.id}
+                                    style={{ background: i % 2 === 0 ? C.panel : C.bg, borderBottom: `1px solid ${C.border}`, opacity: item.avail ? 1 : 0.55, transition: "opacity .2s" }}
+                                    onMouseEnter={e => e.currentTarget.style.background = C.pale}
+                                    onMouseLeave={e => e.currentTarget.style.background = i % 2 === 0 ? C.panel : C.bg}>
+                                    <td style={{ padding: "10px 14px", fontSize: 11, whiteSpace: "nowrap" }}>
+                                        <span style={{ background: C.light, color: C.mid, padding: "2px 8px", borderRadius: 10, fontSize: 10, fontWeight: 600 }}>{item.section}</span>
+                                    </td>
+                                    <td style={{ padding: "10px 14px", fontWeight: 600, color: C.text }}>{item.name}</td>
+                                    <td style={{ padding: "10px 14px", fontSize: 11, color: C.muted, whiteSpace: "nowrap" }}>£{item.cost.toFixed(2)}</td>
+                                    <td style={{ padding: "10px 14px", fontFamily: "Cormorant Garamond, serif", fontWeight: 700, color: C.mid, whiteSpace: "nowrap" }}>£{item.price.toFixed(2)}</td>
+                                    <td style={{ padding: "10px 14px" }}>
+                                        <span style={{ fontSize: 10, fontWeight: 600, padding: "3px 8px", borderRadius: 10, background: mc.bg, color: mc.text }}>{mc.label}</span>
+                                    </td>
+                                    <td style={{ padding: "10px 14px", fontSize: 11, color: C.green }}>{item.dietary?.join(", ") || "—"}</td>
+                                    <td style={{ padding: "10px 14px", fontSize: 11, color: C.amber }}>{item.allergens?.length > 0 ? `⚠ ${item.allergens.join(", ")}` : "—"}</td>
+                                    <td style={{ padding: "10px 14px", fontSize: 11, color: C.muted, whiteSpace: "nowrap" }}>{item.calories || "—"}</td>
+                                    <td style={{ padding: "10px 14px" }}>
+                                        <div onClick={() => toggleAvail(item.id)} style={{ display: "flex", alignItems: "center", gap: 7, cursor: "pointer" }}>
+                                            <div style={{ width: 36, height: 20, borderRadius: 10, background: item.avail ? C.green : C.light, position: "relative", transition: "background .2s", flexShrink: 0 }}>
+                                                <div style={{ width: 16, height: 16, borderRadius: "50%", background: "white", position: "absolute", top: 2, left: item.avail ? 18 : 2, transition: "left .2s", boxShadow: "0 1px 4px rgba(0,0,0,.2)" }} />
+                                            </div>
+                                            <span style={{ fontSize: 11, color: item.avail ? C.green : C.muted, fontWeight: 600, whiteSpace: "nowrap" }}>{item.avail ? "Available" : "Unavailable"}</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            );
+                        })}
+                    </tbody>
+                </table>
+            </div>
         </div>
     );
 }
+
 function EmployeesTab({ employees, setEmployees, addToast }) {
     const onShift = employees.filter(e => e.status !== "Off Shift").length;
     const maxSales = Math.max(...employees.map(e => e.sales), 1);
@@ -760,6 +741,24 @@ export default function ManagerDashboard() {
     const [toasts, setToasts] = useState([]);
     const [showNotifs, setShowNotifs] = useState(false);
     const [showAccount, setShowAccount] = useState(false);
+
+    useEffect(() => {
+        fetch('http://127.0.0.1:8000/menu_items')
+            .then(r => r.json())
+            .then(data => setMenu(data.map(item => ({
+                id: item.item_id,
+                name: item.item_name,
+                price: item.price,
+                cost: INIT_MENU.find(m => m.id === item.item_id)?.cost ?? 0,
+                section: item.menu_type ?? "Mains",
+                avail: item.available === 1,
+                dietary: INIT_MENU.find(m => m.id === item.item_id)?.dietary ?? [],
+                allergens: INIT_MENU.find(m => m.id === item.item_id)?.allergens ?? [],
+                calories: INIT_MENU.find(m => m.id === item.item_id)?.calories ?? "",
+                description: INIT_MENU.find(m => m.id === item.item_id)?.description ?? "",
+            }))))
+            .catch(() => { });
+    }, []);
 
     const notifRef = useRef(null);
     const accountRef = useRef(null);
