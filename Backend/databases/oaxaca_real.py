@@ -195,6 +195,14 @@ def get_menu_items():
     conn.close()
     return [dict(r) for r in rows]
 
+
+@app.get("/staff")
+def get_staff():
+    conn = get_conn()
+    rows = conn.execute("SELECT * FROM staff").fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
 # CLEANUP COMPLETED ORDERS --------------------------
 
 

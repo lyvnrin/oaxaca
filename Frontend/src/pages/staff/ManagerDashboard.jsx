@@ -384,10 +384,15 @@ function MenuTab({ menu, setMenu, addToast }) {
 }
 
 function EmployeesTab({ employees }) {
-    const roleStyle = { "Waiter": { bg: C.pale, color: C.mid }, "Kitchen": { bg: C.amberL, color: C.amber } };
+    const roleStyle = {
+        "Waiter": { bg: C.pale, color: C.mid },
+        "Kitchen": { bg: C.amberL, color: C.amber },
+        "Manager": { bg: C.greenL, color: C.green },
+    };
 
     const waiters = employees.filter(e => e.role === "Waiter");
     const kitchen = employees.filter(e => e.role === "Kitchen");
+    const managers = employees.filter(e => e.role === "Manager");
 
     const summaryCards = [
         { label: "Total Sales", val: `£${employees.reduce((a, e) => a + e.sales, 0)}` },
@@ -419,7 +424,7 @@ function EmployeesTab({ employees }) {
                             <td style={{ padding: "10px", borderBottom: `1px solid ${C.pale}`, width: "25%" }}>
                                 <span style={{ fontSize: 10, padding: "2px 8px", borderRadius: 10, fontWeight: 600, background: rs.bg, color: rs.color }}>{e.role}</span>
                             </td>
-                            <td style={{ padding: "10px", borderBottom: `1px solid ${C.pale}`, width: "25%", color: C.text }}>{e.orders}</td>
+                            <td style={{ padding: "10px", borderBottom: `1px solid ${C.pale}`, width: "25%", color: C.text }}>{e.orders || "—"}</td>
                             <td style={{ padding: "10px", borderBottom: `1px solid ${C.pale}`, width: "25%", fontFamily: "Cormorant Garamond, serif", fontSize: 15, fontWeight: 700, color: C.mid }}>
                                 {e.sales > 0 ? `£${e.sales}` : "—"}
                             </td>
@@ -435,7 +440,7 @@ function EmployeesTab({ employees }) {
             <span style={{ fontFamily: "Cormorant Garamond, serif", fontSize: 20, fontWeight: 700, color: C.dark }}>Employee Performance</span>
             <div style={{ height: 1, background: C.border }} />
 
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 20 }}>
                 <div>
                     <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: ".1em", textTransform: "uppercase", color: C.mid, marginBottom: 10 }}>Waiters</div>
                     <EmployeeTable rows={waiters} />
@@ -443,6 +448,10 @@ function EmployeesTab({ employees }) {
                 <div>
                     <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: ".1em", textTransform: "uppercase", color: C.amber, marginBottom: 10 }}>Kitchen</div>
                     <EmployeeTable rows={kitchen} />
+                </div>
+                <div>
+                    <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: ".1em", textTransform: "uppercase", color: C.green, marginBottom: 10 }}>Managers</div>
+                    <EmployeeTable rows={managers} />
                 </div>
             </div>
 
@@ -630,7 +639,23 @@ export default function ManagerDashboard() {
     const [tab, setTab] = useState("Overview");
     const [tables, setTables] = useState(INIT_TABLES);
     const [menu, setMenu] = useState(INIT_MENU);
-    const [employees] = useState(INIT_EMPLOYEES);
+    const [employees, setEmployees] = useState([]);
+
+    useEffect(() => {
+        fetch('http://127.0.0.1:8000/staff')
+            .then(r => r.json())
+            .then(data => setEmployees(data.map(s => ({
+                id: s.staff_id,
+                initials: s.name.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase(),
+                name: s.name,
+                role: s.role === "Kitchen Staff" ? "Kitchen" : s.role === "Manager" ? "Manager" : "Waiter",
+                tables: 0,
+                orders: 0,
+                sales: 0,
+                status: "Active",
+            }))))
+            .catch(() => { });
+    }, []);
     const [stock] = useState(INIT_STOCK);
     const [notifications, setNotifications] = useState(INIT_NOTIFICATIONS);
     const [toasts, setToasts] = useState([]);
