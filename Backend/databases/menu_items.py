@@ -19,20 +19,15 @@ def load_menu_from_csv(csv_path: str, db_path: str):
                 "item_id":   int(row["ID"].strip()),
                 "item_name": row["Item Name"].strip(),
                 "price":     price,
+                "available":  1 if row["Available"].strip().lower() == "true" else 0
             })
 
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
-    cursor.execute("""
-                   CREATE TABLE IF NOT EXISTS staff (
-                   Name TEXT PRIMARY KEY,
-                   Password TEXT NOT NULL,
-                   Role TEXT NOT NULL)
-            """)
     
     cursor.executemany("""
-        INSERT OR REPLACE INTO menu_items (item_id, item_name, price)
-        VALUES (:item_id, :item_name, :price)
+        INSERT OR REPLACE INTO menu_items (item_id, item_name, price, available)
+        VALUES (:item_id, :item_name, :price, :available)
     """, items)
     conn.commit()
 
