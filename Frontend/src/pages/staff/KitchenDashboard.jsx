@@ -140,7 +140,7 @@ export default function App() {
 
         const mapItems = (o) => o.items.map(i => {
             const mods = JSON.parse(
-                localStorage.getItem(`oaxaca_mods_${o.order_id}`) || '{}'
+                localStorage.getItem(`oaxaca_customisations_${o.order_id}`) || '{}'
             );
             return {
                 name: i.item_name,
