@@ -130,23 +130,44 @@ export default function App() {
       const res = await fetch('http://127.0.0.1:8000/orders');
       const data = await res.json();
       setPending(data.filter(o => o.status === "Pending").map(o => ({
-        id: String(o.order_id),
-        table: `Table ${o.table_id}`,
-        startedAt: Date.now(),
-        items: o.items.map(i => ({ name: i.item_name, qty: i.quantity }))
-      })));
+                id: String(o.order_id),
+                table: `Table ${o.table_id}`,
+                startedAt: Date.now(),
+                items: o.items.map(i => ({
+                 name: i.item_name,
+                 qty: i.quantity,
+                 price: i.price,
+                 removedIngredients: i.removed_ingredients || [],
+                 extras: i.extras || [],
+                specialRequest: i.special_request || "",
+              }))
+})));
       setPreparing(data.filter(o => o.status === "In Progress").map(o => ({
-        id: String(o.order_id),
-        table: `Table ${o.table_id}`,
-        startedAt: Date.now(),
-        items: o.items.map(i => ({ name: i.item_name, qty: i.quantity }))
-      })));
+            id: String(o.order_id),
+            table: `Table ${o.table_id}`,
+            startedAt: Date.now(),
+            items: o.items.map(i => ({
+              name: i.item_name,
+              qty: i.quantity,
+              price: i.price,
+              removedIngredients: i.removed_ingredients || [],
+              extras: i.extras || [],
+              specialRequest: i.special_request || "",
+  }))
+})));
       setReady(data.filter(o => o.status === "Ready").map(o => ({
-        id: String(o.order_id),
-        table: `Table ${o.table_id}`,
+          id: String(o.order_id),
+         table: `Table ${o.table_id}`,
         startedAt: Date.now(),
-        items: o.items.map(i => ({ name: i.item_name, qty: i.quantity }))
-      })));
+       items: o.items.map(i => ({
+         name: i.item_name,
+         qty: i.quantity,
+        price: i.price,
+       removedIngredients: i.removed_ingredients || [],
+       extras: i.extras || [],
+       specialRequest: i.special_request || "",
+  }))
+})));
     };
     fetchOrders();
     const poll = setInterval(fetchOrders, 10000);
