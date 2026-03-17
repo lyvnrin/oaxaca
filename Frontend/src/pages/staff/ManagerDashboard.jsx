@@ -295,7 +295,7 @@ function OverviewTab({ tables }) {
     );
 }
 
-function MenuTab({ menu, setMenu, addToast }) {
+function MenuTab({ menu, setMenu, addToast, stock }) {
     const sections = ["Starters", "Mains", "Desserts", "Sides", "Drinks"];
     const available = menu.filter(m => m.avail).length;
     const unavailable = menu.filter(m => !m.avail).length;
@@ -349,15 +349,19 @@ function MenuTab({ menu, setMenu, addToast }) {
                         {sections.flatMap(sec => menu.filter(m => m.section === sec)).map((item, i) => {
                             const m = calcMargin(item.cost, item.price);
                             const mc = marginColor(m);
+                            const lowStock = stock.some(s => s.level < 10 && s.usedIn.includes(item.name));
                             return (
                                 <tr key={item.id}
-                                    style={{ background: i % 2 === 0 ? C.panel : C.bg, borderBottom: `1px solid ${C.border}`, opacity: item.avail ? 1 : 0.55, transition: "opacity .2s" }}
+                                    style={{ background: i % 2 === 0 ? C.panel : C.bg, borderBottom: `1px solid ${C.border}`, opacity: item.avail ? (lowStock ? 0.4 : 1) : 0.55, transition: "opacity .2s" }}
                                     onMouseEnter={e => e.currentTarget.style.background = C.pale}
                                     onMouseLeave={e => e.currentTarget.style.background = i % 2 === 0 ? C.panel : C.bg}>
                                     <td style={{ padding: "10px 14px", fontSize: 11, whiteSpace: "nowrap" }}>
                                         <span style={{ background: C.light, color: C.mid, padding: "2px 8px", borderRadius: 10, fontSize: 10, fontWeight: 600 }}>{item.section}</span>
                                     </td>
-                                    <td style={{ padding: "10px 14px", fontWeight: 600, color: C.text }}>{item.name}</td>
+                                    <td style={{ padding: "10px 14px", fontWeight: 600, color: C.text }}>
+                                        {item.name}
+                                        {lowStock && <span style={{ marginLeft: 6, fontSize: 9, fontWeight: 700, color: C.red, background: C.redL, padding: "1px 6px", borderRadius: 8, letterSpacing: ".06em", textTransform: "uppercase" }}>Low Stock</span>}
+                                    </td>
                                     <td style={{ padding: "10px 14px", fontFamily: "Cormorant Garamond, serif", fontWeight: 700, color: C.mid, whiteSpace: "nowrap" }}>£{item.price.toFixed(2)}</td>
                                     <td style={{ padding: "10px 14px" }}>
                                         <span style={{ fontSize: 10, fontWeight: 600, padding: "3px 8px", borderRadius: 10, background: mc.bg, color: mc.text }}>{mc.label}</span>
@@ -527,8 +531,38 @@ const stockStatus = (level) =>
         : level >= 25 ? { color: C.amber, bg: C.amberL, label: "Low" }
             : { color: C.red, bg: C.redL, label: "Critical" };
 
-function StockTab({ stock }) {
+function StockInput({ level, onRestock }) {
+    const [val, setVal] = useState(Math.round(level));
+
+    useEffect(() => {
+        setVal(Math.round(level));
+    }, [level]);
+
+    return (
+        <input
+            type="number"
+            min="0"
+            max="100"
+            value={val}
+            onChange={(e) => setVal(e.target.value)}
+            onBlur={() => {
+                const parsed = parseFloat(val);
+                if (!isNaN(parsed)) onRestock(Math.min(100, Math.max(0, parsed)));
+            }}
+            style={{ width: 60, fontSize: 11, padding: "3px 6px", border: `1px solid ${C.border}`, borderRadius: 4, fontFamily: "Jost, sans-serif", background: C.bg, color: C.text }}
+        />
+    );
+}
+
+function StockTab({ stock, fetchStock }) {
     const [search, setSearch] = useState("");
+    const restock = (stockId, level) => {
+        fetch('http://127.0.0.1:8000/stock/restock', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ stock_id: stockId, level }),
+        }).then(() => fetchStock());
+    };
 
     const q = search.trim().toLowerCase();
     const filtered = q
@@ -602,6 +636,14 @@ function StockTab({ stock }) {
                                             ⚠ Below reorder point ({s.reorderAt}%)
                                         </div>
                                     )}
+                                    <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+                                        <StockInput level={s.level} onRestock={(newLevel) => restock(s.id, newLevel)} />
+                                        <button
+                                            onClick={() => restock(s.id, 100)}
+                                            style={{ fontSize: 10, fontWeight: 600, padding: "3px 10px", borderRadius: 4, border: `1px solid ${C.green}`, background: C.greenL, color: C.green, cursor: "pointer", fontFamily: "Jost, sans-serif" }}>
+                                            Restock to 100
+                                        </button>
+                                    </div>
                                 </div>
                             );
                         })}
@@ -656,7 +698,28 @@ export default function ManagerDashboard() {
             }))))
             .catch(() => { });
     }, []);
-    const [stock] = useState(INIT_STOCK);
+    const [stock, setStock] = useState(INIT_STOCK);
+
+    const fetchStock = () => {
+        fetch('http://127.0.0.1:8000/stock')
+            .then(r => r.json())
+            .then(data => setStock(data.map(s => ({
+                id: s.stock_id,
+                name: s.name,
+                category: s.category,
+                level: s.level,
+                unit: s.unit,
+                reorderAt: s.reorder_at,
+                usedIn: s.used_in.split(', '),
+            }))))
+            .catch(() => { });
+    };
+
+    useEffect(() => {
+        fetchStock();
+        const poll = setInterval(fetchStock, 3000);
+        return () => clearInterval(poll);
+    }, []);
     const [notifications, setNotifications] = useState(INIT_NOTIFICATIONS);
     const [toasts, setToasts] = useState([]);
     const [showNotifs, setShowNotifs] = useState(false);
@@ -781,9 +844,9 @@ export default function ManagerDashboard() {
 
             <div style={{ padding: "20px 28px 40px", display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16 }}>
                 {tab === "Overview" && <OverviewTab tables={tables} />}
-                {tab === "Menu" && <MenuTab menu={menu} setMenu={setMenu} addToast={addToast} />}
                 {tab === "Employees" && <EmployeesTab employees={employees} />}
-                {tab === "Stock" && <StockTab stock={stock} />}
+                {tab === "Menu" && <MenuTab menu={menu} setMenu={setMenu} addToast={addToast} stock={stock} />}
+                {tab === "Stock" && <StockTab stock={stock} fetchStock={fetchStock} />}
             </div>
 
             <div style={{ position: "fixed", bottom: 24, right: 24, display: "flex", flexDirection: "column", gap: 8, zIndex: 9999, pointerEvents: "none" }}>

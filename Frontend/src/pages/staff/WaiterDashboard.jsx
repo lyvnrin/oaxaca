@@ -607,8 +607,7 @@ function TablesTab({ unpaidTables, addToast, raiseAlert }) {
     );
 }
 
-function MenuTab({ menu, setMenu, addToast }) {
-
+function MenuTab({ menu, setMenu, addToast, lowStockDishes }) {
     const toggleAvail = async (id) => {
         const item = menu.find(m => m.id === id);
         const newAvail = !item.avail;
@@ -627,7 +626,6 @@ function MenuTab({ menu, setMenu, addToast }) {
 
     return (
         <div style={{ padding: "20px 28px 32px" }}>
-            {/* STAT CARDS */}
             <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12, marginBottom: 20 }}>
                 {[
                     { label: "Total Items", value: menu.length, accent: C.warm },
@@ -641,8 +639,6 @@ function MenuTab({ menu, setMenu, addToast }) {
                     </div>
                 ))}
             </div>
-
-            {/* TABLE */}
             <div style={{ background: C.panel, border: `1.5px solid ${C.border}`, borderRadius: 10, overflow: "hidden" }}>
                 <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
                     <thead>
@@ -655,13 +651,16 @@ function MenuTab({ menu, setMenu, addToast }) {
                     <tbody>
                         {sections.flatMap(sec => menu.filter(m => m.section === sec)).map((item, i) => (
                             <tr key={item.id}
-                                style={{ background: i % 2 === 0 ? C.bg : C.panel, borderBottom: `1px solid ${C.border}`, opacity: item.avail ? 1 : 0.55, transition: "opacity .2s" }}
+                                style={{ background: i % 2 === 0 ? C.bg : C.panel, borderBottom: `1px solid ${C.border}`, opacity: item.avail ? (lowStockDishes.has(item.name) ? 0.4 : 1) : 0.55, transition: "opacity .2s" }}
                                 onMouseEnter={e => e.currentTarget.style.background = C.pale}
                                 onMouseLeave={e => e.currentTarget.style.background = i % 2 === 0 ? C.bg : C.panel}>
                                 <td style={{ padding: "10px 14px", color: C.muted, fontSize: 11, whiteSpace: "nowrap" }}>
                                     <span style={{ background: C.light, color: C.mid, padding: "2px 8px", borderRadius: 10, fontSize: 10, fontWeight: 600 }}>{item.section}</span>
                                 </td>
-                                <td style={{ padding: "10px 14px", fontWeight: 600, color: C.text }}>{item.name}</td>
+                                <td style={{ padding: "10px 14px", fontWeight: 600, color: C.text }}>
+                                    {item.name}
+                                    {lowStockDishes.has(item.name) && <span style={{ marginLeft: 6, fontSize: 9, fontWeight: 700, color: C.red, background: C.redL, padding: "1px 6px", borderRadius: 8, letterSpacing: ".06em", textTransform: "uppercase" }}>Low Stock</span>}
+                                </td>
                                 <td style={{ padding: "10px 14px", fontFamily: "'Cormorant Garamond', serif", fontWeight: 700, color: C.mid, whiteSpace: "nowrap" }}>£{Number(item.price).toFixed(2)}</td>
                                 <td style={{ padding: "10px 14px", fontSize: 11, color: C.green }}>{item.dietary?.join(", ") || "—"}</td>
                                 <td style={{ padding: "10px 14px", fontSize: 11, color: C.amber }}>{item.allergens?.length > 0 ? `⚠ ${item.allergens.join(", ")}` : "—"}</td>
@@ -836,6 +835,25 @@ export default function App() {
                 calories: MENU_META[item.item_id]?.calories ?? "",
             }))));
     }, []);
+    const [lowStockDishes, setLowStockDishes] = useState(new Set());
+
+    useEffect(() => {
+        const fetchStock = () => {
+            fetch('http://127.0.0.1:8000/stock')
+                .then(r => r.json())
+                .then(data => {
+                    const low = new Set();
+                    data.forEach(s => {
+                        if (s.level < 10) s.used_in.split(', ').forEach(d => low.add(d));
+                    });
+                    setLowStockDishes(low);
+                })
+                .catch(() => { });
+        };
+        fetchStock();
+        const poll = setInterval(fetchStock, 3000);
+        return () => clearInterval(poll);
+    }, []);
 
     return (
         <div style={{ fontFamily: "Jost, sans-serif", background: C.bg, color: C.text, minHeight: "100vh" }}>
@@ -903,7 +921,7 @@ export default function App() {
             {/* TAB CONTENT */}
             {tab === "Orders" && <OrdersTab orders={orders} setOrders={setOrders} menu={menu} addToast={addToast} />}
             {tab === "Tables" && <TablesTab unpaidTables={INIT_UNPAID} addToast={addToast} raiseAlert={raiseAlert} />}
-            {tab === "Menu" && <MenuTab menu={menu} setMenu={setMenu} addToast={addToast} />}
+            {tab === "Menu" && <MenuTab menu={menu} setMenu={setMenu} addToast={addToast} lowStockDishes={lowStockDishes} />}
 
             {/* TOASTS */}
             <div style={{ position: "fixed", bottom: 24, right: 24, display: "flex", flexDirection: "column", gap: 8, zIndex: 9999, pointerEvents: "none" }}>

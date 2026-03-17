@@ -242,9 +242,9 @@ function CustomizationPopup({ item, onClose, onAddToCart }) {
     );
 }
 
-function MenuItemCard({ item, dimmed, unavailable, onCustomize }) {
+function MenuItemCard({ item, dimmed, unavailable, lowStock, onCustomize }) {
     return (
-        <div className={`menu-item-card ${dimmed ? "menu-item-card--dimmed" : ""} ${unavailable ? "menu-item-card--unavailable" : ""}`}>
+        <div className={`menu-item-card ${dimmed ? "menu-item-card--dimmed" : ""} ${unavailable ? "menu-item-card--unavailable" : ""} ${lowStock ? "menu-item-card--dimmed" : ""}`}>
             <div className="card-image-placeholder">
                 <span className="card-image-text">IMG</span>
             </div>
@@ -264,16 +264,19 @@ function MenuItemCard({ item, dimmed, unavailable, onCustomize }) {
                         <p className="card-allergens">Contains: {item.allergens.join(", ")}</p>
                     )}
                     <span className="card-calories">{item.calories}</span>
+                    {lowStock && !unavailable && (
+                        <p style={{ fontSize: 10, color: "#c0392b", fontWeight: 700, marginTop: 4 }}>⚠ Low stock</p>
+                    )}
                 </div>
-                <button className="add-to-order-btn" onClick={() => !dimmed && !unavailable && onCustomize(item)} disabled={dimmed || unavailable}>
-                    {unavailable ? "Unavailable" : "+ Add to Order"}
+                <button className="add-to-order-btn" onClick={() => !dimmed && !unavailable && !lowStock && onCustomize(item)} disabled={dimmed || unavailable || lowStock}>
+                    {unavailable ? "Unavailable" : lowStock ? "Low Stock" : "+ Add to Order"}
                 </button>
             </div>
         </div>
     );
 }
 
-function MenuSection({ sectionName, items, isOpen, onToggle, matchesFilter, onCustomize, unavailableIds }) {
+function MenuSection({ sectionName, items, isOpen, onToggle, matchesFilter, onCustomize, unavailableIds, lowStockDishes }) {
     return (
         <div className={`menu-section ${isOpen ? "menu-section--open" : ""}`}>
             <button className="section-header" onClick={onToggle}>
@@ -286,7 +289,7 @@ function MenuSection({ sectionName, items, isOpen, onToggle, matchesFilter, onCu
             {isOpen && (
                 <div className="section-items">
                     {items.map((item) => (
-                        <MenuItemCard key={item.id} item={item} dimmed={!matchesFilter(item)} unavailable={unavailableIds.has(item.id)} onCustomize={onCustomize} />
+                        <MenuItemCard key={item.id} item={item} dimmed={!matchesFilter(item)} unavailable={unavailableIds.has(item.id)} lowStock={lowStockDishes.has(item.name)} onCustomize={onCustomize} />
                     ))}
                 </div>
             )}
@@ -748,6 +751,26 @@ export default function App() {
         return () => clearInterval(poll);
     }, []);
 
+    const [lowStockDishes, setLowStockDishes] = useState(new Set());
+
+    useEffect(() => {
+        const fetchStock = () => {
+            fetch('http://127.0.0.1:8000/stock')
+                .then(r => r.json())
+                .then(data => {
+                    const low = new Set();
+                    data.forEach(s => {
+                        if (s.level < 10) s.used_in.split(', ').forEach(d => low.add(d));
+                    });
+                    setLowStockDishes(low);
+                })
+                .catch(() => { });
+        };
+        fetchStock();
+        const poll = setInterval(fetchStock, 3000);
+        return () => clearInterval(poll);
+    }, []);
+
     useEffect(() => {
         if (!liveOrderId) return;
         const statusToStep = {
@@ -829,6 +852,12 @@ export default function App() {
             setLiveOrderId(data.order_id);
             sessionStorage.setItem('liveOrderId', data.order_id);
             setLiveStep(1);
+
+            await fetch('http://127.0.0.1:8000/stock/deplete', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ cust_id, table_id, items }),
+            });
         } catch (err) {
             console.error('Could not reach server:', err);
             return;
@@ -914,6 +943,7 @@ export default function App() {
                             matchesFilter={matchesFilter}
                             onCustomize={setCustomizingItem}
                             unavailableIds={unavailableIds}
+                            lowStockDishes={lowStockDishes}
                         />
                     ))}
                 </div>
