@@ -33,7 +33,7 @@ const INIT_NOTIFICATIONS = [];
 const INIT_MENU = [
     { id: 1, section: "Starters", name: "Guacamole & Chips", cost: 2.80, price: 7.00, avail: true, description: "Hand-mashed avocado, jalapeño, lime zest & Oaxacan pink salt.", dietary: ["Vegan", "Gluten-Free"], allergens: [], calories: "350 kcal" },
     { id: 2, section: "Starters", name: "Tlayuda Tostada", cost: 3.60, price: 9.00, avail: true, description: "Crispy corn base, black bean, quesillo, chorizo & fresh avocado.", dietary: ["Gluten-Free"], allergens: ["Milk", "Soy"], calories: "500 kcal" },
-    { id: 3, section: "Starters", name: "Ceviche Verde", cost: 5.50, price: 12.00, avail: true, description: "Sea bass, tomatillo, cucumber, coriander & tiger's milk.", dietary: ["Gluten-Free"], allergens: ["Fish"], calories: "180 kcal" },
+    { id: 3, section: "Starters", name: "Ceviche Verde", cost: 4.80, price: 12.00, avail: true, description: "Sea bass, tomatillo, cucumber, coriander & tiger's milk.", dietary: ["Gluten-Free"], allergens: ["Fish"], calories: "180 kcal" },
     { id: 4, section: "Starters", name: "Elote Esquites", cost: 3.20, price: 8.00, avail: true, description: "Charred corn, crema, cotija cheese, ancho chilli & epazote.", dietary: ["Vegetarian", "Gluten-Free"], allergens: ["Milk"], calories: "250 kcal" },
     { id: 5, section: "Mains", name: "Mole Negro Chicken", cost: 6.50, price: 18.00, avail: true, description: "Free-range thigh braised in a 30-ingredient black mole, sesame rice.", dietary: [], allergens: ["Soy", "Nuts"], calories: "600 kcal" },
     { id: 6, section: "Mains", name: "Barbacoa Tacos", cost: 5.50, price: 16.00, avail: true, description: "Slow-braised beef cheek, white onion, coriander & salsa roja. Three pieces.", dietary: [], allergens: [], calories: "300 kcal (per taco)" },
@@ -300,6 +300,9 @@ function MenuTab({ menu, setMenu, addToast, stock }) {
     const available = menu.filter(m => m.avail).length;
     const unavailable = menu.filter(m => !m.avail).length;
     const belowMgn = menu.filter(m => calcMargin(m.cost, m.price) < 60);
+    const [editingPrice, setEditingPrice] = useState(null);
+    const [priceInput, setPriceInput] = useState("");
+    const [priceError, setPriceError] = useState("");
 
     const toggleAvail = async (id) => {
         const item = menu.find(m => m.id === id);
@@ -312,6 +315,34 @@ function MenuTab({ menu, setMenu, addToast, stock }) {
         });
         localStorage.setItem('oaxaca_menu_update', Date.now().toString());
         addToast(`${item.name} marked ${newAvail ? "available" : "unavailable"} ✓`);
+    };
+
+    const startEditPrice = (item) => {
+        setEditingPrice(item.id);
+        setPriceInput(item.price.toFixed(2));
+        setPriceError("");
+    };
+
+    const savePrice = async (item) => {
+        const newPrice = parseFloat(priceInput);
+        const minPrice = calcMinPrice(item.cost);
+        if (isNaN(newPrice) || newPrice <= 0) {
+            setPriceError("Enter a valid price");
+            return;
+        }
+        if (newPrice < minPrice) {
+            setPriceError(`Min £${minPrice.toFixed(2)} for 60% margin`);
+            return;
+        }
+        setMenu(p => p.map(m => m.id === item.id ? { ...m, price: newPrice } : m));
+        await fetch(`http://127.0.0.1:8000/menu_items/${item.id}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ price: newPrice }),
+        });
+        setEditingPrice(null);
+        setPriceError("");
+        addToast(`${item.name} price updated to £${newPrice.toFixed(2)} ✓`);
     };
 
     return (
@@ -363,7 +394,36 @@ function MenuTab({ menu, setMenu, addToast, stock }) {
                                         {item.name}
                                         {lowStock && <span style={{ marginLeft: 6, fontSize: 9, fontWeight: 700, color: C.red, background: C.redL, padding: "1px 6px", borderRadius: 8, letterSpacing: ".06em", textTransform: "uppercase" }}>Low Stock</span>}
                                     </td>
-                                    <td style={{ padding: "10px 14px", fontFamily: "Cormorant Garamond, serif", fontWeight: 700, color: C.mid, whiteSpace: "nowrap" }}>£{item.price.toFixed(2)}</td>
+                                    <td style={{ padding: "10px 14px", whiteSpace: "nowrap" }}>
+                                        {editingPrice === item.id ? (
+                                            <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+                                                <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                                                    <span style={{ fontSize: 11, color: C.muted }}>£</span>
+                                                    <input
+                                                        type="number"
+                                                        step="0.01"
+                                                        min="0"
+                                                        value={priceInput}
+                                                        onChange={e => { setPriceInput(e.target.value); setPriceError(""); }}
+                                                        onKeyDown={e => { if (e.key === "Enter") savePrice(item); if (e.key === "Escape") { setEditingPrice(null); setPriceError(""); } }}
+                                                        autoFocus
+                                                        style={{ width: 64, fontSize: 12, padding: "2px 5px", border: `1.5px solid ${priceError ? C.red : C.warm}`, borderRadius: 4, fontFamily: "Jost, sans-serif", color: C.text, background: C.bg }}
+                                                    />
+                                                    <button onClick={() => savePrice(item)} style={{ fontSize: 10, fontWeight: 700, padding: "2px 7px", borderRadius: 4, border: "none", background: C.green, color: "white", cursor: "pointer" }}>✓</button>
+                                                    <button onClick={() => { setEditingPrice(null); setPriceError(""); }} style={{ fontSize: 10, fontWeight: 700, padding: "2px 7px", borderRadius: 4, border: "none", background: C.pale, color: C.muted, cursor: "pointer" }}>✕</button>
+                                                </div>
+                                                {priceError && <span style={{ fontSize: 9, color: C.red, fontWeight: 600 }}>{priceError}</span>}
+                                                <span style={{ fontSize: 9, color: C.muted }}>Min £{calcMinPrice(item.cost).toFixed(2)} for 60% margin</span>
+                                            </div>
+                                        ) : (
+                                            <span
+                                                onClick={() => startEditPrice(item)}
+                                                style={{ fontFamily: "Cormorant Garamond, serif", fontWeight: 700, color: C.mid, fontSize: 13, cursor: "pointer", borderBottom: `1px dashed ${C.border}` }}
+                                                title="Click to edit price">
+                                                £{item.price.toFixed(2)}
+                                            </span>
+                                        )}
+                                    </td>
                                     <td style={{ padding: "10px 14px" }}>
                                         <span style={{ fontSize: 10, fontWeight: 600, padding: "3px 8px", borderRadius: 10, background: mc.bg, color: mc.text }}>{mc.label}</span>
                                     </td>
@@ -733,7 +793,7 @@ export default function ManagerDashboard() {
                 id: item.item_id,
                 name: item.item_name,
                 price: item.price,
-                cost: INIT_MENU.find(m => m.id === item.item_id)?.cost ?? 0,
+                cost: item.cost,
                 section: INIT_MENU.find(m => m.id === item.item_id)?.section ?? "Mains",
                 avail: item.available === 1,
                 dietary: INIT_MENU.find(m => m.id === item.item_id)?.dietary ?? [],
@@ -806,7 +866,7 @@ export default function ManagerDashboard() {
                     id: item.item_id,
                     name: item.item_name,
                     price: item.price,
-                    cost: INIT_MENU.find(m => m.id === item.item_id)?.cost ?? 0,
+                    cost: item.cost,
                     section: INIT_MENU.find(m => m.id === item.item_id)?.section ?? "Mains",
                     avail: item.available === 1,
                     dietary: INIT_MENU.find(m => m.id === item.item_id)?.dietary ?? [],

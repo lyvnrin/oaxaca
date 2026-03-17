@@ -736,6 +736,7 @@ export default function App() {
     const [hasActiveOrder, setHasActiveOrder] = useState(!!sessionStorage.getItem('liveOrderId'));
 
     const [unavailableIds, setUnavailableIds] = useState(new Set());
+    const [livePrices, setLivePrices] = useState({});
 
     useEffect(() => {
         const fetchAvailability = () => {
@@ -744,6 +745,9 @@ export default function App() {
                 .then(data => {
                     const ids = new Set(data.filter(i => i.available === 0).map(i => i.item_id));
                     setUnavailableIds(ids);
+                    const prices = {};
+                    data.forEach(i => { prices[i.item_id] = i.price; });
+                    setLivePrices(prices);
                 });
         };
         fetchAvailability();
@@ -937,7 +941,7 @@ export default function App() {
                         <MenuSection
                             key={sectionName}
                             sectionName={sectionName}
-                            items={items}
+                            items={items.map(item => ({ ...item, price: livePrices[item.id] ? `£${livePrices[item.id].toFixed(2)}` : item.price }))}
                             isOpen={openSection === sectionName}
                             onToggle={() => handleSectionToggle(sectionName)}
                             matchesFilter={matchesFilter}

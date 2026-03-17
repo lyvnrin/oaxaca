@@ -172,26 +172,34 @@ def get_order(order_id: int):
     return dict(order)
 
 
-class MenuItemAvailability(BaseModel):
-    available: bool
+class MenuItemUpdate(BaseModel):
+    available: bool | None = None
+    price: float | None = None
 
 
 @app.patch("/menu_items/{item_id}")
-def update_menu_item_availability(item_id: int, payload: MenuItemAvailability):
+def update_menu_item(item_id: int, payload: MenuItemUpdate):
     conn = get_conn()
-    conn.execute(
-        "UPDATE menu_items SET available = ? WHERE item_id = ?",
-        (1 if payload.available else 0, item_id)
-    )
+    if payload.available is not None:
+        conn.execute(
+            "UPDATE menu_items SET available = ? WHERE item_id = ?",
+            (1 if payload.available else 0, item_id)
+        )
+    if payload.price is not None:
+        conn.execute(
+            "UPDATE menu_items SET price = ? WHERE item_id = ?",
+            (payload.price, item_id)
+        )
     conn.commit()
     conn.close()
-    return {"item_id": item_id, "available": payload.available}
+    return {"item_id": item_id}
 
 
 @app.get("/menu_items")
 def get_menu_items():
     conn = get_conn()
-    rows = conn.execute("SELECT * FROM menu_items").fetchall()
+    rows = conn.execute(
+        "SELECT item_id, item_name, price, cost, available FROM menu_items").fetchall()
     conn.close()
     return [dict(r) for r in rows]
 
