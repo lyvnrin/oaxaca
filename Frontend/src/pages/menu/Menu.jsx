@@ -18,7 +18,7 @@ function CartIcon({ count, onClick }) {
     );
 }
 
-function Header({ tableNumber, cartCount, onCartClick, onCloseTable }) {
+function Header({ tableNumber, tableId, cartCount, onCartClick, onCloseTable }) {
     const [menuOpen, setMenuOpen] = useState(false);
 
     const handleCloseTable = () => {
@@ -46,6 +46,7 @@ function Header({ tableNumber, cartCount, onCartClick, onCloseTable }) {
                             <button className="menu-popup-item" onClick={() => {
                                 localStorage.setItem("oaxaca_customer_alert", JSON.stringify({
                                     id: Date.now(),
+                                    table: tableId,
                                     status: "Needs Assistance",
                                     type: "Help_Needed",
                                     read: false,
@@ -366,6 +367,23 @@ function CartModal({ cart, onClose, onUpdateQty, onRemove, onPlaceOrder }) {
     );
 }
 
+function useOrderAge(createdAt) {
+    const [elapsed, setElapsed] = useState("");
+    useEffect(() => {
+        if (!createdAt) return;
+        const update = () => {
+            const secs = Math.floor((Date.now() - new Date(createdAt).getTime()) / 1000);
+            if (secs < 60) setElapsed(`${secs}s`);
+            else if (secs < 3600) setElapsed(`${Math.floor(secs / 60)}m ${secs % 60}s`);
+            else setElapsed(`${Math.floor(secs / 3600)}h ${Math.floor((secs % 3600) / 60)}m`);
+        };
+        update();
+        const t = setInterval(update, 1000);
+        return () => clearInterval(t);
+    }, [createdAt]);
+    return elapsed;
+}
+
 function TrackingPopup({ orderId, tableNumber, orderItems, total, onClose, onPaymentClick, currentStep, onStepClick }) {
     const steps = [
         { id: 1, name: "Order Placed" },
@@ -392,6 +410,18 @@ function TrackingPopup({ orderId, tableNumber, orderItems, total, onClose, onPay
         onPaymentClick();
     };
 
+    const [timestamps, setTimestamps] = useState(null);
+
+    useEffect(() => {
+        if (!orderId) return;
+        fetch(`http://127.0.0.1:8000/orders/${orderId}`)
+            .then(r => r.json())
+            .then(data => setTimestamps(data))
+            .catch(() => {});
+    }, [orderId]);
+
+    const orderAge = useOrderAge(timestamps?.created_at);
+
     return (
         <div className="customization-overlay" onClick={onClose}>
             <div className="customization-modal tracking-modal" onClick={(e) => e.stopPropagation()}>
@@ -401,9 +431,35 @@ function TrackingPopup({ orderId, tableNumber, orderItems, total, onClose, onPay
                 </div>
                 <div className="customization-content">
                     <div className="order-info">
-                        <span className="table-number-display">Table: {tableNumber}</span>
-                        <span className="order-id-display">Order ID: #{orderId}</span>
+                    <span className="table-number-display">Table: {tableNumber}</span>
+                    <span className="order-id-display">Order ID: #{orderId}</span>
+                </div>
+
+                {timestamps?.created_at && (
+                    <div style={{
+                        background: "#f0f7f2",
+                        border: "1px solid #b8d4c0",
+                        borderRadius: 8,
+                        padding: "10px 14px",
+                        marginTop: 8,
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                    }}>
+                        <div>
+                            <div style={{ fontSize: 11, color: "#7a5c44", marginBottom: 2 }}>Order placed at</div>
+                            <div style={{ fontSize: 13, fontWeight: 700, color: "#2D2218" }}>
+                                {new Date(timestamps.created_at).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}
+                            </div>
+                        </div>
+                        <div style={{ textAlign: "right" }}>
+                            <div style={{ fontSize: 11, color: "#7a5c44", marginBottom: 2 }}>Time elapsed</div>
+                            <div style={{ fontSize: 13, fontWeight: 700, color: "#4a7c59" }}>
+                                ⏱ {orderAge}
+                            </div>
+                        </div>
                     </div>
+                )}
                     <div className="progress-steps">
                         {steps.map((step) => (
                             <div key={step.id} className={`step-item ${currentStep >= step.id ? 'step-completed' : ''} ${currentStep === step.id ? 'step-current' : ''}`}>
@@ -718,6 +774,23 @@ function PaymentConfirmation() {
     );
 }
 
+// CANCELLED ORDER MODAL
+function CancelledOrderModal({ onClose }) {
+    return (
+        <div className="customization-overlay">
+            <div className="customization-modal confirmation-modal">
+                <div className="confirmation-icon" style={{ background: "#fde8e6", color: "#c0392b" }}>✕</div>
+                <h2 className="confirmation-title">Order Cancelled</h2>
+                <p className="confirmation-msg">
+                    We're sorry, your order was cancelled by a staff member.<br />
+                    Please speak to your waiter if you have any questions.
+                </p>
+                <p className="confirmation-redirect">Returning you home...</p>
+            </div>
+        </div>
+    );
+}
+
 
 export default function App() {
     const [openSection, setOpenSection] = useState(null);
@@ -743,6 +816,8 @@ export default function App() {
     const [orderId, setOrderId] = useState('');
     const [currentStep, setCurrentStep] = useState(1);
     const [placedOrder, setPlacedOrder] = useState({});
+
+    const [orderCancelled, setOrderCancelled] = useState(false);
 
     const [isPaid, setIsPaid] = useState(false);
     const [unpaidModalOpen, setUnpaidModalOpen] = useState(false);
@@ -791,21 +866,53 @@ export default function App() {
         return () => clearInterval(poll);
     }, []);
 
-    useEffect(() => {
-        if (!liveOrderId) return;
-        const statusToStep = {
-            "Pending": 2,
-            "In Progress": 3,
-            "Ready": 4,
-            "Completed": 5,
-        };
+useEffect(() => {
+    if (!liveOrderId) return;
+    const statusToStep = {
+        "Pending": 2,
+        "In Progress": 3,
+        "Ready": 4,
+        "Completed": 5,
+    };
+
+    const delay = setTimeout(() => {
         const poll = setInterval(async () => {
-            const res = await fetch(`http://127.0.0.1:8000/orders/${liveOrderId}`);
-            const data = await res.json();
-            setLiveStep(statusToStep[data.status] ?? 1);
+            try {
+                const res = await fetch(`http://127.0.0.1:8000/orders/${liveOrderId}`);
+                if (!res.ok) {
+                    clearInterval(poll);
+                    setOrderCancelled(true);
+                    setHasActiveOrder(false);
+                    setLiveOrderId(null);
+                    sessionStorage.removeItem('liveOrderId');
+                    setTimeout(() => {
+                        setOrderCancelled(false);
+                        window.location.href = '/';
+                    }, 3000);
+                    return;
+                }
+                const data = await res.json();
+                if (data.status === "Cancelled") {
+                    clearInterval(poll);
+                    setOrderCancelled(true);
+                    setHasActiveOrder(false);
+                    setLiveOrderId(null);
+                    sessionStorage.removeItem('liveOrderId');
+                    setTimeout(() => {
+                        setOrderCancelled(false);
+                        window.location.href = '/';
+                    }, 2000);
+                    return;
+                }
+                setLiveStep(statusToStep[data.status] ?? 1);
+            } catch (_) { }
         }, 8000);
+
         return () => clearInterval(poll);
-    }, [liveOrderId]);
+    }, 5000); // wait 5s before first poll
+
+    return () => clearTimeout(delay);
+}, [liveOrderId]);
 
     const generateOrderId = () => Math.floor(1000 + Math.random() * 9000).toString();
 
@@ -884,6 +991,22 @@ export default function App() {
             const data = await res.json();
             setLiveOrderId(data.order_id);
             sessionStorage.setItem('liveOrderId', data.order_id);
+            
+            const customisations = {};
+                Object.values(cart).forEach(({ item }) => {
+                    const parts = [];
+                    if (item.customization?.removedIngredients?.length > 0)
+                        parts.push(`No: ${item.customization.removedIngredients.join(', ')}`);
+                    if (item.customization?.selectedExtras?.length > 0)
+                        parts.push(`Extras: ${item.customization.selectedExtras.map(e => e.name).join(', ')}`);
+                    if (item.customization?.specialRequest)
+                        parts.push(`Note: ${item.customization.specialRequest}`);
+                    if (parts.length > 0)
+                        customisations[item.name] = parts.join(' · ');
+                });
+                localStorage.setItem(`oaxaca_customisations_${data.order_id}`, JSON.stringify(customisations));
+
+
             setLiveStep(1);
 
             await fetch('http://127.0.0.1:8000/stock/deplete', {
@@ -959,6 +1082,7 @@ export default function App() {
         <div className="app">
             <Header
                 tableNumber={table_id ? `Table ${table_id}` : "Table"}
+                tableId = {table_id}
                 cartCount={cartCount}
                 onCartClick={() => setCartOpen(true)}
                 onCloseTable={handleCloseTable}
@@ -1046,6 +1170,8 @@ export default function App() {
 
             {confirmed && <OrderConfirmation />}
             {paymentConfirmed && <PaymentConfirmation />}
+
+            {orderCancelled && <CancelledOrderModal />}
         </div>
     );
 }

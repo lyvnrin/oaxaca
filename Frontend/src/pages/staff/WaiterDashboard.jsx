@@ -16,9 +16,7 @@ const now = () => Date.now();
 
 const ORDER_STATUSES = ["Pending", "In Progress", "Ready", "Completed", "Cancelled"];
 
-const INIT_NOTIFICATIONS = [
-    { id: 3, order: "1236", table: 4, status: "Needs Assistance", type: "alert", read: false }
-];
+const INIT_NOTIFICATIONS = [];
 
 const INIT_UNPAID = [
     { table: 2, order: "1230", total: 34.50, waiting: "12 mins" },
@@ -352,64 +350,34 @@ function OrderCard({ order, onConfirm, onCancel, onDeliver, onAddItems, onStatus
                     )}
                 </div>
             </div>
-    {order.items.map((item, ii) => (
-    <div
-        key={ii}
-        style={{
-            padding: "6px 0",
-            borderBottom: `1px solid ${C.pale}`,
-            fontSize: 12
-        }}
-    >
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 6 }}>
-            <span style={{ color: C.text, flex: 1 }}>{item.name}</span>
-            <span style={{ color: C.muted, fontSize: 11 }}>×{item.qty}</span>
-            <span style={{ fontWeight: 600, color: C.mid, fontSize: 11, minWidth: 48, textAlign: "right" }}>
-                £{(item.price * item.qty).toFixed(2)}
-            </span>
-            {!isDelivered && (
-                <button
-                    onClick={() => onRemoveItem(order.id, ii)}
-                    title="Remove item"
-                    style={{
-                        marginLeft: 4,
-                        width: 18,
-                        height: 18,
-                        borderRadius: "50%",
-                        border: "none",
-                        background: C.redL,
-                        color: C.red,
-                        fontSize: 11,
-                        lineHeight: 1,
-                        cursor: "pointer",
-                        display: "grid",
-                        placeItems: "center",
-                        flexShrink: 0
-                    }}>
-                    ✕
-                </button>
-            )}
-        </div>
-
-        {item.removedIngredients?.length > 0 && (
-            <p style={{ marginTop: 4, fontSize: 11, color: C.red }}>
-                No: {item.removedIngredients.join(", ")}
-            </p>
-        )}
-
-        {item.extras?.length > 0 && (
-            <p style={{ marginTop: 2, fontSize: 11, color: C.green }}>
-                Extra: {item.extras.map(extra => extra.name).join(", ")}
-            </p>
-        )}
-
-        {item.specialRequest && (
-            <p style={{ marginTop: 2, fontSize: 11, color: C.mid, fontStyle: "italic" }}>
-                Note: {item.specialRequest}
-            </p>
-        )}
-    </div>
-))}
+    {order.items.map((item, ii) => {
+        const customisations = JSON.parse(
+                localStorage.getItem(`oaxaca_customisations_${order.id}`) || '{}'
+        );
+        const note = customisations[item.name] || null;
+        return (
+            <div key={ii} style={{ borderBottom: `1px solid ${C.pale}`, padding: "5px 0" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, gap: 6, alignItems: "center" }}>
+                    <span style={{ color: C.text, flex: 1 }}>{item.name}</span>
+                    <span style={{ color: C.muted, fontSize: 11 }}>×{item.qty}</span>
+                    <span style={{ fontWeight: 600, color: C.mid, fontSize: 11, minWidth: 48, textAlign: "right" }}>
+                        £{(item.price * item.qty).toFixed(2)}
+                    </span>
+                    {!isDelivered && (
+                        <button onClick={() => onRemoveItem(order.id, ii)}
+                            style={{ marginLeft: 4, width: 18, height: 18, borderRadius: "50%", border: "none", background: C.redL, color: C.red, fontSize: 11, cursor: "pointer", display: "grid", placeItems: "center", flexShrink: 0 }}>
+                            ✕
+                        </button>
+                    )}
+                </div>
+                {note && (
+                    <div style={{ fontSize: 10, color: C.amber, marginTop: 2, paddingLeft: 2, fontStyle: "italic" }}>
+                        {note}
+                    </div>
+                )}
+            </div>
+        );
+    })}
             <div style={{ textAlign: "right", marginTop: 6, fontFamily: "'Cormorant Garamond', serif", fontSize: 14, fontWeight: 700, color: C.dark }}>Total: £{rowTotal.toFixed(2)}</div>
             <div style={{ marginTop: 8, display: "flex", gap: 6, flexWrap: "wrap" }}>
                 {isPending && (
@@ -468,6 +436,9 @@ function OrdersTab({ orders, setOrders, menu, addToast }) {
             body: JSON.stringify({ status: "Cancelled" }),
         });
         addToast("Order cancelled");
+        setTimeout(async () => {
+            await fetch(`http://127.0.0.1:8000/orders/${id}/cleanup`, { method: 'DELETE' });
+        }, 15000); 
     };
 
     const changeStatus = async (id, status) => {
@@ -769,6 +740,7 @@ function MenuItemCard({ item, onToggle }) {
 function useCustomerAlerts(setNotifications, addToast) {
     useEffect(() => {
         const handler = (e) => {
+            console.log("storage event fired:", e.key, e.newValue);
             if (e.key !== "oaxaca_customer_alert" || !e.newValue) return;
             try {
                 const incoming = JSON.parse(e.newValue);
@@ -837,7 +809,7 @@ export default function App() {
     useKitchenNotifications(setNotifications, addToast, () => { });
 
     const unread = notifications.filter(n => !n.read).length;
-    const alertCount = notifications.filter(n => n.type === "alert").length;
+    const alertCount = notifications.filter(n => n.type === "alert" || n.type === "Help_Needed").length;
 
     const TABS = ["Orders", "Tables", "Menu"];
 
@@ -987,7 +959,7 @@ export default function App() {
             {alertCount > 0 && (
                 <div style={{ background: C.blue, color: "white", padding: "9px 28px", display: "flex", alignItems: "center", gap: 10, fontSize: 12, fontWeight: 600, letterSpacing: ".04em" }}>
                     <div style={{ width: 8, height: 8, borderRadius: "50%", background: "white", animation: "pulse 1.4s infinite", flexShrink: 0 }} />
-                    {alertCount} table{alertCount > 1 ? "s" : ""} need{alertCount === 1 ? "s" : ""} assistance — check notifications
+                    {alertCount} table{alertCount > 1 ? "s" : ""} need{alertCount === 1 ? "s" : ""} assistance - check notifications
                 </div>
             )}
 

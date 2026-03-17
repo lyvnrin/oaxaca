@@ -32,6 +32,11 @@ class CustomerIn(BaseModel):
     name: str
     table_id: int | None = None
 
+class MenuItemUpdate(BaseModel):
+    available: bool | None = None
+    price: float | None = None
+    cogs: float | None = None
+
 
 class OrderIn(BaseModel):
     cust_id: int
@@ -173,10 +178,7 @@ def get_order(order_id: int):
     return dict(order)
 
 
-class MenuItemUpdate(BaseModel):
-    available: bool | None = None
-    price: float | None = None
-
+# MENU ITEMS --------------------------
 
 @app.patch("/menu_items/{item_id}")
 def update_menu_item(item_id: int, payload: MenuItemUpdate):
@@ -200,7 +202,7 @@ def update_menu_item(item_id: int, payload: MenuItemUpdate):
 def get_menu_items():
     conn = get_conn()
     rows = conn.execute(
-        "SELECT item_id, item_name, price, cost, available FROM menu_items").fetchall()
+        "SELECT item_id, item_name, price, cogs, available FROM menu_items").fetchall()
     conn.close()
     return [dict(r) for r in rows]
 
@@ -297,6 +299,9 @@ def restock(payload: RestockIn):
     return {"message": "Restocked"}
 
 
+# CLEANUP COMPLETED ORDERS --------------------------
+
+
 @app.delete("/orders/{order_id}/cleanup")
 def cleanup_single_order(order_id: int):
     conn = get_conn()
@@ -304,23 +309,9 @@ def cleanup_single_order(order_id: int):
         "DELETE FROM order_item WHERE order_id = ?", (order_id,)
     )
     conn.execute(
-        "DELETE FROM orders WHERE order_id = ? AND status = 'Paid'", (
-            order_id,)
+        "DELETE FROM orders WHERE order_id = ? AND status IN ('Paid', 'Cancelled')",
+        (order_id,)
     )
     conn.commit()
     conn.close()
     return {"message": "Order cleaned up"}
-
-# CLEANUP COMPLETED ORDERS --------------------------
-
-
-@app.delete("/orders/cleanup")
-def cleanup_completed_orders():
-    conn = get_conn()
-    conn.execute(
-        "DELETE FROM order_item WHERE order_id IN (SELECT order_id FROM orders WHERE status IN ('Completed', 'Paid'))"
-    )
-    conn.execute("DELETE FROM orders WHERE status IN ('Completed', 'Paid')")
-    conn.commit()
-    conn.close()
-    return {"message": "Completed and paid orders cleared"}

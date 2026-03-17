@@ -86,38 +86,18 @@ function OrderCard({ order, btnLabel, btnColor, onAction }) {
         </span>
       </div>
   {order.items.map((it, i) => (
-  <div
-    key={i}
-    style={{
-      padding: "6px 0",
-      borderBottom: `1px solid ${C.pale}`,
-      fontSize: 12
-    }}
-  >
-    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-      <span style={{ color: C.text }}>{it.name}</span>
-      <span style={{ fontWeight: 600, color: C.muted, fontSize: 11 }}>×{it.qty}</span>
+    <div key={i} style={{ padding: "6px 0", borderBottom: `1px solid ${C.pale}`, fontSize: 12 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+            <span style={{ color: C.text }}>{it.name}</span>
+            <span style={{ fontWeight: 600, color: C.muted, fontSize: 11 }}>×{it.qty}</span>
+        </div>
+        {it.note && (
+            <p style={{ marginTop: 4, fontSize: 11, color: C.amber, fontStyle: "italic" }}>
+                {it.note}
+            </p>
+        )}
     </div>
-
-    {it.removedIngredients?.length > 0 && (
-      <p style={{ marginTop: 4, fontSize: 11, color: C.red }}>
-        No: {it.removedIngredients.join(", ")}
-      </p>
-    )}
-
-    {it.extras?.length > 0 && (
-      <p style={{ marginTop: 2, fontSize: 11, color: C.green }}>
-        Extra: {it.extras.map(extra => extra.name).join(", ")}
-      </p>
-    )}
-
-    {it.specialRequest && (
-      <p style={{ marginTop: 2, fontSize: 11, color: C.mid, fontStyle: "italic" }}>
-        Note: {it.specialRequest}
-      </p>
-    )}
-  </div>
-))}
+  ))}
       
       {btnLabel && (
         <button onClick={() => onAction(order.id)}
@@ -155,53 +135,44 @@ export default function App() {
 
   useEffect(() => {
     const fetchOrders = async () => {
-      const res = await fetch('http://127.0.0.1:8000/orders');
-      const data = await res.json();
-      setPending(data.filter(o => o.status === "Pending").map(o => ({
-                id: String(o.order_id),
-                table: `Table ${o.table_id}`,
-                startedAt: Date.now(),
-                items: o.items.map(i => ({
-                 name: i.item_name,
-                 qty: i.quantity,
-                 price: i.price,
-                 removedIngredients: i.removed_ingredients || [],
-                 extras: i.extras || [],
-                specialRequest: i.special_request || "",
-              }))
-})));
-      setPreparing(data.filter(o => o.status === "In Progress").map(o => ({
+        const res = await fetch('http://127.0.0.1:8000/orders');
+        const data = await res.json();
+
+        const mapItems = (o) => o.items.map(i => {
+            const mods = JSON.parse(
+                localStorage.getItem(`oaxaca_customisations_${o.order_id}`) || '{}'
+            );
+            return {
+                name: i.item_name,
+                qty: i.quantity,
+                price: i.price,
+                note: mods[i.item_name] || null,
+            };
+        });
+
+        setPending(data.filter(o => o.status === "Pending").map(o => ({
             id: String(o.order_id),
             table: `Table ${o.table_id}`,
             startedAt: Date.now(),
-            items: o.items.map(i => ({
-              name: i.item_name,
-              qty: i.quantity,
-              price: i.price,
-              removedIngredients: i.removed_ingredients || [],
-              extras: i.extras || [],
-              specialRequest: i.special_request || "",
-  }))
-})));
-      setReady(data.filter(o => o.status === "Ready").map(o => ({
-          id: String(o.order_id),
-         table: `Table ${o.table_id}`,
-        startedAt: Date.now(),
-       items: o.items.map(i => ({
-         name: i.item_name,
-         qty: i.quantity,
-        price: i.price,
-       removedIngredients: i.removed_ingredients || [],
-       extras: i.extras || [],
-       specialRequest: i.special_request || "",
-  }))
-})));
+            items: mapItems(o),
+        })));
+        setPreparing(data.filter(o => o.status === "In Progress").map(o => ({
+            id: String(o.order_id),
+            table: `Table ${o.table_id}`,
+            startedAt: Date.now(),
+            items: mapItems(o),
+        })));
+        setReady(data.filter(o => o.status === "Ready").map(o => ({
+            id: String(o.order_id),
+            table: `Table ${o.table_id}`,
+            startedAt: Date.now(),
+            items: mapItems(o),
+        })));
     };
     fetchOrders();
     const poll = setInterval(fetchOrders, 10000);
     return () => clearInterval(poll);
   }, []);
-
   // UI STATE --------------------------
   const [toasts, setToasts] = useState([]);
   const [showAccount, setShowAccount] = useState(false);

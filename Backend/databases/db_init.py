@@ -26,7 +26,8 @@ conn.execute('''CREATE TABLE menu_items (
     item_id   INTEGER PRIMARY KEY AUTOINCREMENT,
     item_name VARCHAR(100) NOT NULL,
     price     DECIMAL(10,2) NOT NULL,
-    available  INTEGER NOT NULL DEFAULT 1
+    available INTEGER NOT NULL DEFAULT 1,
+    cogs      REAL NOT NULL DEFAULT 0
 )''')
 
 conn.execute('''CREATE TABLE staff (
@@ -42,6 +43,7 @@ conn.execute('''CREATE TABLE orders (
     table_id   INTEGER,
     total_cost DECIMAL(10,2),
     status     TEXT DEFAULT 'Pending',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (cust_id) REFERENCES customers(cust_id),
     FOREIGN KEY (table_id) REFERENCES tables(table_id)
 )''')
@@ -53,6 +55,16 @@ conn.execute('''CREATE TABLE order_item (
     quantity      INTEGER NOT NULL DEFAULT 1,
     FOREIGN KEY (order_id) REFERENCES orders(order_id),
     FOREIGN KEY (item_id) REFERENCES menu_items(item_id)
+)''')
+
+conn.execute('''CREATE TABLE stock (
+    stock_id   INTEGER PRIMARY KEY AUTOINCREMENT,
+    name       TEXT NOT NULL,
+    category   TEXT NOT NULL,
+    level      REAL NOT NULL DEFAULT 100,
+    unit       TEXT NOT NULL,
+    reorder_at REAL NOT NULL DEFAULT 30,
+    used_in    TEXT NOT NULL
 )''')
 
 conn.commit()
