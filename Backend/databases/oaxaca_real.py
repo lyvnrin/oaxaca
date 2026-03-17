@@ -316,13 +316,16 @@ def cleanup_single_order(order_id: int):
 # CLEANUP COMPLETED ORDERS --------------------------
 
 
-@app.delete("/orders/cleanup")
-def cleanup_completed_orders():
+@app.delete("/orders/{order_id}/cleanup")
+def cleanup_single_order(order_id: int):
     conn = get_conn()
     conn.execute(
-        "DELETE FROM order_item WHERE order_id IN (SELECT order_id FROM orders WHERE status IN ('Completed', 'Paid'))"
+        "DELETE FROM order_item WHERE order_id = ?", (order_id,)
     )
-    conn.execute("DELETE FROM orders WHERE status IN ('Completed', 'Paid')")
+    conn.execute(
+        "DELETE FROM orders WHERE order_id = ? AND status IN ('Paid', 'Cancelled')",
+        (order_id,)
+    )
     conn.commit()
     conn.close()
-    return {"message": "Completed and paid orders cleared"}
+    return {"message": "Order cleaned up"}

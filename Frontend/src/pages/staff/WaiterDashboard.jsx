@@ -436,6 +436,9 @@ function OrdersTab({ orders, setOrders, menu, addToast }) {
             body: JSON.stringify({ status: "Cancelled" }),
         });
         addToast("Order cancelled");
+        setTimeout(async () => {
+            await fetch(`http://127.0.0.1:8000/orders/${id}/cleanup`, { method: 'DELETE' });
+        }, 15000); 
     };
 
     const changeStatus = async (id, status) => {

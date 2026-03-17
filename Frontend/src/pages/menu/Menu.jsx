@@ -719,6 +719,23 @@ function PaymentConfirmation() {
     );
 }
 
+// CANCELLED ORDER MODAL
+function CancelledOrderModal({ onClose }) {
+    return (
+        <div className="customization-overlay">
+            <div className="customization-modal confirmation-modal">
+                <div className="confirmation-icon" style={{ background: "#fde8e6", color: "#c0392b" }}>✕</div>
+                <h2 className="confirmation-title">Order Cancelled</h2>
+                <p className="confirmation-msg">
+                    We're sorry, your order was cancelled by a staff member.<br />
+                    Please speak to your waiter if you have any questions.
+                </p>
+                <p className="confirmation-redirect">Returning you home...</p>
+            </div>
+        </div>
+    );
+}
+
 
 export default function App() {
     const [openSection, setOpenSection] = useState(null);
@@ -744,6 +761,8 @@ export default function App() {
     const [orderId, setOrderId] = useState('');
     const [currentStep, setCurrentStep] = useState(1);
     const [placedOrder, setPlacedOrder] = useState({});
+
+    const [orderCancelled, setOrderCancelled] = useState(false);
 
     const [isPaid, setIsPaid] = useState(false);
     const [unpaidModalOpen, setUnpaidModalOpen] = useState(false);
@@ -792,21 +811,53 @@ export default function App() {
         return () => clearInterval(poll);
     }, []);
 
-    useEffect(() => {
-        if (!liveOrderId) return;
-        const statusToStep = {
-            "Pending": 2,
-            "In Progress": 3,
-            "Ready": 4,
-            "Completed": 5,
-        };
+useEffect(() => {
+    if (!liveOrderId) return;
+    const statusToStep = {
+        "Pending": 2,
+        "In Progress": 3,
+        "Ready": 4,
+        "Completed": 5,
+    };
+
+    const delay = setTimeout(() => {
         const poll = setInterval(async () => {
-            const res = await fetch(`http://127.0.0.1:8000/orders/${liveOrderId}`);
-            const data = await res.json();
-            setLiveStep(statusToStep[data.status] ?? 1);
+            try {
+                const res = await fetch(`http://127.0.0.1:8000/orders/${liveOrderId}`);
+                if (!res.ok) {
+                    clearInterval(poll);
+                    setOrderCancelled(true);
+                    setHasActiveOrder(false);
+                    setLiveOrderId(null);
+                    sessionStorage.removeItem('liveOrderId');
+                    setTimeout(() => {
+                        setOrderCancelled(false);
+                        window.location.href = '/';
+                    }, 3000);
+                    return;
+                }
+                const data = await res.json();
+                if (data.status === "Cancelled") {
+                    clearInterval(poll);
+                    setOrderCancelled(true);
+                    setHasActiveOrder(false);
+                    setLiveOrderId(null);
+                    sessionStorage.removeItem('liveOrderId');
+                    setTimeout(() => {
+                        setOrderCancelled(false);
+                        window.location.href = '/';
+                    }, 2000);
+                    return;
+                }
+                setLiveStep(statusToStep[data.status] ?? 1);
+            } catch (_) { }
         }, 8000);
+
         return () => clearInterval(poll);
-    }, [liveOrderId]);
+    }, 5000); // wait 5s before first poll
+
+    return () => clearTimeout(delay);
+}, [liveOrderId]);
 
     const generateOrderId = () => Math.floor(1000 + Math.random() * 9000).toString();
 
@@ -1064,6 +1115,8 @@ export default function App() {
 
             {confirmed && <OrderConfirmation />}
             {paymentConfirmed && <PaymentConfirmation />}
+
+            {orderCancelled && <CancelledOrderModal />}
         </div>
     );
 }
