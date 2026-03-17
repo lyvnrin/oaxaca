@@ -10,7 +10,7 @@ conn.execute('DROP TABLE IF EXISTS staff')
 
 conn.execute('''CREATE TABLE tables (
     table_id INTEGER PRIMARY KEY,
-    capacity INTEGER NOT NULL,
+    name TEXT,
     occupied INTEGER NOT NULL DEFAULT 0
 )''')
 
