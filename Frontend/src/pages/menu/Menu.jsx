@@ -868,6 +868,10 @@ export default function App() {
             const data = await res.json();
             throw new Error(data.detail || 'Payment failed');
         }
+
+        // cleanup after payment
+        await fetch('http://127.0.0.1:8000/orders/cleanup', { method: 'DELETE' });
+
         setIsPaid(true);
         setPaymentOpen(false);
         setHasActiveOrder(false);
@@ -876,7 +880,6 @@ export default function App() {
         setLiveOrderId(null);
         sessionStorage.removeItem('liveOrderId');
     }
-
     const cartCount = Object.values(cart).reduce((sum, { qty }) => sum + qty, 0);
 
     const placedOrderTotal = Object.values(placedOrder).reduce((sum, { item, qty }) => {

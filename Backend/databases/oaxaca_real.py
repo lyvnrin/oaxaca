@@ -13,7 +13,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-DB_FILE = os.path.join(os.path.dirname(__file__), "databases", "oaxaca-real.db")
+DB_FILE = os.path.join(os.path.dirname(__file__), "oaxaca-real.db")
 
 # DATABASE CONNECTION --------------------------
 
@@ -175,7 +175,9 @@ def get_order(order_id: int):
 @app.post("/orders/{order_id}/pay", status_code=200)
 def pay_order(order_id: int):
     conn = get_conn()
-    row = conn.execute("SELECT * FROM orderS WHERE order_id = ?", (order_id)).fetchone()
+    row = conn.execute(
+        "SELECT * FROM orders WHERE order_id = ?", (order_id,)
+    ).fetchone()
 
     if not row:
         raise HTTPException(status_code=404, detail="Order not found")
@@ -183,23 +185,22 @@ def pay_order(order_id: int):
     if row["status"] == "Paid":
         raise HTTPException(status_code=400, detail="Order already paid")
     
-    conn.execute("UPDATE orders SET status = 'Paid' WHERE order_id = ?", (order_id))
+    conn.execute(
+        "UPDATE orders SET status = 'Paid' WHERE order_id = ?", (order_id,)
+    )
     conn.commit()
-    conn.close
+    conn.close()
 
     return {"order_id": order_id, "status": "Paid"}
 
-
 # CLEANUP COMPLETED ORDERS --------------------------
-
-
 @app.delete("/orders/cleanup")
 def cleanup_completed_orders():
     conn = get_conn()
     conn.execute(
-        "DELETE FROM order_item WHERE order_id IN (SELECT order_id FROM orders WHERE status = 'Completed')"
+        "DELETE FROM order_item WHERE order_id IN (SELECT order_id FROM orders WHERE status IN ('Completed', 'Paid'))"
     )
-    conn.execute("DELETE FROM orders WHERE status = 'Completed'")
+    conn.execute("DELETE FROM orders WHERE status IN ('Completed', 'Paid')")
     conn.commit()
     conn.close()
-    return {"message": "Completed orders cleared"}
+    return {"message": "Completed and paid orders cleared"}
