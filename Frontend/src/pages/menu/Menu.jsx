@@ -884,6 +884,22 @@ export default function App() {
             const data = await res.json();
             setLiveOrderId(data.order_id);
             sessionStorage.setItem('liveOrderId', data.order_id);
+            
+            const customisations = {};
+                Object.values(cart).forEach(({ item }) => {
+                    const parts = [];
+                    if (item.customization?.removedIngredients?.length > 0)
+                        parts.push(`No: ${item.customization.removedIngredients.join(', ')}`);
+                    if (item.customization?.selectedExtras?.length > 0)
+                        parts.push(`Extras: ${item.customization.selectedExtras.map(e => e.name).join(', ')}`);
+                    if (item.customization?.specialRequest)
+                        parts.push(`Note: ${item.customization.specialRequest}`);
+                    if (parts.length > 0)
+                        customisations[item.name] = parts.join(' · ');
+                });
+                localStorage.setItem(`oaxaca_customisations_${data.order_id}`, JSON.stringify(customisations));
+
+
             setLiveStep(1);
 
             await fetch('http://127.0.0.1:8000/stock/deplete', {
