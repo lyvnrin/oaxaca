@@ -414,9 +414,6 @@ function OrdersTab({ orders, setOrders, menu, addToast }) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ status: "Completed" }),
         });
-        setTimeout(async () => {
-            await fetch('http://127.0.0.1:8000/orders/cleanup', { method: 'DELETE' });
-        }, 30000);
         addToast("Order marked as delivered");
     };
 
@@ -615,8 +612,7 @@ function TablesTab({ unpaidTables, addToast, raiseAlert }) {
     );
 }
 
-function MenuTab({ menu, setMenu, addToast }) {
-
+function MenuTab({ menu, setMenu, addToast, lowStockDishes }) {
     const toggleAvail = async (id) => {
         const item = menu.find(m => m.id === id);
         const newAvail = !item.avail;
@@ -626,6 +622,7 @@ function MenuTab({ menu, setMenu, addToast }) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ available: newAvail }),
         });
+        localStorage.setItem('oaxaca_menu_update', Date.now().toString());
         addToast(`${item.name} marked ${newAvail ? "available" : "unavailable"} ✓`);
     };
 
@@ -635,7 +632,6 @@ function MenuTab({ menu, setMenu, addToast }) {
 
     return (
         <div style={{ padding: "20px 28px 32px" }}>
-            {/* STAT CARDS */}
             <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12, marginBottom: 20 }}>
                 {[
                     { label: "Total Items", value: menu.length, accent: C.warm },
@@ -649,8 +645,6 @@ function MenuTab({ menu, setMenu, addToast }) {
                     </div>
                 ))}
             </div>
-
-            {/* TABLE */}
             <div style={{ background: C.panel, border: `1.5px solid ${C.border}`, borderRadius: 10, overflow: "hidden" }}>
                 <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
                     <thead>
@@ -663,13 +657,16 @@ function MenuTab({ menu, setMenu, addToast }) {
                     <tbody>
                         {sections.flatMap(sec => menu.filter(m => m.section === sec)).map((item, i) => (
                             <tr key={item.id}
-                                style={{ background: i % 2 === 0 ? C.bg : C.panel, borderBottom: `1px solid ${C.border}`, opacity: item.avail ? 1 : 0.55, transition: "opacity .2s" }}
+                                style={{ background: i % 2 === 0 ? C.bg : C.panel, borderBottom: `1px solid ${C.border}`, opacity: item.avail ? (lowStockDishes.has(item.name) ? 0.4 : 1) : 0.55, transition: "opacity .2s" }}
                                 onMouseEnter={e => e.currentTarget.style.background = C.pale}
                                 onMouseLeave={e => e.currentTarget.style.background = i % 2 === 0 ? C.bg : C.panel}>
                                 <td style={{ padding: "10px 14px", color: C.muted, fontSize: 11, whiteSpace: "nowrap" }}>
                                     <span style={{ background: C.light, color: C.mid, padding: "2px 8px", borderRadius: 10, fontSize: 10, fontWeight: 600 }}>{item.section}</span>
                                 </td>
-                                <td style={{ padding: "10px 14px", fontWeight: 600, color: C.text }}>{item.name}</td>
+                                <td style={{ padding: "10px 14px", fontWeight: 600, color: C.text }}>
+                                    {item.name}
+                                    {lowStockDishes.has(item.name) && <span style={{ marginLeft: 6, fontSize: 9, fontWeight: 700, color: C.red, background: C.redL, padding: "1px 6px", borderRadius: 8, letterSpacing: ".06em", textTransform: "uppercase" }}>Low Stock</span>}
+                                </td>
                                 <td style={{ padding: "10px 14px", fontFamily: "'Cormorant Garamond', serif", fontWeight: 700, color: C.mid, whiteSpace: "nowrap" }}>£{Number(item.price).toFixed(2)}</td>
                                 <td style={{ padding: "10px 14px", fontSize: 11, color: C.green }}>{item.dietary?.join(", ") || "—"}</td>
                                 <td style={{ padding: "10px 14px", fontSize: 11, color: C.amber }}>{item.allergens?.length > 0 ? `⚠ ${item.allergens.join(", ")}` : "—"}</td>
@@ -745,26 +742,26 @@ function useCustomerAlerts(setNotifications, addToast) {
 }
 
 const MENU_META = {
-    1: { dietary: ["Vegan", "Gluten-Free"], allergens: [], calories: "350" },
-    2: { dietary: ["Gluten-Free"], allergens: ["Milk", "Soy"], calories: "500" },
-    3: { dietary: ["Gluten-Free"], allergens: ["Fish"], calories: "180" },
-    4: { dietary: ["Vegetarian", "Gluten-Free"], allergens: ["Milk"], calories: "250" },
-    5: { dietary: [], allergens: ["Soy", "Nuts"], calories: "600" },
-    6: { dietary: [], allergens: [], calories: "300 (per taco)" },
-    7: { dietary: ["Vegan"], allergens: [], calories: "400" },
-    8: { dietary: ["Gluten-Free"], allergens: ["Fish"], calories: "450" },
-    9: { dietary: ["Vegetarian"], allergens: ["Milk", "Gluten", "Eggs"], calories: "550" },
-    10: { dietary: ["Vegetarian", "Gluten-Free"], allergens: ["Milk", "Eggs"], calories: "320" },
-    11: { dietary: ["Vegan", "Gluten-Free"], allergens: [], calories: "120" },
-    12: { dietary: ["Vegan", "Gluten-Free"], allergens: [], calories: "200" },
-    13: { dietary: ["Vegan", "Gluten-Free"], allergens: [], calories: "60 (per tortilla)" },
-    14: { dietary: ["Vegan", "Gluten-Free"], allergens: [], calories: "5 (per tbsp)" },
-    15: { dietary: ["Vegan", "Gluten-Free"], allergens: [], calories: "200" },
-    16: { dietary: ["Vegan", "Gluten-Free"], allergens: [], calories: "70 (per cup)" },
-    17: { dietary: ["Vegan", "Gluten-Free"], allergens: [], calories: "250" },
-    18: { dietary: ["Vegan", "Gluten-Free"], allergens: ["Nuts"], calories: "150 (per cup)" },
-    19: { dietary: [], allergens: [], calories: "150 (per 12 oz bottle)" },
-    20: { dietary: [], allergens: [], calories: "0" },
+    1: { section: "Starters", dietary: ["Vegan", "Gluten-Free"], allergens: [], calories: "350" },
+    2: { section: "Starters", dietary: ["Gluten-Free"], allergens: ["Milk", "Soy"], calories: "500" },
+    3: { section: "Starters", dietary: ["Gluten-Free"], allergens: ["Fish"], calories: "180" },
+    4: { section: "Starters", dietary: ["Vegetarian", "Gluten-Free"], allergens: ["Milk"], calories: "250" },
+    5: { section: "Mains", dietary: [], allergens: ["Soy", "Nuts"], calories: "600" },
+    6: { section: "Mains", dietary: [], allergens: [], calories: "300 (per taco)" },
+    7: { section: "Mains", dietary: ["Vegan"], allergens: [], calories: "400" },
+    8: { section: "Mains", dietary: ["Gluten-Free"], allergens: ["Fish"], calories: "450" },
+    9: { section: "Dessert", dietary: ["Vegetarian"], allergens: ["Milk", "Gluten", "Eggs"], calories: "550" },
+    10: { section: "Dessert", dietary: ["Vegetarian", "Gluten-Free"], allergens: ["Milk", "Eggs"], calories: "320" },
+    11: { section: "Dessert", dietary: ["Vegan", "Gluten-Free"], allergens: [], calories: "120" },
+    12: { section: "Sides", dietary: ["Vegan", "Gluten-Free"], allergens: [], calories: "200" },
+    13: { section: "Sides", dietary: ["Vegan", "Gluten-Free"], allergens: [], calories: "60 (per tortilla)" },
+    14: { section: "Sides", dietary: ["Vegan", "Gluten-Free"], allergens: [], calories: "5 (per tbsp)" },
+    15: { section: "Sides", dietary: ["Vegan", "Gluten-Free"], allergens: [], calories: "200" },
+    16: { section: "Drinks", dietary: ["Vegan", "Gluten-Free"], allergens: [], calories: "70 (per cup)" },
+    17: { section: "Drinks", dietary: ["Vegan", "Gluten-Free"], allergens: [], calories: "250" },
+    18: { section: "Drinks", dietary: ["Vegan", "Gluten-Free"], allergens: ["Nuts"], calories: "150 (per cup)" },
+    19: { section: "Drinks", dietary: [], allergens: [], calories: "150 (per 12 oz bottle)" },
+    20: { section: "Drinks", dietary: [], allergens: [], calories: "0" },
 };
 
 export default function App() {
@@ -794,7 +791,7 @@ export default function App() {
     const raiseAlert = (table) => { const id = Date.now(); setNotifications(p => [{ id, order: "–", table, status: `Table ${table} needs assistance`, type: "alert", read: false }, ...p]); };
 
     // LISTENING FOR KITCHEN NOTIFY EVENTS
-    useKitchenNotifications(setNotifications, addToast, () => {});
+    useKitchenNotifications(setNotifications, addToast, () => { });
 
     const unread = notifications.filter(n => !n.read).length;
     const alertCount = notifications.filter(n => n.type === "alert").length;
@@ -828,6 +825,26 @@ export default function App() {
 
     useCustomerAlerts(setNotifications, addToast);
 
+    useEffect(() => {
+        const handler = (e) => {
+            if (e.key !== 'oaxaca_menu_update') return;
+            fetch('http://127.0.0.1:8000/menu_items')
+                .then(r => r.json())
+                .then(data => setMenu(data.map(item => ({
+                    id: item.item_id,
+                    name: item.item_name,
+                    price: item.price,
+                    section: MENU_META[item.item_id]?.section ?? "Mains",
+                    avail: item.available === 1,
+                    dietary: MENU_META[item.item_id]?.dietary ?? [],
+                    allergens: MENU_META[item.item_id]?.allergens ?? [],
+                    calories: MENU_META[item.item_id]?.calories ?? "",
+                }))));
+        };
+        window.addEventListener('storage', handler);
+        return () => window.removeEventListener('storage', handler);
+    }, []);
+
 
     const [menu, setMenu] = useState([]);
     useEffect(() => {
@@ -837,12 +854,31 @@ export default function App() {
                 id: item.item_id,
                 name: item.item_name,
                 price: item.price,
-                section: item.menu_type ?? "Mains",
+                section: MENU_META[item.item_id]?.section ?? "Mains",
                 avail: item.available === 1,
                 dietary: MENU_META[item.item_id]?.dietary ?? [],
                 allergens: MENU_META[item.item_id]?.allergens ?? [],
                 calories: MENU_META[item.item_id]?.calories ?? "",
             }))));
+    }, []);
+    const [lowStockDishes, setLowStockDishes] = useState(new Set());
+
+    useEffect(() => {
+        const fetchStock = () => {
+            fetch('http://127.0.0.1:8000/stock')
+                .then(r => r.json())
+                .then(data => {
+                    const low = new Set();
+                    data.forEach(s => {
+                        if (s.level < 10) s.used_in.split(', ').forEach(d => low.add(d));
+                    });
+                    setLowStockDishes(low);
+                })
+                .catch(() => { });
+        };
+        fetchStock();
+        const poll = setInterval(fetchStock, 3000);
+        return () => clearInterval(poll);
     }, []);
 
     const unpaidTables = orders
@@ -852,7 +888,7 @@ export default function App() {
             order: o.id,
             total: o.items.reduce((s, i) => s + i.price * i.qty, 0),
             waiting: "—"
-    }));
+        }));
 
     return (
         <div style={{ fontFamily: "Jost, sans-serif", background: C.bg, color: C.text, minHeight: "100vh" }}>
@@ -920,7 +956,7 @@ export default function App() {
             {/* TAB CONTENT */}
             {tab === "Orders" && <OrdersTab orders={orders} setOrders={setOrders} menu={menu} addToast={addToast} />}
             {tab === "Tables" && <TablesTab unpaidTables={unpaidTables} addToast={addToast} raiseAlert={raiseAlert} />}
-            {tab === "Menu" && <MenuTab menu={menu} setMenu={setMenu} addToast={addToast} />}
+            {tab === "Menu" && <MenuTab menu={menu} setMenu={setMenu} addToast={addToast} lowStockDishes={lowStockDishes} />}
 
             {/* TOASTS */}
             <div style={{ position: "fixed", bottom: 24, right: 24, display: "flex", flexDirection: "column", gap: 8, zIndex: 9999, pointerEvents: "none" }}>
