@@ -852,12 +852,17 @@ export default function App() {
     function handleRemove(itemKey) {
         setCart((prev) => { const next = { ...prev }; delete next[itemKey]; return next; });
     }
+    function calculateItemPrice(item) {
+       const base = parseFloat(item.price.replace("£", ""));
+       const extras = item.customization?.selectedExtras?.reduce((s, e) => s + e.price, 0) || 0;
+       return base + extras;
+}
 
     async function handlePlaceOrder() {
         const items = Object.values(cart).map(({ item, qty }) => ({
             item_id: item.id,
             quantity: qty,
-            price: parseFloat(item.price.replace("£", "")) + (item.customization?.selectedExtras?.reduce((s, e) => s + e.price, 0) || 0),
+            price: calculateItemPrice(item),
             removed_ingredients: item.customization?.removedIngredients || [],
             extras: item.customization?.selectedExtras?.map(e => ({
                 name: e.name,
