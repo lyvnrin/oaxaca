@@ -2,6 +2,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import sqlite3
+import os
 
 app = FastAPI(title="Oaxaca API")
 
@@ -12,11 +13,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-DB_FILE = "oaxaca-real.db"
+DB_FILE = os.path.join(os.path.dirname(__file__), "oaxaca-real.db")
 
 # DATABASE CONNECTION --------------------------
-
-
 def get_conn():
     conn = sqlite3.connect(DB_FILE, timeout=10)
     conn.execute("PRAGMA foreign_keys = ON")
@@ -25,8 +24,6 @@ def get_conn():
     return conn
 
 # SCHEMAS --------------------------
-
-
 class CustomerIn(BaseModel):
     name: str
     table_id: int | None = None
@@ -42,8 +39,6 @@ class OrderStatusUpdate(BaseModel):
     status: str
 
 # CUSTOMERS --------------------------
-
-
 @app.get("/customers")
 def get_customers():
     conn = get_conn()
@@ -96,8 +91,6 @@ def delete_customer(cust_id: int):
     return {"deleted": cust_id}
 
 # TABLES --------------------------
-
-
 @app.get("/tables")
 def get_tables():
     conn = get_conn()
@@ -107,8 +100,6 @@ def get_tables():
     return [dict(r) for r in rows]
 
 # ORDERS --------------------------
-
-
 @app.post("/orders", status_code=201)
 def place_order(payload: OrderIn):
     conn = get_conn()
@@ -171,40 +162,35 @@ def get_order(order_id: int):
         raise HTTPException(status_code=404, detail="Order not found")
     return dict(order)
 
-
-class MenuItemAvailability(BaseModel):
-    available: bool
-
-
-@app.patch("/menu_items/{item_id}")
-def update_menu_item_availability(item_id: int, payload: MenuItemAvailability):
+@app.post("/orders/{order_id}/pay", status_code=200)
+def pay_order(order_id: int):
     conn = get_conn()
+    row = conn.execute(
+        "SELECT * FROM orders WHERE order_id = ?", (order_id,)
+    ).fetchone()
+
+    if not row:
+        raise HTTPException(status_code=404, detail="Order not found")
+    
+    if row["status"] == "Paid":
+        raise HTTPException(status_code=400, detail="Order already paid")
+    
     conn.execute(
-        "UPDATE menu_items SET available = ? WHERE item_id = ?",
-        (1 if payload.available else 0, item_id)
+        "UPDATE orders SET status = 'Paid' WHERE order_id = ?", (order_id,)
     )
     conn.commit()
     conn.close()
-    return {"item_id": item_id, "available": payload.available}
 
-
-@app.get("/menu_items")
-def get_menu_items():
-    conn = get_conn()
-    rows = conn.execute("SELECT * FROM menu_items").fetchall()
-    conn.close()
-    return [dict(r) for r in rows]
+    return {"order_id": order_id, "status": "Paid"}
 
 # CLEANUP COMPLETED ORDERS --------------------------
-
-
 @app.delete("/orders/cleanup")
 def cleanup_completed_orders():
     conn = get_conn()
     conn.execute(
-        "DELETE FROM order_item WHERE order_id IN (SELECT order_id FROM orders WHERE status = 'Completed')"
+        "DELETE FROM order_item WHERE order_id IN (SELECT order_id FROM orders WHERE status IN ('Completed', 'Paid'))"
     )
-    conn.execute("DELETE FROM orders WHERE status = 'Completed'")
+    conn.execute("DELETE FROM orders WHERE status IN ('Completed', 'Paid')")
     conn.commit()
     conn.close()
-    return {"message": "Completed orders cleared"}
+    return {"message": "Completed and paid orders cleared"}
