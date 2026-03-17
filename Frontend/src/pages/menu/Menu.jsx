@@ -858,8 +858,10 @@ export default function App() {
             item_id: item.id,
             quantity: qty,
             price: parseFloat(item.price.replace("£", "")) + (item.customization?.selectedExtras?.reduce((s, e) => s + e.price, 0) || 0),
-        }));
-
+            removed_ingredients: item.customization?.removedIngredients || [],
+            extras: item.customization?.selectedExtras || [],
+            special_request: item.customization?.specialRequest || "",
+         }));
         try {
             const res = await fetch('http://127.0.0.1:8000/orders', {
                 method: 'POST',
