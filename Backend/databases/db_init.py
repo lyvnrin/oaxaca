@@ -55,6 +55,16 @@ conn.execute('''CREATE TABLE order_item (
     FOREIGN KEY (item_id) REFERENCES menu_items(item_id)
 )''')
 
+conn.execute('''CREATE TABLE stock (
+    stock_id   INTEGER PRIMARY KEY AUTOINCREMENT,
+    name       TEXT NOT NULL,
+    category   TEXT NOT NULL,
+    level      REAL NOT NULL DEFAULT 100,
+    unit       TEXT NOT NULL,
+    reorder_at REAL NOT NULL DEFAULT 30,
+    used_in    TEXT NOT NULL
+)''')
+
 conn.commit()
 print('Done')
 conn.close()
