@@ -643,8 +643,11 @@ function StockTab({ stock, fetchStock }) {
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <span style={{ fontFamily: "Cormorant Garamond, serif", fontSize: 20, fontWeight: 700, color: C.dark }}>Stock Levels</span>
                 <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                    {critCount > 0 && <span style={{ fontSize: 10, fontWeight: 600, letterSpacing: ".08em", textTransform: "uppercase", padding: "3px 9px", borderRadius: 20, background: C.redL, color: C.red }}>{critCount} Critical</span>}
-                    {lowCount > 0 && <span style={{ fontSize: 10, fontWeight: 600, letterSpacing: ".08em", textTransform: "uppercase", padding: "3px 9px", borderRadius: 20, background: C.amberL, color: C.amber }}>{lowCount} Low</span>}
+                    <button
+                        onClick={() => stock.forEach(s => restock(s.id, 100))}
+                        style={{ fontSize: 10, fontWeight: 600, padding: "4px 12px", borderRadius: 6, border: `1px solid ${C.green}`, background: C.greenL, color: C.green, cursor: "pointer", fontFamily: "Jost, sans-serif", letterSpacing: ".06em", textTransform: "uppercase" }}>
+                        Restock All to 100
+                    </button>
                 </div>
             </div>
             <div style={{ height: 1, background: C.border }} />
@@ -761,18 +764,67 @@ export default function ManagerDashboard() {
     }, []);
     const [stock, setStock] = useState(INIT_STOCK);
 
+    const prevStockRef = useRef({});
+
     const fetchStock = () => {
         fetch('http://127.0.0.1:8000/stock')
             .then(r => r.json())
-            .then(data => setStock(data.map(s => ({
-                id: s.stock_id,
-                name: s.name,
-                category: s.category,
-                level: s.level,
-                unit: s.unit,
-                reorderAt: s.reorder_at,
-                usedIn: s.used_in.split(', '),
-            }))))
+            .then(data => {
+                const mapped = data.map(s => ({
+                    id: s.stock_id,
+                    name: s.name,
+                    category: s.category,
+                    level: s.level,
+                    unit: s.unit,
+                    reorderAt: s.reorder_at,
+                    usedIn: s.used_in.split(', '),
+                }));
+
+                mapped.forEach(s => {
+                    const prev = prevStockRef.current[s.id] ?? 100;
+                    if (prev > s.level) {
+                        if (prev >= 25 && s.level < 25) {
+                            setNotifications(n => [{
+                                id: Date.now() + s.id,
+                                title: `${s.name} is critically low`,
+                                body: `Stock has dropped to ${s.level.toFixed(0)}% — reorder soon.`,
+                                type: "urgent",
+                                time: new Date().toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" }),
+                                read: false,
+                            }, ...n]);
+                        } else if (prev >= 50 && s.level < 50 && s.level >= 25) {
+                            setNotifications(n => [{
+                                id: Date.now() + s.id,
+                                title: `${s.name} is running low`,
+                                body: `Stock has dropped to ${s.level.toFixed(0)}% — consider restocking.`,
+                                type: "warn",
+                                time: new Date().toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" }),
+                                read: false,
+                            }, ...n]);
+                        }
+                    }
+                    if (s.level >= 50) {
+                        setNotifications(n => n.filter(notif => !notif.title.includes(s.name)));
+                    } else if (s.level >= 25 && s.level < 50) {
+                        setNotifications(n => n.filter(notif => !(notif.title.includes(s.name) && notif.type === "urgent")));
+                        if (prev < 25) {
+                            setNotifications(n => [{
+                                id: Date.now() + s.id,
+                                title: `${s.name} is running low`,
+                                body: `Stock is at ${s.level.toFixed(0)}% — consider restocking.`,
+                                type: "warn",
+                                time: new Date().toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" }),
+                                read: false,
+                            }, ...n]);
+                        }
+                    } else if (s.level < 25) {
+                        setNotifications(n => n.filter(notif => !(notif.title.includes(s.name) && notif.type === "warn")));
+                    }
+                    prevStockRef.current[s.id] = s.level;
+                });
+
+                setStock(mapped);
+            })
             .catch(() => { });
     };
 
