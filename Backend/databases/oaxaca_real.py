@@ -16,8 +16,6 @@ app.add_middleware(
 DB_FILE = os.path.join(os.path.dirname(__file__), "oaxaca-real.db")
 
 # DATABASE CONNECTION --------------------------
-
-
 def get_conn():
     conn = sqlite3.connect(DB_FILE, timeout=10)
     conn.execute("PRAGMA foreign_keys = ON")
@@ -26,8 +24,6 @@ def get_conn():
     return conn
 
 # SCHEMAS --------------------------
-
-
 class CustomerIn(BaseModel):
     name: str
     table_id: int | None = None
@@ -43,8 +39,6 @@ class OrderStatusUpdate(BaseModel):
     status: str
 
 # CUSTOMERS --------------------------
-
-
 @app.get("/customers")
 def get_customers():
     conn = get_conn()
@@ -97,8 +91,6 @@ def delete_customer(cust_id: int):
     return {"deleted": cust_id}
 
 # TABLES --------------------------
-
-
 @app.get("/tables")
 def get_tables():
     conn = get_conn()
@@ -108,8 +100,6 @@ def get_tables():
     return [dict(r) for r in rows]
 
 # ORDERS --------------------------
-
-
 @app.post("/orders", status_code=201)
 def place_order(payload: OrderIn):
     conn = get_conn()
