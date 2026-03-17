@@ -22,14 +22,6 @@ def load_tables_from_csv(csv_path: str, db_path: str):
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
     
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS tables (
-            table_id INTEGER PRIMARY KEY,
-            name TEXT,
-            occupied INTEGER NOT NULL DEFAULT 0
-        )
-    """)
-    
     cursor.executemany("""
         INSERT OR REPLACE INTO tables (table_id, name, occupied)
         VALUES (:table_id, :name, :occupied)
