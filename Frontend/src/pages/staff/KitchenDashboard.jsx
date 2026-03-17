@@ -85,12 +85,40 @@ function OrderCard({ order, btnLabel, btnColor, onAction }) {
           <IconClock />{getElapsed(order.startedAt)}
         </span>
       </div>
-      {order.items.map((it, i) => (
-        <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "4px 0", borderBottom: `1px solid ${C.pale}`, fontSize: 12 }}>
-          <span style={{ color: C.text }}>{it.name}</span>
-          <span style={{ fontWeight: 600, color: C.muted, fontSize: 11 }}>×{it.qty}</span>
-        </div>
-      ))}
+  {order.items.map((it, i) => (
+  <div
+    key={i}
+    style={{
+      padding: "6px 0",
+      borderBottom: `1px solid ${C.pale}`,
+      fontSize: 12
+    }}
+  >
+    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+      <span style={{ color: C.text }}>{it.name}</span>
+      <span style={{ fontWeight: 600, color: C.muted, fontSize: 11 }}>×{it.qty}</span>
+    </div>
+
+    {it.removedIngredients?.length > 0 && (
+      <p style={{ marginTop: 4, fontSize: 11, color: C.red }}>
+        No: {it.removedIngredients.join(", ")}
+      </p>
+    )}
+
+    {it.extras?.length > 0 && (
+      <p style={{ marginTop: 2, fontSize: 11, color: C.green }}>
+        Extra: {it.extras.map(extra => extra.name).join(", ")}
+      </p>
+    )}
+
+    {it.specialRequest && (
+      <p style={{ marginTop: 2, fontSize: 11, color: C.mid, fontStyle: "italic" }}>
+        Note: {it.specialRequest}
+      </p>
+    )}
+  </div>
+))}
+      
       {btnLabel && (
         <button onClick={() => onAction(order.id)}
           style={{ marginTop: 10, width: "100%", padding: "8px 12px", border: "none", borderRadius: 6, background: btnColor, color: "white", fontFamily: "Jost, sans-serif", fontSize: 11, fontWeight: 600, letterSpacing: ".08em", textTransform: "uppercase", cursor: "pointer", transition: "opacity .15s" }}
