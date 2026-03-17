@@ -352,21 +352,64 @@ function OrderCard({ order, onConfirm, onCancel, onDeliver, onAddItems, onStatus
                     )}
                 </div>
             </div>
-            {order.items.map((item, ii) => (
-                <div key={ii} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "5px 0", borderBottom: `1px solid ${C.pale}`, fontSize: 12, gap: 6 }}>
-                    <span style={{ color: C.text, flex: 1 }}>{item.name}</span>
-                    <span style={{ color: C.muted, fontSize: 11 }}>×{item.qty}</span>
-                    <span style={{ fontWeight: 600, color: C.mid, fontSize: 11, minWidth: 48, textAlign: "right" }}>£{(item.price * item.qty).toFixed(2)}</span>
-                    {!isDelivered && (
-                        <button
-                            onClick={() => onRemoveItem(order.id, ii)}
-                            title="Remove item"
-                            style={{ marginLeft: 4, width: 18, height: 18, borderRadius: "50%", border: "none", background: C.redL, color: C.red, fontSize: 11, lineHeight: 1, cursor: "pointer", display: "grid", placeItems: "center", flexShrink: 0 }}>
-                            ✕
-                        </button>
-                    )}
-                </div>
-            ))}
+    {order.items.map((item, ii) => (
+    <div
+        key={ii}
+        style={{
+            padding: "6px 0",
+            borderBottom: `1px solid ${C.pale}`,
+            fontSize: 12
+        }}
+    >
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 6 }}>
+            <span style={{ color: C.text, flex: 1 }}>{item.name}</span>
+            <span style={{ color: C.muted, fontSize: 11 }}>×{item.qty}</span>
+            <span style={{ fontWeight: 600, color: C.mid, fontSize: 11, minWidth: 48, textAlign: "right" }}>
+                £{(item.price * item.qty).toFixed(2)}
+            </span>
+            {!isDelivered && (
+                <button
+                    onClick={() => onRemoveItem(order.id, ii)}
+                    title="Remove item"
+                    style={{
+                        marginLeft: 4,
+                        width: 18,
+                        height: 18,
+                        borderRadius: "50%",
+                        border: "none",
+                        background: C.redL,
+                        color: C.red,
+                        fontSize: 11,
+                        lineHeight: 1,
+                        cursor: "pointer",
+                        display: "grid",
+                        placeItems: "center",
+                        flexShrink: 0
+                    }}>
+                    ✕
+                </button>
+            )}
+        </div>
+
+        {item.removedIngredients?.length > 0 && (
+            <p style={{ marginTop: 4, fontSize: 11, color: C.red }}>
+                No: {item.removedIngredients.join(", ")}
+            </p>
+        )}
+
+        {item.extras?.length > 0 && (
+            <p style={{ marginTop: 2, fontSize: 11, color: C.green }}>
+                Extra: {item.extras.map(extra => extra.name).join(", ")}
+            </p>
+        )}
+
+        {item.specialRequest && (
+            <p style={{ marginTop: 2, fontSize: 11, color: C.mid, fontStyle: "italic" }}>
+                Note: {item.specialRequest}
+            </p>
+        )}
+    </div>
+))}
             <div style={{ textAlign: "right", marginTop: 6, fontFamily: "'Cormorant Garamond', serif", fontSize: 14, fontWeight: 700, color: C.dark }}>Total: £{rowTotal.toFixed(2)}</div>
             <div style={{ marginTop: 8, display: "flex", gap: 6, flexWrap: "wrap" }}>
                 {isPending && (
