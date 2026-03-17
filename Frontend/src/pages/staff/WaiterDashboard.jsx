@@ -16,9 +16,7 @@ const now = () => Date.now();
 
 const ORDER_STATUSES = ["Pending", "In Progress", "Ready", "Completed", "Cancelled"];
 
-const INIT_NOTIFICATIONS = [
-    { id: 3, order: "1236", table: 4, status: "Needs Assistance", type: "alert", read: false }
-];
+const INIT_NOTIFICATIONS = [];
 
 const INIT_UNPAID = [
     { table: 2, order: "1230", total: 34.50, waiting: "12 mins" },
@@ -739,6 +737,7 @@ function MenuItemCard({ item, onToggle }) {
 function useCustomerAlerts(setNotifications, addToast) {
     useEffect(() => {
         const handler = (e) => {
+            console.log("storage event fired:", e.key, e.newValue);
             if (e.key !== "oaxaca_customer_alert" || !e.newValue) return;
             try {
                 const incoming = JSON.parse(e.newValue);
@@ -807,7 +806,7 @@ export default function App() {
     useKitchenNotifications(setNotifications, addToast, () => { });
 
     const unread = notifications.filter(n => !n.read).length;
-    const alertCount = notifications.filter(n => n.type === "alert").length;
+    const alertCount = notifications.filter(n => n.type === "alert" || n.type === "Help_Needed").length;
 
     const TABS = ["Orders", "Tables", "Menu"];
 
@@ -957,7 +956,7 @@ export default function App() {
             {alertCount > 0 && (
                 <div style={{ background: C.blue, color: "white", padding: "9px 28px", display: "flex", alignItems: "center", gap: 10, fontSize: 12, fontWeight: 600, letterSpacing: ".04em" }}>
                     <div style={{ width: 8, height: 8, borderRadius: "50%", background: "white", animation: "pulse 1.4s infinite", flexShrink: 0 }} />
-                    {alertCount} table{alertCount > 1 ? "s" : ""} need{alertCount === 1 ? "s" : ""} assistance — check notifications
+                    {alertCount} table{alertCount > 1 ? "s" : ""} need{alertCount === 1 ? "s" : ""} assistance - check notifications
                 </div>
             )}
 

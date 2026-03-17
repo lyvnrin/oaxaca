@@ -31,26 +31,26 @@ const INIT_TABLES = [
 const INIT_NOTIFICATIONS = [];
 
 const INIT_MENU = [
-    { id: 1, section: "Starters", name: "Guacamole & Chips", cost: 2.80, price: 7.00, avail: true, description: "Hand-mashed avocado, jalapeño, lime zest & Oaxacan pink salt.", dietary: ["Vegan", "Gluten-Free"], allergens: [], calories: "350 kcal" },
-    { id: 2, section: "Starters", name: "Tlayuda Tostada", cost: 3.60, price: 9.00, avail: true, description: "Crispy corn base, black bean, quesillo, chorizo & fresh avocado.", dietary: ["Gluten-Free"], allergens: ["Milk", "Soy"], calories: "500 kcal" },
-    { id: 3, section: "Starters", name: "Ceviche Verde", cost: 4.80, price: 12.00, avail: true, description: "Sea bass, tomatillo, cucumber, coriander & tiger's milk.", dietary: ["Gluten-Free"], allergens: ["Fish"], calories: "180 kcal" },
-    { id: 4, section: "Starters", name: "Elote Esquites", cost: 3.20, price: 8.00, avail: true, description: "Charred corn, crema, cotija cheese, ancho chilli & epazote.", dietary: ["Vegetarian", "Gluten-Free"], allergens: ["Milk"], calories: "250 kcal" },
-    { id: 5, section: "Mains", name: "Mole Negro Chicken", cost: 6.50, price: 18.00, avail: true, description: "Free-range thigh braised in a 30-ingredient black mole, sesame rice.", dietary: [], allergens: ["Soy", "Nuts"], calories: "600 kcal" },
-    { id: 6, section: "Mains", name: "Barbacoa Tacos", cost: 5.50, price: 16.00, avail: true, description: "Slow-braised beef cheek, white onion, coriander & salsa roja. Three pieces.", dietary: [], allergens: [], calories: "300 kcal (per taco)" },
-    { id: 7, section: "Mains", name: "Portobello Enchiladas", cost: 4.20, price: 14.00, avail: false, description: "Roasted mushrooms, black bean, chipotle sauce & cashew crema.", dietary: ["Vegan"], allergens: [], calories: "400 kcal" },
-    { id: 8, section: "Mains", name: "Snapper Veracruz", cost: 7.80, price: 22.00, avail: true, description: "Pan-seared whole snapper, olives, capers & fresh tomato broth.", dietary: ["Gluten-Free"], allergens: ["Fish"], calories: "450 kcal" },
-    { id: 9, section: "Desserts", name: "Churro Sundae", cost: 2.10, price: 8.00, avail: true, description: "Crispy churros, vanilla bean ice cream & dark chocolate mole sauce.", dietary: ["Vegetarian"], allergens: ["Milk", "Gluten", "Eggs"], calories: "550 kcal" },
-    { id: 10, section: "Desserts", name: "Mezcal Flan", cost: 2.00, price: 7.00, avail: true, description: "Silky caramel custard with a smoky mezcal caramel drizzle.", dietary: ["Vegetarian", "Gluten-Free"], allergens: ["Milk", "Eggs"], calories: "320 kcal" },
-    { id: 11, section: "Desserts", name: "Mango Sorbet", cost: 1.40, price: 6.00, avail: true, description: "Alphonso mango, chilli salt & fresh lime. Completely dairy free.", dietary: ["Vegan", "Gluten-Free"], allergens: [], calories: "120 kcal" },
-    { id: 12, section: "Sides", name: "Black Bean Pot", cost: 1.20, price: 4.00, avail: true, description: "Slow-cooked with avocado leaf, epazote & lime crema.", dietary: ["Vegan", "Gluten-Free"], allergens: [], calories: "200 kcal" },
-    { id: 13, section: "Sides", name: "Corn Tortillas", cost: 0.80, price: 3.00, avail: true, description: "Fresh nixtamal masa, made in-house daily. Four pieces.", dietary: ["Vegan", "Gluten-Free"], allergens: [], calories: "60 kcal (per tortilla)" },
-    { id: 14, section: "Sides", name: "Pickled Jalapeños", cost: 0.60, price: 3.00, avail: true, description: "House-pickled chillies, carrots & white onion in apple cider vinegar.", dietary: ["Vegan", "Gluten-Free"], allergens: [], calories: "5 kcal (per tbsp)" },
-    { id: 15, section: "Sides", name: "Mexican Rice", cost: 0.90, price: 4.00, avail: true, description: "Tomato-braised rice with cumin, garlic & fresh coriander.", dietary: ["Vegan", "Gluten-Free"], allergens: [], calories: "200 kcal" },
-    { id: 16, section: "Drinks", name: "Hibiscus Agua Fresca", cost: 1.00, price: 4.00, avail: true, description: "House-dried hibiscus, lime, cane sugar & still water.", dietary: ["Vegan", "Gluten-Free"], allergens: [], calories: "70 kcal (per cup)" },
-    { id: 17, section: "Drinks", name: "Mezcal Margarita", cost: 3.50, price: 11.00, avail: true, description: "Joven mezcal, fresh lime juice, agave syrup & smoked salt rim.", dietary: ["Vegan", "Gluten-Free"], allergens: [], calories: "250 kcal" },
-    { id: 18, section: "Drinks", name: "Horchata", cost: 1.20, price: 4.50, avail: true, description: "Rice milk, cinnamon, vanilla & a hint of almond. Served chilled.", dietary: ["Vegan", "Gluten-Free"], allergens: ["Nuts"], calories: "150 kcal (per cup)" },
-    { id: 19, section: "Drinks", name: "Mexican Lager", cost: 1.80, price: 5.00, avail: true, description: "Ice-cold bottle served with lime. Ask your server for today's selection.", dietary: [], allergens: [], calories: "150 kcal (per bottle)" },
-    { id: 20, section: "Drinks", name: "Water", cost: 0.20, price: 2.50, avail: true, description: "Ice-cold and refreshing. Ask your server for alternative temperatures.", dietary: [], allergens: [], calories: "0 kcal" },
+    { id: 1, section: "Starters", name: "Guacamole & Chips", cogs: 2.80, price: 7.00, avail: true, description: "Hand-mashed avocado, jalapeño, lime zest & Oaxacan pink salt.", dietary: ["Vegan", "Gluten-Free"], allergens: [], calories: "350 kcal" },
+    { id: 2, section: "Starters", name: "Tlayuda Tostada", cogs: 3.60, price: 9.00, avail: true, description: "Crispy corn base, black bean, quesillo, chorizo & fresh avocado.", dietary: ["Gluten-Free"], allergens: ["Milk", "Soy"], calories: "500 kcal" },
+    { id: 3, section: "Starters", name: "Ceviche Verde", cogs: 4.80, price: 12.00, avail: true, description: "Sea bass, tomatillo, cucumber, coriander & tiger's milk.", dietary: ["Gluten-Free"], allergens: ["Fish"], calories: "180 kcal" },
+    { id: 4, section: "Starters", name: "Elote Esquites", cogs: 3.20, price: 8.00, avail: true, description: "Charred corn, crema, cotija cheese, ancho chilli & epazote.", dietary: ["Vegetarian", "Gluten-Free"], allergens: ["Milk"], calories: "250 kcal" },
+    { id: 5, section: "Mains", name: "Mole Negro Chicken", cogs: 6.50, price: 18.00, avail: true, description: "Free-range thigh braised in a 30-ingredient black mole, sesame rice.", dietary: [], allergens: ["Soy", "Nuts"], calories: "600 kcal" },
+    { id: 6, section: "Mains", name: "Barbacoa Tacos", cogs: 5.50, price: 16.00, avail: true, description: "Slow-braised beef cheek, white onion, coriander & salsa roja. Three pieces.", dietary: [], allergens: [], calories: "300 kcal (per taco)" },
+    { id: 7, section: "Mains", name: "Portobello Enchiladas", cogs: 4.20, price: 14.00, avail: false, description: "Roasted mushrooms, black bean, chipotle sauce & cashew crema.", dietary: ["Vegan"], allergens: [], calories: "400 kcal" },
+    { id: 8, section: "Mains", name: "Snapper Veracruz", cogs: 7.80, price: 22.00, avail: true, description: "Pan-seared whole snapper, olives, capers & fresh tomato broth.", dietary: ["Gluten-Free"], allergens: ["Fish"], calories: "450 kcal" },
+    { id: 9, section: "Desserts", name: "Churro Sundae", cogs: 2.10, price: 8.00, avail: true, description: "Crispy churros, vanilla bean ice cream & dark chocolate mole sauce.", dietary: ["Vegetarian"], allergens: ["Milk", "Gluten", "Eggs"], calories: "550 kcal" },
+    { id: 10, section: "Desserts", name: "Mezcal Flan", cogs: 2.00, price: 7.00, avail: true, description: "Silky caramel custard with a smoky mezcal caramel drizzle.", dietary: ["Vegetarian", "Gluten-Free"], allergens: ["Milk", "Eggs"], calories: "320 kcal" },
+    { id: 11, section: "Desserts", name: "Mango Sorbet", cogs: 1.40, price: 6.00, avail: true, description: "Alphonso mango, chilli salt & fresh lime. Completely dairy free.", dietary: ["Vegan", "Gluten-Free"], allergens: [], calories: "120 kcal" },
+    { id: 12, section: "Sides", name: "Black Bean Pot", cogs: 1.20, price: 4.00, avail: true, description: "Slow-cooked with avocado leaf, epazote & lime crema.", dietary: ["Vegan", "Gluten-Free"], allergens: [], calories: "200 kcal" },
+    { id: 13, section: "Sides", name: "Corn Tortillas", cogs: 0.80, price: 3.00, avail: true, description: "Fresh nixtamal masa, made in-house daily. Four pieces.", dietary: ["Vegan", "Gluten-Free"], allergens: [], calories: "60 kcal (per tortilla)" },
+    { id: 14, section: "Sides", name: "Pickled Jalapeños", cogs: 0.60, price: 3.00, avail: true, description: "House-pickled chillies, carrots & white onion in apple cider vinegar.", dietary: ["Vegan", "Gluten-Free"], allergens: [], calories: "5 kcal (per tbsp)" },
+    { id: 15, section: "Sides", name: "Mexican Rice", cogs: 0.90, price: 4.00, avail: true, description: "Tomato-braised rice with cumin, garlic & fresh coriander.", dietary: ["Vegan", "Gluten-Free"], allergens: [], calories: "200 kcal" },
+    { id: 16, section: "Drinks", name: "Hibiscus Agua Fresca", cogs: 1.00, price: 4.00, avail: true, description: "House-dried hibiscus, lime, cane sugar & still water.", dietary: ["Vegan", "Gluten-Free"], allergens: [], calories: "70 kcal (per cup)" },
+    { id: 17, section: "Drinks", name: "Mezcal Margarita", cogs: 3.50, price: 11.00, avail: true, description: "Joven mezcal, fresh lime juice, agave syrup & smoked salt rim.", dietary: ["Vegan", "Gluten-Free"], allergens: [], calories: "250 kcal" },
+    { id: 18, section: "Drinks", name: "Horchata", cogs: 1.20, price: 4.50, avail: true, description: "Rice milk, cinnamon, vanilla & a hint of almond. Served chilled.", dietary: ["Vegan", "Gluten-Free"], allergens: ["Nuts"], calories: "150 kcal (per cup)" },
+    { id: 19, section: "Drinks", name: "Mexican Lager", cogs: 1.80, price: 5.00, avail: true, description: "Ice-cold bottle served with lime. Ask your server for today's selection.", dietary: [], allergens: [], calories: "150 kcal (per bottle)" },
+    { id: 20, section: "Drinks", name: "Water", cogs: 0.20, price: 2.50, avail: true, description: "Ice-cold and refreshing. Ask your server for alternative temperatures.", dietary: [], allergens: [], calories: "0 kcal" },
 ];
 
 const INIT_EMPLOYEES = [
@@ -63,8 +63,8 @@ const INIT_EMPLOYEES = [
     { id: 7, initials: "EM", name: "Eve M.", role: "Waiter", tables: 3, orders: 11, sales: 174, avgTime: "8m 00s", status: "Active" },
 ];
 
-const calcMargin = (cost, price) => price > 0 ? Math.round((1 - cost / price) * 100) : 0;
-const calcMinPrice = (cost) => +(cost / 0.4).toFixed(2);
+const calcMargin = (cogs, price) => price > 0 ? Math.round((1 - cogs / price) * 100) : 0;
+const calcMinPrice = (cogs) => +(cogs / 0.4).toFixed(2);
 
 const marginColor = (m) => {
     if (m >= 60) return { bg: C.greenL, text: C.green, label: `${m}%` };
@@ -295,7 +295,7 @@ function MenuTab({ menu, setMenu, addToast, stock }) {
     const sections = ["Starters", "Mains", "Desserts", "Sides", "Drinks"];
     const available = menu.filter(m => m.avail).length;
     const unavailable = menu.filter(m => !m.avail).length;
-    const belowMgn = menu.filter(m => calcMargin(m.cost, m.price) < 60);
+    const belowMgn = menu.filter(m => calcMargin(m.cogs, m.price) < 60);
     const [editingPrice, setEditingPrice] = useState(null);
     const [priceInput, setPriceInput] = useState("");
     const [priceError, setPriceError] = useState("");
@@ -321,7 +321,7 @@ function MenuTab({ menu, setMenu, addToast, stock }) {
 
     const savePrice = async (item) => {
         const newPrice = parseFloat(priceInput);
-        const minPrice = calcMinPrice(item.cost);
+        const minPrice = calcMinPrice(item.cogs);
         if (isNaN(newPrice) || newPrice <= 0) {
             setPriceError("Enter a valid price");
             return;
@@ -375,7 +375,7 @@ function MenuTab({ menu, setMenu, addToast, stock }) {
                     </thead>
                     <tbody>
                         {sections.flatMap(sec => menu.filter(m => m.section === sec)).map((item, i) => {
-                            const m = calcMargin(item.cost, item.price);
+                            const m = calcMargin(item.cogs, item.price);
                             const mc = marginColor(m);
                             const lowStock = stock.some(s => s.level < 10 && s.usedIn.includes(item.name));
                             return (
@@ -409,7 +409,7 @@ function MenuTab({ menu, setMenu, addToast, stock }) {
                                                     <button onClick={() => { setEditingPrice(null); setPriceError(""); }} style={{ fontSize: 10, fontWeight: 700, padding: "2px 7px", borderRadius: 4, border: "none", background: C.pale, color: C.muted, cursor: "pointer" }}>✕</button>
                                                 </div>
                                                 {priceError && <span style={{ fontSize: 9, color: C.red, fontWeight: 600 }}>{priceError}</span>}
-                                                <span style={{ fontSize: 9, color: C.muted }}>Min £{calcMinPrice(item.cost).toFixed(2)} for 60% margin</span>
+                                                <span style={{ fontSize: 9, color: C.muted }}>Min £{calcMinPrice(item.cogs).toFixed(2)} for 60% margin</span>
                                             </div>
                                         ) : (
                                             <span
@@ -841,7 +841,7 @@ export default function ManagerDashboard() {
                 id: item.item_id,
                 name: item.item_name,
                 price: item.price,
-                cost: item.cost,
+                cogs: item.cogs,
                 section: INIT_MENU.find(m => m.id === item.item_id)?.section ?? "Mains",
                 avail: item.available === 1,
                 dietary: INIT_MENU.find(m => m.id === item.item_id)?.dietary ?? [],
@@ -914,7 +914,7 @@ export default function ManagerDashboard() {
                     id: item.item_id,
                     name: item.item_name,
                     price: item.price,
-                    cost: item.cost,
+                    cogs: item.cogs,
                     section: INIT_MENU.find(m => m.id === item.item_id)?.section ?? "Mains",
                     avail: item.available === 1,
                     dietary: INIT_MENU.find(m => m.id === item.item_id)?.dietary ?? [],

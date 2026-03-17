@@ -18,7 +18,7 @@ function CartIcon({ count, onClick }) {
     );
 }
 
-function Header({ tableNumber, cartCount, onCartClick, onCloseTable }) {
+function Header({ tableNumber, tableId, cartCount, onCartClick, onCloseTable }) {
     const [menuOpen, setMenuOpen] = useState(false);
 
     const handleCloseTable = () => {
@@ -46,6 +46,7 @@ function Header({ tableNumber, cartCount, onCartClick, onCloseTable }) {
                             <button className="menu-popup-item" onClick={() => {
                                 localStorage.setItem("oaxaca_customer_alert", JSON.stringify({
                                     id: Date.now(),
+                                    table: tableId,
                                     status: "Needs Assistance",
                                     type: "Help_Needed",
                                     read: false,
@@ -975,6 +976,7 @@ export default function App() {
         <div className="app">
             <Header
                 tableNumber={table_id ? `Table ${table_id}` : "Table"}
+                tableId = {table_id}
                 cartCount={cartCount}
                 onCartClick={() => setCartOpen(true)}
                 onCloseTable={handleCloseTable}

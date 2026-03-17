@@ -32,6 +32,11 @@ class CustomerIn(BaseModel):
     name: str
     table_id: int | None = None
 
+class MenuItemUpdate(BaseModel):
+    available: bool | None = None
+    price: float | None = None
+    cogs: float | None = None
+
 
 class OrderIn(BaseModel):
     cust_id: int
@@ -173,10 +178,7 @@ def get_order(order_id: int):
     return dict(order)
 
 
-class MenuItemUpdate(BaseModel):
-    available: bool | None = None
-    price: float | None = None
-
+# MENU ITEMS --------------------------
 
 @app.patch("/menu_items/{item_id}")
 def update_menu_item(item_id: int, payload: MenuItemUpdate):
@@ -200,7 +202,7 @@ def update_menu_item(item_id: int, payload: MenuItemUpdate):
 def get_menu_items():
     conn = get_conn()
     rows = conn.execute(
-        "SELECT item_id, item_name, price, cost, available FROM menu_items").fetchall()
+        "SELECT item_id, item_name, price, cogs, available FROM menu_items").fetchall()
     conn.close()
     return [dict(r) for r in rows]
 
