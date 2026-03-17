@@ -807,13 +807,32 @@ export default function App() {
                 return data.map(o => {
                     const existing = prev.find(p => p.id === String(o.order_id));
                     return existing
-                        ? { ...existing, items: o.items.map(i => ({ menuId: null, name: i.item_name, qty: i.quantity, price: i.price })) }
+                      ? {
+                          ...existing,
+                          items: o.items.map(i => ({
+                          menuId: null,
+                          name: i.item_name,
+                          qty: i.quantity,
+                          price: i.price,
+                          removedIngredients: i.removed_ingredients || [],
+                          extras: i.extras || [],
+                         specialRequest: i.special_request || "",
+                        }))
+ }
                         : {
                             id: String(o.order_id),
                             table: o.table_id,
                             status: o.status ?? "Pending",
                             startedAt: Date.now(),
-                            items: o.items.map(i => ({ menuId: null, name: i.item_name, qty: i.quantity, price: i.price }))
+                            items: o.items.map(i => ({
+                               menuId: null,
+                               name: i.item_name,
+                               qty: i.quantity,
+                               price: i.price,
+                               removedIngredients: i.removed_ingredients || [],
+                              extras: i.extras || [],
+                              specialRequest: i.special_request || "",
+                            }))
                         };
                 }).reverse();
             });
