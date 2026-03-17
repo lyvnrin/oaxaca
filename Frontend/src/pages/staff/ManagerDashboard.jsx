@@ -12,19 +12,19 @@ const C = {
 
 const INIT_TABLES = [
     { id: 1, status: "Ordering", bill: null, orders: [{ name: "Guacamole & Chips", qty: 1, price: 7.00 }, { name: "Ceviche Verde", qty: 1, price: 12.00 }, { name: "Mezcal Margarita", qty: 2, price: 11.00 }] },
-    { id: 2, status: "Eating", bill: null, orders: [{ name: "Mole Negro Chicken", qty: 2, price: 18.00 }, { name: "Barbacoa Tacos", qty: 1, price: 16.00 }, { name: "Black Bean Pot", qty: 2, price: 4.00 }, { name: "Horchata", qty: 1, price: 4.50 }, { name: "Water", qty: 1, price: 2.50 }] },
+    { id: 2, status: "Bill Req.", bill: null, orders: [{ name: "Mole Negro Chicken", qty: 2, price: 18.00 }, { name: "Barbacoa Tacos", qty: 1, price: 16.00 }, { name: "Black Bean Pot", qty: 2, price: 4.00 }, { name: "Horchata", qty: 1, price: 4.50 }, { name: "Water", qty: 1, price: 2.50 }] },
     { id: 3, status: "Bill Req.", bill: 62.00, orders: [{ name: "Tlayuda Tostada", qty: 2, price: 9.00 }, { name: "Snapper Veracruz", qty: 1, price: 22.00 }, { name: "Churro Sundae", qty: 1, price: 8.00 }, { name: "Mezcal Margarita", qty: 2, price: 11.00 }] },
     { id: 4, status: "Free", bill: null, orders: [] },
-    { id: 5, status: "Waiting", bill: null, orders: [{ name: "Elote Esquites", qty: 1, price: 8.00 }, { name: "Portobello Enchiladas", qty: 1, price: 14.00 }] },
+    { id: 5, status: "Preparing", bill: null, orders: [{ name: "Elote Esquites", qty: 1, price: 8.00 }, { name: "Portobello Enchiladas", qty: 1, price: 14.00 }] },
     { id: 6, status: "Service", bill: null, orders: [] },
     { id: 7, status: "Free", bill: null, orders: [] },
-    { id: 8, status: "Eating", bill: null, orders: [{ name: "Barbacoa Tacos", qty: 2, price: 16.00 }, { name: "Mexican Rice", qty: 2, price: 4.00 }, { name: "Mango Sorbet", qty: 2, price: 6.00 }, { name: "Mexican Lager", qty: 2, price: 5.00 }] },
+    { id: 8, status: "Bill Req.", bill: null, orders: [{ name: "Barbacoa Tacos", qty: 2, price: 16.00 }, { name: "Mexican Rice", qty: 2, price: 4.00 }, { name: "Mango Sorbet", qty: 2, price: 6.00 }, { name: "Mexican Lager", qty: 2, price: 5.00 }] },
     { id: 9, status: "Free", bill: null, orders: [] },
     { id: 10, status: "Ordering", bill: null, orders: [{ name: "Guacamole & Chips", qty: 2, price: 7.00 }, { name: "Hibiscus Agua Fresca", qty: 2, price: 4.00 }] },
     { id: 11, status: "Free", bill: null, orders: [] },
-    { id: 12, status: "Eating", bill: null, orders: [{ name: "Mole Negro Chicken", qty: 1, price: 18.00 }, { name: "Snapper Veracruz", qty: 1, price: 22.00 }, { name: "Corn Tortillas", qty: 1, price: 3.00 }] },
+    { id: 12, status: "Bill Req.", bill: null, orders: [{ name: "Mole Negro Chicken", qty: 1, price: 18.00 }, { name: "Snapper Veracruz", qty: 1, price: 22.00 }, { name: "Corn Tortillas", qty: 1, price: 3.00 }] },
     { id: 13, status: "Free", bill: null, orders: [] },
-    { id: 14, status: "Waiting", bill: null, orders: [{ name: "Mezcal Flan", qty: 1, price: 7.00 }] },
+    { id: 14, status: "Preparing", bill: null, orders: [{ name: "Mezcal Flan", qty: 1, price: 7.00 }] },
     { id: 15, status: "Free", bill: null, orders: [] },
 ];
 
@@ -75,8 +75,7 @@ const marginColor = (m) => {
 const tileColors = (status) => ({
     "Free": { bg: "#f0f7f2", border: "#b8d4c0", num: "#4a7c59", label: "#4a7c59" },
     "Ordering": { bg: "#fff8f0", border: "#f0c97a", num: "#d4870e", label: "#d4870e" },
-    "Waiting": { bg: "#f0f4ff", border: "#9db4e8", num: "#3b5fc0", label: "#3b5fc0" },
-    "Eating": { bg: "#faf0f7", border: "#d4a0c8", num: "#8b3a7a", label: "#8b3a7a" },
+    "Preparing": { bg: "#f0f4ff", border: "#9db4e8", num: "#3b5fc0", label: "#3b5fc0" },
     "Bill Req.": { bg: "#fde8e6", border: "#e8a09b", num: "#c0392b", label: "#c0392b" },
     "Service": { bg: "#fef9e7", border: "#f7dc6f", num: "#9a7d0a", label: "#9a7d0a" },
 }[status] || { bg: "#f0f7f2", border: "#b8d4c0", num: C.green, label: C.green });
@@ -213,10 +212,6 @@ function OverviewTab({ tables }) {
             <div style={{ gridColumn: "1/-1", background: C.panel, border: `1.5px solid ${C.border}`, borderRadius: 8, padding: 18, display: "flex", flexDirection: "column", gap: 12 }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                     <span style={{ fontFamily: "Cormorant Garamond, serif", fontSize: 17, fontWeight: 700, color: C.dark }}>Table Overview</span>
-                    <div style={{ display: "flex", gap: 6 }}>
-                        <span style={{ fontSize: 10, fontWeight: 600, letterSpacing: ".08em", textTransform: "uppercase", padding: "3px 9px", borderRadius: 20, background: C.greenL, color: C.green }}>{occupied} Occupied</span>
-                        <span style={{ fontSize: 10, fontWeight: 600, letterSpacing: ".08em", textTransform: "uppercase", padding: "3px 9px", borderRadius: 20, background: C.amberL, color: C.amber }}>{serviceCount} Service</span>
-                    </div>
                 </div>
                 <div style={{ height: 1, background: C.border }} />
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(5,1fr)", gap: 8 }}>
@@ -231,7 +226,7 @@ function OverviewTab({ tables }) {
                                 <div style={{ fontSize: 9, letterSpacing: ".08em", textTransform: "uppercase", fontWeight: 600, color: s.label, marginTop: 3 }}>{t.status}</div>
                                 <div style={{ fontSize: 10, color: C.muted, marginTop: 4 }}>
                                     {t.status === "Free" ? "—"
-                                        : t.status === "Bill Req." ? `£${t.bill?.toFixed(2)}`
+                                        : t.status === "Bill Req." ? (t.orders.length > 0 ? `£${t.orders.reduce((s, o) => s + o.price * o.qty, 0).toFixed(2)}` : "—")
                                             : t.orders.length > 0 ? `£${t.orders.reduce((s, o) => s + o.price * o.qty, 0).toFixed(2)}`
                                                 : "—"}
                                 </div>
@@ -239,12 +234,13 @@ function OverviewTab({ tables }) {
                         );
                     })}
                 </div>
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 8 }}>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(5,1fr)", gap: 8 }}>
                     {[
+                        { label: "Free", val: tables.filter(t => t.status === "Free").length },
                         { label: "Ordering", val: tables.filter(t => t.status === "Ordering").length },
-                        { label: "Waiting", val: tables.filter(t => t.status === "Waiting").length },
-                        { label: "Eating", val: tables.filter(t => t.status === "Eating").length },
-                        { label: "Service", val: tables.filter(t => t.status === "Service" || t.status === "Bill Req.").length },
+                        { label: "Preparing", val: tables.filter(t => t.status === "Preparing").length },
+                        { label: "Service", val: tables.filter(t => t.status === "Service").length },
+                        { label: "Bill Req.", val: tables.filter(t => t.status === "Bill Req.").length },
                     ].map((o, i) => (
                         <div key={i} style={{ background: C.pale, borderRadius: 6, padding: "10px 12px", textAlign: "center" }}>
                             <div style={{ fontFamily: "Cormorant Garamond, serif", fontSize: 28, fontWeight: 700, color: C.dark, lineHeight: 1 }}>{o.val}</div>
@@ -874,10 +870,10 @@ export default function ManagerDashboard() {
                     const latestOrder = tableOrders[tableOrders.length - 1];
                     const status = !hasOrders ? "Free"
                         : latestOrder.status === "Pending" ? "Ordering"
-                            : latestOrder.status === "In Progress" ? "Waiting"
+                            : latestOrder.status === "In Progress" ? "Preparing"
                                 : latestOrder.status === "Ready" ? "Service"
-                                    : latestOrder.status === "Completed" ? "Eating"
-                                        : latestOrder.status === "Paid" ? "Bill Req."
+                                    : latestOrder.status === "Completed" ? "Bill Req."
+                                        : latestOrder.status === "Paid" ? "Free"
                                             : "Free";
 
                     return {

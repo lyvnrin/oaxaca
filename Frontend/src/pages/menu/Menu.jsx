@@ -704,19 +704,19 @@ function OrderConfirmation() {
 }
 
 function PaymentConfirmation() {
-        return (
-            <div className="customization-overlay">
-                <div className="customization-modal confirmation-modal">
-                    <div className="confirmation-icon">✓</div>
-                    <h2 className="confirmation-title">Payment Successful!</h2>
-                    <p className="confirmation-msg">
-                        Thank you for dining with us.<br />We hope to see you again soon!
-                    </p>
-                    <p className="confirmation-redirect">Returning you home...</p>
-                </div>
+    return (
+        <div className="customization-overlay">
+            <div className="customization-modal confirmation-modal">
+                <div className="confirmation-icon">✓</div>
+                <h2 className="confirmation-title">Payment Successful!</h2>
+                <p className="confirmation-msg">
+                    Thank you for dining with us.<br />We hope to see you again soon!
+                </p>
+                <p className="confirmation-redirect">Returning you home...</p>
             </div>
-        );
-    }
+        </div>
+    );
+}
 
 
 export default function App() {
@@ -920,7 +920,7 @@ export default function App() {
             throw new Error(data.detail || 'Payment failed');
         }
 
-        await fetch('http://127.0.0.1:8000/orders/cleanup', { method: 'DELETE' });
+        await fetch(`http://127.0.0.1:8000/orders/${liveOrderId}/cleanup`, { method: 'DELETE' });
 
         setIsPaid(true);
         setPaymentOpen(false);

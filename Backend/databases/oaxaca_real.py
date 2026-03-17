@@ -296,6 +296,21 @@ def restock(payload: RestockIn):
     conn.close()
     return {"message": "Restocked"}
 
+
+@app.delete("/orders/{order_id}/cleanup")
+def cleanup_single_order(order_id: int):
+    conn = get_conn()
+    conn.execute(
+        "DELETE FROM order_item WHERE order_id = ?", (order_id,)
+    )
+    conn.execute(
+        "DELETE FROM orders WHERE order_id = ? AND status = 'Paid'", (
+            order_id,)
+    )
+    conn.commit()
+    conn.close()
+    return {"message": "Order cleaned up"}
+
 # CLEANUP COMPLETED ORDERS --------------------------
 
 
