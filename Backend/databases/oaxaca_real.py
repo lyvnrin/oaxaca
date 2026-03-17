@@ -2,6 +2,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import sqlite3
+import os
 
 app = FastAPI(title="Oaxaca API")
 
@@ -12,7 +13,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-DB_FILE = "oaxaca-real.db"
+DB_FILE = os.path.join(os.path.dirname(__file__), "databases", "oaxaca-real.db")
 
 # DATABASE CONNECTION --------------------------
 
@@ -171,29 +172,23 @@ def get_order(order_id: int):
         raise HTTPException(status_code=404, detail="Order not found")
     return dict(order)
 
-
-class MenuItemAvailability(BaseModel):
-    available: bool
-
-
-@app.patch("/menu_items/{item_id}")
-def update_menu_item_availability(item_id: int, payload: MenuItemAvailability):
+@app.post("/orders/{order_id}/pay", status_code=200)
+def pay_order(order_id: int):
     conn = get_conn()
-    conn.execute(
-        "UPDATE menu_items SET available = ? WHERE item_id = ?",
-        (1 if payload.available else 0, item_id)
-    )
+    row = conn.execute("SELECT * FROM orderS WHERE order_id = ?", (order_id)).fetchone()
+
+    if not row:
+        raise HTTPException(status_code=404, detail="Order not found")
+    
+    if row["status"] == "Paid":
+        raise HTTPException(status_code=400, detail="Order already paid")
+    
+    conn.execute("UPDATE orders SET status = 'Paid' WHERE order_id = ?", (order_id))
     conn.commit()
-    conn.close()
-    return {"item_id": item_id, "available": payload.available}
+    conn.close
 
+    return {"order_id": order_id, "status": "Paid"}
 
-@app.get("/menu_items")
-def get_menu_items():
-    conn = get_conn()
-    rows = conn.execute("SELECT * FROM menu_items").fetchall()
-    conn.close()
-    return [dict(r) for r in rows]
 
 # CLEANUP COMPLETED ORDERS --------------------------
 
