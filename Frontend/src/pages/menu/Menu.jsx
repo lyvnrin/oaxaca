@@ -870,6 +870,7 @@ export default function App() {
             })) || [],
             special_request: item.customization?.specialRequest || "",
          }));
+           console.log("Sending order items:", items);
         try {
             const res = await fetch('http://127.0.0.1:8000/orders', {
                 method: 'POST',
