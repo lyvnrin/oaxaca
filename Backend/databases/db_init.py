@@ -26,7 +26,8 @@ conn.execute('''CREATE TABLE menu_items (
     item_id   INTEGER PRIMARY KEY AUTOINCREMENT,
     item_name VARCHAR(100) NOT NULL,
     price     DECIMAL(10,2) NOT NULL,
-    available  INTEGER NOT NULL DEFAULT 1
+    available INTEGER NOT NULL DEFAULT 1,
+    cogs      REAL NOT NULL DEFAULT 0
 )''')
 
 conn.execute('''CREATE TABLE staff (

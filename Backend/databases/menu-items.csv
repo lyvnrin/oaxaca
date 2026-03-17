@@ -1,21 +1,21 @@
-ID,Menu Type,Item Name,Item Description,Price (£),Dietary Tags,Allergens,Calories (kcal),Available
-1,Starters,Guacamole & Chips,"Hand-mashed avocado, jalapeño, lime zest & Oaxacan pink salt.",7,"Vegan, Gluten-Free",,350,TRUE
-2,Starters,Tlayuda Tostada,"Crispy corn base, black bean, quesillo, chorizo & fresh avocado.",9,Gluten-Free,"Milk, Soy",500,TRUE
-3,Starters,Ceviche Verde,"Sea bass, tomatillo, cucumber, coriander & tiger's milk.",12,Gluten-Free,Fish,180,TRUE
-4,Starters,Elote Esquites,"Charred corn, crema, cotija cheese, ancho chilli & epazote.",8,"Vegetarian, Gluten-Free",Milk,250,TRUE
-5,Mains,Mole Negro Chicken,"Free-range thigh braised in a 30-ingredient black mole, sesame rice.",18,,"Soy, Nuts",600,TRUE
-6,Mains,Barbacoa Tacos,"Slow-braised beef cheek, white onion, coriander & salsa roja. Three pieces.",16,,,300 (per taco),TRUE
-7,Mains,Portobello Enchiladas,"Roasted mushrooms, black bean, chipotle sauce & cashew crema.",14,Vegan,,400,TRUE
-8,Mains,Snapper Veracruz,"Pan-seared whole snapper, olives, capers & fresh tomato broth.",22,Gluten-Free,Fish,450,TRUE
-9,Dessert,Churro Sundae,"Crispy churros, vanilla bean ice cream & dark chocolate mole sauce.",8,Vegetarian,"Milk, Gluten, Eggs",550,TRUE
-10,Dessert,Mezcal Flan,Silky caramel custard with a smoky mezcal caramel drizzle.,7,"Vegetarian, Gluten-Free","Milk, Eggs",320,TRUE
-11,Dessert,Mango Sorbet,"Alphonso mango, chilli salt & fresh lime. Completely dairy free.",6,"Vegan, Gluten-Free",,120,TRUE
-12,Sides,Black Bean Pot,"Slow-cooked with avocado leaf, epazote & lime crema.",4,"Vegan, Gluten-Free",,200,TRUE
-13,Sides,Corn Tortillas,"Fresh nixtamal masa, made in-house daily. Four pieces.",3,"Vegan, Gluten-Free",,60 (per tortilla),TRUE
-14,Sides,Pickled Jalapeños,"House-pickled chillies, carrots & white onion in apple cider vinegar.",3,"Vegan, Gluten-Free",,5 (per tbsp),TRUE
-15,Sides,Mexican Rice,"Tomato-braised rice with cumin, garlic & fresh coriander.",4,"Vegan, Gluten-Free",,200,TRUE
-16,Drinks,Hibiscus Agua Fresca,"House-dried hibiscus, lime, cane sugar & still water.",4,"Vegan, Gluten-Free",,70 (per cup),TRUE
-17,Drinks,Mezcal Margarita,"Joven mezcal, fresh lime juice, agave syrup & smoked salt rim.",11,"Vegan, Gluten-Free",,250,TRUE
-18,Drinks,Horchata,"Rice milk, cinnamon, vanilla & a hint of almond. Served chilled.",4.5,"Vegan, Gluten-Free",Nuts,150 (per cup),TRUE
-19,Drinks,Mexican Lager,Ice-cold bottle served with lime. Ask your server for today's selection.,5,,,150 (per 12 oz bottle),TRUE
-20,Drinks,Water,Ice-cold and refreshing. Ask your server for alternative temperatures.,2.5,,,0,TRUE
+ID,Menu Type,Item Name,Item Description,Price (£),Dietary Tags,Allergens,Calories (kcal),Available,COGS (£)
+1,Starters,Guacamole & Chips,"Hand-mashed avocado, jalapeño, lime zest & Oaxacan pink salt.",7,"Vegan, Gluten-Free",,350,TRUE,2.80
+2,Starters,Tlayuda Tostada,"Crispy corn base, black bean, quesillo, chorizo & fresh avocado.",9,Gluten-Free,"Milk, Soy",500,TRUE,3.60
+3,Starters,Ceviche Verde,"Sea bass, tomatillo, cucumber, coriander & tiger's milk.",12,Gluten-Free,Fish,180,TRUE,4.80
+4,Starters,Elote Esquites,"Charred corn, crema, cotija cheese, ancho chilli & epazote.",8,"Vegetarian, Gluten-Free",Milk,250,TRUE,3.20
+5,Mains,Mole Negro Chicken,"Free-range thigh braised in a 30-ingredient black mole, sesame rice.",18,,"Soy, Nuts",600,TRUE,6.50
+6,Mains,Barbacoa Tacos,"Slow-braised beef cheek, white onion, coriander & salsa roja. Three pieces.",16,,,300 (per taco),TRUE,5.50
+7,Mains,Portobello Enchiladas,"Roasted mushrooms, black bean, chipotle sauce & cashew crema.",14,Vegan,,400,TRUE,4.20
+8,Mains,Snapper Veracruz,"Pan-seared whole snapper, olives, capers & fresh tomato broth.",22,Gluten-Free,Fish,450,TRUE,7.80
+9,Dessert,Churro Sundae,"Crispy churros, vanilla bean ice cream & dark chocolate mole sauce.",8,Vegetarian,"Milk, Gluten, Eggs",550,TRUE,2.10
+10,Dessert,Mezcal Flan,Silky caramel custard with a smoky mezcal caramel drizzle.,7,"Vegetarian, Gluten-Free","Milk, Eggs",320,TRUE,2.00
+11,Dessert,Mango Sorbet,"Alphonso mango, chilli salt & fresh lime. Completely dairy free.",6,"Vegan, Gluten-Free",,120,TRUE,1.40
+12,Sides,Black Bean Pot,"Slow-cooked with avocado leaf, epazote & lime crema.",4,"Vegan, Gluten-Free",,200,TRUE,1.20
+13,Sides,Corn Tortillas,"Fresh nixtamal masa, made in-house daily. Four pieces.",3,"Vegan, Gluten-Free",,60 (per tortilla),TRUE,0.80
+14,Sides,Pickled Jalapeños,"House-pickled chillies, carrots & white onion in apple cider vinegar.",3,"Vegan, Gluten-Free",,5 (per tbsp),TRUE,0.60
+15,Sides,Mexican Rice,"Tomato-braised rice with cumin, garlic & fresh coriander.",4,"Vegan, Gluten-Free",,200,TRUE,0.90
+16,Drinks,Hibiscus Agua Fresca,"House-dried hibiscus, lime, cane sugar & still water.",4,"Vegan, Gluten-Free",,70 (per cup),TRUE,1.00
+17,Drinks,Mezcal Margarita,"Joven mezcal, fresh lime juice, agave syrup & smoked salt rim.",11,"Vegan, Gluten-Free",,250,TRUE,3.50
+18,Drinks,Horchata,"Rice milk, cinnamon, vanilla & a hint of almond. Served chilled.",4.5,"Vegan, Gluten-Free",Nuts,150 (per cup),TRUE,1.20
+19,Drinks,Mexican Lager,Ice-cold bottle served with lime. Ask your server for today's selection.,5,,,150 (per 12 oz bottle),TRUE,1.80
+20,Drinks,Water,Ice-cold and refreshing. Ask your server for alternative temperatures.,2.5,,,0,TRUE,0.20
