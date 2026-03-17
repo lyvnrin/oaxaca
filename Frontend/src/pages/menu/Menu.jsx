@@ -703,6 +703,22 @@ function OrderConfirmation() {
     );
 }
 
+function PaymentConfirmation() {
+        return (
+            <div className="customization-overlay">
+                <div className="customization-modal confirmation-modal">
+                    <div className="confirmation-icon">✓</div>
+                    <h2 className="confirmation-title">Payment Successful!</h2>
+                    <p className="confirmation-msg">
+                        Thank you for dining with us.<br />We hope to see you again soon!
+                    </p>
+                    <p className="confirmation-redirect">Returning you home...</p>
+                </div>
+            </div>
+        );
+    }
+
+
 export default function App() {
     const [openSection, setOpenSection] = useState(null);
     const [activeFilters, setActiveFilters] = useState([]);
@@ -792,6 +808,8 @@ export default function App() {
     }, [liveOrderId]);
 
     const generateOrderId = () => Math.floor(1000 + Math.random() * 9000).toString();
+
+    const [paymentConfirmed, setPaymentConfirmed] = useState(false);
 
     function handleSectionToggle(sectionName) {
         setOpenSection((prev) => (prev === sectionName ? null : sectionName));
@@ -901,15 +919,23 @@ export default function App() {
             const data = await res.json();
             throw new Error(data.detail || 'Payment failed');
         }
+
+        await fetch('http://127.0.0.1:8000/orders/cleanup', { method: 'DELETE' });
+
         setIsPaid(true);
         setPaymentOpen(false);
         setHasActiveOrder(false);
         setPlacedOrder({});
         setCurrentStep(1);
         setLiveOrderId(null);
-        sessionStorage.removeItem('liveOrderId');
-    }
+        sessionStorage.clear();
 
+        setPaymentConfirmed(true);
+        setTimeout(() => {
+            setPaymentConfirmed(false);
+            window.location.href = '/';
+        }, 2500);
+    }
     const cartCount = Object.values(cart).reduce((sum, { qty }) => sum + qty, 0);
 
     const placedOrderTotal = Object.values(placedOrder).reduce((sum, { item, qty }) => {
@@ -1006,6 +1032,9 @@ export default function App() {
                     }}
                 />
             )}
+
+            {confirmed && <OrderConfirmation />}
+            {paymentConfirmed && <PaymentConfirmation />}
         </div>
     );
 }

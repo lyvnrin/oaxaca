@@ -2,6 +2,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import sqlite3
+import os
 
 app = FastAPI(title="Oaxaca API")
 
@@ -12,7 +13,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-DB_FILE = "oaxaca-real.db"
+DB_FILE = os.path.join(os.path.dirname(__file__), "oaxaca-real.db")
 
 # DATABASE CONNECTION --------------------------
 
@@ -204,6 +205,26 @@ def get_menu_items():
     return [dict(r) for r in rows]
 
 
+@app.post("/orders/{order_id}/pay", status_code=200)
+def pay_order(order_id: int):
+    conn = get_conn()
+    row = conn.execute(
+        "SELECT * FROM orders WHERE order_id = ?", (order_id,)
+    ).fetchone()
+    if not row:
+        raise HTTPException(status_code=404, detail="Order not found")
+
+    if row["status"] == "Paid":
+        raise HTTPException(status_code=400, detail="Order already paid")
+
+    conn.execute(
+        "UPDATE orders SET status = 'Paid' WHERE order_id = ?", (order_id,)
+    )
+    conn.commit()
+    conn.close()
+    return {"order_id": order_id, "status": "Paid"}
+
+
 @app.get("/staff")
 def get_staff():
     conn = get_conn()
@@ -282,9 +303,9 @@ def restock(payload: RestockIn):
 def cleanup_completed_orders():
     conn = get_conn()
     conn.execute(
-        "DELETE FROM order_item WHERE order_id IN (SELECT order_id FROM orders WHERE status = 'Completed')"
+        "DELETE FROM order_item WHERE order_id IN (SELECT order_id FROM orders WHERE status IN ('Completed', 'Paid'))"
     )
-    conn.execute("DELETE FROM orders WHERE status = 'Completed'")
+    conn.execute("DELETE FROM orders WHERE status IN ('Completed', 'Paid')")
     conn.commit()
     conn.close()
-    return {"message": "Completed orders cleared"}
+    return {"message": "Completed and paid orders cleared"}

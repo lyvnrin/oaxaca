@@ -420,7 +420,15 @@ function OrdersTab({ orders, setOrders, menu, addToast }) {
         addToast("Order marked as delivered");
     };
 
-    const cancelOrder = id => { setOrders(p => p.filter(o => o.id !== id)); addToast("Order cancelled"); };
+    const cancelOrder = async (id) => {
+        setOrders(p => p.filter(o => o.id !== id));
+        await fetch(`http://127.0.0.1:8000/orders/${id}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: "Cancelled" }),
+        });
+        addToast("Order cancelled");
+    };
 
     const changeStatus = async (id, status) => {
         setOrders(p => p.map(o => o.id === id ? { ...o, status } : o));
@@ -786,7 +794,7 @@ export default function App() {
     const raiseAlert = (table) => { const id = Date.now(); setNotifications(p => [{ id, order: "–", table, status: `Table ${table} needs assistance`, type: "alert", read: false }, ...p]); };
 
     // LISTENING FOR KITCHEN NOTIFY EVENTS
-    useKitchenNotifications(setNotifications, addToast);
+    useKitchenNotifications(setNotifications, addToast, () => { });
 
     const unread = notifications.filter(n => !n.read).length;
     const alertCount = notifications.filter(n => n.type === "alert").length;
@@ -876,6 +884,15 @@ export default function App() {
         return () => clearInterval(poll);
     }, []);
 
+    const unpaidTables = orders
+        .filter(o => o.status === "Completed")
+        .map(o => ({
+            table: o.table,
+            order: o.id,
+            total: o.items.reduce((s, i) => s + i.price * i.qty, 0),
+            waiting: "—"
+        }));
+
     return (
         <div style={{ fontFamily: "Jost, sans-serif", background: C.bg, color: C.text, minHeight: "100vh" }}>
             <style>{`@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Jost:wght@300;400;500;600&display=swap');
@@ -941,7 +958,7 @@ export default function App() {
 
             {/* TAB CONTENT */}
             {tab === "Orders" && <OrdersTab orders={orders} setOrders={setOrders} menu={menu} addToast={addToast} />}
-            {tab === "Tables" && <TablesTab unpaidTables={INIT_UNPAID} addToast={addToast} raiseAlert={raiseAlert} />}
+            {tab === "Tables" && <TablesTab unpaidTables={unpaidTables} addToast={addToast} raiseAlert={raiseAlert} />}
             {tab === "Menu" && <MenuTab menu={menu} setMenu={setMenu} addToast={addToast} lowStockDishes={lowStockDishes} />}
 
             {/* TOASTS */}
