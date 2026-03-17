@@ -310,6 +310,7 @@ function MenuTab({ menu, setMenu, addToast, stock }) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ available: newAvail }),
         });
+        localStorage.setItem('oaxaca_menu_update', Date.now().toString());
         addToast(`${item.name} marked ${newAvail ? "available" : "unavailable"} ✓`);
     };
 
@@ -795,6 +796,28 @@ export default function ManagerDashboard() {
     };
 
     useCustomerAlerts(setNotifications, addToast);
+
+    useEffect(() => {
+        const handler = (e) => {
+            if (e.key !== 'oaxaca_menu_update') return;
+            fetch('http://127.0.0.1:8000/menu_items')
+                .then(r => r.json())
+                .then(data => setMenu(data.map(item => ({
+                    id: item.item_id,
+                    name: item.item_name,
+                    price: item.price,
+                    cost: INIT_MENU.find(m => m.id === item.item_id)?.cost ?? 0,
+                    section: INIT_MENU.find(m => m.id === item.item_id)?.section ?? "Mains",
+                    avail: item.available === 1,
+                    dietary: INIT_MENU.find(m => m.id === item.item_id)?.dietary ?? [],
+                    allergens: INIT_MENU.find(m => m.id === item.item_id)?.allergens ?? [],
+                    calories: INIT_MENU.find(m => m.id === item.item_id)?.calories ?? "",
+                    description: INIT_MENU.find(m => m.id === item.item_id)?.description ?? "",
+                }))));
+        };
+        window.addEventListener('storage', handler);
+        return () => window.removeEventListener('storage', handler);
+    }, []);
 
     const unread = notifications.filter(n => !n.read).length;
 

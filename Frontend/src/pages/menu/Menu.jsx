@@ -244,7 +244,7 @@ function CustomizationPopup({ item, onClose, onAddToCart }) {
 
 function MenuItemCard({ item, dimmed, unavailable, lowStock, onCustomize }) {
     return (
-        <div className={`menu-item-card ${dimmed ? "menu-item-card--dimmed" : ""} ${unavailable ? "menu-item-card--unavailable" : ""} ${lowStock ? "menu-item-card--dimmed" : ""}`}>
+        <div className={`menu-item-card ${dimmed ? "menu-item-card--dimmed" : ""} ${unavailable ? "menu-item-card--unavailable" : ""} ${lowStock ? "menu-item-card--unavailable" : ""}`}>
             <div className="card-image-placeholder">
                 <span className="card-image-text">IMG</span>
             </div>
@@ -747,7 +747,7 @@ export default function App() {
                 });
         };
         fetchAvailability();
-        const poll = setInterval(fetchAvailability, 3000);
+        const poll = setInterval(fetchAvailability, 500);
         return () => clearInterval(poll);
     }, []);
 
@@ -767,7 +767,7 @@ export default function App() {
                 .catch(() => { });
         };
         fetchStock();
-        const poll = setInterval(fetchStock, 3000);
+        const poll = setInterval(fetchStock, 500);
         return () => clearInterval(poll);
     }, []);
 
