@@ -43,6 +43,7 @@ conn.execute('''CREATE TABLE orders (
     table_id   INTEGER,
     total_cost DECIMAL(10,2),
     status     TEXT DEFAULT 'Pending',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (cust_id) REFERENCES customers(cust_id),
     FOREIGN KEY (table_id) REFERENCES tables(table_id)
 )''')
