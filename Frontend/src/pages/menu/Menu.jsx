@@ -859,7 +859,10 @@ export default function App() {
             quantity: qty,
             price: parseFloat(item.price.replace("£", "")) + (item.customization?.selectedExtras?.reduce((s, e) => s + e.price, 0) || 0),
             removed_ingredients: item.customization?.removedIngredients || [],
-            extras: item.customization?.selectedExtras || [],
+            extras: item.customization?.selectedExtras?.map(e => ({
+                name: e.name,
+                price: e.price
+            })) || [],
             special_request: item.customization?.specialRequest || "",
          }));
         try {
