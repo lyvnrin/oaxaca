@@ -1,24 +1,24 @@
-import { useState, useEffect } from "react";
-import { useLocation } from 'react-router-dom';
+import {useState, useEffect} from "react";
+import {useLocation} from 'react-router-dom';
 import "./Menu.css";
-import { MENU_DATA, INGREDIENTS, EXTRAS_BY_ID } from "./menuData.js";
+import {MENU_DATA, INGREDIENTS, EXTRAS_BY_ID} from "./menuData.js";
 
 const ALLERGEN_OPTIONS = ["Fish", "Soy", "Milk", "Nuts", "Eggs", "Wheat", "Sesame", "Shellfish"];
 const DIET_FILTERS = ["Vegetarian", "Gluten-Free", "Vegan"];
 
-function CartIcon({ count, onClick }) {
+function CartIcon({count, onClick}) {
     return (<button className="cart-icon" title="View cart" onClick={onClick}>
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="9" cy="21" r="1" />
-            <circle cx="20" cy="21" r="1" />
-            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
-        </svg>
-        {count > 0 && <span className="cart-badge">{count}</span>}
-    </button>
-    );
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
+                 strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="9" cy="21" r="1"/>
+                <circle cx="20" cy="21" r="1"/>
+                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+            </svg>
+            {count > 0 && <span className="cart-badge">{count}</span>}
+        </button>);
 }
 
-function Header({ tableNumber, tableId, cartCount, onCartClick, onCloseTable }) {
+function Header({tableNumber, tableId, cartCount, onCartClick, onCloseTable}) {
     const [menuOpen, setMenuOpen] = useState(false);
 
     const handleCloseTable = () => {
@@ -26,22 +26,22 @@ function Header({ tableNumber, tableId, cartCount, onCartClick, onCloseTable }) 
         onCloseTable();
     };
 
-    return (
-        <header className="header">
+    return (<header className="header">
             <span className="table-number">{tableNumber}</span>
-            <a href="/" style={{ textDecoration: 'none', color: 'inherit' }} className="no-style-link">
+            <a href="/" style={{textDecoration: 'none', color: 'inherit'}} className="no-style-link">
                 <h1 className="restaurant-title">OAXACA</h1>
             </a>
             <div className="header-right">
-                <CartIcon count={cartCount} onClick={onCartClick} />
+                <CartIcon count={cartCount} onClick={onCartClick}/>
                 <div className="hamburger-wrapper">
-                    <button className={`hamburger ${menuOpen ? "hamburger--open" : ""}`} aria-label="Open navigation menu" onClick={() => setMenuOpen((v) => !v)}>
-                        <span className="hamburger-bar" />
-                        <span className="hamburger-bar" />
-                        <span className="hamburger-bar" />
+                    <button className={`hamburger ${menuOpen ? "hamburger--open" : ""}`}
+                            aria-label="Open navigation menu" onClick={() => setMenuOpen((v) => !v)}>
+                        <span className="hamburger-bar"/>
+                        <span className="hamburger-bar"/>
+                        <span className="hamburger-bar"/>
                     </button>
                     {menuOpen && (<>
-                        <div className="menu-popup-backdrop" onClick={() => setMenuOpen(false)} />
+                        <div className="menu-popup-backdrop" onClick={() => setMenuOpen(false)}/>
                         <div className="menu-popup">
                             <button className="menu-popup-item" onClick={() => {
                                 localStorage.setItem("oaxaca_customer_alert", JSON.stringify({
@@ -53,23 +53,31 @@ function Header({ tableNumber, tableId, cartCount, onCartClick, onCloseTable }) 
                                 }));
                                 setMenuOpen(false);
                             }}>
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '8px', verticalAlign: 'middle' }}>
-                                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 1.27h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.96a16 16 0 0 0 6 6l.92-.92a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7a2 2 0 0 1 1.72 2.02z" />
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                     strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                                     style={{marginRight: '8px', verticalAlign: 'middle'}}>
+                                    <path
+                                        d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 1.27h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.96a16 16 0 0 0 6 6l.92-.92a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7a2 2 0 0 1 1.72 2.02z"/>
                                 </svg>
                                 Contact Waiter
                             </button>
                             <button className="menu-popup-item" onClick={() => setMenuOpen(false)}>
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '8px', verticalAlign: 'middle' }}>
-                                    <circle cx="12" cy="12" r="3" />
-                                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                     strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                                     style={{marginRight: '8px', verticalAlign: 'middle'}}>
+                                    <circle cx="12" cy="12" r="3"/>
+                                    <path
+                                        d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
                                 </svg>
                                 Settings
                             </button>
                             <button className="menu-popup-item menu-popup-item--danger" onClick={handleCloseTable}>
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '8px', verticalAlign: 'middle' }}>
-                                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                                    <polyline points="16 17 21 12 16 7" />
-                                    <line x1="21" y1="12" x2="9" y2="12" />
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                     strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                                     style={{marginRight: '8px', verticalAlign: 'middle'}}>
+                                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                                    <polyline points="16 17 21 12 16 7"/>
+                                    <line x1="21" y1="12" x2="9" y2="12"/>
                                 </svg>
                                 Close Table
                             </button>
@@ -77,11 +85,10 @@ function Header({ tableNumber, tableId, cartCount, onCartClick, onCloseTable }) 
                     </>)}
                 </div>
             </div>
-        </header>
-    );
+        </header>);
 }
 
-function AllergenDropdown({ selected, onChange }) {
+function AllergenDropdown({selected, onChange}) {
     const [open, setOpen] = useState(false);
 
     function handleToggle(allergen) {
@@ -92,59 +99,56 @@ function AllergenDropdown({ selected, onChange }) {
         }
     }
 
-    return (
-        <div className="allergen-wrapper">
-            <button className={`allergen-toggle ${selected.length > 0 ? "allergen-toggle--active" : ""}`} onClick={() => setOpen((v) => !v)}>
+    return (<div className="allergen-wrapper">
+            <button className={`allergen-toggle ${selected.length > 0 ? "allergen-toggle--active" : ""}`}
+                    onClick={() => setOpen((v) => !v)}>
                 <span>Does Not Contain</span>
                 {selected.length > 0 && <span className="allergen-count">{selected.length}</span>}
                 <span className="dropdown-arrow">{open ? "▲" : "▼"}</span>
             </button>
-            {open && (
-                <div className="allergen-list"> {ALLERGEN_OPTIONS.map((allergen) => (
+            {open && (<div className="allergen-list"> {ALLERGEN_OPTIONS.map((allergen) => (
                     <label key={allergen} className="allergen-option">
-                        <input type="checkbox" checked={selected.includes(allergen)} onChange={() => handleToggle(allergen)} />
+                        <input type="checkbox" checked={selected.includes(allergen)}
+                               onChange={() => handleToggle(allergen)}/>
                         {allergen}
-                    </label>
-                ))}
-                </div>
-            )}
-        </div>
-    );
+                    </label>))}
+                </div>)}
+        </div>);
 }
 
-function FilterBar({ activeFilters, onFilterToggle, excludedAllergens, onAllergenChange, onTrackOrder, hasActiveOrder }) {
-    return (
-        <div className="filter-bar">
+function FilterBar({activeFilters, onFilterToggle, excludedAllergens, onAllergenChange, onTrackOrder, hasActiveOrder}) {
+    return (<div className="filter-bar">
             <div className="filter-row">
                 <span className="filter-label">Show me</span>
                 <div className="filter-buttons">
-                    {DIET_FILTERS.map((filter) => (
-                        <button key={filter} className={`filter-btn ${activeFilters.includes(filter) ? "filter-btn--active" : ""}`} onClick={() => onFilterToggle(filter)}>
+                    {DIET_FILTERS.map((filter) => (<button key={filter}
+                                                           className={`filter-btn ${activeFilters.includes(filter) ? "filter-btn--active" : ""}`}
+                                                           onClick={() => onFilterToggle(filter)}>
                             {filter}
-                        </button>
-                    ))}
+                        </button>))}
                 </div>
-                <AllergenDropdown selected={excludedAllergens} onChange={onAllergenChange} />
+                <AllergenDropdown selected={excludedAllergens} onChange={onAllergenChange}/>
                 <button
                     className={`track-order-btn ${hasActiveOrder ? 'track-order-btn--active' : 'track-order-btn--disabled'}`}
                     onClick={onTrackOrder}
                     disabled={!hasActiveOrder}
                 >
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '6px', verticalAlign: 'middle' }}>
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                        <polyline points="14 2 14 8 20 8" />
-                        <line x1="16" y1="13" x2="8" y2="13" />
-                        <line x1="16" y1="17" x2="8" y2="17" />
-                        <polyline points="10 9 9 9 8 9" />
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
+                         strokeLinecap="round" strokeLinejoin="round"
+                         style={{marginRight: '6px', verticalAlign: 'middle'}}>
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                        <polyline points="14 2 14 8 20 8"/>
+                        <line x1="16" y1="13" x2="8" y2="13"/>
+                        <line x1="16" y1="17" x2="8" y2="17"/>
+                        <polyline points="10 9 9 9 8 9"/>
                     </svg>
                     Track Order
                 </button>
             </div>
-        </div>
-    );
+        </div>);
 }
 
-function CustomizationPopup({ item, onClose, onAddToCart }) {
+function CustomizationPopup({item, onClose, onAddToCart}) {
     const [removedIngredients, setRemovedIngredients] = useState([]);
     const [selectedExtras, setSelectedExtras] = useState([]);
     const [specialRequest, setSpecialRequest] = useState('');
@@ -153,21 +157,16 @@ function CustomizationPopup({ item, onClose, onAddToCart }) {
     const itemExtras = EXTRAS_BY_ID[item.id] || [];
 
     const handleToggleIngredient = (ingredient) => {
-        setRemovedIngredients(prev =>
-            prev.includes(ingredient) ? prev.filter(i => i !== ingredient) : [...prev, ingredient]
-        );
+        setRemovedIngredients(prev => prev.includes(ingredient) ? prev.filter(i => i !== ingredient) : [...prev, ingredient]);
     };
 
     const handleToggleExtra = (extra) => {
-        setSelectedExtras(prev =>
-            prev.find(e => e.name === extra.name) ? prev.filter(e => e.name !== extra.name) : [...prev, extra]
-        );
+        setSelectedExtras(prev => prev.find(e => e.name === extra.name) ? prev.filter(e => e.name !== extra.name) : [...prev, extra]);
     };
 
     const handleAddToOrder = () => {
         const customizedItem = {
-            ...item,
-            customization: { removedIngredients, selectedExtras, specialRequest: specialRequest.trim() }
+            ...item, customization: {removedIngredients, selectedExtras, specialRequest: specialRequest.trim()}
         };
         onAddToCart(customizedItem);
         onClose();
@@ -177,8 +176,7 @@ function CustomizationPopup({ item, onClose, onAddToCart }) {
     const basePrice = parseFloat(item.price.replace("£", ""));
     const totalPrice = (basePrice + extrasTotal).toFixed(2);
 
-    return (
-        <div className="customization-overlay" onClick={onClose}>
+    return (<div className="customization-overlay" onClick={onClose}>
             <div className="customization-modal" onClick={(e) => e.stopPropagation()}>
                 <div className="customization-header">
                     <h2 className="customization-title">Customize {item.name}</h2>
@@ -188,46 +186,44 @@ function CustomizationPopup({ item, onClose, onAddToCart }) {
                     <div className="customization-section">
                         <h3 className="section-title">Remove Ingredients</h3>
                         <div className="ingredients-grid">
-                            {itemIngredients.map((ingredient) => (
-                                <button key={ingredient} className={`ingredient-btn ${removedIngredients.includes(ingredient) ? 'ingredient-btn--removed' : ''}`} onClick={() => handleToggleIngredient(ingredient)}>
+                            {itemIngredients.map((ingredient) => (<button key={ingredient}
+                                                                          className={`ingredient-btn ${removedIngredients.includes(ingredient) ? 'ingredient-btn--removed' : ''}`}
+                                                                          onClick={() => handleToggleIngredient(ingredient)}>
                                     {ingredient}
                                     {removedIngredients.includes(ingredient) && <span className="remove-icon">✕</span>}
-                                </button>
-                            ))}
+                                </button>))}
                         </div>
                     </div>
-                    {itemExtras.length > 0 && (
-                        <div className="customization-section">
+                    {itemExtras.length > 0 && (<div className="customization-section">
                             <h3 className="section-title">Add Extras</h3>
                             <div className="extras-list">
                                 {itemExtras.map((extra) => {
                                     const isSelected = selectedExtras.some(e => e.name === extra.name);
-                                    return (
-                                        <button key={extra.name} className={`extra-item ${isSelected ? 'extra-item--selected' : ''}`} onClick={() => handleToggleExtra(extra)}>
+                                    return (<button key={extra.name}
+                                                    className={`extra-item ${isSelected ? 'extra-item--selected' : ''}`}
+                                                    onClick={() => handleToggleExtra(extra)}>
                                             <span className="extra-name">{extra.name}</span>
                                             <span className="extra-price">£{extra.price.toFixed(2)}</span>
                                             {isSelected && <span className="check-icon">✓</span>}
-                                        </button>
-                                    );
+                                        </button>);
                                 })}
                             </div>
-                        </div>
-                    )}
+                        </div>)}
                     <div className="customization-section">
                         <h3 className="section-title">Special Request</h3>
-                        <textarea className="special-request-input" placeholder="Any special instructions? (allergies, cooking preferences, etc.)" value={specialRequest} onChange={(e) => setSpecialRequest(e.target.value)} rows="3" />
+                        <textarea className="special-request-input"
+                                  placeholder="Any special instructions? (allergies, cooking preferences, etc.)"
+                                  value={specialRequest} onChange={(e) => setSpecialRequest(e.target.value)} rows="3"/>
                     </div>
                     <div className="customization-summary">
                         <div className="price-breakdown">
                             <span>Base price:</span>
                             <span>{item.price}</span>
                         </div>
-                        {selectedExtras.length > 0 && (
-                            <div className="price-breakdown">
+                        {selectedExtras.length > 0 && (<div className="price-breakdown">
                                 <span>Extras:</span>
                                 <span>£{extrasTotal.toFixed(2)}</span>
-                            </div>
-                        )}
+                            </div>)}
                         <div className="total-price">
                             <span>Total:</span>
                             <span>£{totalPrice}</span>
@@ -236,18 +232,22 @@ function CustomizationPopup({ item, onClose, onAddToCart }) {
                 </div>
                 <div className="customization-footer">
                     <button className="cancel-btn" onClick={onClose}>Cancel</button>
-                    <button className="add-to-order-final-btn" onClick={handleAddToOrder}>Add to Order • £{totalPrice}</button>
+                    <button className="add-to-order-final-btn" onClick={handleAddToOrder}>Add to Order •
+                        £{totalPrice}</button>
                 </div>
             </div>
-        </div>
-    );
+        </div>);
 }
 
-function MenuItemCard({ item, dimmed, unavailable, lowStock, onCustomize }) {
-    return (
-        <div className={`menu-item-card ${dimmed ? "menu-item-card--dimmed" : ""} ${unavailable ? "menu-item-card--unavailable" : ""} ${lowStock ? "menu-item-card--unavailable" : ""}`}>
+function MenuItemCard({item, dimmed, unavailable, lowStock, onCustomize}) {
+    return (<div
+            className={`menu-item-card ${dimmed ? "menu-item-card--dimmed" : ""} ${unavailable ? "menu-item-card--unavailable" : ""} ${lowStock ? "menu-item-card--unavailable" : ""}`}>
             <div className="card-image-placeholder">
-                <span className="card-image-text">IMG</span>
+                {item.image ? (<img
+                        src={item.image}
+                        alt={item.name}
+                        style={{width: "100%", height: "100%", objectFit: "cover", borderRadius: "inherit"}}
+                    />) : (<span className="card-image-text">IMG</span>)}
             </div>
             <div className="card-body">
                 <div className="card-top-row">
@@ -256,30 +256,35 @@ function MenuItemCard({ item, dimmed, unavailable, lowStock, onCustomize }) {
                 </div>
                 <p className="card-description">{item.description}</p>
                 <div className="card-footer">
-                    {item.dietary.length > 0 && (
-                        <div className="card-tags">
+                    {item.dietary.length > 0 && (<div className="card-tags">
                             {item.dietary.map((tag) => (<span key={tag} className="diet-tag">{tag}</span>))}
-                        </div>
-                    )}
+                        </div>)}
                     {item.allergens.length > 0 && (
-                        <p className="card-allergens">Contains: {item.allergens.join(", ")}</p>
-                    )}
+                        <p className="card-allergens">Contains: {item.allergens.join(", ")}</p>)}
                     <span className="card-calories">{item.calories}</span>
                     {lowStock && !unavailable && (
-                        <p style={{ fontSize: 10, color: "#c0392b", fontWeight: 700, marginTop: 4 }}>⚠ Low stock</p>
-                    )}
+                        <p style={{fontSize: 10, color: "#c0392b", fontWeight: 700, marginTop: 4}}>⚠ Low stock</p>)}
                 </div>
-                <button className="add-to-order-btn" onClick={() => !dimmed && !unavailable && !lowStock && onCustomize(item)} disabled={dimmed || unavailable || lowStock}>
+                <button className="add-to-order-btn"
+                        onClick={() => !dimmed && !unavailable && !lowStock && onCustomize(item)}
+                        disabled={dimmed || unavailable || lowStock}>
                     {unavailable ? "Unavailable" : lowStock ? "Low Stock" : "+ Add to Order"}
                 </button>
             </div>
-        </div>
-    );
+        </div>);
 }
 
-function MenuSection({ sectionName, items, isOpen, onToggle, matchesFilter, onCustomize, unavailableIds, lowStockDishes }) {
-    return (
-        <div className={`menu-section ${isOpen ? "menu-section--open" : ""}`}>
+function MenuSection({
+                         sectionName,
+                         items,
+                         isOpen,
+                         onToggle,
+                         matchesFilter,
+                         onCustomize,
+                         unavailableIds,
+                         lowStockDishes
+                     }) {
+    return (<div className={`menu-section ${isOpen ? "menu-section--open" : ""}`}>
             <button className="section-header" onClick={onToggle}>
                 <span className="section-name">{sectionName}</span>
                 <div className="section-header-right">
@@ -287,21 +292,19 @@ function MenuSection({ sectionName, items, isOpen, onToggle, matchesFilter, onCu
                     <span className="section-toggle-icon">{isOpen ? "−" : "+"}</span>
                 </div>
             </button>
-            {isOpen && (
-                <div className="section-items">
-                    {items.map((item) => (
-                        <MenuItemCard key={item.id} item={item} dimmed={!matchesFilter(item)} unavailable={unavailableIds.has(item.id)} lowStock={lowStockDishes.has(item.name)} onCustomize={onCustomize} />
-                    ))}
-                </div>
-            )}
-        </div>
-    );
+            {isOpen && (<div className="section-items">
+                    {items.map((item) => (<MenuItemCard key={item.id} item={item} dimmed={!matchesFilter(item)}
+                                                        unavailable={unavailableIds.has(item.id)}
+                                                        lowStock={lowStockDishes.has(item.name)}
+                                                        onCustomize={onCustomize}/>))}
+                </div>)}
+        </div>);
 }
 
-function CartModal({ cart, onClose, onUpdateQty, onRemove, onPlaceOrder }) {
-    const entries = Object.entries(cart).map(([key, value]) => ({ key, ...value }));
+function CartModal({cart, onClose, onUpdateQty, onRemove, onPlaceOrder}) {
+    const entries = Object.entries(cart).map(([key, value]) => ({key, ...value}));
 
-    const total = entries.reduce((sum, { item, qty }) => {
+    const total = entries.reduce((sum, {item, qty}) => {
         const basePrice = parseFloat(item.price.replace("£", ""));
         const extrasTotal = item.customization?.selectedExtras?.reduce((sum, extra) => sum + extra.price, 0) || 0;
         return sum + (basePrice + extrasTotal) * qty;
@@ -315,43 +318,36 @@ function CartModal({ cart, onClose, onUpdateQty, onRemove, onPlaceOrder }) {
         return parts;
     };
 
-    return (
-        <div className="modal-overlay" onClick={onClose}>
+    return (<div className="modal-overlay" onClick={onClose}>
             <div className="modal" onClick={(e) => e.stopPropagation()}>
                 <div className="modal-header">
                     <h2 className="modal-title">Your Order</h2>
                     <button className="modal-close" onClick={onClose}>✕</button>
                 </div>
                 {entries.length === 0 ? (
-                    <p className="modal-empty">Your order is empty. Add some items from the menu!</p>
-                ) : (<>
+                    <p className="modal-empty">Your order is empty. Add some items from the menu!</p>) : (<>
                     <div className="modal-items">
-                        {entries.map(({ key, item, qty }) => {
+                        {entries.map(({key, item, qty}) => {
                             const basePrice = parseFloat(item.price.replace("£", ""));
                             const extrasTotal = item.customization?.selectedExtras?.reduce((sum, extra) => sum + extra.price, 0) || 0;
                             const linePrice = ((basePrice + extrasTotal) * qty).toFixed(2);
                             const customizations = formatCustomizations(item);
-                            return (
-                                <div key={key} className="modal-item">
+                            return (<div key={key} className="modal-item">
                                     <div className="modal-item-info">
                                         <span className="modal-item-name">{item.name}</span>
                                         <span className="modal-item-price">£{linePrice}</span>
                                     </div>
-                                    {customizations.length > 0 && (
-                                        <div className="modal-item-customizations">
+                                    {customizations.length > 0 && (<div className="modal-item-customizations">
                                             {customizations.map((custom, idx) => (
-                                                <p key={idx} className="customization-text">{custom}</p>
-                                            ))}
-                                        </div>
-                                    )}
+                                                <p key={idx} className="customization-text">{custom}</p>))}
+                                        </div>)}
                                     <div className="modal-item-controls">
                                         <button className="qty-btn" onClick={() => onUpdateQty(key, qty - 1)}>−</button>
                                         <span className="qty-value">{qty}</span>
                                         <button className="qty-btn" onClick={() => onUpdateQty(key, qty + 1)}>+</button>
                                         <button className="remove-btn" onClick={() => onRemove(key)}>✕</button>
                                     </div>
-                                </div>
-                            );
+                                </div>);
                         })}
                     </div>
                     <div className="modal-footer">
@@ -363,8 +359,7 @@ function CartModal({ cart, onClose, onUpdateQty, onRemove, onPlaceOrder }) {
                     </div>
                 </>)}
             </div>
-        </div>
-    );
+        </div>);
 }
 
 function useOrderAge(createdAt) {
@@ -373,9 +368,7 @@ function useOrderAge(createdAt) {
         if (!createdAt) return;
         const update = () => {
             const secs = Math.floor((Date.now() - new Date(createdAt).getTime()) / 1000);
-            if (secs < 60) setElapsed(`${secs}s`);
-            else if (secs < 3600) setElapsed(`${Math.floor(secs / 60)}m ${secs % 60}s`);
-            else setElapsed(`${Math.floor(secs / 3600)}h ${Math.floor((secs % 3600) / 60)}m`);
+            if (secs < 60) setElapsed(`${secs}s`); else if (secs < 3600) setElapsed(`${Math.floor(secs / 60)}m ${secs % 60}s`); else setElapsed(`${Math.floor(secs / 3600)}h ${Math.floor((secs % 3600) / 60)}m`);
         };
         update();
         const t = setInterval(update, 1000);
@@ -384,16 +377,13 @@ function useOrderAge(createdAt) {
     return elapsed;
 }
 
-function TrackingPopup({ orderId, tableNumber, orderItems, total, onClose, onPaymentClick, currentStep, onStepClick }) {
-    const steps = [
-        { id: 1, name: "Order Placed" },
-        { id: 2, name: "Confirmed by Waiter" },
-        { id: 3, name: "Being Prepared" },
-        { id: 4, name: "Ready for Service" },
-        { id: 5, name: "Delivered" },
-    ];
+function TrackingPopup({orderId, tableNumber, orderItems, total, onClose, onPaymentClick, currentStep, onStepClick}) {
+    const steps = [{id: 1, name: "Order Placed"}, {id: 2, name: "Confirmed by Waiter"}, {
+        id: 3,
+        name: "Being Prepared"
+    }, {id: 4, name: "Ready for Service"}, {id: 5, name: "Delivered"},];
 
-    const entries = Object.entries(orderItems).map(([key, value]) => ({ key, ...value }));
+    const entries = Object.entries(orderItems).map(([key, value]) => ({key, ...value}));
 
     const formatCustomizations = (item) => {
         const parts = [];
@@ -417,13 +407,13 @@ function TrackingPopup({ orderId, tableNumber, orderItems, total, onClose, onPay
         fetch(`http://127.0.0.1:8000/orders/${orderId}`)
             .then(r => r.json())
             .then(data => setTimestamps(data))
-            .catch(() => {});
+            .catch(() => {
+            });
     }, [orderId]);
 
     const orderAge = useOrderAge(timestamps?.created_at);
 
-    return (
-        <div className="customization-overlay" onClick={onClose}>
+    return (<div className="customization-overlay" onClick={onClose}>
             <div className="customization-modal tracking-modal" onClick={(e) => e.stopPropagation()}>
                 <div className="customization-header">
                     <h2 className="customization-title">Order Progress</h2>
@@ -431,38 +421,38 @@ function TrackingPopup({ orderId, tableNumber, orderItems, total, onClose, onPay
                 </div>
                 <div className="customization-content">
                     <div className="order-info">
-                    <span className="table-number-display">Table: {tableNumber}</span>
-                    <span className="order-id-display">Order ID: #{orderId}</span>
-                </div>
-
-                {timestamps?.created_at && (
-                    <div style={{
-                        background: "#f0f7f2",
-                        border: "1px solid #b8d4c0",
-                        borderRadius: 8,
-                        padding: "10px 14px",
-                        marginTop: 8,
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                    }}>
-                        <div>
-                            <div style={{ fontSize: 11, color: "#7a5c44", marginBottom: 2 }}>Order placed at</div>
-                            <div style={{ fontSize: 13, fontWeight: 700, color: "#2D2218" }}>
-                                {new Date(timestamps.created_at).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}
-                            </div>
-                        </div>
-                        <div style={{ textAlign: "right" }}>
-                            <div style={{ fontSize: 11, color: "#7a5c44", marginBottom: 2 }}>Time elapsed</div>
-                            <div style={{ fontSize: 13, fontWeight: 700, color: "#4a7c59" }}>
-                                ⏱ {orderAge}
-                            </div>
-                        </div>
+                        <span className="table-number-display">Table: {tableNumber}</span>
+                        <span className="order-id-display">Order ID: #{orderId}</span>
                     </div>
-                )}
+
+                    {timestamps?.created_at && (<div style={{
+                            background: "#f0f7f2",
+                            border: "1px solid #b8d4c0",
+                            borderRadius: 8,
+                            padding: "10px 14px",
+                            marginTop: 8,
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                        }}>
+                            <div>
+                                <div style={{fontSize: 11, color: "#7a5c44", marginBottom: 2}}>Order placed at</div>
+                                <div style={{fontSize: 13, fontWeight: 700, color: "#2D2218"}}>
+                                    {new Date(timestamps.created_at).toLocaleTimeString("en-GB", {
+                                        hour: "2-digit", minute: "2-digit"
+                                    })}
+                                </div>
+                            </div>
+                            <div style={{textAlign: "right"}}>
+                                <div style={{fontSize: 11, color: "#7a5c44", marginBottom: 2}}>Time elapsed</div>
+                                <div style={{fontSize: 13, fontWeight: 700, color: "#4a7c59"}}>
+                                    ⏱ {orderAge}
+                                </div>
+                            </div>
+                        </div>)}
                     <div className="progress-steps">
-                        {steps.map((step) => (
-                            <div key={step.id} className={`step-item ${currentStep >= step.id ? 'step-completed' : ''} ${currentStep === step.id ? 'step-current' : ''}`}>
+                        {steps.map((step) => (<div key={step.id}
+                                                   className={`step-item ${currentStep >= step.id ? 'step-completed' : ''} ${currentStep === step.id ? 'step-current' : ''}`}>
                                 <div className="step-indicator">{currentStep > step.id ? '✓' : step.id}</div>
                                 <div className="step-content">
                                     <span className="step-name">{step.name}</span>
@@ -470,41 +460,34 @@ function TrackingPopup({ orderId, tableNumber, orderItems, total, onClose, onPay
                                         {currentStep > step.id ? 'Completed' : currentStep === step.id ? 'In Progress' : 'Pending'}
                                     </span>
                                 </div>
-                            </div>
-                        ))}
+                            </div>))}
                     </div>
                     <div className="tracking-order-summary">
                         <h3 className="summary-title">Order Summary</h3>
                         <div className="summary-items">
-                            {entries.map(({ key, item, qty }) => {
+                            {entries.map(({key, item, qty}) => {
                                 const basePrice = parseFloat(item.price.replace("£", ""));
                                 const extrasTotal = item.customization?.selectedExtras?.reduce((sum, extra) => sum + extra.price, 0) || 0;
                                 const linePrice = ((basePrice + extrasTotal) * qty).toFixed(2);
                                 const customizations = formatCustomizations(item);
-                                return (
-                                    <div key={key} className="summary-item">
+                                return (<div key={key} className="summary-item">
                                         <div className="summary-item-header">
                                             <span className="summary-item-name">{item.name} ×{qty}</span>
                                             <span className="summary-item-price">£{linePrice}</span>
                                         </div>
-                                        {customizations.length > 0 && (
-                                            <div className="summary-item-customizations">
+                                        {customizations.length > 0 && (<div className="summary-item-customizations">
                                                 {customizations.map((custom, idx) => {
                                                     let customClass = "summary-custom-text";
-                                                    if (custom.startsWith('No:')) customClass += " customization-removed";
-                                                    else if (custom.startsWith('Extra:')) customClass += " customization-extra";
-                                                    else if (custom.startsWith('Note:')) customClass += " customization-note";
+                                                    if (custom.startsWith('No:')) customClass += " customization-removed"; else if (custom.startsWith('Extra:')) customClass += " customization-extra"; else if (custom.startsWith('Note:')) customClass += " customization-note";
                                                     return <p key={idx} className={customClass}>{custom}</p>;
                                                 })}
-                                            </div>
-                                        )}
+                                            </div>)}
                                         {item.customization?.selectedExtras?.length > 0 && (
                                             <div className="summary-item-breakdown">
-                                                <span className="breakdown-text">Base: {item.price} + Extras: £{extrasTotal.toFixed(2)}</span>
-                                            </div>
-                                        )}
-                                    </div>
-                                );
+                                                <span
+                                                    className="breakdown-text">Base: {item.price} + Extras: £{extrasTotal.toFixed(2)}</span>
+                                            </div>)}
+                                    </div>);
                             })}
                         </div>
                         <div className="summary-total">
@@ -512,15 +495,13 @@ function TrackingPopup({ orderId, tableNumber, orderItems, total, onClose, onPay
                             <span>£{total.toFixed(2)}</span>
                         </div>
                     </div>
-                    {currentStep === 5 ? (
-                        <button className="pay-now-tracking-btn" onClick={handlePayNow}>PAY NOW • £{total.toFixed(2)}</button>
-                    ) : (
-                        <p className="payment-message">Payment will be available once your order has been delivered</p>
-                    )}
+                    {currentStep === 5 ? (<button className="pay-now-tracking-btn" onClick={handlePayNow}>PAY NOW •
+                            £{total.toFixed(2)}</button>) : (
+                        <p className="payment-message">Payment will be available once your order has been
+                            delivered</p>)}
                 </div>
             </div>
-        </div>
-    );
+        </div>);
 }
 
 function validateCardNumber(value) {
@@ -567,7 +548,7 @@ function formatExpiry(value) {
     return digits;
 }
 
-function PaymentPopup({ orderId, tableNumber, total, onClose, onConfirm }) {
+function PaymentPopup({orderId, tableNumber, total, onClose, onConfirm}) {
     const [paymentMethod, setPaymentMethod] = useState('card');
     const [cardNumber, setCardNumber] = useState('');
     const [expiry, setExpiry] = useState('');
@@ -579,7 +560,7 @@ function PaymentPopup({ orderId, tableNumber, total, onClose, onConfirm }) {
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const handleBlur = (field) => {
-        setTouched(prev => ({ ...prev, [field]: true }));
+        setTouched(prev => ({...prev, [field]: true}));
         validateField(field);
     };
 
@@ -589,37 +570,41 @@ function PaymentPopup({ orderId, tableNumber, total, onClose, onConfirm }) {
         if (field === 'expiry') error = validateExpiry(expiry);
         if (field === 'cvv') error = validateCVV(cvv);
         if (field === 'cardholderName') error = validateCardholderName(cardholderName);
-        setErrors(prev => ({ ...prev, [field]: error }));
+        setErrors(prev => ({...prev, [field]: error}));
         return error;
     };
 
     const handleCardNumberChange = (e) => {
         const formatted = formatCardNumber(e.target.value);
         setCardNumber(formatted);
-        if (touched.cardNumber) setErrors(prev => ({ ...prev, cardNumber: validateCardNumber(formatted.replace(/\s/g, '')) }));
+        if (touched.cardNumber) setErrors(prev => ({
+            ...prev, cardNumber: validateCardNumber(formatted.replace(/\s/g, ''))
+        }));
     };
 
     const handleExpiryChange = (e) => {
         const formatted = formatExpiry(e.target.value);
         setExpiry(formatted);
-        if (touched.expiry) setErrors(prev => ({ ...prev, expiry: validateExpiry(formatted) }));
+        if (touched.expiry) setErrors(prev => ({...prev, expiry: validateExpiry(formatted)}));
     };
 
     const handleCVVChange = (e) => {
         const val = e.target.value.replace(/\D/g, '').slice(0, 3);
         setCvv(val);
-        if (touched.cvv) setErrors(prev => ({ ...prev, cvv: validateCVV(val) }));
+        if (touched.cvv) setErrors(prev => ({...prev, cvv: validateCVV(val)}));
     };
 
     const handleCardholderNameChange = (e) => {
         setCardholderName(e.target.value);
-        if (touched.cardholderName) setErrors(prev => ({ ...prev, cardholderName: validateCardholderName(e.target.value) }));
+        if (touched.cardholderName) setErrors(prev => ({
+            ...prev, cardholderName: validateCardholderName(e.target.value)
+        }));
     };
 
     const handleConfirm = async () => {
         setBackendError('');
         if (paymentMethod === 'card') {
-            setTouched({ cardNumber: true, expiry: true, cvv: true, cardholderName: true });
+            setTouched({cardNumber: true, expiry: true, cvv: true, cardholderName: true});
             const newErrors = {
                 cardNumber: validateCardNumber(cardNumber),
                 expiry: validateExpiry(expiry),
@@ -639,8 +624,7 @@ function PaymentPopup({ orderId, tableNumber, total, onClose, onConfirm }) {
         }
     };
 
-    return (
-        <div className="customization-overlay">
+    return (<div className="customization-overlay">
             <div className="customization-modal payment-modal" onClick={(e) => e.stopPropagation()}>
                 <div className="customization-header">
                     <h2 className="customization-title">Payment</h2>
@@ -651,23 +635,24 @@ function PaymentPopup({ orderId, tableNumber, total, onClose, onConfirm }) {
                         <span className="table-number-display">Table: {tableNumber}</span>
                         <span className="order-id-display">Order ID: #{orderId}</span>
                     </div>
-                    {backendError && (
-                        <div className="payment-error-banner">
+                    {backendError && (<div className="payment-error-banner">
                             <span className="payment-error-icon">⚠</span>
                             <span>{backendError}</span>
-                        </div>
-                    )}
+                        </div>)}
                     <div className="payment-methods">
-                        <button className={`payment-method-btn ${paymentMethod === 'card' ? 'payment-method-selected' : ''}`} onClick={() => setPaymentMethod('card')}>
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginBottom: '4px' }}>
-                                <rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
-                                <line x1="1" y1="10" x2="23" y2="10" />
+                        <button
+                            className={`payment-method-btn ${paymentMethod === 'card' ? 'payment-method-selected' : ''}`}
+                            onClick={() => setPaymentMethod('card')}>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                 strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                                 style={{marginBottom: '4px'}}>
+                                <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+                                <line x1="1" y1="10" x2="23" y2="10"/>
                             </svg>
                             <span>Card</span>
                         </button>
                     </div>
-                    {paymentMethod === 'card' && (
-                        <div className="card-fields">
+                    {paymentMethod === 'card' && (<div className="card-fields">
                             <div className="card-field-group">
                                 <label className="card-field-label">Cardholder Name</label>
                                 <input
@@ -676,7 +661,8 @@ function PaymentPopup({ orderId, tableNumber, total, onClose, onConfirm }) {
                                     value={cardholderName} onChange={handleCardholderNameChange}
                                     onBlur={() => handleBlur('cardholderName')} autoComplete="cc-name"
                                 />
-                                {touched.cardholderName && errors.cardholderName && <span className="card-field-error">{errors.cardholderName}</span>}
+                                {touched.cardholderName && errors.cardholderName &&
+                                    <span className="card-field-error">{errors.cardholderName}</span>}
                             </div>
                             <div className="card-field-group">
                                 <label className="card-field-label">Card Number</label>
@@ -686,7 +672,8 @@ function PaymentPopup({ orderId, tableNumber, total, onClose, onConfirm }) {
                                     value={cardNumber} onChange={handleCardNumberChange}
                                     onBlur={() => handleBlur('cardNumber')} maxLength={19} autoComplete="cc-number"
                                 />
-                                {touched.cardNumber && errors.cardNumber && <span className="card-field-error">{errors.cardNumber}</span>}
+                                {touched.cardNumber && errors.cardNumber &&
+                                    <span className="card-field-error">{errors.cardNumber}</span>}
                             </div>
                             <div className="card-field-row">
                                 <div className="card-field-group">
@@ -697,7 +684,8 @@ function PaymentPopup({ orderId, tableNumber, total, onClose, onConfirm }) {
                                         value={expiry} onChange={handleExpiryChange}
                                         onBlur={() => handleBlur('expiry')} maxLength={5} autoComplete="cc-exp"
                                     />
-                                    {touched.expiry && errors.expiry && <span className="card-field-error">{errors.expiry}</span>}
+                                    {touched.expiry && errors.expiry &&
+                                        <span className="card-field-error">{errors.expiry}</span>}
                                 </div>
                                 <div className="card-field-group">
                                     <label className="card-field-label">CVV</label>
@@ -707,32 +695,31 @@ function PaymentPopup({ orderId, tableNumber, total, onClose, onConfirm }) {
                                         value={cvv} onChange={handleCVVChange}
                                         onBlur={() => handleBlur('cvv')} maxLength={3} autoComplete="cc-csc"
                                     />
-                                    {touched.cvv && errors.cvv && <span className="card-field-error">{errors.cvv}</span>}
+                                    {touched.cvv && errors.cvv &&
+                                        <span className="card-field-error">{errors.cvv}</span>}
                                 </div>
                             </div>
-                        </div>
-                    )}
+                        </div>)}
                     <div className="payment-total-due">
                         <span>Total Due</span>
                         <span>£{total.toFixed(2)}</span>
                     </div>
-                    <button className={`confirm-payment-btn ${isSubmitting ? 'confirm-payment-btn--loading' : ''}`} onClick={handleConfirm} disabled={isSubmitting}>
+                    <button className={`confirm-payment-btn ${isSubmitting ? 'confirm-payment-btn--loading' : ''}`}
+                            onClick={handleConfirm} disabled={isSubmitting}>
                         {isSubmitting ? 'Processing...' : 'Confirm Payment'}
                     </button>
                 </div>
             </div>
-        </div>
-    );
+        </div>);
 }
 
-function UnpaidOrderModal({ total, onClose, onPayNow }) {
-    return (
-        <div className="customization-overlay">
+function UnpaidOrderModal({total, onClose, onPayNow}) {
+    return (<div className="customization-overlay">
             <div className="customization-modal unpaid-modal">
                 <div className="unpaid-modal-icon">!</div>
                 <h2 className="unpaid-modal-title">Outstanding Balance</h2>
                 <p className="unpaid-modal-message">
-                    You have an unpaid order of <strong>£{total.toFixed(2)}</strong>.<br />
+                    You have an unpaid order of <strong>£{total.toFixed(2)}</strong>.<br/>
                     Please complete payment before closing your table.
                 </p>
                 <div className="unpaid-modal-actions">
@@ -740,55 +727,48 @@ function UnpaidOrderModal({ total, onClose, onPayNow }) {
                     <button className="unpaid-pay-btn" onClick={onPayNow}>Pay Now</button>
                 </div>
             </div>
-        </div>
-    );
+        </div>);
 }
 
 function OrderConfirmation() {
-    return (
-        <div className="customization-overlay">
+    return (<div className="customization-overlay">
             <div className="customization-modal confirmation-modal">
                 <div className="confirmation-icon">✓</div>
                 <h2 className="confirmation-title">Order Placed!</h2>
                 <p className="confirmation-msg">
-                    Your order has been sent to the kitchen.<br />Your waiter will be with you shortly.
+                    Your order has been sent to the kitchen.<br/>Your waiter will be with you shortly.
                 </p>
                 <p className="confirmation-redirect">Returning you home...</p>
             </div>
-        </div>
-    );
+        </div>);
 }
 
 function PaymentConfirmation() {
-    return (
-        <div className="customization-overlay">
+    return (<div className="customization-overlay">
             <div className="customization-modal confirmation-modal">
                 <div className="confirmation-icon">✓</div>
                 <h2 className="confirmation-title">Payment Successful!</h2>
                 <p className="confirmation-msg">
-                    Thank you for dining with us.<br />We hope to see you again soon!
+                    Thank you for dining with us.<br/>We hope to see you again soon!
                 </p>
                 <p className="confirmation-redirect">Returning you home...</p>
             </div>
-        </div>
-    );
+        </div>);
 }
 
 // CANCELLED ORDER MODAL
-function CancelledOrderModal({ onClose }) {
-    return (
-        <div className="customization-overlay">
+function CancelledOrderModal({onClose}) {
+    return (<div className="customization-overlay">
             <div className="customization-modal confirmation-modal">
-                <div className="confirmation-icon" style={{ background: "#fde8e6", color: "#c0392b" }}>✕</div>
+                <div className="confirmation-icon" style={{background: "#fde8e6", color: "#c0392b"}}>✕</div>
                 <h2 className="confirmation-title">Order Cancelled</h2>
                 <p className="confirmation-msg">
-                    We're sorry, your order was cancelled by a staff member.<br />
+                    We're sorry, your order was cancelled by a staff member.<br/>
                     Please speak to your waiter if you have any questions.
                 </p>
                 <p className="confirmation-redirect">Returning you home...</p>
             </div>
-        </div>
-    );
+        </div>);
 }
 
 
@@ -797,7 +777,7 @@ export default function App() {
     const [activeFilters, setActiveFilters] = useState([]);
     const [excludedAllergens, setExcludedAllergens] = useState([]);
 
-    const { state } = useLocation();
+    const {state} = useLocation();
     if (state?.cust_id) {
         sessionStorage.setItem('cust_id', state.cust_id);
         sessionStorage.setItem('table_id', state.table_id);
@@ -837,7 +817,9 @@ export default function App() {
                     const ids = new Set(data.filter(i => i.available === 0).map(i => i.item_id));
                     setUnavailableIds(ids);
                     const prices = {};
-                    data.forEach(i => { prices[i.item_id] = i.price; });
+                    data.forEach(i => {
+                        prices[i.item_id] = i.price;
+                    });
                     setLivePrices(prices);
                 });
         };
@@ -859,60 +841,59 @@ export default function App() {
                     });
                     setLowStockDishes(low);
                 })
-                .catch(() => { });
+                .catch(() => {
+                });
         };
         fetchStock();
         const poll = setInterval(fetchStock, 500);
         return () => clearInterval(poll);
     }, []);
 
-useEffect(() => {
-    if (!liveOrderId) return;
-    const statusToStep = {
-        "Pending": 2,
-        "In Progress": 3,
-        "Ready": 4,
-        "Completed": 5,
-    };
+    useEffect(() => {
+        if (!liveOrderId) return;
+        const statusToStep = {
+            "Pending": 2, "In Progress": 3, "Ready": 4, "Completed": 5,
+        };
 
-    const delay = setTimeout(() => {
-        const poll = setInterval(async () => {
-            try {
-                const res = await fetch(`http://127.0.0.1:8000/orders/${liveOrderId}`);
-                if (!res.ok) {
-                    clearInterval(poll);
-                    setOrderCancelled(true);
-                    setHasActiveOrder(false);
-                    setLiveOrderId(null);
-                    sessionStorage.removeItem('liveOrderId');
-                    setTimeout(() => {
-                        setOrderCancelled(false);
-                        window.location.href = '/';
-                    }, 3000);
-                    return;
+        const delay = setTimeout(() => {
+            const poll = setInterval(async () => {
+                try {
+                    const res = await fetch(`http://127.0.0.1:8000/orders/${liveOrderId}`);
+                    if (!res.ok) {
+                        clearInterval(poll);
+                        setOrderCancelled(true);
+                        setHasActiveOrder(false);
+                        setLiveOrderId(null);
+                        sessionStorage.removeItem('liveOrderId');
+                        setTimeout(() => {
+                            setOrderCancelled(false);
+                            window.location.href = '/';
+                        }, 3000);
+                        return;
+                    }
+                    const data = await res.json();
+                    if (data.status === "Cancelled") {
+                        clearInterval(poll);
+                        setOrderCancelled(true);
+                        setHasActiveOrder(false);
+                        setLiveOrderId(null);
+                        sessionStorage.removeItem('liveOrderId');
+                        setTimeout(() => {
+                            setOrderCancelled(false);
+                            window.location.href = '/';
+                        }, 2000);
+                        return;
+                    }
+                    setLiveStep(statusToStep[data.status] ?? 1);
+                } catch (_) {
                 }
-                const data = await res.json();
-                if (data.status === "Cancelled") {
-                    clearInterval(poll);
-                    setOrderCancelled(true);
-                    setHasActiveOrder(false);
-                    setLiveOrderId(null);
-                    sessionStorage.removeItem('liveOrderId');
-                    setTimeout(() => {
-                        setOrderCancelled(false);
-                        window.location.href = '/';
-                    }, 2000);
-                    return;
-                }
-                setLiveStep(statusToStep[data.status] ?? 1);
-            } catch (_) { }
-        }, 8000);
+            }, 8000);
 
-        return () => clearInterval(poll);
-    }, 5000); // wait 5s before first poll
+            return () => clearInterval(poll);
+        }, 5000); // wait 5s before first poll
 
-    return () => clearTimeout(delay);
-}, [liveOrderId]);
+        return () => clearTimeout(delay);
+    }, [liveOrderId]);
 
     const generateOrderId = () => Math.floor(1000 + Math.random() * 9000).toString();
 
@@ -923,9 +904,7 @@ useEffect(() => {
     }
 
     function handleFilterToggle(filter) {
-        setActiveFilters((prev) =>
-            prev.includes(filter) ? prev.filter((f) => f !== filter) : [...prev, filter]
-        );
+        setActiveFilters((prev) => prev.includes(filter) ? prev.filter((f) => f !== filter) : [...prev, filter]);
     }
 
     function matchesFilter(item) {
@@ -944,45 +923,54 @@ useEffect(() => {
         });
 
         if (existingItemKey) {
-            setCart((prev) => ({ ...prev, [existingItemKey]: { ...prev[existingItemKey], qty: prev[existingItemKey].qty + 1 } }));
+            setCart((prev) => ({
+                ...prev, [existingItemKey]: {...prev[existingItemKey], qty: prev[existingItemKey].qty + 1}
+            }));
         } else {
             const uniqueId = item.customization ? `${item.id}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}` : item.id;
-            setCart((prev) => ({ ...prev, [uniqueId]: { item, qty: 1 } }));
+            setCart((prev) => ({...prev, [uniqueId]: {item, qty: 1}}));
         }
     }
 
     function handleUpdateQty(itemKey, newQty) {
-        if (newQty <= 0) { handleRemove(itemKey); return; }
-        setCart((prev) => ({ ...prev, [itemKey]: { ...prev[itemKey], qty: newQty } }));
+        if (newQty <= 0) {
+            handleRemove(itemKey);
+            return;
+        }
+        setCart((prev) => ({...prev, [itemKey]: {...prev[itemKey], qty: newQty}}));
     }
 
     function handleRemove(itemKey) {
-        setCart((prev) => { const next = { ...prev }; delete next[itemKey]; return next; });
+        setCart((prev) => {
+            const next = {...prev};
+            delete next[itemKey];
+            return next;
+        });
     }
+
     function calculateItemPrice(item) {
-       const base = parseFloat(item.price.replace("£", ""));
-       const extras = item.customization?.selectedExtras?.reduce((s, e) => s + e.price, 0) || 0;
-       return base + extras;
-}
+        const base = parseFloat(item.price.replace("£", ""));
+        const extras = item.customization?.selectedExtras?.reduce((s, e) => s + e.price, 0) || 0;
+        return base + extras;
+    }
 
     async function handlePlaceOrder() {
-        const items = Object.values(cart).map(({ item, qty }) => ({
+        const items = Object.values(cart).map(({item, qty}) => ({
             item_id: item.id,
             quantity: qty,
             price: calculateItemPrice(item),
             removed_ingredients: item.customization?.removedIngredients || [],
             extras: item.customization?.selectedExtras?.map(e => ({
-                name: e.name,
-                price: e.price
+                name: e.name, price: e.price
             })) || [],
             special_request: item.customization?.specialRequest || "",
-         }));
-           console.log("Sending order items:", items);
+        }));
+        console.log("Sending order items:", items);
         try {
             const res = await fetch('http://127.0.0.1:8000/orders', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ cust_id, table_id, items }),
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({cust_id, table_id, items}),
             });
             if (!res.ok) {
                 console.error('Order failed:', await res.json());
@@ -991,28 +979,24 @@ useEffect(() => {
             const data = await res.json();
             setLiveOrderId(data.order_id);
             sessionStorage.setItem('liveOrderId', data.order_id);
-            
+
             const customisations = {};
-                Object.values(cart).forEach(({ item }) => {
-                    const parts = [];
-                    if (item.customization?.removedIngredients?.length > 0)
-                        parts.push(`No: ${item.customization.removedIngredients.join(', ')}`);
-                    if (item.customization?.selectedExtras?.length > 0)
-                        parts.push(`Extras: ${item.customization.selectedExtras.map(e => e.name).join(', ')}`);
-                    if (item.customization?.specialRequest)
-                        parts.push(`Note: ${item.customization.specialRequest}`);
-                    if (parts.length > 0)
-                        customisations[item.name] = parts.join(' · ');
-                });
-                localStorage.setItem(`oaxaca_customisations_${data.order_id}`, JSON.stringify(customisations));
+            Object.values(cart).forEach(({item}) => {
+                const parts = [];
+                if (item.customization?.removedIngredients?.length > 0) parts.push(`No: ${item.customization.removedIngredients.join(', ')}`);
+                if (item.customization?.selectedExtras?.length > 0) parts.push(`Extras: ${item.customization.selectedExtras.map(e => e.name).join(', ')}`);
+                if (item.customization?.specialRequest) parts.push(`Note: ${item.customization.specialRequest}`);
+                if (parts.length > 0) customisations[item.name] = parts.join(' · ');
+            });
+            localStorage.setItem(`oaxaca_customisations_${data.order_id}`, JSON.stringify(customisations));
 
 
             setLiveStep(1);
 
             await fetch('http://127.0.0.1:8000/stock/deplete', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ cust_id, table_id, items }),
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({cust_id, table_id, items}),
             });
         } catch (err) {
             console.error('Could not reach server:', err);
@@ -1028,7 +1012,9 @@ useEffect(() => {
         setCartOpen(false);
         setCart({});
         setConfirmed(true);
-        setTimeout(() => { setConfirmed(false); }, 2500);
+        setTimeout(() => {
+            setConfirmed(false);
+        }, 2500);
     }
 
     function handleStepClick(stepId) {
@@ -1046,15 +1032,14 @@ useEffect(() => {
 
     async function handlePaymentConfirm(method) {
         const res = await fetch(`http://127.0.0.1:8000/orders/${liveOrderId}/pay`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            method: 'POST', headers: {'Content-Type': 'application/json'},
         });
         if (!res.ok) {
             const data = await res.json();
             throw new Error(data.detail || 'Payment failed');
         }
 
-        await fetch(`http://127.0.0.1:8000/orders/${liveOrderId}/cleanup`, { method: 'DELETE' });
+        await fetch(`http://127.0.0.1:8000/orders/${liveOrderId}/cleanup`, {method: 'DELETE'});
 
         setIsPaid(true);
         setPaymentOpen(false);
@@ -1070,19 +1055,19 @@ useEffect(() => {
             window.location.href = '/';
         }, 2500);
     }
-    const cartCount = Object.values(cart).reduce((sum, { qty }) => sum + qty, 0);
 
-    const placedOrderTotal = Object.values(placedOrder).reduce((sum, { item, qty }) => {
+    const cartCount = Object.values(cart).reduce((sum, {qty}) => sum + qty, 0);
+
+    const placedOrderTotal = Object.values(placedOrder).reduce((sum, {item, qty}) => {
         const basePrice = parseFloat(item.price.replace("£", ""));
         const extrasTotal = item.customization?.selectedExtras?.reduce((sum, extra) => sum + extra.price, 0) || 0;
         return sum + (basePrice + extrasTotal) * qty;
     }, 0);
 
-    return (
-        <div className="app">
+    return (<div className="app">
             <Header
                 tableNumber={table_id ? `Table ${table_id}` : "Table"}
-                tableId = {table_id}
+                tableId={table_id}
                 cartCount={cartCount}
                 onCartClick={() => setCartOpen(true)}
                 onCloseTable={handleCloseTable}
@@ -1098,44 +1083,39 @@ useEffect(() => {
                     hasActiveOrder={hasActiveOrder}
                 />
                 <div className="menu-sections">
-                    {Object.entries(MENU_DATA).map(([sectionName, items]) => (
-                        <MenuSection
+                    {Object.entries(MENU_DATA).map(([sectionName, items]) => (<MenuSection
                             key={sectionName}
                             sectionName={sectionName}
-                            items={items.map(item => ({ ...item, price: livePrices[item.id] ? `£${livePrices[item.id].toFixed(2)}` : item.price }))}
+                            items={items.map(item => ({
+                                ...item, price: livePrices[item.id] ? `£${livePrices[item.id].toFixed(2)}` : item.price
+                            }))}
                             isOpen={openSection === sectionName}
                             onToggle={() => handleSectionToggle(sectionName)}
                             matchesFilter={matchesFilter}
                             onCustomize={setCustomizingItem}
                             unavailableIds={unavailableIds}
                             lowStockDishes={lowStockDishes}
-                        />
-                    ))}
+                        />))}
                 </div>
             </main>
 
-            {cartOpen && (
-                <CartModal
+            {cartOpen && (<CartModal
                     cart={cart}
                     onClose={() => setCartOpen(false)}
                     onUpdateQty={handleUpdateQty}
                     onRemove={handleRemove}
                     onPlaceOrder={handlePlaceOrder}
-                />
-            )}
+                />)}
 
-            {confirmed && <OrderConfirmation />}
+            {confirmed && <OrderConfirmation/>}
 
-            {customizingItem && (
-                <CustomizationPopup
+            {customizingItem && (<CustomizationPopup
                     item={customizingItem}
                     onClose={() => setCustomizingItem(null)}
                     onAddToCart={handleAddToCart}
-                />
-            )}
+                />)}
 
-            {trackingOpen && hasActiveOrder && (
-                <TrackingPopup
+            {trackingOpen && hasActiveOrder && (<TrackingPopup
                     orderId={liveOrderId}
                     tableNumber={table_id ? `Table ${table_id}` : "Table"}
                     orderItems={placedOrder}
@@ -1143,35 +1123,30 @@ useEffect(() => {
                     onClose={() => setTrackingOpen(false)}
                     onPaymentClick={() => setPaymentOpen(true)}
                     currentStep={liveStep}
-                    onStepClick={() => { }}
-                />
-            )}
+                    onStepClick={() => {
+                    }}
+                />)}
 
-            {paymentOpen && (
-                <PaymentPopup
+            {paymentOpen && (<PaymentPopup
                     orderId={liveOrderId}
                     tableNumber={table_id ? `Table ${table_id}` : "Table"}
                     total={placedOrderTotal}
                     onClose={() => setPaymentOpen(false)}
                     onConfirm={handlePaymentConfirm}
-                />
-            )}
+                />)}
 
-            {unpaidModalOpen && (
-                <UnpaidOrderModal
+            {unpaidModalOpen && (<UnpaidOrderModal
                     total={placedOrderTotal}
                     onClose={() => setUnpaidModalOpen(false)}
                     onPayNow={() => {
                         setUnpaidModalOpen(false);
                         setPaymentOpen(true);
                     }}
-                />
-            )}
+                />)}
 
-            {confirmed && <OrderConfirmation />}
-            {paymentConfirmed && <PaymentConfirmation />}
+            {confirmed && <OrderConfirmation/>}
+            {paymentConfirmed && <PaymentConfirmation/>}
 
-            {orderCancelled && <CancelledOrderModal />}
-        </div>
-    );
+            {orderCancelled && <CancelledOrderModal/>}
+        </div>);
 }
