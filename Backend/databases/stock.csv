@@ -1,0 +1,53 @@
+Name,Category,Level,Unit,Reorder At,Used In
+Avocado,Produce,100,units,30,"Guacamole & Chips, Tlayuda Tostada"
+Lime,Produce,100,units,25,"Guacamole & Chips, Ceviche Verde, Barbacoa Tacos, Hibiscus Agua Fresca, Mezcal Margarita, Mango Sorbet"
+Jalapeño,Produce,100,units,20,"Guacamole & Chips, Pickled Jalapeños"
+Corn (fresh),Produce,100,kg,25,Elote Esquites
+Tomatillo,Produce,100,kg,20,Ceviche Verde
+Mango (Alphonso),Produce,100,units,20,Mango Sorbet
+Portobello Mushrooms,Produce,100,kg,20,Portobello Enchiladas
+White Onion,Produce,100,kg,15,"Barbacoa Tacos, Pickled Jalapeños"
+Red Onion,Produce,100,kg,15,Cochinita Pibil
+Cucumber,Produce,100,units,15,Ceviche Verde
+Coriander,Produce,100,bunches,20,"Ceviche Verde, Barbacoa Tacos, Mexican Rice"
+Hibiscus (dried),Produce,100,kg,20,Hibiscus Agua Fresca
+Mint,Produce,100,bunches,15,Horchata
+Tomatoes,Produce,100,kg,20,"Snapper Veracruz, Mexican Rice"
+Olives,Produce,100,kg,15,Snapper Veracruz
+Capers,Produce,100,kg,15,Snapper Veracruz
+Chilli Salt (Mango),Produce,100,units,15,Mango Sorbet
+Sea Bass / Snapper,Protein,100,kg,30,"Ceviche Verde, Snapper Veracruz"
+Beef Cheek,Protein,100,kg,25,Barbacoa Tacos
+Chicken (free-range),Protein,100,kg,25,Mole Negro Chicken
+Pork Shoulder,Protein,100,kg,20,Cochinita Pibil
+Chorizo,Protein,100,kg,25,Tlayuda Tostada
+Cotija Cheese,Dairy,100,kg,30,"Elote Esquites, Tlayuda Tostada"
+Quesillo,Dairy,100,kg,25,Tlayuda Tostada
+Crema / Sour Cream,Dairy,100,kg,25,"Elote Esquites, Black Bean Pot"
+Eggs,Dairy,100,units,30,"Churro Sundae, Mezcal Flan"
+Vanilla Ice Cream,Dairy,100,litres,20,Churro Sundae
+Oat Milk,Dairy,100,litres,20,Horchata
+Corn Masa (nixtamal),Dry Goods,100,kg,40,"Corn Tortillas, Tlayuda Tostada"
+Black Beans (dried),Dry Goods,100,kg,20,"Black Bean Pot, Tlayuda Tostada, Portobello Enchiladas"
+Rice,Dry Goods,100,kg,20,"Mexican Rice, Mole Negro Chicken, Horchata"
+Ancho Chilli,Dry Goods,100,units,25,"Elote Esquites, Mole Negro Chicken"
+Achiote Paste,Dry Goods,100,kg,20,Cochinita Pibil
+Epazote,Dry Goods,100,bunches,15,"Elote Esquites, Black Bean Pot"
+Sesame Seeds,Dry Goods,100,kg,15,Mole Negro Chicken
+Chipotle Sauce,Dry Goods,100,kg,15,Portobello Enchiladas
+Dark Chocolate,Dry Goods,100,kg,20,Churro Sundae
+Cashew Crema,Dry Goods,100,kg,20,Portobello Enchiladas
+Cinnamon,Dry Goods,100,units,15,Horchata
+Vanilla Extract,Dry Goods,100,units,15,"Horchata, Churro Sundae"
+Habanero Salsa,Dry Goods,100,kg,15,Cochinita Pibil
+Salsa Verde,Dry Goods,100,kg,15,Barbacoa Tacos
+Apple Cider Vinegar,Dry Goods,100,litres,15,Pickled Jalapeños
+Cumin,Dry Goods,100,units,15,Mexican Rice
+Almond (extract),Dry Goods,100,units,15,Horchata
+Caramel,Dry Goods,100,kg,20,Mezcal Flan
+Mezcal (Joven),Bar,100,bottles,30,"Mezcal Margarita, Mezcal Flan"
+Agave Syrup,Bar,100,litres,20,Mezcal Margarita
+Smoked Salt,Bar,100,units,15,Mezcal Margarita
+Mexican Lager,Bar,100,bottles,30,Mexican Lager
+Still / Sparkling Water,Bar,100,bottles,20,Water
+Cane Sugar,Bar,100,kg,15,Hibiscus Agua Fresca

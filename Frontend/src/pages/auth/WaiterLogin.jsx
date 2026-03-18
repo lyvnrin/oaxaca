@@ -6,7 +6,7 @@ import "./WaiterLogin.css";
 function WaiterLogin() {
     const navigate = useNavigate();
     const goBack = () => navigate("/staff");
-    const goToDashboard = () => navigate("/waiter-dashboard");
+    const goToDashboard = () => navigate("/waiter-dashboard", { state: { role: 'waiter' } });
 
     const [formData, setFormData] = useState({ username: '', password: '' });
     const [errors, setErrors] = useState({});
@@ -61,33 +61,20 @@ function WaiterLogin() {
     return (
         <div className="waiter-page">
             <Grainient
-                color1="#781111"
-                color2="#b94609"
-                color3="#9a0e0e"
-                timeSpeed={0.25}
-                colorBalance={0}
-                warpStrength={1}
-                warpFrequency={3}
-                warpSpeed={1.5}
-                warpAmplitude={40}
-                blendAngle={0}
-                blendSoftness={0.1}
-                rotationAmount={500}
-                noiseScale={2}
-                grainAmount={0}
-                grainScale={2}
-                grainAnimated={false}
-                contrast={1.2}
-                gamma={1}
-                saturation={0.6}
-                centerX={-0.09}
-                centerY={0.05}
-                zoom={0.9}
+                color1="#6d2d17" color2="#9b552c" color3="#4b2311"
+                timeSpeed={0.25} colorBalance={0}
+                warpStrength={1} warpFrequency={3} warpSpeed={1.5} warpAmplitude={40}
+                blendAngle={0} blendSoftness={0.1}
+                rotationAmount={400}
+                noiseScale={2} grainAmount={0} grainScale={2} grainAnimated={false}
+                contrast={1.2} gamma={1} saturation={0.6}
+                centerX={-0.09} centerY={0.05} zoom={0.9}
             />
             <button className="waiter-back-button" onClick={goBack}>←</button>
 
             <div className="waiter-login-box">
-                <h2>Waiter</h2>
+                <h2>Hello, Waiter</h2>
+                <p className="waiter-field-label">Please enter:</p>
                 <p className="waiter-field-label">USERNAME</p>
                 <input
                     className={`waiter-input ${errors.username ? 'input-error' : ''}`}
@@ -109,7 +96,7 @@ function WaiterLogin() {
                 />
                 {errors.password && <span className="error-message">{errors.password}</span>}
                 <button
-                    className={`waiter-button ${!isFormValid() ? 'button-disabled' : ''}`}
+                    className={`waiter-button ${!isFormValid() ? 'waiter-button-disabled' : ''}`}
                     onClick={handleContinue}
                     disabled={!isFormValid()}
                 >

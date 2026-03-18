@@ -1,4 +1,6 @@
-/* global reset */
+@import url('https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300..700;1,300..700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap');
+
 html, body, #root {
     margin: 0;
     padding: 0;
@@ -13,14 +15,13 @@ html, body, #root {
     display: flex;
     justify-content: center;
     align-items: center;
-    font-family: "Times New Roman", serif;
     overflow: hidden;
 }
 
 .customer-login-box {
     position: relative;
     z-index: 1;
-    background-color: #E8D5B0;
+    background: radial-gradient(circle at center, #faf0d7 0%, #e8d5b0 50%, #d4b896 100%);
     width: 280px;
     padding: 30px 25px;
     border-radius: 20px;
@@ -28,41 +29,105 @@ html, body, #root {
     display: flex;
     flex-direction: column;
     align-items: center;
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.35), 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
-/* card title */
 .customer-login-box h2 {
-    margin: 0 0 20px;
+    margin: 0;
     font-size: 28px;
-    font-weight: 600;
+    font-family: "Cormorant", serif;
+    font-weight: 700;
     color: #1a1a1a;
-    font-family: "Times New Roman", serif;
 }
 
-/* field labels */
+.customer-login-box p {
+    font-family: "Lato", sans-serif;
+}
+
 .customer-field-label {
     font-size: 11px;
     letter-spacing: 0.08em;
     color: #2a1a0a;
     text-align: center;
     margin: 10px 0 6px;
-    font-family: sans-serif;
+    font-family: "Lato", sans-serif;
+    text-transform: uppercase;
 }
 
-/* input fields */
+/* wrapper to overlay spinner buttons on top of the text input */
+.customer-input-wrapper {
+    position: relative;
+    width: 100%;
+    margin-bottom: 5px;
+}
+
 .customer-input {
     width: 100%;
     padding: 10px;
+    padding-right: 28px; /* leave room for spinner */
     font-size: 15px;
+    font-family: "Lato", sans-serif;
     background-color: #f0e8d8;
     border: none;
     border-radius: 8px;
     box-sizing: border-box;
     outline: none;
-    margin-bottom: 5px;
+    color: #2a1a0a;
 }
 
-/* continue button */
+.customer-input.input-error {
+    border: 1px solid #8B2E00;
+}
+
+/* spinner button column sitting on the right of the input */
+.spinner-arrows {
+    position: absolute;
+    right: 0;
+    top: 0;
+    height: 100%;
+    width: 22px;
+    display: flex;
+    flex-direction: column;
+    border-radius: 0 8px 8px 0;
+    overflow: hidden;
+}
+
+.spinner-btn {
+    flex: 1;
+    background: #e0d4b8;
+    border: none;
+    cursor: pointer;
+    font-size: 7px;
+    color: #5a3a1a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    transition: background 0.1s;
+    line-height: 1;
+}
+
+.spinner-btn:hover {
+    background: #cfc4a0;
+}
+
+.spinner-btn:active {
+    background: #bfb48e;
+}
+
+/* thin divider between the two spinner buttons */
+.spinner-btn:first-child {
+    border-bottom: 1px solid #cbbfa0;
+}
+
+.error-message {
+    font-family: "Lato", sans-serif;
+    font-size: 11px;
+    color: #8B2E00;
+    margin-bottom: 4px;
+    text-align: center;
+}
+
 .customer-button {
     margin-top: 20px;
     padding: 12px 40px;
@@ -72,12 +137,22 @@ html, body, #root {
     color: #f0e8d8;
     border: none;
     border-radius: 25px;
+    transition: 0.2s ease;
+}
+
+.customer-button:not(:disabled) {
     cursor: pointer;
 }
 
-/* button hover */
-.customer-button:hover {
+.customer-button:not(:disabled):hover {
     background-color: #6B2200;
+}
+
+.customer-button:disabled,
+.customer-button-disabled {
+    background-color: rgba(0, 0, 0, 0.35);
+    color: rgba(240, 232, 216, 0.7);
+    cursor: not-allowed;
 }
 
 .back-button {
@@ -94,7 +169,6 @@ html, body, #root {
     z-index: 1;
 }
 
-/* back hover */
 .back-button:hover {
     transform: scale(1.2);
 }

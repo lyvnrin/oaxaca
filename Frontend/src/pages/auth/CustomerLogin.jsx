@@ -8,114 +8,122 @@ function CustomerLogin() {
     const goToMenu = () => navigate("/menu");
     const goToRoles = () => navigate("/");
 
-    const [formData, setFormData] = useState({
-        name: '',
-        guests: ''
-    });
-    const [errors, setErrors] = useState({});
+    const [tableNumber, setTableNumber] = useState('');
+    const [error, setError] = useState('');
 
     const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData({
-            ...formData,
-            [name]: value
-        });
+        const raw = e.target.value;
+        // strip "Table " prefix if present, keep only the number
+        const stripped = raw.replace(/^Table\s*/i, '').trim();
+        const num = parseInt(stripped, 10);
 
-        if (errors[name]) {
-            setErrors({
-                ...errors,
-                [name]: ''
+        if (stripped === '') {
+            setTableNumber('');
+        } else if (!isNaN(num) && num >= 1 && num <= 20) {
+            setTableNumber(String(num));
+        }
+        if (error) setError('');
+    };
+
+    const handleKeyDown = (e) => {
+        const current = tableNumber === '' ? 0 : Number(tableNumber);
+        if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            if (current < 20) setTableNumber(String(current + 1));
+        } else if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            if (current > 1) setTableNumber(String(current - 1));
+        }
+        if (error) setError('');
+    };
+
+    const isFormValid = () => tableNumber !== '';
+
+    const handleContinue = async () => {
+        console.log("Sending:", { name: `Table ${tableNumber}`, table_id: parseInt(tableNumber) });
+
+        if (!tableNumber) {
+            setError('Please select a table number');
+            return;
+        }
+        try {
+            const res = await fetch('http://localhost:8000/customers', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    name: `Table ${tableNumber}`, 
+                    table_id: parseInt(tableNumber) 
+                }),
             });
-        }
-    };
-
-    const validateForm = () => {
-        let newErrors = {};
-
-        if (!formData.name.trim()) {
-            newErrors.name = 'Name is required';
-        }
-
-        if (!formData.guests) {
-            newErrors.guests = 'Number of guests is required';
-        } else if (formData.guests < 1 || formData.guests > 30) {
-            newErrors.guests = 'Guests must be between 1 and 30';
-        }
-
-        return newErrors;
-    };
-
-    const isFormValid = () => {
-        return formData.name.trim() !== '' &&
-            formData.guests !== '' &&
-            formData.guests >= 1 &&
-            formData.guests <= 30;
-    };
-
-    const handleContinue = () => {
-        const validationErrors = validateForm();
-        setErrors(validationErrors);
-
-        if (Object.keys(validationErrors).length === 0) {
-            console.log('Customer info:', formData);
-            goToMenu();
+            if (!res.ok) {
+                const data = await res.json();
+                setError(data.detail || 'Something went wrong');
+                return;
+            }
+            const customer = await res.json();
+            navigate('/menu', { 
+                state: { 
+                    cust_id: customer.cust_id, 
+                    table_id: customer.table_id 
+                } 
+            });
+        } catch (err) {
+            console.error(err);
+            setError('Could not reach server: ' + err.message);
         }
     };
 
     return (
         <div className="customer-page">
             <Grainient
-                color1="#781111"
-                color2="#b94609"
-                color3="#9a0e0e"
-                timeSpeed={0.25}
-                colorBalance={0}
-                warpStrength={1}
-                warpFrequency={3}
-                warpSpeed={1.5}
-                warpAmplitude={40}
-                blendAngle={0}
-                blendSoftness={0.1}
-                rotationAmount={500}
-                noiseScale={2}
-                grainAmount={0}
-                grainScale={2}
-                grainAnimated={false}
-                contrast={1.2}
-                gamma={1}
-                saturation={0.6}
-                centerX={-0.09}
-                centerY={0.05}
-                zoom={0.9}
+                color1="#6d2d17" color2="#9b552c" color3="#4b2311"
+                timeSpeed={0.25} colorBalance={0}
+                warpStrength={1} warpFrequency={3} warpSpeed={1.5} warpAmplitude={40}
+                blendAngle={0} blendSoftness={0.1}
+                rotationAmount={400}
+                noiseScale={2} grainAmount={0} grainScale={2} grainAnimated={false}
+                contrast={1.2} gamma={1} saturation={0.6}
+                centerX={-0.09} centerY={0.05} zoom={0.9}
             />
             <button className="back-button" onClick={goToRoles}>←</button>
 
             <div className="customer-login-box">
-                <h2>Customer</h2>
-                <p className="customer-field-label">YOUR NAME</p>
-                <input
-                    className={`customer-input ${errors.name ? 'input-error' : ''}`}
-                    type="text"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleChange}
-                    placeholder="Enter your name"
-                />
-                {errors.name && <span className="error-message">{errors.name}</span>}
-                <p className="customer-field-label">NUMBER OF GUESTS</p>
-                <input
-                    className={`customer-input ${errors.guests ? 'input-error' : ''}`}
-                    type="number"
-                    name="guests"
-                    min="1"
-                    max="30"
-                    value={formData.guests}
-                    onChange={handleChange}
-                    placeholder="Enter number of guests"
-                />
-                {errors.guests && <span className="error-message">{errors.guests}</span>}
+                <h2>Hello, Customer</h2>
+                <p className="customer-field-label">Please enter:</p>
+                <p className="customer-field-label">TABLE NUMBER</p>
+                <div className="customer-input-wrapper">
+                    <input
+                        className={`customer-input ${error ? 'input-error' : ''}`}
+                        type="text"
+                        value={tableNumber === '' ? '' : `Table ${tableNumber}`}
+                        onChange={handleChange}
+                        onKeyDown={handleKeyDown}
+                        placeholder="Enter table number"
+                    />
+                    <div className="spinner-arrows">
+                        <button
+                            className="spinner-btn"
+                            tabIndex={-1}
+                            onClick={() => {
+                                const cur = tableNumber === '' ? 0 : Number(tableNumber);
+                                if (cur < 20) setTableNumber(String(cur + 1));
+                                if (error) setError('');
+                            }}
+                        >▲</button>
+                        <button
+                            className="spinner-btn"
+                            tabIndex={-1}
+                            onClick={() => {
+                                const cur = Number(tableNumber);
+                                if (cur > 1) setTableNumber(String(cur - 1));
+                                if (error) setError('');
+                            }}
+                        >▼</button>
+                    </div>
+                </div>
+                {error && <span className="error-message">{error}</span>}
                 <button
-                    className={`customer-button ${!isFormValid() ? 'button-disabled' : ''}`}
+                    className={`customer-button ${!isFormValid() ? 'customer-button-disabled' : ''}`}
                     onClick={handleContinue}
                     disabled={!isFormValid()}
                 >
