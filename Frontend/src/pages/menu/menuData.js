@@ -17,6 +17,19 @@ import snapper from "../../assets/Mains/snapper-veracruz.jpg";
 import corn from "../../assets/Sides/Corn Tortillas.jpg";
 import rice from "../../assets/Sides/Mexican Rice.jpg"
 import jalapenos from "../../assets/Sides/Pickled Jalapeños.jpg"
+import bean from "../../assets/Sides/black-bean.png"
+
+// drinks
+import hibiscus from "../../assets/Drinks/hibiscus agua fresca.jpg"
+import horchata from "../../assets/Drinks/horchata drink.jpg"
+import lager from "../../assets/Drinks/mexican lager beer.jpg"
+import margartia from "../../assets/Drinks/mezcal margarita.jpg"
+import water from "../../assets/Drinks/water.jpg"
+
+// dessert
+import churro from "../../assets/dessert/churro-sundae.jpeg";
+import sorbet from "../../assets/dessert/mango-sorbet.jpg"
+import mezcal from "../../assets/Dessert/mezcal-flan..jpg"
 
 export const MENU_DATA = {
     Starters: [
@@ -107,6 +120,7 @@ export const MENU_DATA = {
         {
             id: 9,
             name: "Churro Sundae",
+            image: churro,
             description: "Crispy churros, vanilla bean ice cream & dark chocolate mole sauce.",
             price: "£8.00",
             dietary: ["Vegetarian"],
@@ -116,6 +130,7 @@ export const MENU_DATA = {
         {
             id: 10,
             name: "Mezcal Flan",
+            image: mezcal,
             description: "Silky caramel custard with a smoky mezcal caramel drizzle.",
             price: "£7.00",
             dietary: ["Vegetarian", "Gluten-Free"],
@@ -125,6 +140,7 @@ export const MENU_DATA = {
         {
             id: 11,
             name: "Mango Sorbet",
+            image: sorbet,
             description: "Alphonso mango, chilli salt & fresh lime. Completely dairy free.",
             price: "£6.00",
             dietary: ["Vegan", "Gluten-Free"],
@@ -136,6 +152,7 @@ export const MENU_DATA = {
         {
             id: 12,
             name: "Black Bean Pot",
+            image: bean,
             description: "Slow-cooked with avocado leaf, epazote & lime crema.",
             price: "£4.00",
             dietary: ["Vegan", "Gluten-Free"],
@@ -177,6 +194,7 @@ export const MENU_DATA = {
         {
             id: 16,
             name: "Hibiscus Agua Fresca",
+            image: hibiscus,
             description: "House-dried hibiscus, lime, cane sugar & still water.",
             price: "£4.00",
             dietary: ["Vegan", "Gluten-Free"],
@@ -186,6 +204,7 @@ export const MENU_DATA = {
         {
             id: 17,
             name: "Mezcal Margarita",
+            image: margartia,
             description: "Joven mezcal, fresh lime juice, agave syrup & smoked salt rim.",
             price: "£11.00",
             dietary: ["Vegan", "Gluten-Free"],
@@ -195,6 +214,7 @@ export const MENU_DATA = {
         {
             id: 18,
             name: "Horchata",
+            image: horchata,
             description: "Rice milk, cinnamon, vanilla & a hint of almond. Served chilled.",
             price: "£4.50",
             dietary: ["Vegan", "Gluten-Free"],
@@ -204,6 +224,7 @@ export const MENU_DATA = {
         {
             id: 19,
             name: "Mexican Lager",
+            image: lager,
             description: "Ice-cold bottle served with lime. Ask your server for today's selection.",
             price: "£5.00",
             dietary: [],
@@ -213,6 +234,7 @@ export const MENU_DATA = {
         {
             id: 20,
             name: "Water",
+            image: water,
             description: "Ice-cold and refreshing. Ask your server for alternative temperatures.",
             price: "£2.50",
             dietary: [],
