@@ -27,8 +27,8 @@ import margartia from "../../assets/Drinks/mezcal margarita.jpg"
 import water from "../../assets/Drinks/water.jpg"
 
 // dessert
-import churro from "../../assets/dessert/churro-sundae.jpeg";
-import sorbet from "../../assets/dessert/mango-sorbet.jpg"
+import churro from "../../assets/Dessert/churro-sundae.jpeg";
+import sorbet from "../../assets/Dessert/mango-sorbet.jpg"
 import mezcal from "../../assets/Dessert/mezcal-flan..jpg"
 
 export const MENU_DATA = {
