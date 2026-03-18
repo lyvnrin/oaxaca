@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from .routes.main_routes import router as main_router
 from .routes.order_routes import router as order_router
 from .routes.auth_routes import router as auth_router
+from .routes.table_routes import router as table_router
 
 def create_app():
     app = FastAPI(title="Restaurant Backend")
@@ -20,5 +21,6 @@ def create_app():
     app.include_router(main_router)
     app.include_router(order_router)
     app.include_router(auth_router)
+    app.include_router(table_router)
 
     return app
