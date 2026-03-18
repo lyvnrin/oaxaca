@@ -1,14 +1,29 @@
 // Grouped by section to match the menu layout
+
+// starters
+import guacamole from "../../assets/Starters/guacamole-chips.jpg";
+import tlayuda from "../../assets/Starters/tlayuda-tostada.jpg";
+import ceviche from "../../assets/Starters/ceviche-verde.jpg";
+import elote from "../../assets/Starters/elote-esquites..jpg";
+
+// mains
 import barbacoa from "../../assets/Mains/barbacoa-tacos.jpg";
 import moleNegro from "../../assets/Mains/mole-negro-chicken.jpg";
 import portobello from "../../assets/Mains/portobello-enchiladas.jpg";
 import snapper from "../../assets/Mains/snapper-veracruz.jpg";
+
+// sides
+// need to add black bean
+import corn from "../../assets/Sides/Corn Tortillas.jpg";
+import rice from "../../assets/Sides/Mexican Rice.jpg"
+import jalapenos from "../../assets/Sides/Pickled Jalapeños.jpg"
 
 export const MENU_DATA = {
     Starters: [
         {
             id: 1,
             name: "Guacamole & Chips",
+            image: guacamole,
             description: "Hand-mashed avocado, jalapeño, lime zest & Oaxacan pink salt.",
             price: "£7.00",
             dietary: ["Vegan", "Gluten-Free"],
@@ -18,6 +33,7 @@ export const MENU_DATA = {
         {
             id: 2,
             name: "Tlayuda Tostada",
+            image: tlayuda,
             description: "Crispy corn base, black bean, quesillo, chorizo & fresh avocado.",
             price: "£9.00",
             dietary: ["Gluten-Free"],
@@ -27,6 +43,7 @@ export const MENU_DATA = {
         {
             id: 3,
             name: "Ceviche Verde",
+            image: ceviche,
             description: "Sea bass, tomatillo, cucumber, coriander & tiger's milk.",
             price: "£12.00",
             dietary: ["Gluten-Free"],
@@ -36,6 +53,7 @@ export const MENU_DATA = {
         {
             id: 4,
             name: "Elote Esquites",
+            image: elote,
             description: "Charred corn, crema, cotija cheese, ancho chilli & epazote.",
             price: "£8.00",
             dietary: ["Vegetarian", "Gluten-Free"],
@@ -57,6 +75,7 @@ export const MENU_DATA = {
         {
             id: 6,
             name: "Barbacoa Tacos",
+            image: barbacoa,
             description: "Slow-braised beef cheek, white onion, coriander & salsa roja. Three pieces.",
             price: "£16.00",
             dietary: [],
@@ -66,6 +85,7 @@ export const MENU_DATA = {
         {
             id: 7,
             name: "Portobello Enchiladas",
+            image: portobello,
             description: "Roasted mushrooms, black bean, chipotle sauce & cashew crema.",
             price: "£14.00",
             dietary: ["Vegan"],
@@ -75,6 +95,7 @@ export const MENU_DATA = {
         {
             id: 8,
             name: "Snapper Veracruz",
+            image: snapper,
             description: "Pan-seared whole snapper, olives, capers & fresh tomato broth.",
             price: "£22.00",
             dietary: ["Gluten-Free"],
@@ -124,6 +145,7 @@ export const MENU_DATA = {
         {
             id: 13,
             name: "Corn Tortillas",
+            image: corn,
             description: "Fresh nixtamal masa, made in-house daily. Four pieces.",
             price: "£3.00",
             dietary: ["Vegan", "Gluten-Free"],
@@ -133,6 +155,7 @@ export const MENU_DATA = {
         {
             id: 14,
             name: "Pickled Jalapeños",
+            image: jalapenos,
             description: "House-pickled chillies, carrots & white onion in apple cider vinegar.",
             price: "£3.00",
             dietary: ["Vegan", "Gluten-Free"],
@@ -142,6 +165,7 @@ export const MENU_DATA = {
         {
             id: 15,
             name: "Mexican Rice",
+            image: rice,
             description: "Tomato-braised rice with cumin, garlic & fresh coriander.",
             price: "£4.00",
             dietary: ["Vegan", "Gluten-Free"],
