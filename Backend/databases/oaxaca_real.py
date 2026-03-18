@@ -32,6 +32,7 @@ class CustomerIn(BaseModel):
     name: str
     table_id: int | None = None
 
+
 class MenuItemUpdate(BaseModel):
     available: bool | None = None
     price: float | None = None
@@ -83,6 +84,11 @@ def add_customer(payload: CustomerIn):
             "INSERT INTO customers (name, table_id) VALUES (?, ?)",
             (payload.name, payload.table_id),
         )
+        if payload.table_id:
+            conn.execute(
+                "UPDATE tables SET occupied = 1 WHERE table_id = ?",
+                (payload.table_id,)
+            )
         conn.commit()
         row = conn.execute(
             "SELECT * FROM customers WHERE cust_id = ?", (cursor.lastrowid,)).fetchone()
