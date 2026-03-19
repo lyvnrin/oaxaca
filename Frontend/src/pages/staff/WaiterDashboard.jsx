@@ -14,7 +14,7 @@ const C = {
 const MY_TABLES = [3, 7, 12];
 const now = () => Date.now();
 
-const ORDER_STATUSES = ["Pending", "In Progress", "Ready", "Completed", "Cancelled"];
+const ORDER_STATUSES = ["Pending", "Waiter Confirmed", "In Progress", "Ready", "Completed", "Cancelled"];
 
 const INIT_NOTIFICATIONS = [];
 
@@ -27,6 +27,7 @@ const INIT_UNPAID = [
 const notifColor = { ready: C.green, alert: C.blue, allergy: C.amber, Help_Needed: C.blue };
 const statusColor = {
     "Pending": C.amber,
+    "Waiter Confirmed": C.blue,
     "In Progress": C.warm,
     "Ready": C.green,
     "Completed": C.mid,
@@ -67,7 +68,7 @@ function useKitchenNotifications(setNotifications, addToast, onNewOrder) {
                     if (prev.some(n => n.id === incoming.id)) return prev;
                     return [incoming, ...prev];
                 });
-                addToast(`🍽 Table ${incoming.table} — Order #${incoming.order} is ready for collection!`);
+                addToast(`Table ${incoming.table} — Order #${incoming.order} is ready for collection!`);
                 onNewOrder();
             } catch (_) { }
         };
@@ -156,7 +157,7 @@ function NotificationsPanel({ notifications, setNotifications }) {
                         <div style={{ flex: 1 }}>
                             <div style={{ fontSize: 12, fontWeight: n.read ? 400 : 700, color: C.text }}>Table {n.table} — Order #{n.order}</div>
                             <p style={{ fontSize: 11, color: notifColor[n.type], marginTop: 3, fontWeight: 600 }}>{n.status}</p>
-                                {n.customerMessage && (
+                            {n.customerMessage && (
                                 <p style={{ fontSize: 11, color: C.muted, marginTop: 3, fontStyle: "italic" }}>"{n.customerMessage}"</p>
                             )}
                         </div>
@@ -185,11 +186,16 @@ function AccountPanel({ addToast, staffInfo }) {
                 </div>
                 <div>
                     <div style={{ fontSize: 13, fontWeight: 600, color: C.text }}>{displayName}</div>
-                    <div style={{ fontSize: 11, color: C.muted }}>{displayName.toLowerCase()}@oaxaca.com</div>
+                    <div style={{ fontSize: 11, color: C.muted }}>{staffInfo?.username ?? displayName.toLowerCase()}@oaxaca.com</div>
                     <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: ".08em", textTransform: "uppercase", color: C.mid, marginTop: 2 }}>{role}</div>
                 </div>
             </div>
-            <div onClick={() => { window.location.href = "/"; }}
+            <div onClick={async () => {
+                if (staffInfo?.staff_id) {
+                    await fetch(`http://127.0.0.1:8000/auth/logout/${staffInfo.staff_id}`, { method: 'POST' }).catch(() => { });
+                }
+                window.location.href = "/";
+            }}
                 style={{ padding: "13px 16px", display: "flex", alignItems: "center", gap: 10, cursor: "pointer", transition: "background .15s", borderRadius: "0 0 10px 10px" }}
                 onMouseEnter={e => e.currentTarget.style.background = C.redL}
                 onMouseLeave={e => e.currentTarget.style.background = "transparent"}>
@@ -361,34 +367,34 @@ function OrderCard({ order, onConfirm, onCancel, onDeliver, onAddItems, onStatus
                     )}
                 </div>
             </div>
-    {order.items.map((item, ii) => {
-        const customisations = JSON.parse(
-                localStorage.getItem(`oaxaca_customisations_${order.id}`) || '{}'
-        );
-        const note = customisations[item.name] || null;
-        return (
-            <div key={ii} style={{ borderBottom: `1px solid ${C.pale}`, padding: "5px 0" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, gap: 6, alignItems: "center" }}>
-                    <span style={{ color: C.text, flex: 1 }}>{item.name}</span>
-                    <span style={{ color: C.muted, fontSize: 11 }}>×{item.qty}</span>
-                    <span style={{ fontWeight: 600, color: C.mid, fontSize: 11, minWidth: 48, textAlign: "right" }}>
-                        £{(item.price * item.qty).toFixed(2)}
-                    </span>
-                    {!isDelivered && (
-                        <button onClick={() => onRemoveItem(order.id, ii)}
-                            style={{ marginLeft: 4, width: 18, height: 18, borderRadius: "50%", border: "none", background: C.redL, color: C.red, fontSize: 11, cursor: "pointer", display: "grid", placeItems: "center", flexShrink: 0 }}>
-                            ✕
-                        </button>
-                    )}
-                </div>
-                {note && (
-                    <div style={{ fontSize: 10, color: C.amber, marginTop: 2, paddingLeft: 2, fontStyle: "italic" }}>
-                        {note}
+            {order.items.map((item, ii) => {
+                const customisations = JSON.parse(
+                    localStorage.getItem(`oaxaca_customisations_${order.id}`) || '{}'
+                );
+                const note = customisations[item.name] || null;
+                return (
+                    <div key={ii} style={{ borderBottom: `1px solid ${C.pale}`, padding: "5px 0" }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, gap: 6, alignItems: "center" }}>
+                            <span style={{ color: C.text, flex: 1 }}>{item.name}</span>
+                            <span style={{ color: C.muted, fontSize: 11 }}>×{item.qty}</span>
+                            <span style={{ fontWeight: 600, color: C.mid, fontSize: 11, minWidth: 48, textAlign: "right" }}>
+                                £{(item.price * item.qty).toFixed(2)}
+                            </span>
+                            {!isDelivered && (
+                                <button onClick={() => onRemoveItem(order.id, ii)}
+                                    style={{ marginLeft: 4, width: 18, height: 18, borderRadius: "50%", border: "none", background: C.redL, color: C.red, fontSize: 11, cursor: "pointer", display: "grid", placeItems: "center", flexShrink: 0 }}>
+                                    ✕
+                                </button>
+                            )}
+                        </div>
+                        {note && (
+                            <div style={{ fontSize: 10, color: C.amber, marginTop: 2, paddingLeft: 2, fontStyle: "italic" }}>
+                                {note}
+                            </div>
+                        )}
                     </div>
-                )}
-            </div>
-        );
-    })}
+                );
+            })}
             <div style={{ textAlign: "right", marginTop: 6, fontFamily: "'Cormorant Garamond', serif", fontSize: 14, fontWeight: 700, color: C.dark }}>Total: £{rowTotal.toFixed(2)}</div>
             <div style={{ marginTop: 8, display: "flex", gap: 6, flexWrap: "wrap" }}>
                 {isPending && (
@@ -416,15 +422,15 @@ function OrderCard({ order, onConfirm, onCancel, onDeliver, onAddItems, onStatus
     );
 }
 
-function OrdersTab({ orders, setOrders, menu, addToast }) {
+function OrdersTab({ orders, setOrders, menu, addToast, staffId }) {
     const [addItemsOrder, setAddItemsOrder] = useState(null);
 
     const confirmOrder = async (id) => {
-        setOrders(p => p.map(o => o.id === id ? { ...o, status: "In Progress" } : o));
+        setOrders(p => p.map(o => o.id === id ? { ...o, status: "Waiter Confirmed" } : o));
         await fetch(`http://127.0.0.1:8000/orders/${id}`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ status: "In Progress" }),
+            body: JSON.stringify({ status: "Waiter Confirmed" }),
         });
         addToast("Order confirmed ✓");
     };
@@ -434,7 +440,7 @@ function OrdersTab({ orders, setOrders, menu, addToast }) {
         await fetch(`http://127.0.0.1:8000/orders/${id}`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ status: "Completed" }),
+            body: JSON.stringify({ status: "Completed", waiter_id: staffId }),
         });
         addToast("Order marked as delivered");
     };
@@ -449,7 +455,7 @@ function OrdersTab({ orders, setOrders, menu, addToast }) {
         addToast("Order cancelled");
         setTimeout(async () => {
             await fetch(`http://127.0.0.1:8000/orders/${id}/cleanup`, { method: 'DELETE' });
-        }, 15000); 
+        }, 15000);
     };
 
     const changeStatus = async (id, status) => {
@@ -489,7 +495,7 @@ function OrdersTab({ orders, setOrders, menu, addToast }) {
     const active = orders.filter(o => o.status !== "Completed" && o.status !== "Cancelled");
     const statCards = [
         { label: "Pending", value: orders.filter(o => o.status === "Pending").length, accent: C.amber },
-        { label: "In Progress", value: orders.filter(o => o.status === "In Progress").length, accent: C.warm },
+        { label: "Confirmed", value: orders.filter(o => o.status === "Waiter Confirmed").length, accent: C.blue },
         { label: "Ready", value: orders.filter(o => o.status === "Ready").length, accent: C.green },
     ];
 
@@ -509,7 +515,7 @@ function OrdersTab({ orders, setOrders, menu, addToast }) {
             <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16 }}>
                 {[
                     { title: "Pending", accent: C.amber, orders: active.filter(o => o.status === "Pending") },
-                    { title: "In Progress", accent: C.warm, orders: active.filter(o => o.status === "In Progress") },
+                    { title: "Confirmed", accent: C.blue, orders: active.filter(o => o.status === "Waiter Confirmed" || o.status === "In Progress") },
                     { title: "Ready", accent: C.green, orders: active.filter(o => o.status === "Ready") },
                 ].map(col => (
                     <div key={col.title} style={{ background: C.panel, border: `1.5px solid ${C.border}`, borderRadius: 10, overflow: "hidden" }}>
@@ -541,7 +547,7 @@ function OrdersTab({ orders, setOrders, menu, addToast }) {
     );
 }
 
-function TablesTab({ unpaidTables, addToast, raiseAlert }) {
+function TablesTab({ unpaidTables, addToast, raiseAlert, onMarkPaid }) {
     const [showUnpaidModal, setShowUnpaidModal] = useState(false);
     const [alertTable, setAlertTable] = useState("");
     const [customTable, setCustomTable] = useState("");
@@ -624,6 +630,11 @@ function TablesTab({ unpaidTables, addToast, raiseAlert }) {
                                                 <div style={{ fontSize: 11, color: C.muted, marginTop: 2 }}>Waiting {t.waiting}</div>
                                                 <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 20, fontWeight: 700, color: C.warm, marginTop: 6 }}>£{t.total.toFixed(2)}</div>
                                                 <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: ".08em", color: C.red, textTransform: "uppercase", marginTop: 2 }}>Unpaid</div>
+                                                <button
+                                                    onClick={() => onMarkPaid(t.order)}
+                                                    style={{ marginTop: 8, width: "100%", padding: "6px", background: C.green, color: "white", border: "none", borderRadius: 6, fontSize: 10, fontWeight: 700, letterSpacing: ".07em", textTransform: "uppercase", cursor: "pointer", fontFamily: "Jost, sans-serif" }}>
+                                                    ✓ Mark as Paid
+                                                </button>
                                             </div>
                                         ))}
                                     </div>
@@ -761,8 +772,8 @@ function useCustomerAlerts(setNotifications, addToast) {
                     if (prev.some(n => n.id === incoming.id)) return prev;
                     return [incoming, ...prev];
                 });
-                cbRef.current.addToast(`🔔 Table ${incoming.table} needs assistance!`);
-            } catch (_) {}
+                addToast(`Table ${incoming.table} needs assistance!`);
+            } catch (_) { }
         };
         window.addEventListener("storage", handler);
         return () => window.removeEventListener("storage", handler);
@@ -783,7 +794,7 @@ function useWaiterAlerts(setNotifications, addToast) {
                     return [incoming, ...prev];
                 });
                 cbRef.current.addToast(`🚨 Table ${incoming.table} — ${incoming.raisedBy ?? "A waiter"} needs team assistance!`);
-            } catch (_) {}
+            } catch (_) { }
         };
         window.addEventListener("storage", handler);
         return () => window.removeEventListener("storage", handler);
@@ -819,7 +830,7 @@ export default function App() {
     const navigate = useNavigate();
 
     useEffect(() => {
-        if (location.state?.role !== 'waiter') {
+        if (location.state?.role !== 'waiter' && sessionStorage.getItem('role') !== 'waiter') {
             navigate('/');
         }
     }, []);
@@ -841,12 +852,12 @@ export default function App() {
         const id = Date.now();
         const alert = {
             id,
-            order    : "–",
+            order: "–",
             table,
-            status   : `Table ${table} needs assistance`,
-            type     : "alert",
-            read     : false,
-            raisedBy : staffInfo?.name ?? "Waiter",
+            status: `Table ${table} needs assistance`,
+            type: "alert",
+            read: false,
+            raisedBy: staffInfo?.name ?? "Waiter",
         };
 
         setNotifications(p => [alert, ...p]);
@@ -855,15 +866,15 @@ export default function App() {
 
         try {
             await fetch("http://127.0.0.1:8000/alerts", {
-                method  : "POST",
-                headers : { "Content-Type": "application/json" },
-                body    : JSON.stringify({
-                    table_id  : table,
-                    raised_by : staffInfo?.staff_id ?? null,
-                    message   : `Table ${table} needs assistance`,
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    table_id: table,
+                    raised_by: staffInfo?.staff_id ?? null,
+                    message: `Table ${table} needs assistance`,
                 }),
             });
-        } catch (_) {}
+        } catch (_) { }
     };
 
     // LISTENING FOR KITCHEN NOTIFY EVENTS
@@ -882,39 +893,26 @@ export default function App() {
             setOrders(prev => {
                 return data.map(o => {
                     const existing = prev.find(p => p.id === String(o.order_id));
-                    return existing
-                      ? {
-                          ...existing,
-                          items: o.items.map(i => ({
-                          menuId: null,
-                          name: i.item_name,
-                          qty: i.quantity,
-                          price: i.price,
-                          removedIngredients: i.removed_ingredients || [],
-                          extras: i.extras || [],
-                         specialRequest: i.special_request || "",
+                    return {
+                        id: String(o.order_id),
+                        table: o.table_id,
+                        status: o.status ?? "Pending",
+                        startedAt: existing ? existing.startedAt : Date.now(),
+                        items: o.items.map(i => ({
+                            menuId: null,
+                            name: i.item_name,
+                            qty: i.quantity,
+                            price: i.price,
+                            removedIngredients: i.removed_ingredients || [],
+                            extras: i.extras || [],
+                            specialRequest: i.special_request || "",
                         }))
- }
-                        : {
-                            id: String(o.order_id),
-                            table: o.table_id,
-                            status: o.status ?? "Pending",
-                            startedAt: Date.now(),
-                            items: o.items.map(i => ({
-                               menuId: null,
-                               name: i.item_name,
-                               qty: i.quantity,
-                               price: i.price,
-                               removedIngredients: i.removed_ingredients || [],
-                              extras: i.extras || [],
-                              specialRequest: i.special_request || "",
-                            }))
-                        };
+                    };
                 }).reverse();
             });
         };
         fetchOrders();
-        const poll = setInterval(fetchOrders, 10000);
+        const poll = setInterval(fetchOrders, 3000);
         return () => clearInterval(poll);
     }, []);
 
@@ -977,6 +975,14 @@ export default function App() {
         return () => clearInterval(poll);
     }, []);
 
+    const markAsPaid = async (orderId) => {
+        await fetch(`http://127.0.0.1:8000/orders/${orderId}/pay`, {
+            method: 'POST',
+        });
+        setOrders(p => p.filter(o => o.id !== String(orderId)));
+        addToast(`Order #${orderId} marked as paid ✓`);
+    };
+
     const unpaidTables = orders
         .filter(o => o.status === "Completed")
         .map(o => ({
@@ -989,15 +995,23 @@ export default function App() {
 
     // ACCOUNT LOGIN VALIDATION
     const [staffInfo, setStaffInfo] = useState(null);
+    const staffId = location.state?.staff_id ?? sessionStorage.getItem('staff_id');
 
     useEffect(() => {
-        const staffId = location.state?.staff_id;
         if (!staffId) return;
         fetch(`http://127.0.0.1:8000/staff/${staffId}`)
             .then(r => r.json())
-            .then(data => setStaffInfo(data))
-            .catch(() => {});
+            .then(data => {
+                const raw = data.name ?? "";
+                const formatted = raw
+                    .replace(/([A-Z])/g, ' $1')
+                    .trim()
+                    .replace(/^./, c => c.toUpperCase());
+                setStaffInfo({ ...data, name: formatted, username: data.name });
+            })
+            .catch(() => { });
     }, []);
+
     return (
         <div style={{ fontFamily: "Jost, sans-serif", background: C.bg, color: C.text, minHeight: "100vh" }}>
             <style>{`@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Jost:wght@300;400;500;600&display=swap');
@@ -1062,8 +1076,8 @@ export default function App() {
             </div>
 
             {/* TAB CONTENT */}
-            {tab === "Orders" && <OrdersTab orders={orders} setOrders={setOrders} menu={menu} addToast={addToast} />}
-            {tab === "Tables" && <TablesTab unpaidTables={unpaidTables} addToast={addToast} raiseAlert={raiseAlert} />}
+            {tab === "Orders" && <OrdersTab orders={orders} setOrders={setOrders} menu={menu} addToast={addToast} staffId={staffInfo?.staff_id} />}
+            {tab === "Tables" && <TablesTab unpaidTables={unpaidTables} addToast={addToast} raiseAlert={raiseAlert} onMarkPaid={markAsPaid} />}
             {tab === "Menu" && <MenuTab menu={menu} setMenu={setMenu} addToast={addToast} lowStockDishes={lowStockDishes} />}
 
             {/* TOASTS */}

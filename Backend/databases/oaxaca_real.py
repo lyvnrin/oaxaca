@@ -32,6 +32,7 @@ class CustomerIn(BaseModel):
     name: str
     table_id: int | None = None
 
+
 class MenuItemUpdate(BaseModel):
     available: bool | None = None
     price: float | None = None
@@ -46,11 +47,14 @@ class OrderIn(BaseModel):
 
 class OrderStatusUpdate(BaseModel):
     status: str
+    waiter_id: int | None = None
+
 
 class LoginIn(BaseModel):
     username: str
     password: str
     role: str
+
 
 class RestockIn(BaseModel):
     stock_id: int
@@ -83,6 +87,11 @@ def add_customer(payload: CustomerIn):
             "INSERT INTO customers (name, table_id) VALUES (?, ?)",
             (payload.name, payload.table_id),
         )
+        if payload.table_id:
+            conn.execute(
+                "UPDATE tables SET occupied = 1 WHERE table_id = ?",
+                (payload.table_id,)
+            )
         conn.commit()
         row = conn.execute(
             "SELECT * FROM customers WHERE cust_id = ?", (cursor.lastrowid,)).fetchone()
@@ -171,10 +180,16 @@ def get_orders():
 @app.patch("/orders/{order_id}")
 def update_order_status(order_id: int, payload: OrderStatusUpdate):
     conn = get_conn()
-    conn.execute(
-        "UPDATE orders SET status = ? WHERE order_id = ?",
-        (payload.status, order_id)
-    )
+    if payload.waiter_id and payload.status == "Completed":
+        conn.execute(
+            "UPDATE orders SET status = ?, waiter_id = ? WHERE order_id = ?",
+            (payload.status, payload.waiter_id, order_id)
+        )
+    else:
+        conn.execute(
+            "UPDATE orders SET status = ? WHERE order_id = ?",
+            (payload.status, order_id)
+        )
     conn.commit()
     conn.close()
     return {"order_id": order_id, "status": payload.status}
@@ -191,6 +206,7 @@ def get_order(order_id: int):
         raise HTTPException(status_code=404, detail="Order not found")
     return dict(order)
 
+
 @app.post("/orders/{order_id}/pay", status_code=200)
 def pay_order(order_id: int):
     conn = get_conn()
@@ -206,6 +222,15 @@ def pay_order(order_id: int):
     conn.execute(
         "UPDATE orders SET status = 'Paid' WHERE order_id = ?", (order_id,)
     )
+
+# increment stats for the waiter who delivered this order
+    waiter_id = row["waiter_id"]
+    if waiter_id:
+        conn.execute(
+            "UPDATE staff SET orders_handled = orders_handled + 1, total_sales = total_sales + ? WHERE staff_id = ?",
+            (row["total_cost"], waiter_id)
+        )
+
     conn.commit()
     conn.close()
     return {"order_id": order_id, "status": "Paid"}
@@ -249,23 +274,6 @@ def get_staff():
     conn.close()
     return [dict(r) for r in rows]
 
-@app.post("/auth/login")
-def login(payload: LoginIn):
-    conn = get_conn()
-    row = conn.execute(
-        "SELECT * FROM staff WHERE name = ? AND password = ? AND role = ?",
-        (payload.username, payload.password, payload.role)
-    ).fetchone()
-    conn.close()
-
-    if not row:
-        raise HTTPException(status_code=401, detail="Invalid credentials")
-
-    return {
-        "staff_id": row["staff_id"],
-        "name": row["name"],
-        "role": row["role"],
-    }
 
 @app.get("/staff/{staff_id}")
 def get_staff_member(staff_id: int):
@@ -277,6 +285,49 @@ def get_staff_member(staff_id: int):
     if not row:
         raise HTTPException(status_code=404, detail="Staff member not found")
     return dict(row)
+
+
+@app.post("/auth/login")
+def login(payload: LoginIn):
+    conn = get_conn()
+    row = conn.execute(
+        "SELECT * FROM staff WHERE name = ? AND password = ? AND role = ?",
+        (payload.username, payload.password, payload.role)
+    ).fetchone()
+
+    if not row:
+        conn.close()
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+
+    conn.execute(
+        "UPDATE staff SET on_shift = 1 WHERE staff_id = ?", (row["staff_id"],)
+    )
+    conn.commit()
+    conn.close()
+
+    return {
+        "staff_id": row["staff_id"],
+        "name": row["name"],
+        "role": row["role"],
+    }
+
+
+@app.post("/auth/logout/{staff_id}")
+def logout(staff_id: int):
+    conn = get_conn()
+    row = conn.execute(
+        "SELECT * FROM staff WHERE staff_id = ?", (staff_id,)
+    ).fetchone()
+    if not row:
+        conn.close()
+        raise HTTPException(status_code=404, detail="Staff not found")
+    conn.execute(
+        "UPDATE staff SET on_shift = 0 WHERE staff_id = ?", (staff_id,)
+    )
+    conn.commit()
+    conn.close()
+    return {"staff_id": staff_id, "on_shift": 0}
+
 
 # STOCK --------------------------
 DISH_DEPLETIONS = {
