@@ -300,24 +300,23 @@ function ContactWaiterModal({tableId, onClose}) {
     const [sent, setSent] = useState(false);
 
     const handleSend = async () => {
-        const alert = {
-            id     : Date.now(),
-            table  : tableId,
-            status : "Needs Assistance",
-            type   : "Help_Needed",
-            read   : false,
-        };
-
-        localStorage.setItem("oaxaca_customer_alert", JSON.stringify(alert));
+        localStorage.setItem("oaxaca_customer_alert", JSON.stringify({
+            id             : Date.now(),
+            table          : parseInt(tableId),
+            status         : "Needs Assistance",
+            type           : "Help_Needed",
+            read           : false,
+            customerMessage: message.trim() || null,
+        }));
 
         try {
             await fetch("http://127.0.0.1:8000/alerts", {
                 method  : "POST",
                 headers : { "Content-Type": "application/json" },
                 body    : JSON.stringify({
-                    table_id  : tableId,
+                    table_id  : parseInt(tableId),
                     raised_by : null,
-                    message   : message.trim() || "Customer needs assistance.",
+                    message   : `Table ${tableId} needs assistance`,
                 }),
             });
         } catch (_) {}

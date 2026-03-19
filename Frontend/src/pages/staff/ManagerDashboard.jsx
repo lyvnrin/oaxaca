@@ -742,12 +742,15 @@ function useCustomerAlerts(setNotifications, addToast) {
 }
 
 function useWaiterAlerts(setNotifications, addToast) {
+    const cbRef = useRef({ setNotifications, addToast });
+    useEffect(() => { cbRef.current = { setNotifications, addToast }; });
+
     useEffect(() => {
         const handler = (e) => {
             if (e.key !== "oaxaca_waiter_alert" || !e.newValue) return;
             try {
                 const incoming = JSON.parse(e.newValue);
-                setNotifications(prev => {
+                cbRef.current.setNotifications(prev => {
                     if (prev.some(n => n.id === incoming.id)) return prev;
                     return [{
                         id    : incoming.id,
@@ -758,12 +761,12 @@ function useWaiterAlerts(setNotifications, addToast) {
                         read  : false,
                     }, ...prev];
                 });
-                addToast(`⚠︎ Table ${incoming.table} — waiter needs team assistance!`);
+                cbRef.current.addToast(`🚨 Table ${incoming.table} — waiter needs team assistance!`);
             } catch (_) {}
         };
         window.addEventListener("storage", handler);
         return () => window.removeEventListener("storage", handler);
-    }, [setNotifications, addToast]);
+    }, []);
 }
 
 export default function ManagerDashboard() {
