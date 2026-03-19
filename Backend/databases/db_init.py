@@ -67,6 +67,17 @@ conn.execute('''CREATE TABLE stock (
     used_in    TEXT NOT NULL
 )''')
 
+conn.execute('''CREATE TABLE alerts (
+    alert_id   INTEGER PRIMARY KEY AUTOINCREMENT,
+    table_id   INTEGER NOT NULL,
+    raised_by  INTEGER,
+    message    TEXT NOT NULL,
+    resolved   INTEGER NOT NULL DEFAULT 0,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (table_id) REFERENCES tables(table_id),
+    FOREIGN KEY (raised_by) REFERENCES staff(staff_id)
+)''')
+
 conn.commit()
 print('Done')
 conn.close()
