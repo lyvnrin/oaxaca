@@ -34,7 +34,7 @@ conn.execute('''CREATE TABLE staff (
     staff_id INTEGER PRIMARY KEY AUTOINCREMENT,
     name     VARCHAR(100) NOT NULL,
     password VARCHAR(255) NOT NULL,
-    role     VARCHAR(50) NOT NULL
+    role     VARCHAR(50) NOT NULL CHECK(role IN ('Waiter', 'Kitchen Staff', 'Manager'))
 )''')
 
 conn.execute('''CREATE TABLE orders (
