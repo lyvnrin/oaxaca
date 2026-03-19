@@ -239,7 +239,7 @@ export default function App() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (location.state?.role !== 'kitchen') {
+    if (location.state?.role !== 'kitchen' && sessionStorage.getItem('role') !== 'kitchen') {
       navigate('/');
     }
   }, []);
@@ -266,7 +266,7 @@ export default function App() {
         };
       });
 
-      setPending(data.filter(o => o.status === "Pending").map(o => ({
+      setPending(data.filter(o => o.status === "Waiter Confirmed").map(o => ({
         id: String(o.order_id),
         table: `Table ${o.table_id}`,
         startedAt: Date.now(),
@@ -286,7 +286,7 @@ export default function App() {
       })));
     };
     fetchOrders();
-    const poll = setInterval(fetchOrders, 10000);
+    const poll = setInterval(fetchOrders, 3000);
     return () => clearInterval(poll);
   }, []);
 
@@ -352,9 +352,9 @@ export default function App() {
 
   // LOGIN VALIDATION
   const [staffInfo, setStaffInfo] = useState(null);
+  const staffId = location.state?.staff_id ?? sessionStorage.getItem('staff_id');
 
   useEffect(() => {
-    const staffId = location.state?.staff_id;
     if (!staffId) return;
     fetch(`http://127.0.0.1:8000/staff/${staffId}`)
       .then(r => r.json())

@@ -38,30 +38,31 @@ function ManagerLogin() {
     };
 
     const handleContinue = async () => {
-    const validationErrors = validateForm();
-    setErrors(validationErrors);
+        const validationErrors = validateForm();
+        setErrors(validationErrors);
 
-    if (Object.keys(validationErrors).length > 0) return;
+        if (Object.keys(validationErrors).length > 0) return;
 
-    try {
-        const res = await fetch('http://127.0.0.1:8000/auth/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                username: formData.username,
-                password: formData.password,
-                role: 'Manager',
-            }),
-        });
+        try {
+            const res = await fetch('http://127.0.0.1:8000/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    username: formData.username,
+                    password: formData.password,
+                    role: 'Manager',
+                }),
+            });
 
-        if (!res.ok) {
-            setErrors({ password: "Invalid username or password" });
-            return;
-        }
+            if (!res.ok) {
+                setErrors({ password: "Invalid username or password" });
+                return;
+            }
 
-        const data = await res.json();
-        console.log("login response:", data); 
-        navigate('/manager-dashboard', { state: { role: 'manager', staff_id: data.staff_id } });
+            const data = await res.json();
+            sessionStorage.setItem('staff_id', data.staff_id);
+            sessionStorage.setItem('role', 'manager');
+            navigate('/manager-dashboard', { state: { role: 'manager', staff_id: data.staff_id } });
 
         } catch (err) {
             setErrors({ password: "Could not reach server, please try again" });

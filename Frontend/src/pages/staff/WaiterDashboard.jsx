@@ -14,7 +14,7 @@ const C = {
 const MY_TABLES = [3, 7, 12];
 const now = () => Date.now();
 
-const ORDER_STATUSES = ["Pending", "In Progress", "Ready", "Completed", "Cancelled"];
+const ORDER_STATUSES = ["Pending", "Waiter Confirmed", "In Progress", "Ready", "Completed", "Cancelled"];
 
 const INIT_NOTIFICATIONS = [];
 
@@ -27,6 +27,7 @@ const INIT_UNPAID = [
 const notifColor = { ready: C.green, alert: C.blue, allergy: C.amber, Help_Needed: C.blue };
 const statusColor = {
     "Pending": C.amber,
+    "Waiter Confirmed": C.blue,
     "In Progress": C.warm,
     "Ready": C.green,
     "Completed": C.mid,
@@ -425,11 +426,11 @@ function OrdersTab({ orders, setOrders, menu, addToast, staffId }) {
     const [addItemsOrder, setAddItemsOrder] = useState(null);
 
     const confirmOrder = async (id) => {
-        setOrders(p => p.map(o => o.id === id ? { ...o, status: "In Progress" } : o));
+        setOrders(p => p.map(o => o.id === id ? { ...o, status: "Waiter Confirmed" } : o));
         await fetch(`http://127.0.0.1:8000/orders/${id}`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ status: "In Progress" }),
+            body: JSON.stringify({ status: "Waiter Confirmed" }),
         });
         addToast("Order confirmed ✓");
     };
@@ -494,7 +495,7 @@ function OrdersTab({ orders, setOrders, menu, addToast, staffId }) {
     const active = orders.filter(o => o.status !== "Completed" && o.status !== "Cancelled");
     const statCards = [
         { label: "Pending", value: orders.filter(o => o.status === "Pending").length, accent: C.amber },
-        { label: "In Progress", value: orders.filter(o => o.status === "In Progress").length, accent: C.warm },
+        { label: "Confirmed", value: orders.filter(o => o.status === "Waiter Confirmed").length, accent: C.blue },
         { label: "Ready", value: orders.filter(o => o.status === "Ready").length, accent: C.green },
     ];
 
@@ -514,7 +515,7 @@ function OrdersTab({ orders, setOrders, menu, addToast, staffId }) {
             <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16 }}>
                 {[
                     { title: "Pending", accent: C.amber, orders: active.filter(o => o.status === "Pending") },
-                    { title: "In Progress", accent: C.warm, orders: active.filter(o => o.status === "In Progress") },
+                    { title: "Confirmed", accent: C.blue, orders: active.filter(o => o.status === "Waiter Confirmed" || o.status === "In Progress") },
                     { title: "Ready", accent: C.green, orders: active.filter(o => o.status === "Ready") },
                 ].map(col => (
                     <div key={col.title} style={{ background: C.panel, border: `1.5px solid ${C.border}`, borderRadius: 10, overflow: "hidden" }}>
@@ -829,7 +830,7 @@ export default function App() {
     const navigate = useNavigate();
 
     useEffect(() => {
-        if (location.state?.role !== 'waiter') {
+        if (location.state?.role !== 'waiter' && sessionStorage.getItem('role') !== 'waiter') {
             navigate('/');
         }
     }, []);
@@ -892,34 +893,21 @@ export default function App() {
             setOrders(prev => {
                 return data.map(o => {
                     const existing = prev.find(p => p.id === String(o.order_id));
-                    return existing
-                        ? {
-                            ...existing,
-                            items: o.items.map(i => ({
-                                menuId: null,
-                                name: i.item_name,
-                                qty: i.quantity,
-                                price: i.price,
-                                removedIngredients: i.removed_ingredients || [],
-                                extras: i.extras || [],
-                                specialRequest: i.special_request || "",
-                            }))
-                        }
-                        : {
-                            id: String(o.order_id),
-                            table: o.table_id,
-                            status: o.status ?? "Pending",
-                            startedAt: Date.now(),
-                            items: o.items.map(i => ({
-                                menuId: null,
-                                name: i.item_name,
-                                qty: i.quantity,
-                                price: i.price,
-                                removedIngredients: i.removed_ingredients || [],
-                                extras: i.extras || [],
-                                specialRequest: i.special_request || "",
-                            }))
-                        };
+                    return {
+                        id: String(o.order_id),
+                        table: o.table_id,
+                        status: o.status ?? "Pending",
+                        startedAt: existing ? existing.startedAt : Date.now(),
+                        items: o.items.map(i => ({
+                            menuId: null,
+                            name: i.item_name,
+                            qty: i.quantity,
+                            price: i.price,
+                            removedIngredients: i.removed_ingredients || [],
+                            extras: i.extras || [],
+                            specialRequest: i.special_request || "",
+                        }))
+                    };
                 }).reverse();
             });
         };
@@ -1007,10 +995,9 @@ export default function App() {
 
     // ACCOUNT LOGIN VALIDATION
     const [staffInfo, setStaffInfo] = useState(null);
-    console.log('location.state:', location.state);
+    const staffId = location.state?.staff_id ?? sessionStorage.getItem('staff_id');
 
     useEffect(() => {
-        const staffId = location.state?.staff_id;
         if (!staffId) return;
         fetch(`http://127.0.0.1:8000/staff/${staffId}`)
             .then(r => r.json())

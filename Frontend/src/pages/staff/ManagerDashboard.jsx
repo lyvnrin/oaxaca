@@ -833,6 +833,13 @@ export default function ManagerDashboard() {
     const [employees, setEmployees] = useState([]);
     const [staffInfo, setStaffInfo] = useState(null);
     const location = useLocation();
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        if (location.state?.role !== 'manager' && sessionStorage.getItem('role') !== 'manager') {
+            navigate('/');
+        }
+    }, []);
 
 
     useEffect(() => {
@@ -982,11 +989,12 @@ export default function ManagerDashboard() {
                     const latestOrder = tableOrders[tableOrders.length - 1];
                     const status = !hasOrders ? "Free"
                         : latestOrder.status === "Pending" ? "Ordering"
-                            : latestOrder.status === "In Progress" ? "Preparing"
-                                : latestOrder.status === "Ready" ? "Service"
-                                    : latestOrder.status === "Completed" ? "Bill Req."
-                                        : latestOrder.status === "Paid" ? "Free"
-                                            : "Free";
+                            : latestOrder.status === "Waiter Confirmed" ? "Ordering"
+                                : latestOrder.status === "In Progress" ? "Preparing"
+                                    : latestOrder.status === "Ready" ? "Service"
+                                        : latestOrder.status === "Completed" ? "Bill Req."
+                                            : latestOrder.status === "Paid" ? "Free"
+                                                : "Free";
 
                     return {
                         id: t.table_id,
