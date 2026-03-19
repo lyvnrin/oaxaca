@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Grainient from "../../components/Grainient";
 import "./KitchenLogin.css";
@@ -6,7 +6,6 @@ import "./KitchenLogin.css";
 function KitchenLogin() {
     const navigate = useNavigate();
     const goBack = () => navigate("/staff");
-    const goToDashboard = () => navigate('/kitchen-dashboard', { state: { role: 'kitchen' } });
 
     const [formData, setFormData] = useState({ username: '', password: '' });
     const [errors, setErrors] = useState({});
@@ -44,15 +43,36 @@ function KitchenLogin() {
             formData.password.length >= 6;
     };
 
-    const handleContinue = () => {
-        const validationErrors = validateForm();
-        setErrors(validationErrors);
-        if (Object.keys(validationErrors).length === 0) {
-            console.log('Kitchen staff login:', formData);
-            goToDashboard();
+    const handleContinue = async () => {
+    const validationErrors = validateForm();
+    setErrors(validationErrors);
+
+    if (Object.keys(validationErrors).length > 0) return;
+
+    try {
+        const res = await fetch('http://127.0.0.1:8000/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                username: formData.username,
+                password: formData.password,
+                role: 'Kitchen Staff',
+            }),
+        });
+
+        if (!res.ok) {
+            setErrors({ password: "Invalid username or password" });
+            return;
+        }
+
+        const data = await res.json();
+        navigate('/kitchen-dashboard', { state: { role: 'kitchen', staff_id: data.staff_id } });
+
+        } catch (err) {
+            setErrors({ password: "Could not reach server, please try again" });
         }
     };
-
+        
     return (
         <div className="kitchen-page">
             <Grainient
