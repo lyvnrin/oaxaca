@@ -18,7 +18,7 @@ function CartIcon({count, onClick}) {
         </button>);
 }
 
-function Header({tableNumber, tableId, cartCount, onCartClick, onCloseTable}) {
+function Header({tableNumber, tableId, cartCount, onCartClick, onCloseTable, onContactWaiter}) {
     const [menuOpen, setMenuOpen] = useState(false);
 
     const handleCloseTable = () => {
@@ -44,14 +44,8 @@ function Header({tableNumber, tableId, cartCount, onCartClick, onCloseTable}) {
                         <div className="menu-popup-backdrop" onClick={() => setMenuOpen(false)}/>
                         <div className="menu-popup">
                             <button className="menu-popup-item" onClick={() => {
-                                localStorage.setItem("oaxaca_customer_alert", JSON.stringify({
-                                    id: Date.now(),
-                                    table: tableId,
-                                    status: "Needs Assistance",
-                                    type: "Help_Needed",
-                                    read: false,
-                                }));
                                 setMenuOpen(false);
+                                onContactWaiter();
                             }}>
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                      strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
@@ -299,6 +293,77 @@ function MenuSection({
                                                         onCustomize={onCustomize}/>))}
                 </div>)}
         </div>);
+}
+
+function ContactWaiterModal({tableId, onClose}) {
+    const [message, setMessage] = useState("");
+    const [sent, setSent] = useState(false);
+
+    const handleSend = async () => {
+        const alert = {
+            id     : Date.now(),
+            table  : tableId,
+            status : "Needs Assistance",
+            type   : "Help_Needed",
+            read   : false,
+        };
+
+        localStorage.setItem("oaxaca_customer_alert", JSON.stringify(alert));
+
+        try {
+            await fetch("http://127.0.0.1:8000/alerts", {
+                method  : "POST",
+                headers : { "Content-Type": "application/json" },
+                body    : JSON.stringify({
+                    table_id  : tableId,
+                    raised_by : null,
+                    message   : message.trim() || "Customer needs assistance.",
+                }),
+            });
+        } catch (_) {}
+
+        setSent(true);
+        setTimeout(onClose, 2000);
+    };
+
+    return (
+        <div className="customization-overlay" onClick={onClose}>
+            <div className="customization-modal" style={{maxWidth: 380}} onClick={e => e.stopPropagation()}>
+                <div className="customization-header">
+                    <h2 className="customization-title">Contact Waiter</h2>
+                    <button className="customization-close" onClick={onClose}>✕</button>
+                </div>
+                <div className="customization-content">
+                    {sent ? (
+                        <div style={{textAlign: "center", padding: "24px 0"}}>
+                            <div style={{fontSize: 40, marginBottom: 12}}>✓</div>
+                            <p style={{fontWeight: 700, fontSize: 16}}>Your waiter has been notified!</p>
+                            <p style={{color: "#7a5c44", fontSize: 13, marginTop: 6}}>Someone will be with you shortly.</p>
+                        </div>
+                    ) : (
+                        <>
+                            <div className="customization-section">
+                                <h3 className="section-title">How can we help?</h3>
+                                <textarea
+                                    className="special-request-input"
+                                    placeholder="Optional: let us know what you need (e.g. extra napkins, allergy question…)"
+                                    value={message}
+                                    onChange={e => setMessage(e.target.value)}
+                                    rows="4"
+                                />
+                            </div>
+                            <div className="customization-footer">
+                                <button className="cancel-btn" onClick={onClose}>Cancel</button>
+                                <button className="add-to-order-final-btn" onClick={handleSend}>
+                                    Send to Waiter
+                                </button>
+                            </div>
+                        </>
+                    )}
+                </div>
+            </div>
+        </div>
+    );
 }
 
 function CartModal({cart, onClose, onUpdateQty, onRemove, onPlaceOrder}) {
@@ -788,6 +853,7 @@ export default function App() {
 
     const [cart, setCart] = useState({});
     const [cartOpen, setCartOpen] = useState(false);
+    const [contactWaiterOpen, setContactWaiterOpen] = useState(false);
     const [confirmed, setConfirmed] = useState(false);
     const [customizingItem, setCustomizingItem] = useState(null);
 
@@ -1071,6 +1137,7 @@ export default function App() {
                 cartCount={cartCount}
                 onCartClick={() => setCartOpen(true)}
                 onCloseTable={handleCloseTable}
+                onContactWaiter={() => setContactWaiterOpen(true)}
             />
 
             <main className="main-content">
@@ -1148,5 +1215,12 @@ export default function App() {
             {paymentConfirmed && <PaymentConfirmation/>}
 
             {orderCancelled && <CancelledOrderModal/>}
+
+            {contactWaiterOpen && (
+            <ContactWaiterModal
+                tableId={table_id}
+                onClose={() => setContactWaiterOpen(false)}
+                />
+            )}
         </div>);
 }
