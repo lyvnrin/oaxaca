@@ -45,5 +45,5 @@ if __name__ == "__main__":
     BASE = os.path.dirname(__file__)
     load_menu_from_csv(
         csv_path=os.path.join(BASE, "menu-items.csv"),
-        db_path=os.path.join(BASE, "oaxaca-real.db"),
+        db_path=os.path.join(BASE, "oaxaca.db"),
     )

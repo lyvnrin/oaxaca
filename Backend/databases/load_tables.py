@@ -35,5 +35,5 @@ if __name__ == "__main__":
     BASE = os.path.dirname(__file__)
     load_tables_from_csv(
         csv_path=os.path.abspath(os.path.join(BASE, "tables.csv")),
-        db_path=os.path.abspath(os.path.join(BASE, "oaxaca-real.db")),
+        db_path=os.path.abspath(os.path.join(BASE, "oaxaca.db")),
     )

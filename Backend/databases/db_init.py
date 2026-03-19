@@ -1,5 +1,5 @@
 import sqlite3
-conn = sqlite3.connect('oaxaca-real.db')
+conn = sqlite3.connect('oaxaca.db')
 
 conn.execute('DROP TABLE IF EXISTS order_item')
 conn.execute('DROP TABLE IF EXISTS orders')

@@ -13,7 +13,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-DB_FILE = os.path.join(os.path.dirname(__file__), "oaxaca-real.db")
+DB_FILE = os.path.join(os.path.dirname(__file__), "oaxaca.db")
 
 # DATABASE CONNECTION --------------------------
 
