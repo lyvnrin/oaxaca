@@ -103,28 +103,33 @@ function NotificationsPanel({ notifications, setNotifications }) {
 
 // ACCOUNT PANEL --------------------------
 function AccountPanel({ addToast, staffInfo }) {
-    const initials = staffInfo?.name ? staffInfo.name.slice(0, 2).toUpperCase() : "??";
-    const displayName = staffInfo?.name ?? "Unknown";
-    const role = staffInfo?.role ?? "Kitchen Staff";
+  const initials = staffInfo?.name ? staffInfo.name.slice(0, 2).toUpperCase() : "??";
+  const displayName = staffInfo?.name ?? "Unknown";
+  const role = staffInfo?.role ?? "Kitchen Staff";
 
-    return (
-        <div style={{ position: "absolute", top: "calc(100% + 10px)", right: 0, width: 240, background: C.panel, border: `1.5px solid ${C.border}`, borderRadius: 10, boxShadow: "0 8px 32px rgba(0,0,0,.2)", zIndex: 900, animation: "dropIn .15s ease" }}>
-            <div style={{ padding: "14px 16px", display: "flex", alignItems: "center", gap: 12, borderBottom: `1px solid ${C.border}` }}>
-                <div style={{ width: 42, height: 42, borderRadius: "50%", background: C.green, display: "grid", placeItems: "center", color: "white", fontSize: 13, fontWeight: 700, flexShrink: 0 }}>{initials}</div>
-                <div>
-                    <div style={{ fontSize: 13, fontWeight: 600, color: C.text }}>{displayName}</div>
-                    <div style={{ fontSize: 11, color: C.muted }}>{displayName.toLowerCase()}@oaxaca.com</div>
-                    <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: ".08em", textTransform: "uppercase", color: C.mid, marginTop: 2 }}>{role}</div>
-                </div>
-            </div>
-            <div onClick={() => { window.location.href = "/"; }}
-                style={{ padding: "13px 16px", display: "flex", alignItems: "center", gap: 10, cursor: "pointer", transition: "background .15s", borderRadius: "0 0 10px 10px" }}
-                onMouseEnter={e => e.currentTarget.style.background = C.redL}
-                onMouseLeave={e => e.currentTarget.style.background = "transparent"}>
-                <IconDoor /><span style={{ fontSize: 13, fontWeight: 600, color: C.red }}>Sign Out</span>
-            </div>
+  return (
+    <div style={{ position: "absolute", top: "calc(100% + 10px)", right: 0, width: 240, background: C.panel, border: `1.5px solid ${C.border}`, borderRadius: 10, boxShadow: "0 8px 32px rgba(0,0,0,.2)", zIndex: 900, animation: "dropIn .15s ease" }}>
+      <div style={{ padding: "14px 16px", display: "flex", alignItems: "center", gap: 12, borderBottom: `1px solid ${C.border}` }}>
+        <div style={{ width: 42, height: 42, borderRadius: "50%", background: C.green, display: "grid", placeItems: "center", color: "white", fontSize: 13, fontWeight: 700, flexShrink: 0 }}>{initials}</div>
+        <div>
+          <div style={{ fontSize: 13, fontWeight: 600, color: C.text }}>{displayName}</div>
+          <div style={{ fontSize: 11, color: C.muted }}>{staffInfo?.username ?? displayName.toLowerCase()}@oaxaca.com</div>
+          <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: ".08em", textTransform: "uppercase", color: C.mid, marginTop: 2 }}>{role}</div>
         </div>
-    );
+      </div>
+      <div onClick={async () => {
+        if (staffInfo?.staff_id) {
+          await fetch(`http://127.0.0.1:8000/auth/logout/${staffInfo.staff_id}`, { method: 'POST' }).catch(() => { });
+        }
+        window.location.href = "/";
+      }}
+        style={{ padding: "13px 16px", display: "flex", alignItems: "center", gap: 10, cursor: "pointer", transition: "background .15s", borderRadius: "0 0 10px 10px" }}
+        onMouseEnter={e => e.currentTarget.style.background = C.redL}
+        onMouseLeave={e => e.currentTarget.style.background = "transparent"}>
+        <IconDoor /><span style={{ fontSize: 13, fontWeight: 600, color: C.red }}>Sign Out</span>
+      </div>
+    </div>
+  );
 }
 
 // ORDER CARD --------------------------
@@ -142,20 +147,20 @@ function OrderCard({ order, btnLabel, btnColor, onAction }) {
           <IconClock />{getElapsed(order.startedAt)}
         </span>
       </div>
-  {order.items.map((it, i) => (
-    <div key={i} style={{ padding: "6px 0", borderBottom: `1px solid ${C.pale}`, fontSize: 12 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+      {order.items.map((it, i) => (
+        <div key={i} style={{ padding: "6px 0", borderBottom: `1px solid ${C.pale}`, fontSize: 12 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
             <span style={{ color: C.text }}>{it.name}</span>
             <span style={{ fontWeight: 600, color: C.muted, fontSize: 11 }}>×{it.qty}</span>
-        </div>
-        {it.note && (
+          </div>
+          {it.note && (
             <p style={{ marginTop: 4, fontSize: 11, color: C.amber, fontStyle: "italic" }}>
-                {it.note}
+              {it.note}
             </p>
-        )}
-    </div>
-  ))}
-      
+          )}
+        </div>
+      ))}
+
       {btnLabel && (
         <button onClick={() => onAction(order.id)}
           style={{ marginTop: 10, width: "100%", padding: "8px 12px", border: "none", borderRadius: 6, background: btnColor, color: "white", fontFamily: "Jost, sans-serif", fontSize: 11, fontWeight: 600, letterSpacing: ".08em", textTransform: "uppercase", cursor: "pointer", transition: "opacity .15s" }}
@@ -246,39 +251,39 @@ export default function App() {
 
   useEffect(() => {
     const fetchOrders = async () => {
-        const res = await fetch('http://127.0.0.1:8000/orders');
-        const data = await res.json();
+      const res = await fetch('http://127.0.0.1:8000/orders');
+      const data = await res.json();
 
-        const mapItems = (o) => o.items.map(i => {
-            const mods = JSON.parse(
-                localStorage.getItem(`oaxaca_customisations_${o.order_id}`) || '{}'
-            );
-            return {
-                name: i.item_name,
-                qty: i.quantity,
-                price: i.price,
-                note: mods[i.item_name] || null,
-            };
-        });
+      const mapItems = (o) => o.items.map(i => {
+        const mods = JSON.parse(
+          localStorage.getItem(`oaxaca_customisations_${o.order_id}`) || '{}'
+        );
+        return {
+          name: i.item_name,
+          qty: i.quantity,
+          price: i.price,
+          note: mods[i.item_name] || null,
+        };
+      });
 
-        setPending(data.filter(o => o.status === "Pending").map(o => ({
-            id: String(o.order_id),
-            table: `Table ${o.table_id}`,
-            startedAt: Date.now(),
-            items: mapItems(o),
-        })));
-        setPreparing(data.filter(o => o.status === "In Progress").map(o => ({
-            id: String(o.order_id),
-            table: `Table ${o.table_id}`,
-            startedAt: Date.now(),
-            items: mapItems(o),
-        })));
-        setReady(data.filter(o => o.status === "Ready").map(o => ({
-            id: String(o.order_id),
-            table: `Table ${o.table_id}`,
-            startedAt: Date.now(),
-            items: mapItems(o),
-        })));
+      setPending(data.filter(o => o.status === "Pending").map(o => ({
+        id: String(o.order_id),
+        table: `Table ${o.table_id}`,
+        startedAt: Date.now(),
+        items: mapItems(o),
+      })));
+      setPreparing(data.filter(o => o.status === "In Progress").map(o => ({
+        id: String(o.order_id),
+        table: `Table ${o.table_id}`,
+        startedAt: Date.now(),
+        items: mapItems(o),
+      })));
+      setReady(data.filter(o => o.status === "Ready").map(o => ({
+        id: String(o.order_id),
+        table: `Table ${o.table_id}`,
+        startedAt: Date.now(),
+        items: mapItems(o),
+      })));
     };
     fetchOrders();
     const poll = setInterval(fetchOrders, 10000);
@@ -349,12 +354,19 @@ export default function App() {
   const [staffInfo, setStaffInfo] = useState(null);
 
   useEffect(() => {
-      const staffId = location.state?.staff_id;
-      if (!staffId) return;
-      fetch(`http://127.0.0.1:8000/staff/${staffId}`)
-          .then(r => r.json())
-          .then(data => setStaffInfo(data))
-          .catch(() => {});
+    const staffId = location.state?.staff_id;
+    if (!staffId) return;
+    fetch(`http://127.0.0.1:8000/staff/${staffId}`)
+      .then(r => r.json())
+      .then(data => {
+        const raw = data.name ?? "";
+        const formatted = raw
+          .replace(/([A-Z])/g, ' $1')
+          .trim()
+          .replace(/^./, c => c.toUpperCase());
+        setStaffInfo({ ...data, name: formatted, username: data.name });
+      })
+      .catch(() => { });
   }, []);
 
   return (

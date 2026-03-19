@@ -183,11 +183,16 @@ function AccountPanel({ staffInfo }) {
                 <div style={{ width: 42, height: 42, borderRadius: "50%", background: C.warm, display: "grid", placeItems: "center", color: "white", fontSize: 13, fontWeight: 700, flexShrink: 0 }}>{initials}</div>
                 <div>
                     <div style={{ fontSize: 13, fontWeight: 600, color: C.text }}>{displayName}</div>
-                    <div style={{ fontSize: 11, color: C.muted }}>{displayName.toLowerCase()}@oaxaca.com</div>
+                    <div style={{ fontSize: 11, color: C.muted }}>{staffInfo?.username ?? displayName.toLowerCase()}@oaxaca.com</div>
                     <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: ".08em", textTransform: "uppercase", color: C.mid, marginTop: 2 }}>{role}</div>
                 </div>
             </div>
-            <div onClick={() => navigate('/')}
+            <div onClick={async () => {
+                if (staffInfo?.staff_id) {
+                    await fetch(`http://127.0.0.1:8000/auth/logout/${staffInfo.staff_id}`, { method: 'POST' }).catch(() => { });
+                }
+                navigate('/');
+            }}
                 style={{ padding: "13px 16px", display: "flex", alignItems: "center", gap: 10, cursor: "pointer", transition: "background .15s", borderRadius: "0 0 10px 10px" }}
                 onMouseEnter={e => e.currentTarget.style.background = C.redL}
                 onMouseLeave={e => e.currentTarget.style.background = "transparent"}>
@@ -450,26 +455,35 @@ function MenuTab({ menu, setMenu, addToast, stock }) {
 
 function EmployeesTab({ employees }) {
     const roleStyle = {
-        "Waiter": { bg: C.pale, color: C.mid },
-        "Kitchen": { bg: C.amberL, color: C.amber },
-        "Manager": { bg: C.greenL, color: C.green },
+        "Waiter": { bg: "#cce3f5", color: "#2e6da4" },
+        "Kitchen": { bg: "#ede9f6", color: "#6b3fa0" },
+        "Manager": { bg: "#dde3ee", color: "#3d4f6b" },
     };
 
     const waiters = employees.filter(e => e.role === "Waiter");
     const kitchen = employees.filter(e => e.role === "Kitchen");
     const managers = employees.filter(e => e.role === "Manager");
 
-    const summaryCards = [
-        { label: "Total Sales", val: `£${employees.reduce((a, e) => a + e.sales, 0)}` },
-        { label: "Orders Handled", val: employees.reduce((a, e) => a + e.orders, 0) },
-    ];
+    const totalSales = waiters.reduce((a, e) => a + (e.sales || 0), 0);
+    const totalOrders = waiters.reduce((a, e) => a + (e.orders || 0), 0);
 
-    const EmployeeTable = ({ rows }) => (
-        <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
+    const ShiftBadge = ({ onShift }) => (
+        <span style={{
+            fontSize: 9, fontWeight: 700, padding: "2px 8px", borderRadius: 10,
+            letterSpacing: ".06em", textTransform: "uppercase",
+            background: onShift ? C.greenL : C.redL,
+            color: onShift ? C.green : C.red,
+        }}>
+            {onShift ? "On Shift" : "Off Shift"}
+        </span>
+    );
+
+    const WaiterTable = ({ rows }) => (
+        <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12, tableLayout: "fixed" }}>
             <thead>
                 <tr>
-                    {["Employee", "Role", "Orders", "Sales Today"].map((h, i) => (
-                        <th key={i} style={{ textAlign: "left", fontSize: 9, letterSpacing: ".12em", textTransform: "uppercase", color: C.muted, fontWeight: 600, padding: "0 10px 10px", borderBottom: `1px solid ${C.border}`, width: "25%" }}>{h}</th>
+                    {[["Employee", "30%"], ["Role", "20%"], ["Status", "20%"], ["Orders", "15%"], ["Sales", "15%"]].map(([h, w], i) => (
+                        <th key={i} style={{ textAlign: "left", fontSize: 9, letterSpacing: ".12em", textTransform: "uppercase", color: C.muted, fontWeight: 600, padding: "0 10px 10px", borderBottom: `1px solid ${C.border}`, width: w }}>{h}</th>
                     ))}
                 </tr>
             </thead>
@@ -480,19 +494,59 @@ function EmployeesTab({ employees }) {
                         <tr key={e.id}
                             onMouseEnter={ev => ev.currentTarget.style.background = C.pale}
                             onMouseLeave={ev => ev.currentTarget.style.background = ""}>
-                            <td style={{ padding: "10px", borderBottom: `1px solid ${C.pale}`, width: "25%" }}>
+                            <td style={{ padding: "10px", borderBottom: `1px solid ${C.pale}` }}>
                                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                                     <div style={{ width: 28, height: 28, borderRadius: "50%", background: C.light, display: "grid", placeItems: "center", fontSize: 10, fontWeight: 700, color: C.mid, flexShrink: 0 }}>{e.initials}</div>
                                     <span style={{ fontWeight: 500 }}>{e.name}</span>
                                 </div>
                             </td>
-                            <td style={{ padding: "10px", borderBottom: `1px solid ${C.pale}`, width: "25%" }}>
+                            <td style={{ padding: "10px", borderBottom: `1px solid ${C.pale}` }}>
                                 <span style={{ fontSize: 10, padding: "2px 8px", borderRadius: 10, fontWeight: 600, background: rs.bg, color: rs.color }}>{e.role}</span>
                             </td>
-                            <td style={{ padding: "10px", borderBottom: `1px solid ${C.pale}`, width: "25%", color: C.text }}>{e.orders || "—"}</td>
-                            <td style={{ padding: "10px", borderBottom: `1px solid ${C.pale}`, width: "25%", fontFamily: "Cormorant Garamond, serif", fontSize: 15, fontWeight: 700, color: C.mid }}>
-                                {e.sales > 0 ? `£${e.sales}` : "—"}
+                            <td style={{ padding: "10px", borderBottom: `1px solid ${C.pale}` }}>
+                                <ShiftBadge onShift={e.onShift} />
                             </td>
+                            <td style={{ padding: "10px", borderBottom: `1px solid ${C.pale}`, color: C.text }}>{e.orders || "—"}</td>
+                            <td style={{ padding: "10px", borderBottom: `1px solid ${C.pale}`, fontFamily: "Cormorant Garamond, serif", fontSize: 15, fontWeight: 700, color: C.mid }}>
+                                {e.sales > 0 ? `£${e.sales.toFixed(2)}` : "—"}
+                            </td>
+                        </tr>
+                    );
+                })}
+            </tbody>
+        </table>
+    );
+
+    const BasicTable = ({ rows }) => (
+        <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12, tableLayout: "fixed" }}>
+            <thead>
+                <tr>
+                    {[["Employee", "30%"], ["Role", "20%"], ["Status", "20%"], ["", "15%"], ["", "15%"]].map(([h, w], i) => (
+                        <th key={i} style={{ textAlign: "left", fontSize: 9, letterSpacing: ".12em", textTransform: "uppercase", color: C.muted, fontWeight: 600, padding: "0 10px 10px", borderBottom: `1px solid ${C.border}`, width: w }}>{h}</th>
+                    ))}
+                </tr>
+            </thead>
+            <tbody>
+                {rows.map(e => {
+                    const rs = roleStyle[e.role] || roleStyle["Waiter"];
+                    return (
+                        <tr key={e.id}
+                            onMouseEnter={ev => ev.currentTarget.style.background = C.pale}
+                            onMouseLeave={ev => ev.currentTarget.style.background = ""}>
+                            <td style={{ padding: "10px", borderBottom: `1px solid ${C.pale}` }}>
+                                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                                    <div style={{ width: 28, height: 28, borderRadius: "50%", background: C.light, display: "grid", placeItems: "center", fontSize: 10, fontWeight: 700, color: C.mid, flexShrink: 0 }}>{e.initials}</div>
+                                    <span style={{ fontWeight: 500 }}>{e.name}</span>
+                                </div>
+                            </td>
+                            <td style={{ padding: "10px", borderBottom: `1px solid ${C.pale}` }}>
+                                <span style={{ fontSize: 10, padding: "2px 8px", borderRadius: 10, fontWeight: 600, background: rs.bg, color: rs.color }}>{e.role}</span>
+                            </td>
+                            <td style={{ padding: "10px", borderBottom: `1px solid ${C.pale}` }}>
+                                <ShiftBadge onShift={e.onShift} />
+                            </td>
+                            <td style={{ padding: "10px", borderBottom: `1px solid ${C.pale}` }}></td>
+                            <td style={{ padding: "10px", borderBottom: `1px solid ${C.pale}` }}></td>
                         </tr>
                     );
                 })}
@@ -502,26 +556,29 @@ function EmployeesTab({ employees }) {
 
     return (
         <div style={{ gridColumn: "1/-1", background: C.panel, border: `1.5px solid ${C.border}`, borderRadius: 8, padding: 18, display: "flex", flexDirection: "column", gap: 14 }}>
-            <span style={{ fontFamily: "Cormorant Garamond, serif", fontSize: 20, fontWeight: 700, color: C.dark }}>Employee Performance</span>
+            <span style={{ fontFamily: "Cormorant Garamond, serif", fontSize: 20, fontWeight: 700, color: C.dark }}>Employee Overview</span>
             <div style={{ height: 1, background: C.border }} />
 
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 20 }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
                 <div>
-                    <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: ".1em", textTransform: "uppercase", color: C.mid, marginBottom: 10 }}>Waiters</div>
-                    <EmployeeTable rows={waiters} />
+                    <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: ".1em", textTransform: "uppercase", color: "#2e6da4", marginBottom: 10 }}>Waiters</div>
+                    <WaiterTable rows={waiters} />
                 </div>
                 <div>
-                    <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: ".1em", textTransform: "uppercase", color: C.amber, marginBottom: 10 }}>Kitchen</div>
-                    <EmployeeTable rows={kitchen} />
+                    <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: ".1em", textTransform: "uppercase", color: "#6b3fa0", marginBottom: 10 }}>Kitchen</div>
+                    <BasicTable rows={kitchen} />
                 </div>
                 <div>
-                    <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: ".1em", textTransform: "uppercase", color: C.green, marginBottom: 10 }}>Managers</div>
-                    <EmployeeTable rows={managers} />
+                    <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: ".1em", textTransform: "uppercase", color: "#3d4f6b", marginBottom: 10 }}>Managers</div>
+                    <BasicTable rows={managers} />
                 </div>
             </div>
 
             <div style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: 12 }}>
-                {summaryCards.map((s, i) => (
+                {[
+                    { label: "Total Sales", val: `£${totalSales.toFixed(2)}` },
+                    { label: "Orders Handled", val: totalOrders },
+                ].map((s, i) => (
                     <div key={i} style={{ background: C.pale, borderRadius: 6, padding: "12px 14px", textAlign: "center" }}>
                         <div style={{ fontFamily: "Cormorant Garamond, serif", fontSize: 26, fontWeight: 700, color: C.dark }}>{s.val}</div>
                         <div style={{ fontSize: 10, letterSpacing: ".1em", textTransform: "uppercase", color: C.muted, fontWeight: 600, marginTop: 2 }}>{s.label}</div>
@@ -776,22 +833,26 @@ export default function ManagerDashboard() {
     const [employees, setEmployees] = useState([]);
     const [staffInfo, setStaffInfo] = useState(null);
     const location = useLocation();
-    
+
 
     useEffect(() => {
-        fetch('http://127.0.0.1:8000/staff')
-            .then(r => r.json())
-            .then(data => setEmployees(data.map(s => ({
-                id: s.staff_id,
-                initials: s.name.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase(),
-                name: s.name,
-                role: s.role === "Kitchen Staff" ? "Kitchen" : s.role === "Manager" ? "Manager" : "Waiter",
-                tables: 0,
-                orders: 0,
-                sales: 0,
-                status: "Active",
-            }))))
-            .catch(() => { });
+        const fetchEmployees = () => {
+            fetch('http://127.0.0.1:8000/staff')
+                .then(r => r.json())
+                .then(data => setEmployees(data.map(s => ({
+                    id: s.staff_id,
+                    initials: s.name.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase(),
+                    name: s.name.replace(/([A-Z])/g, ' $1').trim().replace(/^./, c => c.toUpperCase()),
+                    role: s.role === "Kitchen Staff" ? "Kitchen" : s.role === "Manager" ? "Manager" : "Waiter",
+                    onShift: s.on_shift === 1,
+                    orders: s.orders_handled,
+                    sales: s.total_sales,
+                }))))
+                .catch(() => { });
+        };
+        fetchEmployees();
+        const poll = setInterval(fetchEmployees, 3000);
+        return () => clearInterval(poll);
     }, []);
     const [stock, setStock] = useState(INIT_STOCK);
 
@@ -800,8 +861,15 @@ export default function ManagerDashboard() {
         if (!staffId) return;
         fetch(`http://127.0.0.1:8000/staff/${staffId}`)
             .then(r => r.json())
-            .then(data => setStaffInfo(data))
-            .catch(() => {});
+            .then(data => {
+                const raw = data.name ?? "";
+                const formatted = raw
+                    .replace(/([A-Z])/g, ' $1')
+                    .trim()
+                    .replace(/^./, c => c.toUpperCase());
+                setStaffInfo({ ...data, name: formatted, username: data.name });
+            })
+            .catch(() => { });
     }, [location]);
 
     const prevStockRef = useRef({});

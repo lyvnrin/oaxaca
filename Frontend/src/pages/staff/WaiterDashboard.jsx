@@ -185,11 +185,16 @@ function AccountPanel({ addToast, staffInfo }) {
                 </div>
                 <div>
                     <div style={{ fontSize: 13, fontWeight: 600, color: C.text }}>{displayName}</div>
-                    <div style={{ fontSize: 11, color: C.muted }}>{displayName.toLowerCase()}@oaxaca.com</div>
+                    <div style={{ fontSize: 11, color: C.muted }}>{staffInfo?.username ?? displayName.toLowerCase()}@oaxaca.com</div>
                     <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: ".08em", textTransform: "uppercase", color: C.mid, marginTop: 2 }}>{role}</div>
                 </div>
             </div>
-            <div onClick={() => { window.location.href = "/"; }}
+            <div onClick={async () => {
+                if (staffInfo?.staff_id) {
+                    await fetch(`http://127.0.0.1:8000/auth/logout/${staffInfo.staff_id}`, { method: 'POST' }).catch(() => { });
+                }
+                window.location.href = "/";
+            }}
                 style={{ padding: "13px 16px", display: "flex", alignItems: "center", gap: 10, cursor: "pointer", transition: "background .15s", borderRadius: "0 0 10px 10px" }}
                 onMouseEnter={e => e.currentTarget.style.background = C.redL}
                 onMouseLeave={e => e.currentTarget.style.background = "transparent"}>
@@ -416,7 +421,7 @@ function OrderCard({ order, onConfirm, onCancel, onDeliver, onAddItems, onStatus
     );
 }
 
-function OrdersTab({ orders, setOrders, menu, addToast }) {
+function OrdersTab({ orders, setOrders, menu, addToast, staffId }) {
     const [addItemsOrder, setAddItemsOrder] = useState(null);
 
     const confirmOrder = async (id) => {
@@ -434,7 +439,7 @@ function OrdersTab({ orders, setOrders, menu, addToast }) {
         await fetch(`http://127.0.0.1:8000/orders/${id}`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ status: "Completed" }),
+            body: JSON.stringify({ status: "Completed", waiter_id: staffId }),
         });
         addToast("Order marked as delivered");
     };
@@ -1002,15 +1007,24 @@ export default function App() {
 
     // ACCOUNT LOGIN VALIDATION
     const [staffInfo, setStaffInfo] = useState(null);
+    console.log('location.state:', location.state);
 
     useEffect(() => {
         const staffId = location.state?.staff_id;
         if (!staffId) return;
         fetch(`http://127.0.0.1:8000/staff/${staffId}`)
             .then(r => r.json())
-            .then(data => setStaffInfo(data))
-            .catch(() => {});
+            .then(data => {
+                const raw = data.name ?? "";
+                const formatted = raw
+                    .replace(/([A-Z])/g, ' $1')
+                    .trim()
+                    .replace(/^./, c => c.toUpperCase());
+                setStaffInfo({ ...data, name: formatted, username: data.name });
+            })
+            .catch(() => { });
     }, []);
+
     return (
         <div style={{ fontFamily: "Jost, sans-serif", background: C.bg, color: C.text, minHeight: "100vh" }}>
             <style>{`@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Jost:wght@300;400;500;600&display=swap');
@@ -1075,7 +1089,7 @@ export default function App() {
             </div>
 
             {/* TAB CONTENT */}
-            {tab === "Orders" && <OrdersTab orders={orders} setOrders={setOrders} menu={menu} addToast={addToast} />}
+            {tab === "Orders" && <OrdersTab orders={orders} setOrders={setOrders} menu={menu} addToast={addToast} staffId={staffInfo?.staff_id} />}
             {tab === "Tables" && <TablesTab unpaidTables={unpaidTables} addToast={addToast} raiseAlert={raiseAlert} onMarkPaid={markAsPaid} />}
             {tab === "Menu" && <MenuTab menu={menu} setMenu={setMenu} addToast={addToast} lowStockDishes={lowStockDishes} />}
 

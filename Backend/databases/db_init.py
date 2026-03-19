@@ -31,10 +31,13 @@ conn.execute('''CREATE TABLE menu_items (
 )''')
 
 conn.execute('''CREATE TABLE staff (
-    staff_id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name     VARCHAR(100) NOT NULL,
-    password VARCHAR(255) NOT NULL,
-    role     VARCHAR(50) NOT NULL CHECK(role IN ('Waiter', 'Kitchen Staff', 'Manager'))
+    staff_id       INTEGER PRIMARY KEY AUTOINCREMENT,
+    name           VARCHAR(100) NOT NULL,
+    password       VARCHAR(255) NOT NULL,
+    role           VARCHAR(50) NOT NULL CHECK(role IN ('Waiter', 'Kitchen Staff', 'Manager')),
+    on_shift       INTEGER NOT NULL DEFAULT 0,
+    orders_handled INTEGER NOT NULL DEFAULT 0,
+    total_sales    REAL NOT NULL DEFAULT 0
 )''')
 
 conn.execute('''CREATE TABLE orders (
@@ -44,6 +47,7 @@ conn.execute('''CREATE TABLE orders (
     total_cost DECIMAL(10,2),
     status     TEXT DEFAULT 'Pending',
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    waiter_id  INTEGER,
     FOREIGN KEY (cust_id) REFERENCES customers(cust_id),
     FOREIGN KEY (table_id) REFERENCES tables(table_id)
 )''')
