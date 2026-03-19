@@ -60,6 +60,7 @@ function ManagerLogin() {
         }
 
         const data = await res.json();
+        console.log("login response:", data); 
         navigate('/manager-dashboard', { state: { role: 'manager', staff_id: data.staff_id } });
 
         } catch (err) {

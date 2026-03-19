@@ -49,25 +49,29 @@ const IconDoor = () => (
 );
 
 // ACCOUNT PANEL --------------------------
-function AccountPanel({ addToast }) {
-  return (
-    <div style={{ position: "absolute", top: "calc(100% + 10px)", right: 0, width: 240, background: C.panel, border: `1.5px solid ${C.border}`, borderRadius: 10, boxShadow: "0 8px 32px rgba(0,0,0,.2)", zIndex: 900, animation: "dropIn .15s ease" }}>
-      <div style={{ padding: "14px 16px", display: "flex", alignItems: "center", gap: 12, borderBottom: `1px solid ${C.border}` }}>
-        <div style={{ width: 42, height: 42, borderRadius: "50%", background: C.green, display: "grid", placeItems: "center", color: "white", fontSize: 13, fontWeight: 700, flexShrink: 0 }}>AK</div>
-        <div>
-          <div style={{ fontSize: 13, fontWeight: 600, color: C.text }}>Aisha K.</div>
-          <div style={{ fontSize: 11, color: C.muted }}>aisha.k@oaxaca.com</div>
-          <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: ".08em", textTransform: "uppercase", color: C.mid, marginTop: 2 }}>Head Chef</div>
+function AccountPanel({ addToast, staffInfo }) {
+    const initials = staffInfo?.name ? staffInfo.name.slice(0, 2).toUpperCase() : "??";
+    const displayName = staffInfo?.name ?? "Unknown";
+    const role = staffInfo?.role ?? "Kitchen Staff";
+
+    return (
+        <div style={{ position: "absolute", top: "calc(100% + 10px)", right: 0, width: 240, background: C.panel, border: `1.5px solid ${C.border}`, borderRadius: 10, boxShadow: "0 8px 32px rgba(0,0,0,.2)", zIndex: 900, animation: "dropIn .15s ease" }}>
+            <div style={{ padding: "14px 16px", display: "flex", alignItems: "center", gap: 12, borderBottom: `1px solid ${C.border}` }}>
+                <div style={{ width: 42, height: 42, borderRadius: "50%", background: C.green, display: "grid", placeItems: "center", color: "white", fontSize: 13, fontWeight: 700, flexShrink: 0 }}>{initials}</div>
+                <div>
+                    <div style={{ fontSize: 13, fontWeight: 600, color: C.text }}>{displayName}</div>
+                    <div style={{ fontSize: 11, color: C.muted }}>{displayName.toLowerCase()}@oaxaca.com</div>
+                    <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: ".08em", textTransform: "uppercase", color: C.mid, marginTop: 2 }}>{role}</div>
+                </div>
+            </div>
+            <div onClick={() => { window.location.href = "/"; }}
+                style={{ padding: "13px 16px", display: "flex", alignItems: "center", gap: 10, cursor: "pointer", transition: "background .15s", borderRadius: "0 0 10px 10px" }}
+                onMouseEnter={e => e.currentTarget.style.background = C.redL}
+                onMouseLeave={e => e.currentTarget.style.background = "transparent"}>
+                <IconDoor /><span style={{ fontSize: 13, fontWeight: 600, color: C.red }}>Sign Out</span>
+            </div>
         </div>
-      </div>
-      <div onClick={() => { window.location.href = "/"; }}
-        style={{ padding: "13px 16px", display: "flex", alignItems: "center", gap: 10, cursor: "pointer", transition: "background .15s", borderRadius: "0 0 10px 10px" }}
-        onMouseEnter={e => e.currentTarget.style.background = C.redL}
-        onMouseLeave={e => e.currentTarget.style.background = "transparent"}>
-        <IconDoor /><span style={{ fontSize: 13, fontWeight: 600, color: C.red }}>Sign Out</span>
-      </div>
-    </div>
-  );
+    );
 }
 
 // ORDER CARD --------------------------
@@ -227,6 +231,18 @@ export default function App() {
     { title: "Ready for Service", accent: C.green, orders: ready, btnLabel: null, btnColor: null, onAction: null, empty: "Nothing ready yet" },
   ];
 
+  // LOGIN VALIDATION
+  const [staffInfo, setStaffInfo] = useState(null);
+
+  useEffect(() => {
+      const staffId = location.state?.staff_id;
+      if (!staffId) return;
+      fetch(`http://127.0.0.1:8000/staff/${staffId}`)
+          .then(r => r.json())
+          .then(data => setStaffInfo(data))
+          .catch(() => {});
+  }, []);
+
   return (
     <div style={{ fontFamily: "Jost, sans-serif", background: C.bg, color: C.text, height: "100vh", display: "flex", flexDirection: "column", overflow: "hidden" }}>
       <style>{`
@@ -246,9 +262,9 @@ export default function App() {
           <div ref={accountRef} style={{ position: "relative" }}>
             <div onClick={() => setShowAccount(v => !v)}
               style={{ width: 36, height: 36, borderRadius: "50%", background: showAccount ? C.mid : C.green, display: "grid", placeItems: "center", cursor: "pointer", color: "white", fontSize: 11, fontWeight: 700, border: `2px solid ${showAccount ? C.light : "transparent"}`, transition: "all .15s", userSelect: "none" }}>
-              AK
+              {staffInfo?.name ? staffInfo.name.slice(0, 2).toUpperCase() : "??"}
             </div>
-            {showAccount && <AccountPanel addToast={addToast} />}
+            {showAccount && <AccountPanel addToast={addToast} staffInfo={staffInfo} />}
           </div>
         </div>
       </nav>

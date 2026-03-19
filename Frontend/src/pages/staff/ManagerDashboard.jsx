@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const C = {
     bg: "#f5f0e8", panel: "#faf7f2", dark: "#2D2218", mid: "#8b4513",
@@ -171,16 +171,20 @@ function NotificationsPanel({ notifications, setNotifications }) {
     );
 }
 
-function AccountPanel() {
+function AccountPanel({ staffInfo }) {
     const navigate = useNavigate();
+    const initials = staffInfo?.name ? staffInfo.name.slice(0, 2).toUpperCase() : "??";
+    const displayName = staffInfo?.name ?? "Unknown";
+    const role = staffInfo?.role ?? "Manager";
+
     return (
         <div style={{ position: "absolute", top: "calc(100% + 10px)", right: 0, width: 250, background: C.panel, border: `1.5px solid ${C.border}`, borderRadius: 10, boxShadow: "0 8px 32px rgba(0,0,0,.2)", zIndex: 800, animation: "dropIn .15s ease" }}>
             <div style={{ padding: "14px 16px", display: "flex", alignItems: "center", gap: 12, borderBottom: `1px solid ${C.border}` }}>
-                <div style={{ width: 42, height: 42, borderRadius: "50%", background: C.warm, display: "grid", placeItems: "center", color: "white", fontSize: 13, fontWeight: 700, flexShrink: 0 }}>MG</div>
+                <div style={{ width: 42, height: 42, borderRadius: "50%", background: C.warm, display: "grid", placeItems: "center", color: "white", fontSize: 13, fontWeight: 700, flexShrink: 0 }}>{initials}</div>
                 <div>
-                    <div style={{ fontSize: 13, fontWeight: 600, color: C.text }}>Maria G.</div>
-                    <div style={{ fontSize: 11, color: C.muted }}>maria.g@oaxaca.com</div>
-                    <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: ".08em", textTransform: "uppercase", color: C.mid, marginTop: 2 }}>Manager</div>
+                    <div style={{ fontSize: 13, fontWeight: 600, color: C.text }}>{displayName}</div>
+                    <div style={{ fontSize: 11, color: C.muted }}>{displayName.toLowerCase()}@oaxaca.com</div>
+                    <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: ".08em", textTransform: "uppercase", color: C.mid, marginTop: 2 }}>{role}</div>
                 </div>
             </div>
             <div onClick={() => navigate('/')}
@@ -742,6 +746,9 @@ export default function ManagerDashboard() {
     const [tables, setTables] = useState(INIT_TABLES);
     const [menu, setMenu] = useState(INIT_MENU);
     const [employees, setEmployees] = useState([]);
+    const [staffInfo, setStaffInfo] = useState(null);
+    const location = useLocation();
+    
 
     useEffect(() => {
         fetch('http://127.0.0.1:8000/staff')
@@ -759,6 +766,15 @@ export default function ManagerDashboard() {
             .catch(() => { });
     }, []);
     const [stock, setStock] = useState(INIT_STOCK);
+
+    useEffect(() => {
+        const staffId = location.state?.staff_id;
+        if (!staffId) return;
+        fetch(`http://127.0.0.1:8000/staff/${staffId}`)
+            .then(r => r.json())
+            .then(data => setStaffInfo(data))
+            .catch(() => {});
+    }, [location]);
 
     const prevStockRef = useRef({});
 
@@ -928,7 +944,6 @@ export default function ManagerDashboard() {
     }, []);
 
     const unread = notifications.filter(n => !n.read).length;
-
     return (
         <div style={{ fontFamily: "Jost, sans-serif", background: C.bg, color: C.text, minHeight: "100vh" }}>
             <style>{`
@@ -953,9 +968,9 @@ export default function ManagerDashboard() {
                     <div ref={accountRef} style={{ position: "relative" }}>
                         <div onClick={() => { setShowAccount(v => !v); setShowNotifs(false); }}
                             style={{ width: 36, height: 36, borderRadius: "50%", background: showAccount ? C.mid : C.warm, display: "grid", placeItems: "center", cursor: "pointer", color: "white", fontSize: 11, fontWeight: 700, border: `2px solid ${showAccount ? C.light : "transparent"}`, transition: "all .15s", userSelect: "none" }}>
-                            MG
+                            {staffInfo?.name ? staffInfo.name.slice(0, 2).toUpperCase() : "??"}
                         </div>
-                        {showAccount && <AccountPanel />}
+                        {showAccount && <AccountPanel staffInfo={staffInfo} />}
                     </div>
                 </div>
             </nav>

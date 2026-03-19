@@ -167,15 +167,23 @@ function NotificationsPanel({ notifications, setNotifications }) {
     );
 }
 
-function AccountPanel({ addToast }) {
+function AccountPanel({ addToast, staffInfo }) {
+    const initials = staffInfo?.name
+        ? staffInfo.name.slice(0, 2).toUpperCase()
+        : "??";
+    const displayName = staffInfo?.name ?? "Unknown";
+    const role = staffInfo?.role ?? "Staff";
+
     return (
         <Dropdown width={240}>
             <div style={{ padding: "14px 16px", display: "flex", alignItems: "center", gap: 12, borderBottom: `1px solid ${C.border}` }}>
-                <div style={{ width: 42, height: 42, borderRadius: "50%", background: C.mid, display: "grid", placeItems: "center", color: "white", fontSize: 13, fontWeight: 700, flexShrink: 0 }}>JD</div>
+                <div style={{ width: 42, height: 42, borderRadius: "50%", background: C.mid, display: "grid", placeItems: "center", color: "white", fontSize: 13, fontWeight: 700, flexShrink: 0 }}>
+                    {initials}
+                </div>
                 <div>
-                    <div style={{ fontSize: 13, fontWeight: 600, color: C.text }}>Jamie D.</div>
-                    <div style={{ fontSize: 11, color: C.muted }}>jamie.d@oaxaca.com</div>
-                    <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: ".08em", textTransform: "uppercase", color: C.mid, marginTop: 2 }}>Waiter</div>
+                    <div style={{ fontSize: 13, fontWeight: 600, color: C.text }}>{displayName}</div>
+                    <div style={{ fontSize: 11, color: C.muted }}>{displayName.toLowerCase()}@oaxaca.com</div>
+                    <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: ".08em", textTransform: "uppercase", color: C.mid, marginTop: 2 }}>{role}</div>
                 </div>
             </div>
             <div onClick={() => { window.location.href = "/"; }}
@@ -924,6 +932,18 @@ export default function App() {
             waiting: "—"
         }));
 
+
+    // ACCOUNT LOGIN VALIDATION
+    const [staffInfo, setStaffInfo] = useState(null);
+
+    useEffect(() => {
+        const staffId = location.state?.staff_id;
+        if (!staffId) return;
+        fetch(`http://127.0.0.1:8000/staff/${staffId}`)
+            .then(r => r.json())
+            .then(data => setStaffInfo(data))
+            .catch(() => {});
+    }, []);
     return (
         <div style={{ fontFamily: "Jost, sans-serif", background: C.bg, color: C.text, minHeight: "100vh" }}>
             <style>{`@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Jost:wght@300;400;500;600&display=swap');
@@ -948,9 +968,9 @@ export default function App() {
                     <div ref={accountRef} style={{ position: "relative" }}>
                         <div onClick={() => { setShowAccount(v => !v); setShowNotifs(false); }}
                             style={{ width: 36, height: 36, borderRadius: "50%", background: showAccount ? C.mid : C.green, display: "grid", placeItems: "center", cursor: "pointer", color: "white", fontSize: 11, fontWeight: 700, border: `2px solid ${showAccount ? C.light : "transparent"}`, transition: "all .15s", userSelect: "none" }}>
-                            JD
+                            {staffInfo?.name ? staffInfo.name.slice(0, 2).toUpperCase() : "??"}
                         </div>
-                        {showAccount && <AccountPanel addToast={addToast} />}
+                        {showAccount && <AccountPanel addToast={addToast} staffInfo={staffInfo} />}
                     </div>
                 </div>
             </nav>

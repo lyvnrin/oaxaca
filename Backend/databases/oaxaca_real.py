@@ -262,6 +262,16 @@ def login(payload: LoginIn):
         "role": row["role"],
     }
 
+@app.get("/staff/{staff_id}")
+def get_staff_member(staff_id: int):
+    conn = get_conn()
+    row = conn.execute(
+        "SELECT * FROM staff WHERE staff_id = ?", (staff_id,)
+    ).fetchone()
+    conn.close()
+    if not row:
+        raise HTTPException(status_code=404, detail="Staff member not found")
+    return dict(row)
 
 # STOCK --------------------------
 DISH_DEPLETIONS = {
