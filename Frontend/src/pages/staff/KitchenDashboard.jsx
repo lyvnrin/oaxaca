@@ -120,6 +120,21 @@ function OrderCard({ order, btnLabel, btnColor, onAction }) {
   );
 }
 
+// WAITER ALERTS
+function useWaiterAlerts(addToast) {
+    useEffect(() => {
+        const handler = (e) => {
+            if (e.key !== "oaxaca_waiter_alert" || !e.newValue) return;
+            try {
+                const incoming = JSON.parse(e.newValue);
+                addToast(`⚠︎ Table ${incoming.table} — ${incoming.raisedBy ?? "A waiter"} needs team assistance!`);
+            } catch (_) {}
+        };
+        window.addEventListener("storage", handler);
+        return () => window.removeEventListener("storage", handler);
+    }, [addToast]);
+}
+
 // APP ROOT --------------------------
 export default function App() {
   // AUTH GUARD --------------------------
@@ -185,6 +200,7 @@ export default function App() {
 
   // TOAST NOTIFS --------------------------
   const addToast = msg => { const id = Date.now(); setToasts(p => [...p, { id, msg }]); setTimeout(() => setToasts(p => p.filter(t => t.id !== id)), 1800); };
+  useWaiterAlerts(addToast);
 
   // ORDER ACTIONS --------------------------
   const confirmOrder = async (id) => {
