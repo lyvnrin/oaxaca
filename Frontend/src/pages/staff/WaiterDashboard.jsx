@@ -68,7 +68,7 @@ function useKitchenNotifications(setNotifications, addToast, onNewOrder) {
                     if (prev.some(n => n.id === incoming.id)) return prev;
                     return [incoming, ...prev];
                 });
-                addToast(`🍽 Table ${incoming.table} — Order #${incoming.order} is ready for collection!`);
+                addToast(`Table ${incoming.table} — Order #${incoming.order} is ready for collection!`);
                 onNewOrder();
             } catch (_) { }
         };
@@ -157,7 +157,7 @@ function NotificationsPanel({ notifications, setNotifications }) {
                         <div style={{ flex: 1 }}>
                             <div style={{ fontSize: 12, fontWeight: n.read ? 400 : 700, color: C.text }}>Table {n.table} — Order #{n.order}</div>
                             <p style={{ fontSize: 11, color: notifColor[n.type], marginTop: 3, fontWeight: 600 }}>{n.status}</p>
-                                {n.customerMessage && (
+                            {n.customerMessage && (
                                 <p style={{ fontSize: 11, color: C.muted, marginTop: 3, fontStyle: "italic" }}>"{n.customerMessage}"</p>
                             )}
                         </div>
@@ -772,8 +772,8 @@ function useCustomerAlerts(setNotifications, addToast) {
                     if (prev.some(n => n.id === incoming.id)) return prev;
                     return [incoming, ...prev];
                 });
-                cbRef.current.addToast(`🔔 Table ${incoming.table} needs assistance!`);
-            } catch (_) {}
+                addToast(`Table ${incoming.table} needs assistance!`);
+            } catch (_) { }
         };
         window.addEventListener("storage", handler);
         return () => window.removeEventListener("storage", handler);
@@ -794,7 +794,7 @@ function useWaiterAlerts(setNotifications, addToast) {
                     return [incoming, ...prev];
                 });
                 cbRef.current.addToast(`🚨 Table ${incoming.table} — ${incoming.raisedBy ?? "A waiter"} needs team assistance!`);
-            } catch (_) {}
+            } catch (_) { }
         };
         window.addEventListener("storage", handler);
         return () => window.removeEventListener("storage", handler);
@@ -852,12 +852,12 @@ export default function App() {
         const id = Date.now();
         const alert = {
             id,
-            order    : "–",
+            order: "–",
             table,
-            status   : `Table ${table} needs assistance`,
-            type     : "alert",
-            read     : false,
-            raisedBy : staffInfo?.name ?? "Waiter",
+            status: `Table ${table} needs assistance`,
+            type: "alert",
+            read: false,
+            raisedBy: staffInfo?.name ?? "Waiter",
         };
 
         setNotifications(p => [alert, ...p]);
@@ -866,15 +866,15 @@ export default function App() {
 
         try {
             await fetch("http://127.0.0.1:8000/alerts", {
-                method  : "POST",
-                headers : { "Content-Type": "application/json" },
-                body    : JSON.stringify({
-                    table_id  : table,
-                    raised_by : staffInfo?.staff_id ?? null,
-                    message   : `Table ${table} needs assistance`,
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    table_id: table,
+                    raised_by: staffInfo?.staff_id ?? null,
+                    message: `Table ${table} needs assistance`,
                 }),
             });
-        } catch (_) {}
+        } catch (_) { }
     };
 
     // LISTENING FOR KITCHEN NOTIFY EVENTS

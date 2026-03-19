@@ -115,6 +115,7 @@ function NotificationsPanel({ notifications, setNotifications }) {
     const dismiss = (id) => setNotifications(p => p.filter(n => n.id !== id));
     const markAll = () => setNotifications(p => p.map(n => ({ ...n, read: true })));
     const clearAll = () => setNotifications([]);
+    const notifTypeColor = { urgent: C.red, warn: C.amber, info: C.green };
     const filtered = notifications.filter(n =>
         filter === "Urgent" ? n.type === "urgent" : filter === "Unread" ? !n.read : true
     );
@@ -149,13 +150,17 @@ function NotificationsPanel({ notifications, setNotifications }) {
                         style={{ padding: "11px 16px", borderBottom: `1px solid ${C.pale}`, display: "flex", gap: 10, cursor: "pointer", background: n.read ? "transparent" : "rgba(196,118,58,.04)", transition: "background .15s" }}
                         onMouseEnter={e => e.currentTarget.style.background = C.pale}
                         onMouseLeave={e => e.currentTarget.style.background = n.read ? "transparent" : "rgba(196,118,58,.04)"}>
-                        <div style={{ width: 3, borderRadius: 2, background: notifTypeColor[n.type], flexShrink: 0, alignSelf: "stretch" }} />
+                        <div style={{ width: 3, borderRadius: 2, background: notifTypeColor[n.type] ?? C.warm, flexShrink: 0, alignSelf: "stretch" }} />
                         <div style={{ flex: 1, minWidth: 0 }}>
-                            <div style={{ display: "flex", justifyContent: "space-between", gap: 6 }}>
-                                <span style={{ fontSize: 12, fontWeight: n.read ? 400 : 700, color: C.text, lineHeight: 1.3 }}>{n.title}</span>
-                                <span style={{ fontSize: 10, color: C.muted, whiteSpace: "nowrap", flexShrink: 0 }}>{n.time}</span>
+                            <div style={{ fontSize: 12, fontWeight: n.read ? 400 : 700, color: C.text }}>
+                                {n.title ?? `Table ${n.table} — Order #${n.order}`}
                             </div>
-                            <p style={{ fontSize: 11, color: C.muted, marginTop: 3, lineHeight: 1.4 }}>{n.body}</p>
+                            <p style={{ fontSize: 11, color: notifTypeColor[n.type] ?? C.warm, marginTop: 3, fontWeight: 600 }}>
+                                {n.body ?? n.status}
+                            </p>
+                            {n.customerMessage && (
+                                <p style={{ fontSize: 11, color: C.muted, marginTop: 3, fontStyle: "italic" }}>"{n.customerMessage}"</p>
+                            )}
                         </div>
                         {!n.read && <div style={{ width: 6, height: 6, borderRadius: "50%", background: C.warm, flexShrink: 0, marginTop: 4 }} />}
                         <button onClick={e => { e.stopPropagation(); dismiss(n.id); }} style={{ background: "none", border: "none", color: C.muted, cursor: "pointer", fontSize: 14, flexShrink: 0, padding: "0 2px", alignSelf: "flex-start" }}>✕</button>
@@ -780,22 +785,26 @@ function StockTab({ stock, fetchStock }) {
     );
 }
 
+// CUSTOMER ASSISTANCE ALERT
 function useCustomerAlerts(setNotifications, addToast) {
+    const cbRef = useRef({ setNotifications, addToast });
+    useEffect(() => { cbRef.current = { setNotifications, addToast }; });
+
     useEffect(() => {
         const handler = (e) => {
             if (e.key !== "oaxaca_customer_alert" || !e.newValue) return;
             try {
                 const incoming = JSON.parse(e.newValue);
-                setNotifications(prev => {
+                cbRef.current.setNotifications(prev => {
                     if (prev.some(n => n.id === incoming.id)) return prev;
                     return [incoming, ...prev];
                 });
-                addToast(`🔔 Table ${incoming.table} needs assistance!`);
+                addToast(`Table ${incoming.table} needs assistance!`);
             } catch (_) { }
         };
         window.addEventListener("storage", handler);
         return () => window.removeEventListener("storage", handler);
-    }, [setNotifications, addToast]);
+    }, []);
 }
 
 function useWaiterAlerts(setNotifications, addToast) {
@@ -809,22 +818,16 @@ function useWaiterAlerts(setNotifications, addToast) {
                 const incoming = JSON.parse(e.newValue);
                 cbRef.current.setNotifications(prev => {
                     if (prev.some(n => n.id === incoming.id)) return prev;
-                    return [{
-                        id    : incoming.id,
-                        title : `Table ${incoming.table} — Team Alert`,
-                        body  : `${incoming.raisedBy ?? "A waiter"} has flagged this table for assistance.`,
-                        type  : "urgent",
-                        time  : new Date().toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" }),
-                        read  : false,
-                    }, ...prev];
+                    return [incoming, ...prev];
                 });
-                cbRef.current.addToast(`🚨 Table ${incoming.table} — waiter needs team assistance!`);
-            } catch (_) {}
+                cbRef.current.addToast(`🚨 Table ${incoming.table} — ${incoming.raisedBy ?? "A waiter"} needs team assistance!`);
+            } catch (_) { }
         };
         window.addEventListener("storage", handler);
         return () => window.removeEventListener("storage", handler);
     }, []);
 }
+
 
 export default function ManagerDashboard() {
     const [tab, setTab] = useState("Overview");
@@ -919,9 +922,9 @@ export default function ManagerDashboard() {
                         }
                     }
                     if (s.level >= 50) {
-                        setNotifications(n => n.filter(notif => !notif.title.includes(s.name)));
+                        setNotifications(n => n.filter(notif => !notif.title?.includes(s.name)));
                     } else if (s.level >= 25 && s.level < 50) {
-                        setNotifications(n => n.filter(notif => !(notif.title.includes(s.name) && notif.type === "urgent")));
+                        setNotifications(n => n.filter(notif => !(notif.title?.includes(s.name) && notif.type === "urgent")));
                         if (prev < 25) {
                             setNotifications(n => [{
                                 id: Date.now() + s.id,
@@ -933,7 +936,7 @@ export default function ManagerDashboard() {
                             }, ...n]);
                         }
                     } else if (s.level < 25) {
-                        setNotifications(n => n.filter(notif => !(notif.title.includes(s.name) && notif.type === "warn")));
+                        setNotifications(n => n.filter(notif => !(notif.title?.includes(s.name) && notif.type === "warn")));
                     }
                     prevStockRef.current[s.id] = s.level;
                 });
@@ -1023,7 +1026,6 @@ export default function ManagerDashboard() {
         setTimeout(() => setToasts(p => p.filter(t => t.id !== id)), 2800);
     };
 
-    useCustomerAlerts(setNotifications, addToast);
     useWaiterAlerts(setNotifications, addToast);
 
     useEffect(() => {

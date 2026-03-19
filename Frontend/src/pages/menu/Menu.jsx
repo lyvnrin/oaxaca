@@ -303,6 +303,7 @@ function ContactWaiterModal({ tableId, onClose }) {
         localStorage.setItem("oaxaca_customer_alert", JSON.stringify({
             id: Date.now(),
             table: parseInt(tableId),
+            order: sessionStorage.getItem('liveOrderId') ?? "–",
             status: "Needs Assistance",
             type: "Help_Needed",
             read: false,

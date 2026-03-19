@@ -50,55 +50,56 @@ const IconDoor = () => (
 
 // NOTIFICATIONS PANEL --------------------------
 const IconBell = () => (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 0 1-3.46 0" />
-    </svg>
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 0 1-3.46 0" />
+  </svg>
 );
 
 function NotificationsPanel({ notifications, setNotifications }) {
-    const unread = notifications.filter(n => !n.read).length;
-    const markRead  = id => setNotifications(p => p.map(n => n.id === id ? { ...n, read: true } : n));
-    const dismiss   = id => setNotifications(p => p.filter(n => n.id !== id));
-    const markAll   = ()  => setNotifications(p => p.map(n => ({ ...n, read: true })));
-    const clearAll  = ()  => setNotifications([]);
+  const unread = notifications.filter(n => !n.read).length;
+  const markRead = id => setNotifications(p => p.map(n => n.id === id ? { ...n, read: true } : n));
+  const dismiss = id => setNotifications(p => p.filter(n => n.id !== id));
+  const markAll = () => setNotifications(p => p.map(n => ({ ...n, read: true })));
+  const clearAll = () => setNotifications([]);
 
-    const typeColor = { alert: C.red, customer: C.warm };
+  const typeColor = { alert: C.red, customer: C.warm };
 
-    return (
-        <div style={{ position: "absolute", top: "calc(100% + 10px)", right: 0, width: 360, background: C.panel, border: `1.5px solid ${C.border}`, borderRadius: 10, boxShadow: "0 8px 32px rgba(0,0,0,.2)", zIndex: 900, animation: "dropIn .15s ease" }}>
-            <div style={{ padding: "13px 16px 10px", borderBottom: `1px solid ${C.border}`, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                    <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 17, fontWeight: 700, color: C.dark }}>Alerts</span>
-                    {unread > 0 && <span style={{ background: C.red, color: "white", fontSize: 10, fontWeight: 700, padding: "1px 7px", borderRadius: 10 }}>{unread}</span>}
-                </div>
-                <div style={{ display: "flex", gap: 10 }}>
-                    {unread > 0 && <button onClick={markAll} style={{ fontSize: 10, color: C.mid, background: "none", border: "none", cursor: "pointer", fontFamily: "Jost, sans-serif", fontWeight: 600 }}>Mark all read</button>}
-                    {notifications.length > 0 && <button onClick={clearAll} style={{ fontSize: 10, color: C.muted, background: "none", border: "none", cursor: "pointer", fontFamily: "Jost, sans-serif" }}>Clear all</button>}
-                </div>
-            </div>
-            <div style={{ maxHeight: 340, overflowY: "auto" }}>
-                {notifications.length === 0 && (
-                    <div style={{ padding: "28px 16px", textAlign: "center", color: C.muted, fontSize: 13 }}>No alerts</div>
-                )}
-                {notifications.map(n => (
-                    <div key={n.id} onClick={() => markRead(n.id)}
-                        style={{ padding: "11px 16px", borderBottom: `1px solid ${C.pale}`, display: "flex", gap: 10, cursor: "pointer", background: n.read ? "transparent" : "rgba(196,118,58,.04)" }}
-                        onMouseEnter={e => e.currentTarget.style.background = C.pale}
-                        onMouseLeave={e => e.currentTarget.style.background = n.read ? "transparent" : "rgba(196,118,58,.04)"}>
-                        <div style={{ width: 3, borderRadius: 2, background: typeColor[n.type] ?? C.warm, flexShrink: 0, alignSelf: "stretch" }} />
-                        <div style={{ flex: 1 }}>
-                            <div style={{ fontSize: 12, fontWeight: n.read ? 400 : 700, color: C.text }}>{n.msg}</div>
-                            {n.customerMessage && (
-                                <p style={{ fontSize: 11, color: C.muted, marginTop: 3, fontStyle: "italic" }}>"{n.customerMessage}"</p>
-                            )}
-                        </div>
-                        {!n.read && <div style={{ width: 6, height: 6, borderRadius: "50%", background: C.warm, flexShrink: 0, marginTop: 4 }} />}
-                        <button onClick={e => { e.stopPropagation(); dismiss(n.id); }} style={{ background: "none", border: "none", color: C.muted, cursor: "pointer", fontSize: 14, flexShrink: 0 }}>✕</button>
-                    </div>
-                ))}
-            </div>
+  return (
+    <div style={{ position: "absolute", top: "calc(100% + 10px)", right: 0, width: 360, background: C.panel, border: `1.5px solid ${C.border}`, borderRadius: 10, boxShadow: "0 8px 32px rgba(0,0,0,.2)", zIndex: 900, animation: "dropIn .15s ease" }}>
+      <div style={{ padding: "13px 16px 10px", borderBottom: `1px solid ${C.border}`, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 17, fontWeight: 700, color: C.dark }}>Alerts</span>
+          {unread > 0 && <span style={{ background: C.red, color: "white", fontSize: 10, fontWeight: 700, padding: "1px 7px", borderRadius: 10 }}>{unread}</span>}
         </div>
-    );
+        <div style={{ display: "flex", gap: 10 }}>
+          {unread > 0 && <button onClick={markAll} style={{ fontSize: 10, color: C.mid, background: "none", border: "none", cursor: "pointer", fontFamily: "Jost, sans-serif", fontWeight: 600 }}>Mark all read</button>}
+          {notifications.length > 0 && <button onClick={clearAll} style={{ fontSize: 10, color: C.muted, background: "none", border: "none", cursor: "pointer", fontFamily: "Jost, sans-serif" }}>Clear all</button>}
+        </div>
+      </div>
+      <div style={{ maxHeight: 340, overflowY: "auto" }}>
+        {notifications.length === 0 && (
+          <div style={{ padding: "28px 16px", textAlign: "center", color: C.muted, fontSize: 13 }}>No alerts</div>
+        )}
+        {notifications.map(n => (
+          <div key={n.id} onClick={() => markRead(n.id)}
+            style={{ padding: "11px 16px", borderBottom: `1px solid ${C.pale}`, display: "flex", gap: 10, cursor: "pointer", background: n.read ? "transparent" : "rgba(196,118,58,.04)" }}
+            onMouseEnter={e => e.currentTarget.style.background = C.pale}
+            onMouseLeave={e => e.currentTarget.style.background = n.read ? "transparent" : "rgba(196,118,58,.04)"}>
+            <div style={{ width: 3, borderRadius: 2, background: typeColor[n.type] ?? C.warm, flexShrink: 0, alignSelf: "stretch" }} />
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 12, fontWeight: n.read ? 400 : 700, color: C.text }}>Table {n.table} — Order #{n.order}</div>
+              <p style={{ fontSize: 11, color: typeColor[n.type] ?? C.warm, marginTop: 3, fontWeight: 600 }}>{n.status}</p>
+              {n.customerMessage && (
+                <p style={{ fontSize: 11, color: C.muted, marginTop: 3, fontStyle: "italic" }}>"{n.customerMessage}"</p>
+              )}
+            </div>
+            {!n.read && <div style={{ width: 6, height: 6, borderRadius: "50%", background: C.warm, flexShrink: 0, marginTop: 4 }} />}
+            <button onClick={e => { e.stopPropagation(); dismiss(n.id); }} style={{ background: "none", border: "none", color: C.muted, cursor: "pointer", fontSize: 14, flexShrink: 0 }}>✕</button>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 }
 
 // ACCOUNT PANEL --------------------------
@@ -178,59 +179,49 @@ function OrderCard({ order, btnLabel, btnColor, onAction }) {
   );
 }
 
-// WAITER ALERTS
-function useWaiterAlerts(setNotifications, addToast) {
-    const cbRef = useRef({ setNotifications, addToast });
-    useEffect(() => { cbRef.current = { setNotifications, addToast }; });
-
-    useEffect(() => {
-        const handler = (e) => {
-            if (e.key !== "oaxaca_waiter_alert" || !e.newValue) return;
-            try {
-                const incoming = JSON.parse(e.newValue);
-                cbRef.current.setNotifications(prev => {
-                    if (prev.some(n => n.id === incoming.id)) return prev;
-                    return [{
-                        id   : incoming.id,
-                        type : "alert",
-                        msg  : `🚨 Table ${incoming.table} — ${incoming.raisedBy ?? "A waiter"} needs team assistance!`,
-                        read : false,
-                    }, ...prev];
-                });
-                cbRef.current.addToast(`🚨 Table ${incoming.table} needs team assistance!`);
-            } catch (_) {}
-        };
-        window.addEventListener("storage", handler);
-        return () => window.removeEventListener("storage", handler);
-    }, []);
-}
-
+// CUSTOMER ASSISTANCE ALERT
 function useCustomerAlerts(setNotifications, addToast) {
-    const cbRef = useRef({ setNotifications, addToast });
-    useEffect(() => { cbRef.current = { setNotifications, addToast }; });
+  const cbRef = useRef({ setNotifications, addToast });
+  useEffect(() => { cbRef.current = { setNotifications, addToast }; });
 
-    useEffect(() => {
-        const handler = (e) => {
-            if (e.key !== "oaxaca_customer_alert" || !e.newValue) return;
-            try {
-                const incoming = JSON.parse(e.newValue);
-                cbRef.current.setNotifications(prev => {
-                    if (prev.some(n => n.id === incoming.id)) return prev;
-                    return [{
-                        id            : incoming.id,
-                        type          : "customer",
-                        msg           : `🔔 Table ${incoming.table} needs assistance!`,
-                        customerMessage: incoming.customerMessage || null,
-                        read          : false,
-                    }, ...prev];
-                });
-                cbRef.current.addToast(`🔔 Table ${incoming.table} needs assistance!`);
-            } catch (_) {}
-        };
-        window.addEventListener("storage", handler);
-        return () => window.removeEventListener("storage", handler);
-    }, []);
+  useEffect(() => {
+    const handler = (e) => {
+      if (e.key !== "oaxaca_customer_alert" || !e.newValue) return;
+      try {
+        const incoming = JSON.parse(e.newValue);
+        cbRef.current.setNotifications(prev => {
+          if (prev.some(n => n.id === incoming.id)) return prev;
+          return [incoming, ...prev];
+        });
+        addToast(`Table ${incoming.table} needs assistance!`);
+      } catch (_) { }
+    };
+    window.addEventListener("storage", handler);
+    return () => window.removeEventListener("storage", handler);
+  }, []);
 }
+
+function useWaiterAlerts(setNotifications, addToast) {
+  const cbRef = useRef({ setNotifications, addToast });
+  useEffect(() => { cbRef.current = { setNotifications, addToast }; });
+
+  useEffect(() => {
+    const handler = (e) => {
+      if (e.key !== "oaxaca_waiter_alert" || !e.newValue) return;
+      try {
+        const incoming = JSON.parse(e.newValue);
+        cbRef.current.setNotifications(prev => {
+          if (prev.some(n => n.id === incoming.id)) return prev;
+          return [incoming, ...prev];
+        });
+        cbRef.current.addToast(`🚨 Table ${incoming.table} — ${incoming.raisedBy ?? "A waiter"} needs team assistance!`);
+      } catch (_) { }
+    };
+    window.addEventListener("storage", handler);
+    return () => window.removeEventListener("storage", handler);
+  }, []);
+}
+
 
 // APP ROOT --------------------------
 export default function App() {
@@ -303,7 +294,6 @@ export default function App() {
   // TOAST NOTIFS --------------------------
   const addToast = msg => { const id = Date.now(); setToasts(p => [...p, { id, msg }]); setTimeout(() => setToasts(p => p.filter(t => t.id !== id)), 1800); };
   useWaiterAlerts(setNotifications, addToast);
-  useCustomerAlerts(setNotifications, addToast);
 
   // ORDER ACTIONS --------------------------
   const confirmOrder = async (id) => {
@@ -384,30 +374,30 @@ export default function App() {
       <nav style={{ background: C.dark, height: 56, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 28px", position: "relative", zIndex: 800 }}>
         <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 22, fontWeight: 600, letterSpacing: ".25em", color: C.bg }}>OAXACA</span>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <span style={{ fontSize: 11, letterSpacing: ".1em", textTransform: "uppercase", color: "rgba(245,240,232,.5)", fontWeight: 500 }}>Kitchen View</span>
+          <span style={{ fontSize: 11, letterSpacing: ".1em", textTransform: "uppercase", color: "rgba(245,240,232,.5)", fontWeight: 500 }}>Kitchen View</span>
 
-            <div ref={notifRef} style={{ position: "relative" }}>
-                <div onClick={() => { setShowNotifs(v => !v); setShowAccount(false); }}
-                    style={{ width: 36, height: 36, borderRadius: "50%", border: `1.5px solid ${showNotifs ? C.warm : "rgba(245,240,232,.3)"}`, background: showNotifs ? "rgba(196,118,58,.3)" : "rgba(245,240,232,.08)", display: "grid", placeItems: "center", cursor: "pointer", color: "rgba(245,240,232,.85)", position: "relative", transition: "all .15s", userSelect: "none" }}>
-                    <IconBell />
-                    {notifications.filter(n => !n.read).length > 0 && (
-                        <div style={{ position: "absolute", top: -3, right: -3, minWidth: 16, height: 16, borderRadius: 8, background: C.red, border: `2px solid ${C.dark}`, display: "grid", placeItems: "center", fontSize: 8, fontWeight: 700, color: "white", padding: "0 3px" }}>
-                            {notifications.filter(n => !n.read).length > 9 ? "9+" : notifications.filter(n => !n.read).length}
-                        </div>
-                    )}
+          <div ref={notifRef} style={{ position: "relative" }}>
+            <div onClick={() => { setShowNotifs(v => !v); setShowAccount(false); }}
+              style={{ width: 36, height: 36, borderRadius: "50%", border: `1.5px solid ${showNotifs ? C.warm : "rgba(245,240,232,.3)"}`, background: showNotifs ? "rgba(196,118,58,.3)" : "rgba(245,240,232,.08)", display: "grid", placeItems: "center", cursor: "pointer", color: "rgba(245,240,232,.85)", position: "relative", transition: "all .15s", userSelect: "none" }}>
+              <IconBell />
+              {notifications.filter(n => !n.read).length > 0 && (
+                <div style={{ position: "absolute", top: -3, right: -3, minWidth: 16, height: 16, borderRadius: 8, background: C.red, border: `2px solid ${C.dark}`, display: "grid", placeItems: "center", fontSize: 8, fontWeight: 700, color: "white", padding: "0 3px" }}>
+                  {notifications.filter(n => !n.read).length > 9 ? "9+" : notifications.filter(n => !n.read).length}
                 </div>
-                {showNotifs && <NotificationsPanel notifications={notifications} setNotifications={setNotifications} />}
+              )}
             </div>
+            {showNotifs && <NotificationsPanel notifications={notifications} setNotifications={setNotifications} />}
+          </div>
 
-            <div ref={accountRef} style={{ position: "relative" }}>
-                <div onClick={() => { setShowAccount(v => !v); setShowNotifs(false); }}
-                    style={{ width: 36, height: 36, borderRadius: "50%", background: showAccount ? C.mid : C.green, display: "grid", placeItems: "center", cursor: "pointer", color: "white", fontSize: 11, fontWeight: 700, border: `2px solid ${showAccount ? C.light : "transparent"}`, transition: "all .15s", userSelect: "none" }}>
-                    {staffInfo?.name ? staffInfo.name.slice(0, 2).toUpperCase() : "??"}
-                </div>
-                {showAccount && <AccountPanel addToast={addToast} staffInfo={staffInfo} />}
+          <div ref={accountRef} style={{ position: "relative" }}>
+            <div onClick={() => { setShowAccount(v => !v); setShowNotifs(false); }}
+              style={{ width: 36, height: 36, borderRadius: "50%", background: showAccount ? C.mid : C.green, display: "grid", placeItems: "center", cursor: "pointer", color: "white", fontSize: 11, fontWeight: 700, border: `2px solid ${showAccount ? C.light : "transparent"}`, transition: "all .15s", userSelect: "none" }}>
+              {staffInfo?.name ? staffInfo.name.slice(0, 2).toUpperCase() : "??"}
             </div>
+            {showAccount && <AccountPanel addToast={addToast} staffInfo={staffInfo} />}
+          </div>
         </div>
-    </nav>
+      </nav>
 
       {/* PAGE HEADER */}
       <div style={{ padding: "18px 28px 0", display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0 }}>
