@@ -764,6 +764,24 @@ function useCustomerAlerts(setNotifications, addToast) {
     }, [setNotifications, addToast]);
 }
 
+function useWaiterAlerts(setNotifications, addToast) {
+    useEffect(() => {
+        const handler = (e) => {
+            if (e.key !== "oaxaca_waiter_alert" || !e.newValue) return;
+            try {
+                const incoming = JSON.parse(e.newValue);
+                setNotifications(prev => {
+                    if (prev.some(n => n.id === incoming.id)) return prev;
+                    return [incoming, ...prev];
+                });
+                addToast(`⚠ Table ${incoming.table} — ${incoming.raisedBy ?? "A waiter"} needs team assistance!`);
+            } catch (_) {}
+        };
+        window.addEventListener("storage", handler);
+        return () => window.removeEventListener("storage", handler);
+    }, [setNotifications, addToast]);
+}
+
 const MENU_META = {
     1: { section: "Starters", dietary: ["Vegan", "Gluten-Free"], allergens: [], calories: "350" },
     2: { section: "Starters", dietary: ["Gluten-Free"], allergens: ["Milk", "Soy"], calories: "500" },
@@ -811,7 +829,34 @@ export default function App() {
     useOutsideClick(accountRef, () => setShowAccount(false));
 
     const addToast = msg => { const id = Date.now(); setToasts(p => [...p, { id, msg }]); setTimeout(() => setToasts(p => p.filter(t => t.id !== id)), 3000); };
-    const raiseAlert = (table) => { const id = Date.now(); setNotifications(p => [{ id, order: "–", table, status: `Table ${table} needs assistance`, type: "alert", read: false }, ...p]); };
+    const raiseAlert = async (table) => {
+        const id = Date.now();
+        const alert = {
+            id,
+            order    : "–",
+            table,
+            status   : `Table ${table} needs assistance`,
+            type     : "alert",
+            read     : false,
+            raisedBy : staffInfo?.name ?? "Waiter",
+        };
+
+        setNotifications(p => [alert, ...p]);
+
+        localStorage.setItem("oaxaca_waiter_alert", JSON.stringify(alert));
+
+        try {
+            await fetch("http://127.0.0.1:8000/alerts", {
+                method  : "POST",
+                headers : { "Content-Type": "application/json" },
+                body    : JSON.stringify({
+                    table_id  : table,
+                    raised_by : staffInfo?.staff_id ?? null,
+                    message   : `Table ${table} needs assistance`,
+                }),
+            });
+        } catch (_) {}
+    };
 
     // LISTENING FOR KITCHEN NOTIFY EVENTS
     useKitchenNotifications(setNotifications, addToast, () => { });
@@ -866,6 +911,7 @@ export default function App() {
     }, []);
 
     useCustomerAlerts(setNotifications, addToast);
+    useWaiterAlerts(setNotifications, addToast);
 
     useEffect(() => {
         const handler = (e) => {
