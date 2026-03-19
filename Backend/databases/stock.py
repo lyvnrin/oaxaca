@@ -34,5 +34,5 @@ if __name__ == "__main__":
     BASE = os.path.dirname(__file__)
     load_stock_from_csv(
         csv_path=os.path.join(BASE, "stock.csv"),
-        db_path=os.path.join(BASE, "oaxaca-real.db"),
+        db_path=os.path.join(BASE, "oaxaca.db"),
     )

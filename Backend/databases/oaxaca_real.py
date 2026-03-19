@@ -13,7 +13,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-DB_FILE = os.path.join(os.path.dirname(__file__), "oaxaca-real.db")
+DB_FILE = os.path.join(os.path.dirname(__file__), "oaxaca.db")
 
 # DATABASE CONNECTION --------------------------
 
@@ -46,6 +46,15 @@ class OrderIn(BaseModel):
 
 class OrderStatusUpdate(BaseModel):
     status: str
+
+class LoginIn(BaseModel):
+    username: str
+    password: str
+    role: str
+
+class RestockIn(BaseModel):
+    stock_id: int
+    level: float
 
 # CUSTOMERS --------------------------
 
@@ -177,6 +186,25 @@ def get_order(order_id: int):
         raise HTTPException(status_code=404, detail="Order not found")
     return dict(order)
 
+@app.post("/orders/{order_id}/pay", status_code=200)
+def pay_order(order_id: int):
+    conn = get_conn()
+    row = conn.execute(
+        "SELECT * FROM orders WHERE order_id = ?", (order_id,)
+    ).fetchone()
+    if not row:
+        raise HTTPException(status_code=404, detail="Order not found")
+
+    if row["status"] == "Paid":
+        raise HTTPException(status_code=400, detail="Order already paid")
+
+    conn.execute(
+        "UPDATE orders SET status = 'Paid' WHERE order_id = ?", (order_id,)
+    )
+    conn.commit()
+    conn.close()
+    return {"order_id": order_id, "status": "Paid"}
+
 
 # MENU ITEMS --------------------------
 
@@ -207,25 +235,7 @@ def get_menu_items():
     return [dict(r) for r in rows]
 
 
-@app.post("/orders/{order_id}/pay", status_code=200)
-def pay_order(order_id: int):
-    conn = get_conn()
-    row = conn.execute(
-        "SELECT * FROM orders WHERE order_id = ?", (order_id,)
-    ).fetchone()
-    if not row:
-        raise HTTPException(status_code=404, detail="Order not found")
-
-    if row["status"] == "Paid":
-        raise HTTPException(status_code=400, detail="Order already paid")
-
-    conn.execute(
-        "UPDATE orders SET status = 'Paid' WHERE order_id = ?", (order_id,)
-    )
-    conn.commit()
-    conn.close()
-    return {"order_id": order_id, "status": "Paid"}
-
+# STAFF LOGIN --------------------------
 
 @app.get("/staff")
 def get_staff():
@@ -234,13 +244,36 @@ def get_staff():
     conn.close()
     return [dict(r) for r in rows]
 
+@app.post("/auth/login")
+def login(payload: LoginIn):
+    conn = get_conn()
+    row = conn.execute(
+        "SELECT * FROM staff WHERE name = ? AND password = ? AND role = ?",
+        (payload.username, payload.password, payload.role)
+    ).fetchone()
+    conn.close()
+
+    if not row:
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+
+    return {
+        "staff_id": row["staff_id"],
+        "name": row["name"],
+        "role": row["role"],
+    }
+
+@app.get("/staff/{staff_id}")
+def get_staff_member(staff_id: int):
+    conn = get_conn()
+    row = conn.execute(
+        "SELECT * FROM staff WHERE staff_id = ?", (staff_id,)
+    ).fetchone()
+    conn.close()
+    if not row:
+        raise HTTPException(status_code=404, detail="Staff member not found")
+    return dict(row)
 
 # STOCK --------------------------
-class RestockIn(BaseModel):
-    stock_id: int
-    level: float
-
-
 DISH_DEPLETIONS = {
     1:  [(1, 3), (2, 3), (3, 3)],
     2:  [(29, 3), (30, 3), (22, 3), (24, 3)],

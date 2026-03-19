@@ -48,13 +48,33 @@ function WaiterLogin() {
             formData.password.length >= 6;
     };
 
-    const handleContinue = () => {
-        const validationErrors = validateForm();
-        setErrors(validationErrors);
+    const handleContinue = async () => {
+    const validationErrors = validateForm();
+    setErrors(validationErrors);
 
-        if (Object.keys(validationErrors).length === 0) {
-            console.log('Waiter login:', formData);
-            goToDashboard();
+    if (Object.keys(validationErrors).length > 0) return;
+
+    try {
+        const res = await fetch('http://127.0.0.1:8000/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                username: formData.username,
+                password: formData.password,
+                role: 'Waiter',
+            }),
+        });
+
+        if (!res.ok) {
+            setErrors({ password: "Invalid username or password" });
+            return;
+        }
+
+        const data = await res.json();
+        navigate('/waiter-dashboard', { state: { role: 'waiter', staff_id: data.staff_id } });
+
+        } catch (err) {
+            setErrors({ password: "Could not reach server, please try again" });
         }
     };
 
