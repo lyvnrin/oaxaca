@@ -436,24 +436,9 @@ function CartModal({ cart, onClose, onUpdateQty, onRemove, onPlaceOrder }) {
     );
 }
 
-function useOrderAge(createdAt) {
-    const [elapsed, setElapsed] = useState("");
-    useEffect(() => {
-        if (!createdAt) return;
-        const update = () => {
-            const secs = Math.floor((Date.now() - new Date(createdAt).getTime()) / 1000);
-            if (secs < 60) setElapsed(`${secs}s`);
-            else if (secs < 3600) setElapsed(`${Math.floor(secs / 60)}m ${secs % 60}s`);
-            else setElapsed(`${Math.floor(secs / 3600)}h ${Math.floor((secs % 3600) / 60)}m`);
-        };
-        update();
-        const t = setInterval(update, 1000);
-        return () => clearInterval(t);
-    }, [createdAt]);
-    return elapsed;
-}
 
-// ✅ FIX: added estMins to prop signature, separated the two timing blocks into sibling expressions
+
+// ESTIMATION OF TRACKING ORDER TIMES
 function TrackingPopup({ orderId, tableNumber, orderItems, total, onClose, onPaymentClick, currentStep, onStepClick, estMins }) {
     const steps = [
         { id: 1, name: "Order Placed" },
@@ -480,18 +465,6 @@ function TrackingPopup({ orderId, tableNumber, orderItems, total, onClose, onPay
         onPaymentClick();
     };
 
-    const [timestamps, setTimestamps] = useState(null);
-
-    useEffect(() => {
-        if (!orderId) return;
-        fetch(`http://127.0.0.1:8000/orders/${orderId}`)
-            .then(r => r.json())
-            .then(data => setTimestamps(data))
-            .catch(() => { });
-    }, [orderId]);
-
-    const orderAge = useOrderAge(timestamps?.created_at);
-
     return (
         <div className="customization-overlay" onClick={onClose}>
             <div className="customization-modal tracking-modal" onClick={(e) => e.stopPropagation()}>
@@ -505,34 +478,7 @@ function TrackingPopup({ orderId, tableNumber, orderItems, total, onClose, onPay
                         <span className="order-id-display">Order ID: #{orderId}</span>
                     </div>
 
-                    {/* TIMING BLOCK 1 — placed at + elapsed */}
-                    {timestamps?.created_at && (
-                        <div style={{
-                            background: "#f0f7f2",
-                            border: "1px solid #b8d4c0",
-                            borderRadius: 8,
-                            padding: "10px 14px",
-                            marginTop: 8,
-                            display: "flex",
-                            justifyContent: "space-between",
-                            alignItems: "center",
-                        }}>
-                            <div>
-                                <div style={{ fontSize: 11, color: "#7a5c44", marginBottom: 2 }}>Order placed at</div>
-                                <div style={{ fontSize: 13, fontWeight: 700, color: "#2D2218" }}>
-                                    {new Date(timestamps.created_at).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}
-                                </div>
-                            </div>
-                            <div style={{ textAlign: "right" }}>
-                                <div style={{ fontSize: 11, color: "#7a5c44", marginBottom: 2 }}>Time elapsed</div>
-                                <div style={{ fontSize: 13, fontWeight: 700, color: "#4a7c59" }}>
-                                    ⏱ {orderAge}
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* TIMING BLOCK 2 — estimated prep time (separate sibling, not nested) */}
+                    {/* ORDER TIME TRACKING BLOCK */}
                     {estMins && (
                         <div style={{
                             background: "#f0f7f2",
@@ -544,7 +490,7 @@ function TrackingPopup({ orderId, tableNumber, orderItems, total, onClose, onPay
                             color: "#4a7c59",
                             fontWeight: 600,
                         }}>
-                            🍽 Estimated preparation time: ~{estMins} mins
+                            Estimated preparation time: ~{estMins} mins
                         </div>
                     )}
 
