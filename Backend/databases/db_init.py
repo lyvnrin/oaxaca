@@ -11,7 +11,8 @@ conn.execute('DROP TABLE IF EXISTS staff')
 conn.execute('''CREATE TABLE tables (
     table_id INTEGER PRIMARY KEY,
     name TEXT,
-    occupied INTEGER NOT NULL DEFAULT 0
+    occupied INTEGER NOT NULL DEFAULT 0,
+    assigned_waiter INTEGER REFERENCES staff(staff_id)
 )''')
 
 conn.execute('''CREATE TABLE customers (

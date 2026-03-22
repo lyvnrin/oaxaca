@@ -92,6 +92,24 @@ def add_customer(payload: CustomerIn):
                 "UPDATE tables SET occupied = 1 WHERE table_id = ?",
                 (payload.table_id,)
             )
+
+            waiter = conn.execute("""
+                SELECT s.staff_id, COUNT(t.table_id) as active_tables
+                FROM staff s
+                LEFT JOIN tables t ON s.staff_id = t.assigned_waiter
+                WHERE s.role = 'Waiter' AND s.on_shift = 1
+                GROUP BY s.staff_id
+                ORDER BY active_tables ASC, RANDOM()
+                LIMIT 1
+            """).fetchone()
+
+            if waiter:
+                conn.execute(
+                    "UPDATE tables SET assigned_waiter = ? WHERE table_id = ?",
+                    (waiter["staff_id"], payload.table_id)
+                )
+
+
         conn.commit()
         row = conn.execute(
             "SELECT * FROM customers WHERE cust_id = ?", (cursor.lastrowid,)).fetchone()
@@ -114,7 +132,7 @@ def delete_customer(cust_id: int):
 
     if row["table_id"]:
         conn.execute(
-            "UPDATE tables SET occupied = 0 WHERE table_id = ?", (
+            "UPDATE tables SET occupied = 0, assigned_waiter = NULL WHERE table_id = ?", (
                 row["table_id"],)
         )
 
