@@ -132,7 +132,7 @@ def delete_customer(cust_id: int):
 
     if row["table_id"]:
         conn.execute(
-            "UPDATE tables SET occupied = 0 WHERE table_id = ?", (
+            "UPDATE tables SET occupied = 0, assigned_waiter = NULL WHERE table_id = ?", (
                 row["table_id"],)
         )
 
