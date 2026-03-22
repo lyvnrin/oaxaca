@@ -328,6 +328,10 @@ function OrderCard({ order, onConfirm, onCancel, onDeliver, onAddItems, onStatus
     const isReady = order.status === "Ready";
     const isDelivered = order.status === "Completed";
 
+    const elapsedMins = Math.floor((Date.now() - order.startedAt) / 60000);
+    const remaining = Math.max(0, order.estMins - elapsedMins);
+    const overdue = elapsedMins > order.estMins;
+
     return (
         <div style={{ background: C.bg, border: `1.5px solid ${isMine ? C.warm : C.border}`, borderRadius: 8, padding: "12px 14px", marginBottom: 10, opacity: isDelivered ? .65 : 1, transition: "box-shadow .15s" }}
             onMouseEnter={e => e.currentTarget.style.boxShadow = "0 3px 12px rgba(0,0,0,.08)"}
@@ -342,6 +346,15 @@ function OrderCard({ order, onConfirm, onCancel, onDeliver, onAddItems, onStatus
                         <span style={{ color: elapsedColor(order.startedAt), fontWeight: 700, display: "flex", alignItems: "center", gap: 3 }}><IconClock />{elapsed}</span>
                         <span style={{ color: C.muted }}>· Order #{order.id}</span>
                     </div>
+
+                    <div style={{
+                    fontSize: 10, fontWeight: 600, marginBottom: 6,
+                    color: overdue ? C.red : remaining <= 5 ? C.amber : C.green,
+                }}>
+                    {overdue
+                        ? `⚠ ${elapsedMins - order.estMins}m overdue`
+                        : `~${remaining}m remaining · est. ${order.estMins}m`}
+                </div>
                 </div>
                 <div style={{ position: "relative" }}>
                     <div
@@ -536,6 +549,8 @@ function OrdersTab({ orders, setOrders, menu, addToast, staffId }) {
                                 ))
                             }
                         </div>
+
+                        
                     </div>
                 ))}
             </div>
@@ -898,6 +913,7 @@ export default function App() {
                         table: o.table_id,
                         status: o.status ?? "Pending",
                         startedAt: existing ? existing.startedAt : Date.now(),
+                        estMins: o.est_mins ?? 15,
                         items: o.items.map(i => ({
                             menuId: null,
                             name: i.item_name,

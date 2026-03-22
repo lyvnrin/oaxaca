@@ -185,12 +185,13 @@ def get_orders():
     result = []
     for order in orders:
         items = conn.execute("""
-            SELECT oi.quantity, mi.item_name, mi.price
+            SELECT oi.quantity, mi.item_name, mi.price, mi.prep_time_mins
             FROM order_item oi
             JOIN menu_items mi ON oi.item_id = mi.item_id
             WHERE oi.order_id = ?
         """, (order["order_id"],)).fetchall()
-        result.append({**dict(order), "items": [dict(i) for i in items]})
+        est_mins = max((i["prep_time_mins"] for i in items), default=15)
+        result.append({**dict(order), "items": [dict(i) for i in items], "est_mins": est_mins})
     conn.close()
     return result
 
