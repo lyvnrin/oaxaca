@@ -1,5 +1,5 @@
 import unittest
-from Backend.app.models.restaurant import Restaurant, menuItem, Role, KitchenStaff, OrderStatus
+from app.models.restaurant import Restaurant, menuItem, Role, KitchenStaff, OrderStatus
 class StaffTests(unittest.TestCase):
     def setUp(self):
         self.restaurant = Restaurant("Oaxaca", "London")
