@@ -50,6 +50,6 @@ def load_menu_from_csv(csv_path: str, db_path: str):
 if __name__ == "__main__":
     BASE = os.path.dirname(__file__)
     load_menu_from_csv(
-        csv_path=os.path.join(BASE, "menu-items.csv"),
+        csv_path=os.path.join(BASE, "menu_items.csv"),
         db_path=os.path.join(BASE, "oaxaca.db"),
     )

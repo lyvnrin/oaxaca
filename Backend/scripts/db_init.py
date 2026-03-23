@@ -1,5 +1,10 @@
 import sqlite3
-conn = sqlite3.connect('oaxaca.db')
+import os
+
+BASE = os.path.dirname(__file__)                   
+DB   = os.path.join(BASE, "..", "oaxaca.db")       
+
+conn = sqlite3.connect(DB)
 
 conn.execute('DROP TABLE IF EXISTS order_item')
 conn.execute('DROP TABLE IF EXISTS orders')

@@ -1,5 +1,5 @@
 import unittest
-from restaurant import Customer, Table, Restaurant, menuItem, OrderItem, Payment, PaymentStatus, AlertType
+from Backend.app.models.restaurant import Customer, Table, Restaurant, menuItem, OrderItem, Payment, PaymentStatus, AlertType
 
 
 class RestaurantTests(unittest.TestCase):

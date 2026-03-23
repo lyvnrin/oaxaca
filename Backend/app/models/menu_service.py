@@ -1,4 +1,4 @@
-from restaurant import Restaurant, menuItem, Role
+from Backend.app.models.restaurant import Restaurant, menuItem, Role
 
 r = Restaurant("Oaxaca", "London")
 
