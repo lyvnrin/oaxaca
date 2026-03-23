@@ -138,6 +138,10 @@ function OrderCard({ order, btnLabel, btnColor, onAction }) {
   const [, tick] = useState(0);
   useEffect(() => { const t = setInterval(() => tick(n => n + 1), 30000); return () => clearInterval(t); }, []);
 
+  const elapsedMins = Math.floor((Date.now() - order.startedAt) / 60000);
+  const remaining = Math.max(0, (order.estMins ?? 15) - elapsedMins);
+  const overdue = elapsedMins > (order.estMins ?? 15);
+
   return (
     <div style={{ background: C.bg, border: `1.5px solid ${C.border}`, borderRadius: 8, padding: "12px 14px", marginBottom: 10, transition: "box-shadow .15s" }}
       onMouseEnter={e => e.currentTarget.style.boxShadow = "0 3px 12px rgba(0,0,0,.08)"}
@@ -148,6 +152,14 @@ function OrderCard({ order, btnLabel, btnColor, onAction }) {
           <IconClock />{getElapsed(order.startedAt)}
         </span>
       </div>
+
+      {/* PREP TIME INDICATOR */}
+      <div style={{
+        fontSize: 10, fontWeight: 600, marginBottom: 8,
+        color: overdue ? C.red : remaining <= 5 ? C.amber : C.green, }}>
+        {overdue ? `⚠ ${elapsedMins - order.estMins}m overdue (est. ${order.estMins}m)` : `~${remaining}m remaining · est. ${order.estMins}m total`}
+      </div>
+
       {order.items.map((it, i) => (
         <div key={i} style={{ padding: "6px 0", borderBottom: `1px solid ${C.pale}`, fontSize: 12 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
@@ -247,13 +259,14 @@ export default function App() {
 
       const mapItems = (o) => o.items.map(i => {
         const mods = JSON.parse(
-          localStorage.getItem(`oaxaca_customisations_${o.order_id}`) || '{}'
+            localStorage.getItem(`oaxaca_customisations_${o.order_id}`) || '{}'
         );
         return {
-          name: i.item_name,
-          qty: i.quantity,
-          price: i.price,
-          note: mods[i.item_name] || null,
+            name: i.item_name,
+            qty: i.quantity,
+            price: i.price,
+            note: mods[i.item_name] || null,
+            prepTime: i.prep_time_mins,
         };
       });
 
@@ -261,18 +274,23 @@ export default function App() {
         id: String(o.order_id),
         table: `Table ${o.table_id}`,
         startedAt: Date.now(),
+        estMins: o.est_mins ?? 15,
         items: mapItems(o),
       })));
+
       setPreparing(data.filter(o => o.status === "In Progress").map(o => ({
         id: String(o.order_id),
         table: `Table ${o.table_id}`,
         startedAt: Date.now(),
+         estMins: o.est_mins ?? 15,
         items: mapItems(o),
       })));
+
       setReady(data.filter(o => o.status === "Ready").map(o => ({
         id: String(o.order_id),
         table: `Table ${o.table_id}`,
         startedAt: Date.now(),
+        estMins: o.est_mins ?? 15,
         items: mapItems(o),
       })));
     };

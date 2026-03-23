@@ -1,5 +1,10 @@
 import sqlite3
-conn = sqlite3.connect('oaxaca.db')
+import os
+
+BASE = os.path.dirname(__file__)                   
+DB   = os.path.join(BASE, "..", "oaxaca.db")       
+
+conn = sqlite3.connect(DB)
 
 conn.execute('DROP TABLE IF EXISTS order_item')
 conn.execute('DROP TABLE IF EXISTS orders')
@@ -28,7 +33,8 @@ conn.execute('''CREATE TABLE menu_items (
     item_name VARCHAR(100) NOT NULL,
     price     DECIMAL(10,2) NOT NULL,
     available INTEGER NOT NULL DEFAULT 1,
-    cogs      REAL NOT NULL DEFAULT 0
+    cogs      REAL NOT NULL DEFAULT 0,
+    prep_time_mins INTEGER NOT NULL DEFAULT 15
 )''')
 
 conn.execute('''CREATE TABLE staff (
