@@ -272,10 +272,20 @@ export default function App() {
         };
       });
 
+      const startTimes = JSON.parse(localStorage.getItem("oaxaca_order_start_times") ?? "{}");
+      const getStartTime = (id) => {
+        const key = String(id);
+        if (!startTimes[key]) {
+          startTimes[key] = Date.now();
+          localStorage.setItem("oaxaca_order_start_times", JSON.stringify(startTimes));
+        }
+        return startTimes[key];
+      };
+
       setPending(data.filter(o => o.status === "Waiter Confirmed").map(o => ({
         id: String(o.order_id),
         table: `Table ${o.table_id}`,
-        startedAt: Date.now(),
+        startedAt: getStartTime(o.order_id),
         estMins: o.est_mins ?? 15,
         items: mapItems(o),
       })));
@@ -283,7 +293,7 @@ export default function App() {
       setPreparing(data.filter(o => o.status === "In Progress").map(o => ({
         id: String(o.order_id),
         table: `Table ${o.table_id}`,
-        startedAt: Date.now(),
+        startedAt: getStartTime(o.order_id),
         estMins: o.est_mins ?? 15,
         items: mapItems(o),
       })));
@@ -291,7 +301,7 @@ export default function App() {
       setReady(data.filter(o => o.status === "Ready").map(o => ({
         id: String(o.order_id),
         table: `Table ${o.table_id}`,
-        startedAt: Date.now(),
+        startedAt: getStartTime(o.order_id),
         estMins: o.est_mins ?? 15,
         items: mapItems(o),
       })));
@@ -332,6 +342,30 @@ export default function App() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status: "In Progress" }),
     });
+
+    // deplete stock now that kitchen has confirmed — waiter edits are done
+    try {
+      const orderRes = await fetch(`http://127.0.0.1:8000/orders/${id}`);
+      const orderData = await orderRes.json();
+      const fullOrderRes = await fetch('http://127.0.0.1:8000/orders');
+      const allOrders = await fullOrderRes.json();
+      const fullOrder = allOrders.find(o => String(o.order_id) === String(id));
+      if (fullOrder) {
+        await fetch('http://127.0.0.1:8000/stock/deplete', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            cust_id: fullOrder.cust_id,
+            table_id: fullOrder.table_id,
+            items: fullOrder.items.map(i => ({
+              item_id: i.item_id,
+              quantity: i.quantity,
+            })),
+          }),
+        });
+      }
+    } catch (_) { }
+
     addToast(`${order.table} confirmed`);
   };
 

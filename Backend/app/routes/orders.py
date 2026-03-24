@@ -51,7 +51,7 @@ def place_order(payload: OrderIn):
 
 
 @router.get("/orders")
-def get_orders(waiter_id: int | None = Query(default=None)):
+def get_orders(waiter_id: int | None = Query(default=None), table_id: int | None = Query(default=None)):
     conn = get_conn()
     if waiter_id is not None:
         orders = conn.execute("""
@@ -59,12 +59,16 @@ def get_orders(waiter_id: int | None = Query(default=None)):
             JOIN tables t ON o.table_id = t.table_id
             WHERE t.assigned_waiter = ?
         """, (waiter_id,)).fetchall()
+    elif table_id is not None:
+        orders = conn.execute(
+            "SELECT * FROM orders WHERE table_id = ?", (table_id,)
+        ).fetchall()
     else:
         orders = conn.execute("SELECT * FROM orders").fetchall()
     result = []
     for order in orders:
         items = conn.execute("""
-            SELECT oi.quantity, mi.item_name, 
+            SELECT oi.item_id, oi.quantity, mi.item_name, 
                    COALESCE(oi.unit_price, mi.price) as price, 
                    mi.prep_time_mins
             FROM order_item oi

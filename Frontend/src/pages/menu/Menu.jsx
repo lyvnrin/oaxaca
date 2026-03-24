@@ -444,129 +444,6 @@ function CartModal({ cart, onClose, onUpdateQty, onRemove, onPlaceOrder }) {
     );
 }
 
-
-
-// ESTIMATION OF TRACKING ORDER TIMES
-function TrackingPopup({ orderId, tableNumber, orderItems, total, onClose, onPaymentClick, currentStep, onStepClick, estMins }) {
-    const steps = [
-        { id: 1, name: "Order Placed" },
-        { id: 2, name: "Confirmed by Waiter" },
-        { id: 3, name: "Being Prepared" },
-        { id: 4, name: "Ready for Service" },
-        { id: 5, name: "Delivered" },
-    ];
-
-    const entries = Object.entries(orderItems).map(([key, value]) => ({ key, ...value }));
-
-    const formatCustomizations = (item) => {
-        const parts = [];
-        if (item.customization?.removedIngredients?.length > 0) parts.push(`No: ${item.customization.removedIngredients.join(', ')}`);
-        if (item.customization?.selectedExtras?.length > 0) {
-            parts.push(`Extra: ${item.customization.selectedExtras.map(extra => `${extra.name} (+£${extra.price.toFixed(2)})`).join(', ')}`);
-        }
-        if (item.customization?.specialRequest) parts.push(`Note: "${item.customization.specialRequest}"`);
-        return parts;
-    };
-
-    const handlePayNow = () => {
-        onClose();
-        onPaymentClick();
-    };
-
-    return (
-        <div className="customization-overlay" onClick={onClose}>
-            <div className="customization-modal tracking-modal" onClick={(e) => e.stopPropagation()}>
-                <div className="customization-header">
-                    <h2 className="customization-title">Order Progress</h2>
-                    <button className="customization-close" onClick={onClose}>✕</button>
-                </div>
-                <div className="customization-content">
-                    <div className="order-info">
-                        <span className="table-number-display">Table: {tableNumber}</span>
-                        <span className="order-id-display">Order ID: #{orderId}</span>
-                    </div>
-
-                    {/* ORDER TIME TRACKING BLOCK */}
-                    {estMins && (
-                        <div style={{
-                            background: "#f0f7f2",
-                            border: "1px solid #b8d4c0",
-                            borderRadius: 8,
-                            padding: "10px 14px",
-                            marginTop: 8,
-                            fontSize: 11,
-                            color: "#4a7c59",
-                            fontWeight: 600,
-                        }}>
-                            Estimated preparation time: ~{estMins} mins
-                        </div>
-                    )}
-
-                    <div className="progress-steps">
-                        {steps.map((step) => (
-                            <div key={step.id}
-                                className={`step-item ${currentStep >= step.id ? 'step-completed' : ''} ${currentStep === step.id ? 'step-current' : ''}`}>
-                                <div className="step-indicator">{currentStep > step.id ? '✓' : step.id}</div>
-                                <div className="step-content">
-                                    <span className="step-name">{step.name}</span>
-                                    <span className="step-status">
-                                        {currentStep > step.id ? 'Completed' : currentStep === step.id ? 'In Progress' : 'Pending'}
-                                    </span>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-
-                    <div className="tracking-order-summary">
-                        <h3 className="summary-title">Order Summary</h3>
-                        <div className="summary-items">
-                            {entries.map(({ key, item, qty }) => {
-                                const basePrice = parseFloat(item.price.replace("£", ""));
-                                const extrasTotal = item.customization?.selectedExtras?.reduce((sum, extra) => sum + extra.price, 0) || 0;
-                                const linePrice = ((basePrice + extrasTotal) * qty).toFixed(2);
-                                const customizations = formatCustomizations(item);
-                                return (
-                                    <div key={key} className="summary-item">
-                                        <div className="summary-item-header">
-                                            <span className="summary-item-name">{item.name} ×{qty}</span>
-                                            <span className="summary-item-price">£{linePrice}</span>
-                                        </div>
-                                        {customizations.length > 0 && (
-                                            <div className="summary-item-customizations">
-                                                {customizations.map((custom, idx) => {
-                                                    let customClass = "summary-custom-text";
-                                                    if (custom.startsWith('No:')) customClass += " customization-removed";
-                                                    else if (custom.startsWith('Extra:')) customClass += " customization-extra";
-                                                    else if (custom.startsWith('Note:')) customClass += " customization-note";
-                                                    return <p key={idx} className={customClass}>{custom}</p>;
-                                                })}
-                                            </div>
-                                        )}
-                                        {item.customization?.selectedExtras?.length > 0 && (
-                                            <div className="summary-item-breakdown">
-                                                <span className="breakdown-text">Base: {item.price} + Extras: £{extrasTotal.toFixed(2)}</span>
-                                            </div>
-                                        )}
-                                    </div>
-                                );
-                            })}
-                        </div>
-                        <div className="summary-total">
-                            <span>Total Amount</span>
-                            <span>£{total.toFixed(2)}</span>
-                        </div>
-                    </div>
-
-                    {currentStep === 5
-                        ? <button className="pay-now-tracking-btn" onClick={handlePayNow}>PAY NOW • £{total.toFixed(2)}</button>
-                        : <p className="payment-message">Payment will be available once your order has been delivered</p>
-                    }
-                </div>
-            </div>
-        </div>
-    );
-}
-
 function validateCardNumber(value) {
     const digits = value.replace(/\s/g, '');
     if (!digits) return 'Card number is required';
@@ -834,6 +711,186 @@ function CancelledOrderModal() {
     );
 }
 
+function useOrderAge(createdAt) {
+    const [elapsed, setElapsed] = useState("");
+    useEffect(() => {
+        if (!createdAt) return;
+        const update = () => {
+            const secs = Math.floor((Date.now() - new Date(createdAt).getTime()) / 1000);
+            if (secs < 60) setElapsed(`${secs}s`);
+            else if (secs < 3600) setElapsed(`${Math.floor(secs / 60)}m ${secs % 60}s`);
+            else setElapsed(`${Math.floor(secs / 3600)}h ${Math.floor((secs % 3600) / 60)}m`);
+        };
+        update();
+        const t = setInterval(update, 1000);
+        return () => clearInterval(t);
+    }, [createdAt]);
+    return elapsed;
+}
+
+function OrderTimeBlock({ orderId, estMins }) {
+    const [createdAt, setCreatedAt] = useState(null);
+    const elapsed = useOrderAge(createdAt);
+
+    useEffect(() => {
+        if (!orderId) return;
+        fetch(`http://127.0.0.1:8000/orders/${orderId}`)
+            .then(r => r.ok ? r.json() : null)
+            .then(data => { if (data?.created_at) setCreatedAt(data.created_at); })
+            .catch(() => { });
+    }, [orderId]);
+
+    if (!createdAt) return null;
+
+    return (
+        <div style={{ background: "#f0f7f2", border: "1px solid #b8d4c0", borderRadius: 8, padding: "10px 14px", marginTop: 8, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <div>
+                <div style={{ fontSize: 11, color: "#7a5c44", marginBottom: 2 }}>Order placed at</div>
+                <div style={{ fontSize: 13, fontWeight: 700, color: "#2D2218" }}>
+                    {new Date(createdAt).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}
+                </div>
+                {estMins && <div style={{ fontSize: 11, color: "#4a7c59", fontWeight: 600, marginTop: 2 }}>Est. prep: ~{estMins} mins</div>}
+            </div>
+            <div style={{ textAlign: "right" }}>
+                <div style={{ fontSize: 11, color: "#7a5c44", marginBottom: 2 }}>Time elapsed</div>
+                <div style={{ fontSize: 13, fontWeight: 700, color: "#4a7c59" }}>⏱ {elapsed}</div>
+            </div>
+        </div>
+    );
+}
+// ESTIMATION OF TRACKING ORDER TIMES
+function TrackingPopup({ orderId, tableNumber, orderItems, total, onClose, onPaymentClick, currentStep, estMins, embedded, allDelivered, allOrderItems, allTotal }) {
+    const steps = [
+        { id: 1, name: "Order Placed" },
+        { id: 2, name: "Confirmed by Waiter" },
+        { id: 3, name: "Being Prepared" },
+        { id: 4, name: "Ready for Service" },
+        { id: 5, name: "Delivered" },
+    ];
+
+    const displayItems = allDelivered ? allOrderItems : orderItems;
+    const displayTotal = allDelivered ? allTotal : total;
+    const entries = Object.entries(displayItems).map(([key, value]) => ({ key, ...value }));
+
+    const formatCustomizations = (item) => {
+        const parts = [];
+        if (item.customization?.removedIngredients?.length > 0) parts.push(`No: ${item.customization.removedIngredients.join(', ')}`);
+        if (item.customization?.selectedExtras?.length > 0) {
+            parts.push(`Extra: ${item.customization.selectedExtras.map(extra => `${extra.name} (+£${extra.price.toFixed(2)})`).join(', ')}`);
+        }
+        if (item.customization?.specialRequest) parts.push(`Note: "${item.customization.specialRequest}"`);
+        return parts;
+    };
+
+    const summaryBlock = (
+        <div className="tracking-order-summary">
+            <h3 className="summary-title">{allDelivered ? "Full Order Summary" : "Order Summary"}</h3>
+            <div className="summary-items">
+                {entries.length === 0
+                    ? <p style={{ fontSize: 12, color: "#7a5c44", fontStyle: "italic" }}>No items</p>
+                    : entries.map(({ key, item, qty }) => {
+                        const basePrice = parseFloat(item.price.replace("£", ""));
+                        const extrasTotal = item.customization?.selectedExtras?.reduce((sum, extra) => sum + extra.price, 0) || 0;
+                        const linePrice = ((basePrice + extrasTotal) * qty).toFixed(2);
+                        const customizations = formatCustomizations(item);
+                        return (
+                            <div key={key} className="summary-item">
+                                <div className="summary-item-header">
+                                    <span className="summary-item-name">{item.name} ×{qty}</span>
+                                    <span className="summary-item-price">£{linePrice}</span>
+                                </div>
+                                {customizations.length > 0 && (
+                                    <div className="summary-item-customizations">
+                                        {customizations.map((custom, idx) => {
+                                            let customClass = "summary-custom-text";
+                                            if (custom.startsWith('No:')) customClass += " customization-removed";
+                                            else if (custom.startsWith('Extra:')) customClass += " customization-extra";
+                                            else if (custom.startsWith('Note:')) customClass += " customization-note";
+                                            return <p key={idx} className={customClass}>{custom}</p>;
+                                        })}
+                                    </div>
+                                )}
+                            </div>
+                        );
+                    })}
+            </div>
+            <div className="summary-total">
+                <span>Total Amount</span>
+                <span>£{displayTotal.toFixed(2)}</span>
+            </div>
+        </div>
+    );
+
+    const payButton = allDelivered
+        ? <button className="pay-now-tracking-btn" onClick={() => { onClose(); onPaymentClick(); }}>PAY NOW • £{displayTotal.toFixed(2)}</button>
+        : <p className="payment-message">Payment will be available once all your orders have been delivered</p>;
+
+    if (embedded) {
+        return (
+            <div className="customization-content">
+                {!allDelivered && (
+                    <>
+                        <div className="order-info">
+                            <span className="table-number-display">Table: {tableNumber}</span>
+                            <span className="order-id-display">Order ID: #{orderId}</span>
+                        </div>
+                        <OrderTimeBlock orderId={orderId} estMins={estMins} />
+                        <div className="progress-steps">
+                            {steps.map(step => (
+                                <div key={step.id} className={`step-item ${currentStep >= step.id ? 'step-completed' : ''} ${currentStep === step.id ? 'step-current' : ''}`}>
+                                    <div className="step-indicator">{currentStep > step.id ? '✓' : step.id}</div>
+                                    <div className="step-content">
+                                        <span className="step-name">{step.name}</span>
+                                        <span className="step-status">{currentStep > step.id ? 'Completed' : currentStep === step.id ? 'In Progress' : 'Pending'}</span>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </>
+                )}
+                {allDelivered && (
+                    <div style={{ textAlign: "center", padding: "16px 0 8px", color: "#4a7c59", fontWeight: 700, fontSize: 15 }}>
+                        ✓ All orders delivered — ready to pay
+                    </div>
+                )}
+                {summaryBlock}
+                {payButton}
+            </div>
+        );
+    }
+
+    return (
+        <div className="customization-overlay" onClick={onClose}>
+            <div className="customization-modal tracking-modal" onClick={(e) => e.stopPropagation()}>
+                <div className="customization-header">
+                    <h2 className="customization-title">Order Progress</h2>
+                    <button className="customization-close" onClick={onClose}>✕</button>
+                </div>
+                <div className="customization-content">
+                    <div className="order-info">
+                        <span className="table-number-display">Table: {tableNumber}</span>
+                        <span className="order-id-display">Order ID: #{orderId}</span>
+                    </div>
+                    <OrderTimeBlock orderId={orderId} estMins={estMins} />
+                    <div className="progress-steps">
+                        {steps.map((step) => (
+                            <div key={step.id} className={`step-item ${currentStep >= step.id ? 'step-completed' : ''} ${currentStep === step.id ? 'step-current' : ''}`}>
+                                <div className="step-indicator">{currentStep > step.id ? '✓' : step.id}</div>
+                                <div className="step-content">
+                                    <span className="step-name">{step.name}</span>
+                                    <span className="step-status">{currentStep > step.id ? 'Completed' : currentStep === step.id ? 'In Progress' : 'Pending'}</span>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                    {summaryBlock}
+                    {payButton}
+                </div>
+            </div>
+        </div>
+    );
+}
+
 export default function App() {
     const [openSection, setOpenSection] = useState(null);
     const [activeFilters, setActiveFilters] = useState([]);
@@ -853,44 +910,92 @@ export default function App() {
     const [contactWaiterOpen, setContactWaiterOpen] = useState(false);
     const [confirmed, setConfirmed] = useState(false);
     const [customizingItem, setCustomizingItem] = useState(null);
-
     const [trackingOpen, setTrackingOpen] = useState(false);
     const [paymentOpen, setPaymentOpen] = useState(false);
-    const [orderId, setOrderId] = useState('');
-    const [currentStep, setCurrentStep] = useState(1);
-    const [placedOrder, setPlacedOrder] = useState(() => {
-        try { return JSON.parse(sessionStorage.getItem("oaxaca_placed_order") ?? "{}"); }
+    const [orderCancelled, setOrderCancelled] = useState(false);
+    const orderPaidRef = useRef(false);
+    const [isPaid, setIsPaid] = useState(false);
+    const [unpaidModalOpen, setUnpaidModalOpen] = useState(false);
+    const [paymentConfirmed, setPaymentConfirmed] = useState(false);
+    const [estMins, setEstMins] = useState(null);
+
+    // per-order items stored as { orderId: { key: {item, qty} } }
+    const [orderItemsMap, setOrderItemsMap] = useState(() => {
+        try { return JSON.parse(sessionStorage.getItem("oaxaca_order_items_map") ?? "{}"); }
         catch { return {}; }
     });
 
-    const [orderCancelled, setOrderCancelled] = useState(false);
-    const orderPaidRef = useRef(false);
-
-    const [isPaid, setIsPaid] = useState(false);
-    const [unpaidModalOpen, setUnpaidModalOpen] = useState(false);
-
-    const [liveStep, setLiveStep] = useState(() => {
-        return parseInt(sessionStorage.getItem("oaxaca_live_step") ?? "1");
+    const [liveOrderId, setLiveOrderId] = useState(() => sessionStorage.getItem('liveOrderId') ?? null);
+    const [liveOrderIds, setLiveOrderIds] = useState(() => {
+        try { return JSON.parse(sessionStorage.getItem('liveOrderIds') ?? "[]"); }
+        catch { return []; }
     });
-    const [liveOrderId, setLiveOrderId] = useState(sessionStorage.getItem('liveOrderId') ?? null);
-    const [hasActiveOrder, setHasActiveOrder] = useState(!!sessionStorage.getItem('liveOrderId'));
+    const [activeOrderTab, setActiveOrderTab] = useState(0);
+    const [hasActiveOrder, setHasActiveOrder] = useState(() => !!sessionStorage.getItem('liveOrderId'));
+    const [liveSteps, setLiveSteps] = useState(() => {
+        try { return JSON.parse(sessionStorage.getItem("oaxaca_live_steps") ?? "{}"); }
+        catch { return {}; }
+    });
 
     const [unavailableIds, setUnavailableIds] = useState(new Set());
     const [livePrices, setLivePrices] = useState({});
-    const [estMins, setEstMins] = useState(null);
+    const [lowStockDishes, setLowStockDishes] = useState(new Set());
 
+    // clear on fresh login only — detect by checking if this is a new session
+    useEffect(() => {
+        if (state?.cust_id) {
+            const existingCustId = sessionStorage.getItem('cust_id');
+            const isNewCustomer = !existingCustId || existingCustId !== String(state.cust_id);
+            if (isNewCustomer) {
+                sessionStorage.removeItem('oaxaca_order_items_map');
+                sessionStorage.removeItem('liveOrderId');
+                sessionStorage.removeItem('liveOrderIds');
+                sessionStorage.removeItem('oaxaca_live_steps');
+                localStorage.removeItem('oaxaca_placed_order');
+                setOrderItemsMap({});
+                setLiveOrderId(null);
+                setLiveOrderIds([]);
+                setLiveSteps({});
+                setHasActiveOrder(false);
+            }
+        }
+    }, []);
+
+    // listen for waiter-added items via localStorage
     useEffect(() => {
         const handler = (e) => {
-            if (e.key !== "oaxaca_placed_order" || !e.newValue) return;
+            if (e.key !== "oaxaca_placed_order") return;
             try {
-                const updated = JSON.parse(e.newValue);
-                setPlacedOrder(updated);
-                sessionStorage.setItem("oaxaca_placed_order", e.newValue);
+                const updated = e.newValue ? JSON.parse(e.newValue) : {};
+                // merge into the current active order's items
+                setOrderItemsMap(prev => {
+                    if (!liveOrderId) return prev;
+                    const merged = { ...(prev[liveOrderId] ?? {}), ...updated };
+                    const next = { ...prev, [liveOrderId]: merged };
+                    sessionStorage.setItem("oaxaca_order_items_map", JSON.stringify(next));
+                    return next;
+                });
             } catch (_) { }
         };
         window.addEventListener("storage", handler);
-        return () => window.removeEventListener("storage", handler);
-    }, []);
+        const poll = setInterval(() => {
+            try {
+                const stored = localStorage.getItem("oaxaca_placed_order");
+                if (!stored || !liveOrderId) return;
+                const updated = JSON.parse(stored);
+                setOrderItemsMap(prev => {
+                    const existing = JSON.stringify(prev[liveOrderId] ?? {});
+                    const incoming = JSON.stringify(updated);
+                    if (existing === incoming) return prev;
+                    // full replace, not merge — so removals propagate
+                    const next = { ...prev, [liveOrderId]: updated };
+                    sessionStorage.setItem("oaxaca_order_items_map", JSON.stringify(next));
+                    return next;
+                });
+            } catch (_) { }
+        }, 2000);
+        return () => { window.removeEventListener("storage", handler); clearInterval(poll); };
+    }, [liveOrderId]);
 
     useEffect(() => {
         const fetchAvailability = () => {
@@ -909,17 +1014,13 @@ export default function App() {
         return () => clearInterval(poll);
     }, []);
 
-    const [lowStockDishes, setLowStockDishes] = useState(new Set());
-
     useEffect(() => {
         const fetchStock = () => {
             fetch('http://127.0.0.1:8000/stock')
                 .then(r => r.json())
                 .then(data => {
                     const low = new Set();
-                    data.forEach(s => {
-                        if (s.level < 10) s.used_in.split(', ').forEach(d => low.add(d));
-                    });
+                    data.forEach(s => { if (s.level < 10) s.used_in.split(', ').forEach(d => low.add(d)); });
                     setLowStockDishes(low);
                 })
                 .catch(() => { });
@@ -931,24 +1032,25 @@ export default function App() {
 
     useEffect(() => {
         if (!liveOrderId) return;
-        const statusToStep = {
-            "Pending": 2,
-            "In Progress": 3,
-            "Ready": 4,
-            "Completed": 5,
-        };
+        const statusToStep = { "Pending": 2, "In Progress": 3, "Ready": 4, "Completed": 5 };
 
-        // immediately fetch on mount to restore correct step after refresh
-        fetch(`http://127.0.0.1:8000/orders/${liveOrderId}`)
-            .then(r => r.ok ? r.json() : null)
-            .then(data => {
-                if (data && data.status && statusToStep[data.status]) {
-                    const step = statusToStep[data.status];
-                    setLiveStep(step);
-                    sessionStorage.setItem("oaxaca_live_step", step);
-                }
-            })
-            .catch(() => { });
+        // fetch steps for all orders on mount (handles refresh)
+        const ids = JSON.parse(sessionStorage.getItem('liveOrderIds') ?? "[]");
+        const allIds = [...new Set([...ids, String(liveOrderId)])];
+        allIds.forEach(oid => {
+            fetch(`http://127.0.0.1:8000/orders/${oid}`)
+                .then(r => r.ok ? r.json() : null)
+                .then(data => {
+                    if (data?.status) {
+                        setLiveSteps(prev => {
+                            const updated = { ...prev, [oid]: statusToStep[data.status] ?? 1 };
+                            sessionStorage.setItem("oaxaca_live_steps", JSON.stringify(updated));
+                            return updated;
+                        });
+                    }
+                })
+                .catch(() => { });
+        });
 
         const delay = setTimeout(() => {
             const poll = setInterval(async () => {
@@ -957,10 +1059,37 @@ export default function App() {
                     if (!res.ok) {
                         clearInterval(poll);
                         if (orderPaidRef.current) return;
+                        try {
+                            const allRes = await fetch(`http://127.0.0.1:8000/orders?table_id=${table_id}`);
+                            const allOrders = await allRes.json();
+                            const active = allOrders.filter(o => o.status !== "Cancelled" && o.status !== "Paid");
+                            if (active.length > 0) {
+                                const latest = active[active.length - 1];
+                                const newId = String(latest.order_id);
+                                setLiveOrderIds(prev => {
+                                    const updated = prev.filter(id => String(id) !== String(liveOrderId));
+                                    sessionStorage.setItem('liveOrderIds', JSON.stringify(updated));
+                                    return updated;
+                                });
+                                setOrderItemsMap(prev => {
+                                    const next = { ...prev };
+                                    delete next[String(liveOrderId)];
+                                    sessionStorage.setItem('oaxaca_order_items_map', JSON.stringify(next));
+                                    return next;
+                                });
+                                setLiveOrderId(newId);
+                                sessionStorage.setItem('liveOrderId', newId);
+                                return;
+                            }
+                        } catch (_) { }
                         setOrderCancelled(true);
                         setHasActiveOrder(false);
                         setLiveOrderId(null);
+                        setLiveOrderIds([]);
+                        setOrderItemsMap({});
                         sessionStorage.removeItem('liveOrderId');
+                        sessionStorage.removeItem('liveOrderIds');
+                        sessionStorage.removeItem('oaxaca_order_items_map');
                         setTimeout(() => { setOrderCancelled(false); window.location.href = '/'; }, 3000);
                         return;
                     }
@@ -968,26 +1097,54 @@ export default function App() {
                     if (data.status === "Cancelled") {
                         clearInterval(poll);
                         if (orderPaidRef.current) return;
+                        try {
+                            const allRes = await fetch(`http://127.0.0.1:8000/orders?table_id=${table_id}`);
+                            const allOrders = await allRes.json();
+                            const active = allOrders.filter(o => o.status !== "Cancelled" && o.status !== "Paid");
+                            if (active.length > 0) {
+                                const latest = active[active.length - 1];
+                                const newId = String(latest.order_id);
+                                // remove cancelled order from tracking
+                                setLiveOrderIds(prev => {
+                                    const updated = prev.filter(id => String(id) !== String(liveOrderId));
+                                    sessionStorage.setItem('liveOrderIds', JSON.stringify(updated));
+                                    return updated;
+                                });
+                                setOrderItemsMap(prev => {
+                                    const next = { ...prev };
+                                    delete next[String(liveOrderId)];
+                                    sessionStorage.setItem('oaxaca_order_items_map', JSON.stringify(next));
+                                    return next;
+                                });
+                                setLiveOrderId(newId);
+                                sessionStorage.setItem('liveOrderId', newId);
+                                return;
+                            }
+                        } catch (_) { }
+                        // all orders cancelled
                         setOrderCancelled(true);
                         setHasActiveOrder(false);
                         setLiveOrderId(null);
+                        setLiveOrderIds([]);
+                        setOrderItemsMap({});
                         sessionStorage.removeItem('liveOrderId');
+                        sessionStorage.removeItem('liveOrderIds');
+                        sessionStorage.removeItem('oaxaca_order_items_map');
                         setTimeout(() => { setOrderCancelled(false); window.location.href = '/'; }, 2000);
                         return;
                     }
                     const step = statusToStep[data.status] ?? 1;
-                    setLiveStep(step);
-                    sessionStorage.setItem("oaxaca_live_step", step);
+                    setLiveSteps(prev => {
+                        const updated = { ...prev, [liveOrderId]: step };
+                        sessionStorage.setItem("oaxaca_live_steps", JSON.stringify(updated));
+                        return updated;
+                    });
                 } catch (_) { }
             }, 8000);
             return () => clearInterval(poll);
         }, 5000);
-
         return () => clearTimeout(delay);
     }, [liveOrderId]);
-
-    const generateOrderId = () => Math.floor(1000 + Math.random() * 9000).toString();
-    const [paymentConfirmed, setPaymentConfirmed] = useState(false);
 
     function handleSectionToggle(sectionName) {
         setOpenSection((prev) => (prev === sectionName ? null : sectionName));
@@ -1004,19 +1161,13 @@ export default function App() {
     }
 
     function handleAddToCart(item) {
-        const totalQtyForItem = Object.values(cart)
-            .filter(v => v.item.id === item.id)
-            .reduce((sum, v) => sum + v.qty, 0);
+        const totalQtyForItem = Object.values(cart).filter(v => v.item.id === item.id).reduce((sum, v) => sum + v.qty, 0);
         if (totalQtyForItem >= 25) return;
-
         const existingItemKey = Object.keys(cart).find(key => {
             const cartItem = cart[key].item;
-            if (item.customization) {
-                return cartItem.id === item.id && JSON.stringify(cartItem.customization) === JSON.stringify(item.customization);
-            }
+            if (item.customization) return cartItem.id === item.id && JSON.stringify(cartItem.customization) === JSON.stringify(item.customization);
             return false;
         });
-
         if (existingItemKey) {
             setCart((prev) => ({ ...prev, [existingItemKey]: { ...prev[existingItemKey], qty: prev[existingItemKey].qty + 1 } }));
         } else {
@@ -1028,9 +1179,7 @@ export default function App() {
     function handleUpdateQty(itemKey, newQty) {
         if (newQty <= 0) { handleRemove(itemKey); return; }
         const itemId = cart[itemKey].item.id;
-        const otherQty = Object.entries(cart)
-            .filter(([k]) => k !== itemKey)
-            .reduce((sum, [, v]) => v.item.id === itemId ? sum + v.qty : sum, 0);
+        const otherQty = Object.entries(cart).filter(([k]) => k !== itemKey).reduce((sum, [, v]) => v.item.id === itemId ? sum + v.qty : sum, 0);
         if (otherQty + newQty > 25) return;
         setCart((prev) => ({ ...prev, [itemKey]: { ...prev[itemKey], qty: newQty } }));
     }
@@ -1063,15 +1212,34 @@ export default function App() {
             });
             if (!res.ok) {
                 const err = await res.json();
-                if (err.detail?.includes("limit exceeded")) {
-                    alert("You've reached the maximum of 25 for one or more items. Please adjust your order.");
-                }
+                if (err.detail?.includes("limit exceeded")) alert("You've reached the maximum of 25 for one or more items. Please adjust your order.");
                 return;
             }
 
             const data = await res.json();
-            setLiveOrderId(data.order_id);
-            sessionStorage.setItem('liveOrderId', data.order_id);
+            const newOrderId = String(data.order_id);
+
+            setLiveOrderId(newOrderId);
+            sessionStorage.setItem('liveOrderId', newOrderId);
+
+            const newOrderItems = {};
+            Object.entries(cart).forEach(([key, value]) => { newOrderItems[key] = value; });
+
+            setOrderItemsMap(prev => {
+                const next = { ...prev, [newOrderId]: newOrderItems };
+                sessionStorage.setItem("oaxaca_order_items_map", JSON.stringify(next));
+                return next;
+            });
+
+            // also write merged to localStorage for waiter cross-tab sync
+            localStorage.setItem("oaxaca_placed_order", JSON.stringify(newOrderItems));
+
+            setLiveOrderIds(prev => {
+                const updated = prev.includes(newOrderId) ? prev : [...prev, newOrderId];
+                sessionStorage.setItem('liveOrderIds', JSON.stringify(updated));
+                return updated;
+            });
+
             setEstMins(data.est_mins ?? 15);
 
             const customisations = {};
@@ -1082,37 +1250,15 @@ export default function App() {
                 if (item.customization?.specialRequest) parts.push(`Note: ${item.customization.specialRequest}`);
                 if (parts.length > 0) customisations[item.name] = parts.join(' · ');
             });
-            localStorage.setItem(`oaxaca_customisations_${data.order_id}`, JSON.stringify(customisations));
-            setLiveStep(1);
-            sessionStorage.removeItem("oaxaca_live_step");
+            localStorage.setItem(`oaxaca_customisations_${newOrderId}`, JSON.stringify(customisations));
 
-            await fetch('http://127.0.0.1:8000/stock/deplete', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ cust_id, table_id, items }),
-            });
         } catch (err) {
             console.error('Could not reach server:', err);
             return;
         }
 
-        setOrderId(generateOrderId());
         setHasActiveOrder(true);
         setIsPaid(false);
-        setCurrentStep(1);
-        setPlacedOrder(prev => {
-            const merged = { ...prev };
-            Object.entries(cart).forEach(([key, value]) => {
-                if (merged[key]) {
-                    merged[key] = { ...merged[key], qty: merged[key].qty + value.qty };
-                } else {
-                    merged[key] = value;
-                }
-            });
-            sessionStorage.setItem("oaxaca_placed_order", JSON.stringify(merged));
-            localStorage.setItem("oaxaca_placed_order", JSON.stringify(merged));
-            return merged;
-        });
         setCartOpen(false);
         setCart({});
         setConfirmed(true);
@@ -1129,27 +1275,25 @@ export default function App() {
     }
 
     async function handlePaymentConfirm(method) {
-        const res = await fetch(`http://127.0.0.1:8000/orders/${liveOrderId}/pay`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-        });
-        if (!res.ok) {
-            const data = await res.json();
-            throw new Error(data.detail || 'Payment failed');
+        // pay all active orders
+        for (const oid of liveOrderIds) {
+            try {
+                await fetch(`http://127.0.0.1:8000/orders/${oid}/pay`, { method: 'POST', headers: { 'Content-Type': 'application/json' } });
+                await fetch(`http://127.0.0.1:8000/orders/${oid}/cleanup`, { method: 'DELETE' });
+            } catch (_) { }
         }
-
-        await fetch(`http://127.0.0.1:8000/orders/${liveOrderId}/cleanup`, { method: 'DELETE' });
         await fetch(`http://127.0.0.1:8000/customers/${cust_id}`, { method: 'DELETE' });
 
         orderPaidRef.current = true;
         setIsPaid(true);
         setPaymentOpen(false);
         setHasActiveOrder(false);
-        setPlacedOrder({});
-        sessionStorage.removeItem("oaxaca_placed_order");
-        localStorage.removeItem("oaxaca_placed_order");
-        setCurrentStep(1);
+        setOrderItemsMap({});
         setLiveOrderId(null);
+        setLiveOrderIds([]);
+        setLiveSteps({});
+        setActiveOrderTab(0);
+        localStorage.removeItem('oaxaca_placed_order');
         sessionStorage.clear();
 
         setPaymentConfirmed(true);
@@ -1158,11 +1302,23 @@ export default function App() {
 
     const cartCount = Object.values(cart).reduce((sum, { qty }) => sum + qty, 0);
 
-    const placedOrderTotal = Object.values(placedOrder).reduce((sum, { item, qty }) => {
+    // combined total across all orders
+    const allOrderItems = Object.values(orderItemsMap).reduce((acc, orderItems) => ({ ...acc, ...orderItems }), {});
+    const allTotal = Object.values(allOrderItems).reduce((sum, { item, qty }) => {
         const basePrice = parseFloat(item.price.replace("£", ""));
-        const extrasTotal = item.customization?.selectedExtras?.reduce((sum, extra) => sum + extra.price, 0) || 0;
+        const extrasTotal = item.customization?.selectedExtras?.reduce((s, e) => s + e.price, 0) || 0;
         return sum + (basePrice + extrasTotal) * qty;
     }, 0);
+
+    const currentTabOrderId = String(liveOrderIds[activeOrderTab] ?? liveOrderId ?? "");
+    const currentTabItems = orderItemsMap[currentTabOrderId] ?? {};
+    const currentTabTotal = Object.values(currentTabItems).reduce((sum, { item, qty }) => {
+        const basePrice = parseFloat(item.price.replace("£", ""));
+        const extrasTotal = item.customization?.selectedExtras?.reduce((s, e) => s + e.price, 0) || 0;
+        return sum + (basePrice + extrasTotal) * qty;
+    }, 0);
+
+    const allDelivered = liveOrderIds.length > 0 && liveOrderIds.every(oid => (liveSteps[String(oid)] ?? liveSteps[Number(oid)] ?? 1) >= 5);
 
     return (
         <div className="app">
@@ -1209,21 +1365,43 @@ export default function App() {
             {customizingItem && <CustomizationPopup item={customizingItem} onClose={() => setCustomizingItem(null)} onAddToCart={handleAddToCart} />}
 
             {trackingOpen && hasActiveOrder && (
-                <TrackingPopup
-                    orderId={liveOrderId}
-                    tableNumber={table_id ? `Table ${table_id}` : "Table"}
-                    orderItems={placedOrder}
-                    total={placedOrderTotal}
-                    onClose={() => setTrackingOpen(false)}
-                    onPaymentClick={() => setPaymentOpen(true)}
-                    currentStep={liveStep}
-                    onStepClick={() => { }}
-                    estMins={estMins}
-                />
+                <div className="customization-overlay" onClick={() => setTrackingOpen(false)}>
+                    <div className="customization-modal tracking-modal" onClick={e => e.stopPropagation()}>
+                        <div className="customization-header">
+                            <h2 className="customization-title">Order Progress</h2>
+                            <button className="customization-close" onClick={() => setTrackingOpen(false)}>✕</button>
+                        </div>
+                        {!allDelivered && liveOrderIds.length > 1 && (
+                            <div style={{ display: "flex", gap: 6, padding: "10px 20px 0", overflowX: "auto" }}>
+                                {liveOrderIds.map((oid, idx) => (
+                                    <button key={oid} onClick={() => setActiveOrderTab(idx)}
+                                        style={{ padding: "5px 14px", borderRadius: 20, border: "none", cursor: "pointer", fontFamily: "Jost, sans-serif", fontSize: 11, fontWeight: 600, background: activeOrderTab === idx ? "#2D2218" : "#f0e6d3", color: activeOrderTab === idx ? "#f5f0e8" : "#7a5c44", whiteSpace: "nowrap", flexShrink: 0 }}>
+                                        Order #{oid}
+                                    </button>
+                                ))}
+                            </div>
+                        )}
+                        <TrackingPopup
+                            orderId={currentTabOrderId}
+                            tableNumber={table_id ? `Table ${table_id}` : "Table"}
+                            orderItems={currentTabItems}
+                            total={currentTabTotal}
+                            onClose={() => setTrackingOpen(false)}
+                            onPaymentClick={() => setPaymentOpen(true)}
+                            currentStep={liveSteps[currentTabOrderId] ?? 1}
+                            onStepClick={() => { }}
+                            estMins={estMins}
+                            embedded={true}
+                            allDelivered={allDelivered}
+                            allOrderItems={allOrderItems}
+                            allTotal={allTotal}
+                        />
+                    </div>
+                </div>
             )}
 
-            {paymentOpen && <PaymentPopup orderId={liveOrderId} tableNumber={table_id ? `Table ${table_id}` : "Table"} total={placedOrderTotal} onClose={() => setPaymentOpen(false)} onConfirm={handlePaymentConfirm} />}
-            {unpaidModalOpen && <UnpaidOrderModal total={placedOrderTotal} onClose={() => setUnpaidModalOpen(false)} onPayNow={() => { setUnpaidModalOpen(false); setPaymentOpen(true); }} />}
+            {paymentOpen && <PaymentPopup orderId={liveOrderId} tableNumber={table_id ? `Table ${table_id}` : "Table"} total={allTotal} onClose={() => setPaymentOpen(false)} onConfirm={handlePaymentConfirm} />}
+            {unpaidModalOpen && <UnpaidOrderModal total={allTotal} onClose={() => setUnpaidModalOpen(false)} onPayNow={() => { setUnpaidModalOpen(false); setPaymentOpen(true); }} />}
             {paymentConfirmed && <PaymentConfirmation />}
             {orderCancelled && <CancelledOrderModal />}
             {contactWaiterOpen && <ContactWaiterModal tableId={table_id} onClose={() => setContactWaiterOpen(false)} />}

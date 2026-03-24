@@ -484,6 +484,9 @@ function OrdersTab({ orders, setOrders, menu, addToast, staffId, myTables }) {
     };
 
     const cancelOrder = async (id) => {
+        const startTimes = JSON.parse(localStorage.getItem("oaxaca_order_start_times") ?? "{}");
+        delete startTimes[String(id)];
+        localStorage.setItem("oaxaca_order_start_times", JSON.stringify(startTimes));
         setOrders(p => p.filter(o => o.id !== id));
         await fetch(`http://127.0.0.1:8000/orders/${id}`, {
             method: 'PATCH',
@@ -509,6 +512,7 @@ function OrdersTab({ orders, setOrders, menu, addToast, staffId, myTables }) {
 
 
     const removeItem = async (orderId, itemIndex) => {
+        const order = orders.find(o => o.id === orderId);
         setOrders(p => p.map(o => {
             if (o.id !== orderId) return o;
             const items = o.items.filter((_, i) => i !== itemIndex);
@@ -517,6 +521,23 @@ function OrdersTab({ orders, setOrders, menu, addToast, staffId, myTables }) {
         await fetch(`http://127.0.0.1:8000/orders/${orderId}/items/${itemIndex}`, {
             method: 'DELETE',
         });
+
+        // update customer tab
+        if (order) {
+            const updatedItems = order.items.filter((_, i) => i !== itemIndex);
+            const existing = JSON.parse(localStorage.getItem("oaxaca_placed_order") ?? "{}");
+            const updatedCart = {};
+            // keep only items that still exist in the order
+            Object.entries(existing).forEach(([key, value]) => {
+                const stillExists = updatedItems.some(i => i.name === value.item?.name);
+                if (stillExists) {
+                    const matchingItem = updatedItems.find(i => i.name === value.item?.name);
+                    updatedCart[key] = { ...value, qty: matchingItem.qty };
+                }
+            });
+            localStorage.setItem("oaxaca_placed_order", JSON.stringify(updatedCart));
+        }
+
         addToast("Item removed from order");
     };
     const addItemsToOrder = async (orderId, newItems) => {
@@ -969,14 +990,22 @@ export default function App() {
         const fetchOrders = async () => {
             const res = await fetch(`http://127.0.0.1:8000/orders${staffId ? `?waiter_id=${staffId}` : ''}`);
             const data = await res.json();
+            const startTimes = JSON.parse(localStorage.getItem("oaxaca_order_start_times") ?? "{}");
+            const getStartTime = (id) => {
+                const key = String(id);
+                if (!startTimes[key]) {
+                    startTimes[key] = Date.now();
+                    localStorage.setItem("oaxaca_order_start_times", JSON.stringify(startTimes));
+                }
+                return startTimes[key];
+            };
             setOrders(prev => {
                 return data.map(o => {
-                    const existing = prev.find(p => p.id === String(o.order_id));
                     return {
                         id: String(o.order_id),
                         table: o.table_id,
                         status: o.status ?? "Pending",
-                        startedAt: existing ? existing.startedAt : Date.now(),
+                        startedAt: getStartTime(o.order_id),
                         estMins: o.est_mins ?? 15,
                         items: o.items.map(i => ({
                             menuId: null,
@@ -1055,6 +1084,9 @@ export default function App() {
     }, []);
 
     const markAsPaid = async (orderId) => {
+        const startTimes = JSON.parse(localStorage.getItem("oaxaca_order_start_times") ?? "{}");
+        delete startTimes[String(orderId)];
+        localStorage.setItem("oaxaca_order_start_times", JSON.stringify(startTimes));
         await fetch(`http://127.0.0.1:8000/orders/${orderId}/pay`, {
             method: 'POST',
         });
