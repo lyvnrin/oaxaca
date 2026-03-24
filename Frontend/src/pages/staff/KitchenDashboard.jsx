@@ -103,7 +103,7 @@ function NotificationsPanel({ notifications, setNotifications }) {
 }
 
 // ACCOUNT PANEL --------------------------
-function AccountPanel({ addToast, staffInfo }) {
+function AccountPanel({ addToast, staffInfo, onLogout }) {
   const initials = staffInfo?.name ? staffInfo.name.slice(0, 2).toUpperCase() : "??";
   const displayName = staffInfo?.name ?? "Unknown";
   const role = staffInfo?.role ?? "Kitchen Staff";
@@ -119,12 +119,7 @@ function AccountPanel({ addToast, staffInfo }) {
         </div>
       </div>
       <div onClick={async () => {
-        if (staffInfo?.staff_id) {
-          await fetch(`http://127.0.0.1:8000/auth/logout/${staffInfo.staff_id}`, { method: 'POST' }).catch(() => { });
-        }
-        localStorage.removeItem("oaxaca_kitchen_notifications");
-        localStorage.removeItem("oaxaca_order_start_times");
-        window.location.href = "/";
+        onLogout();
       }}
         style={{ padding: "13px 16px", display: "flex", alignItems: "center", gap: 10, cursor: "pointer", transition: "background .15s", borderRadius: "0 0 10px 10px" }}
         onMouseEnter={e => e.currentTarget.style.background = C.redL}
@@ -273,20 +268,10 @@ export default function App() {
         };
       });
 
-      const startTimes = JSON.parse(localStorage.getItem("oaxaca_order_start_times") ?? "{}");
-      const getStartTime = (id) => {
-        const key = String(id);
-        if (!startTimes[key]) {
-          startTimes[key] = Date.now();
-          localStorage.setItem("oaxaca_order_start_times", JSON.stringify(startTimes));
-        }
-        return startTimes[key];
-      };
-
       setPending(data.filter(o => o.status === "Waiter Confirmed").map(o => ({
         id: String(o.order_id),
         table: `Table ${o.table_id}`,
-        startedAt: getStartTime(o.order_id),
+        startedAt: o.created_at ? new Date(o.created_at).getTime() : Date.now(),
         estMins: o.est_mins ?? 15,
         items: mapItems(o),
       })));
@@ -294,7 +279,7 @@ export default function App() {
       setPreparing(data.filter(o => o.status === "In Progress").map(o => ({
         id: String(o.order_id),
         table: `Table ${o.table_id}`,
-        startedAt: getStartTime(o.order_id),
+        startedAt: o.created_at ? new Date(o.created_at).getTime() : Date.now(),
         estMins: o.est_mins ?? 15,
         items: mapItems(o),
       })));
@@ -302,7 +287,7 @@ export default function App() {
       setReady(data.filter(o => o.status === "Ready").map(o => ({
         id: String(o.order_id),
         table: `Table ${o.table_id}`,
-        startedAt: getStartTime(o.order_id),
+        startedAt: o.created_at ? new Date(o.created_at).getTime() : Date.now(),
         estMins: o.est_mins ?? 15,
         items: mapItems(o),
       })));
@@ -314,6 +299,7 @@ export default function App() {
 
   // UI STATE --------------------------
   const [toasts, setToasts] = useState([]);
+  const [loggingOut, setLoggingOut] = useState(false);
   const [notifications, setNotifications] = useState(() => {
     try { return JSON.parse(localStorage.getItem("oaxaca_kitchen_notifications") ?? "[]"); }
     catch { return []; }
@@ -502,10 +488,25 @@ export default function App() {
               style={{ width: 36, height: 36, borderRadius: "50%", background: showAccount ? C.mid : C.green, display: "grid", placeItems: "center", cursor: "pointer", color: "white", fontSize: 11, fontWeight: 700, border: `2px solid ${showAccount ? C.light : "transparent"}`, transition: "all .15s", userSelect: "none" }}>
               {staffInfo?.name ? staffInfo.name.slice(0, 2).toUpperCase() : "??"}
             </div>
-            {showAccount && <AccountPanel addToast={addToast} staffInfo={staffInfo} />}
+            {showAccount && <AccountPanel addToast={addToast} staffInfo={staffInfo} onLogout={async () => {
+              if (staffInfo?.staff_id) {
+                await fetch(`http://127.0.0.1:8000/auth/logout/${staffInfo.staff_id}`, { method: 'POST' }).catch(() => { });
+              }
+              localStorage.removeItem("oaxaca_kitchen_notifications");
+              setShowAccount(false);
+              setLoggingOut(true);
+              setTimeout(() => { window.location.href = "/"; }, 2500);
+            }} />}
           </div>
         </div>
       </nav>
+
+      {notifications.filter(n => !n.read).length > 0 && (
+        <div style={{ background: "#c4763a", color: "white", padding: "9px 28px", display: "flex", alignItems: "center", gap: 10, fontSize: 12, fontWeight: 600, letterSpacing: ".04em", flexShrink: 0 }}>
+          <div style={{ width: 8, height: 8, borderRadius: "50%", background: "white", animation: "pulse 1.4s infinite", flexShrink: 0 }} />
+          {notifications.filter(n => !n.read).length} unread notification{notifications.filter(n => !n.read).length > 1 ? "s" : ""} — check alerts
+        </div>
+      )}
 
       {/* PAGE HEADER */}
       <div style={{ padding: "18px 28px 0", display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0 }}>
@@ -558,6 +559,23 @@ export default function App() {
           </div>
         ))}
       </div>
+      {loggingOut && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.5)", zIndex: 9999, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <div style={{ background: "#faf7f2", border: "1.5px solid #d4b896", borderRadius: 12, padding: "40px 48px", textAlign: "center", boxShadow: "0 12px 40px rgba(0,0,0,.25)", animation: "dropIn .2s ease" }}>
+            <div style={{ width: 56, height: 56, borderRadius: "50%", background: "#d4edda", display: "grid", placeItems: "center", margin: "0 auto 16px" }}>
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#4a7c59" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10" />
+                <path d="M8 14s1.5 2 4 2 4-2 4-2" />
+                <line x1="9" y1="9" x2="9.01" y2="9" strokeWidth="3" />
+                <line x1="15" y1="9" x2="15.01" y2="9" strokeWidth="3" />
+              </svg>
+            </div>
+            <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 24, fontWeight: 700, color: "#2D2218", marginBottom: 8 }}>See you soon!</h2>
+            <p style={{ fontSize: 13, color: "#7a5c44", marginBottom: 6 }}>You have been signed out successfully.</p>
+            <p style={{ fontSize: 11, color: "#8b4513" }}>Returning to home...</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

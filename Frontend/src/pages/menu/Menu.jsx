@@ -52,13 +52,6 @@ function Header({ tableNumber, tableId, cartCount, onCartClick, onCloseTable, on
                                     </svg>
                                     Contact Waiter
                                 </button>
-                                <button className="menu-popup-item" onClick={() => setMenuOpen(false)}>
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '8px', verticalAlign: 'middle' }}>
-                                        <circle cx="12" cy="12" r="3" />
-                                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
-                                    </svg>
-                                    Settings
-                                </button>
                                 <button className="menu-popup-item menu-popup-item--danger" onClick={handleCloseTable}>
                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '8px', verticalAlign: 'middle' }}>
                                         <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
@@ -695,6 +688,21 @@ function PaymentConfirmation() {
     );
 }
 
+function ThankYouModal() {
+    return (
+        <div className="customization-overlay">
+            <div className="customization-modal confirmation-modal">
+                <div className="confirmation-icon">✓</div>
+                <h2 className="confirmation-title">Thank You!</h2>
+                <p className="confirmation-msg">
+                    Thank you for dining with us at Oaxaca.<br />We hope to see you again soon!
+                </p>
+                <p className="confirmation-redirect">Returning you home...</p>
+            </div>
+        </div>
+    );
+}
+
 function CancelledOrderModal() {
     return (
         <div className="customization-overlay">
@@ -917,6 +925,7 @@ export default function App() {
     const [isPaid, setIsPaid] = useState(false);
     const [unpaidModalOpen, setUnpaidModalOpen] = useState(false);
     const [paymentConfirmed, setPaymentConfirmed] = useState(false);
+    const [thankYouOpen, setThankYouOpen] = useState(false);
     const [estMins, setEstMins] = useState(null);
 
     // per-order items stored as { orderId: { key: {item, qty} } }
@@ -961,6 +970,29 @@ export default function App() {
         }
     }, []);
 
+    useEffect(() => {
+        const handler = (e) => {
+            if (e.key !== "oaxaca_table_paid" || !e.newValue) return;
+            try {
+                const { ids } = JSON.parse(e.newValue);
+                const myOrders = JSON.parse(sessionStorage.getItem('liveOrderIds') ?? "[]");
+                const affected = myOrders.some(id => ids.map(String).includes(String(id)));
+                if (!affected) return;
+                orderPaidRef.current = true;
+                setThankYouOpen(true);
+                setHasActiveOrder(false);
+                setOrderItemsMap({});
+                setLiveOrderId(null);
+                setLiveOrderIds([]);
+                setLiveSteps({});
+                localStorage.removeItem('oaxaca_placed_order');
+                sessionStorage.clear();
+                setTimeout(() => { setThankYouOpen(false); window.location.href = '/'; }, 3000);
+            } catch (_) { }
+        };
+        window.addEventListener("storage", handler);
+        return () => window.removeEventListener("storage", handler);
+    }, []);
     // listen for waiter-added items via localStorage
     useEffect(() => {
         const handler = (e) => {
@@ -1296,8 +1328,8 @@ export default function App() {
         localStorage.removeItem('oaxaca_placed_order');
         sessionStorage.clear();
 
-        setPaymentConfirmed(true);
-        setTimeout(() => { setPaymentConfirmed(false); window.location.href = '/'; }, 2500);
+        setThankYouOpen(true);
+        setTimeout(() => { setThankYouOpen(false); window.location.href = '/'; }, 3000);
     }
 
     const cartCount = Object.values(cart).reduce((sum, { qty }) => sum + qty, 0);
@@ -1402,7 +1434,7 @@ export default function App() {
 
             {paymentOpen && <PaymentPopup orderId={liveOrderId} tableNumber={table_id ? `Table ${table_id}` : "Table"} total={allTotal} onClose={() => setPaymentOpen(false)} onConfirm={handlePaymentConfirm} />}
             {unpaidModalOpen && <UnpaidOrderModal total={allTotal} onClose={() => setUnpaidModalOpen(false)} onPayNow={() => { setUnpaidModalOpen(false); setPaymentOpen(true); }} />}
-            {paymentConfirmed && <PaymentConfirmation />}
+            {thankYouOpen && <ThankYouModal />}
             {orderCancelled && <CancelledOrderModal />}
             {contactWaiterOpen && <ContactWaiterModal tableId={table_id} onClose={() => setContactWaiterOpen(false)} />}
         </div>

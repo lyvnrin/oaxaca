@@ -23,7 +23,7 @@ const INIT_UNPAID = [
     { table: 11, order: "1232", total: 67.00, waiting: "28 mins" },
 ];
 
-const notifColor = { ready: C.green, alert: C.blue, allergy: C.amber, Help_Needed: C.blue };
+const notifColor = { ready: C.green, alert: C.red, allergy: C.amber, Help_Needed: C.blue };
 const statusColor = {
     "Pending": C.amber,
     "Waiter Confirmed": C.blue,
@@ -171,7 +171,7 @@ function NotificationsPanel({ notifications, setNotifications }) {
     );
 }
 
-function AccountPanel({ addToast, staffInfo }) {
+function AccountPanel({ addToast, staffInfo, onLogout }) {
     const initials = staffInfo?.name
         ? staffInfo.name.slice(0, 2).toUpperCase()
         : "??";
@@ -190,14 +190,7 @@ function AccountPanel({ addToast, staffInfo }) {
                     <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: ".08em", textTransform: "uppercase", color: C.mid, marginTop: 2 }}>{role}</div>
                 </div>
             </div>
-            <div onClick={async () => {
-                if (staffInfo?.staff_id) {
-                    await fetch(`http://127.0.0.1:8000/auth/logout/${staffInfo.staff_id}`, { method: 'POST' }).catch(() => { });
-                }
-                localStorage.removeItem("oaxaca_waiter_notifications");
-                localStorage.removeItem("oaxaca_order_start_times");
-                window.location.href = "/";
-            }}
+            <div onClick={onLogout}
                 style={{ padding: "13px 16px", display: "flex", alignItems: "center", gap: 10, cursor: "pointer", transition: "background .15s", borderRadius: "0 0 10px 10px" }}
                 onMouseEnter={e => e.currentTarget.style.background = C.redL}
                 onMouseLeave={e => e.currentTarget.style.background = "transparent"}>
@@ -237,7 +230,7 @@ function UnpaidModal({ unpaidTables, onClose }) {
                         <div key={i} style={{ background: C.bg, border: `1.5px solid ${C.border}`, borderRadius: 8, padding: "12px 14px", marginTop: 10, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                             <div>
                                 <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 17, fontWeight: 700, color: C.dark }}>Table {t.table}</div>
-                                <div style={{ fontSize: 11, color: C.muted, marginTop: 2 }}>Order #{t.order} · Waiting {t.waiting}</div>
+                                <div style={{ fontSize: 11, color: C.muted, marginTop: 2 }}>{t.orderIds?.length > 1 ? `${t.orderIds.length} orders` : `Order #${t.order}`} · Waiting {t.waiting}</div>
                             </div>
                             <div style={{ textAlign: "right" }}>
                                 <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 22, fontWeight: 700, color: C.warm }}>£{t.total.toFixed(2)}</div>
@@ -752,7 +745,7 @@ function TablesTab({ unpaidTables, addToast, raiseAlert, onMarkPaid, myTables })
                                                 <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 20, fontWeight: 700, color: C.warm, marginTop: 6 }}>£{t.total.toFixed(2)}</div>
                                                 <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: ".08em", color: C.red, textTransform: "uppercase", marginTop: 2 }}>Unpaid</div>
                                                 <button
-                                                    onClick={() => onMarkPaid(t.order)}
+                                                    onClick={() => onMarkPaid(t.order, t.orderIds)}
                                                     style={{ marginTop: 8, width: "100%", padding: "6px", background: C.green, color: "white", border: "none", borderRadius: 6, fontSize: 10, fontWeight: 700, letterSpacing: ".07em", textTransform: "uppercase", cursor: "pointer", fontFamily: "Jost, sans-serif" }}>
                                                     ✓ Mark as Paid
                                                 </button>
@@ -958,6 +951,7 @@ export default function App() {
     }, []);
 
     const [tab, setTab] = useState("Orders");
+    const [loggingOut, setLoggingOut] = useState(false);
 
     const [notifications, setNotifications] = useState(() => {
         try { return JSON.parse(localStorage.getItem("oaxaca_waiter_notifications") ?? "[]"); }
@@ -1018,22 +1012,13 @@ export default function App() {
         const fetchOrders = async () => {
             const res = await fetch(`http://127.0.0.1:8000/orders${staffId ? `?waiter_id=${staffId}` : ''}`);
             const data = await res.json();
-            const startTimes = JSON.parse(localStorage.getItem("oaxaca_order_start_times") ?? "{}");
-            const getStartTime = (id) => {
-                const key = String(id);
-                if (!startTimes[key]) {
-                    startTimes[key] = Date.now();
-                    localStorage.setItem("oaxaca_order_start_times", JSON.stringify(startTimes));
-                }
-                return startTimes[key];
-            };
             setOrders(prev => {
                 return data.map(o => {
                     return {
                         id: String(o.order_id),
                         table: o.table_id,
                         status: o.status ?? "Pending",
-                        startedAt: getStartTime(o.order_id),
+                        startedAt: o.created_at ? new Date(o.created_at).getTime() : Date.now(),
                         estMins: o.est_mins ?? 15,
                         items: o.items.map(i => ({
                             menuId: null,
@@ -1111,25 +1096,38 @@ export default function App() {
         return () => clearInterval(poll);
     }, []);
 
-    const markAsPaid = async (orderId) => {
-        const startTimes = JSON.parse(localStorage.getItem("oaxaca_order_start_times") ?? "{}");
-        delete startTimes[String(orderId)];
-        localStorage.setItem("oaxaca_order_start_times", JSON.stringify(startTimes));
-        await fetch(`http://127.0.0.1:8000/orders/${orderId}/pay`, {
-            method: 'POST',
-        });
-        setOrders(p => p.filter(o => o.id !== String(orderId)));
-        addToast(`Order #${orderId} marked as paid ✓`);
+    const markAsPaid = async (orderId, allOrderIds) => {
+        const ids = allOrderIds ?? [orderId];
+        for (const id of ids) {
+            await fetch(`http://127.0.0.1:8000/orders/${id}/pay`, { method: 'POST' });
+        }
+        setOrders(p => p.filter(o => !ids.map(String).includes(o.id)));
+        // notify customer tab to log out
+        localStorage.setItem("oaxaca_table_paid", JSON.stringify({ ids, timestamp: Date.now() }));
+        addToast(`Table marked as paid ✓`);
     };
 
-    const unpaidTables = orders
-        .filter(o => o.status === "Completed")
-        .map(o => ({
-            table: o.table,
-            order: o.id,
-            total: o.items.reduce((s, i) => s + i.price * i.qty, 0),
-            waiting: "—"
-        }));
+    const unpaidTables = Object.values(
+        orders
+            .filter(o => o.status === "Completed")
+            .reduce((acc, o) => {
+                const table = o.table;
+                const orderTotal = o.items.reduce((s, i) => s + i.price * i.qty, 0);
+                if (acc[table]) {
+                    acc[table].total += orderTotal;
+                    acc[table].orderIds.push(o.id);
+                } else {
+                    acc[table] = {
+                        table,
+                        order: o.id,
+                        orderIds: [o.id],
+                        total: orderTotal,
+                        waiting: "—"
+                    };
+                }
+                return acc;
+            }, {})
+    );
 
 
     // ACCOUNT LOGIN VALIDATION
@@ -1193,7 +1191,15 @@ export default function App() {
                             style={{ width: 36, height: 36, borderRadius: "50%", background: showAccount ? C.mid : C.green, display: "grid", placeItems: "center", cursor: "pointer", color: "white", fontSize: 11, fontWeight: 700, border: `2px solid ${showAccount ? C.light : "transparent"}`, transition: "all .15s", userSelect: "none" }}>
                             {staffInfo?.name ? staffInfo.name.slice(0, 2).toUpperCase() : "??"}
                         </div>
-                        {showAccount && <AccountPanel addToast={addToast} staffInfo={staffInfo} />}
+                        {showAccount && <AccountPanel addToast={addToast} staffInfo={staffInfo} onLogout={async () => {
+                            if (staffInfo?.staff_id) {
+                                await fetch(`http://127.0.0.1:8000/auth/logout/${staffInfo.staff_id}`, { method: 'POST' }).catch(() => { });
+                            }
+                            localStorage.removeItem("oaxaca_waiter_notifications");
+                            setShowAccount(false);
+                            setLoggingOut(true);
+                            setTimeout(() => { window.location.href = "/"; }, 2500);
+                        }} />}
                     </div>
                 </div>
             </nav>
@@ -1239,6 +1245,23 @@ export default function App() {
             <div style={{ position: "fixed", bottom: 24, right: 24, display: "flex", flexDirection: "column", gap: 8, zIndex: 9999, pointerEvents: "none" }}>
                 {toasts.map(t => <div key={t.id} style={{ background: C.dark, color: C.bg, padding: "10px 18px", borderRadius: 6, fontSize: 12, fontWeight: 500, boxShadow: "0 4px 16px rgba(0,0,0,.25)", animation: "fadeInUp .2s ease" }}>{t.msg}</div>)}
             </div>
+            {loggingOut && (
+                <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.5)", zIndex: 9999, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <div style={{ background: "#faf7f2", border: "1.5px solid #d4b896", borderRadius: 12, padding: "40px 48px", textAlign: "center", boxShadow: "0 12px 40px rgba(0,0,0,.25)", animation: "dropIn .2s ease" }}>
+                        <div style={{ width: 56, height: 56, borderRadius: "50%", background: "#d4edda", display: "grid", placeItems: "center", margin: "0 auto 16px" }}>
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#4a7c59" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <circle cx="12" cy="12" r="10" />
+                                <path d="M8 14s1.5 2 4 2 4-2 4-2" />
+                                <line x1="9" y1="9" x2="9.01" y2="9" strokeWidth="3" />
+                                <line x1="15" y1="9" x2="15.01" y2="9" strokeWidth="3" />
+                            </svg>
+                        </div>
+                        <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 24, fontWeight: 700, color: "#2D2218", marginBottom: 8 }}>See you soon!</h2>
+                        <p style={{ fontSize: 13, color: "#7a5c44", marginBottom: 6 }}>You have been signed out successfully.</p>
+                        <p style={{ fontSize: 11, color: "#8b4513" }}>Returning to home...</p>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
