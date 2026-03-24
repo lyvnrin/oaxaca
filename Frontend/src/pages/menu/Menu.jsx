@@ -869,7 +869,9 @@ export default function App() {
     const [isPaid, setIsPaid] = useState(false);
     const [unpaidModalOpen, setUnpaidModalOpen] = useState(false);
 
-    const [liveStep, setLiveStep] = useState(1);
+    const [liveStep, setLiveStep] = useState(() => {
+        return parseInt(sessionStorage.getItem("oaxaca_live_step") ?? "1");
+    });
     const [liveOrderId, setLiveOrderId] = useState(sessionStorage.getItem('liveOrderId') ?? null);
     const [hasActiveOrder, setHasActiveOrder] = useState(!!sessionStorage.getItem('liveOrderId'));
 
@@ -936,6 +938,18 @@ export default function App() {
             "Completed": 5,
         };
 
+        // immediately fetch on mount to restore correct step after refresh
+        fetch(`http://127.0.0.1:8000/orders/${liveOrderId}`)
+            .then(r => r.ok ? r.json() : null)
+            .then(data => {
+                if (data && data.status && statusToStep[data.status]) {
+                    const step = statusToStep[data.status];
+                    setLiveStep(step);
+                    sessionStorage.setItem("oaxaca_live_step", step);
+                }
+            })
+            .catch(() => { });
+
         const delay = setTimeout(() => {
             const poll = setInterval(async () => {
                 try {
@@ -961,7 +975,9 @@ export default function App() {
                         setTimeout(() => { setOrderCancelled(false); window.location.href = '/'; }, 2000);
                         return;
                     }
-                    setLiveStep(statusToStep[data.status] ?? 1);
+                    const step = statusToStep[data.status] ?? 1;
+                    setLiveStep(step);
+                    sessionStorage.setItem("oaxaca_live_step", step);
                 } catch (_) { }
             }, 8000);
             return () => clearInterval(poll);
@@ -1052,6 +1068,7 @@ export default function App() {
             });
             localStorage.setItem(`oaxaca_customisations_${data.order_id}`, JSON.stringify(customisations));
             setLiveStep(1);
+            sessionStorage.removeItem("oaxaca_live_step");
 
             await fetch('http://127.0.0.1:8000/stock/deplete', {
                 method: 'POST',
