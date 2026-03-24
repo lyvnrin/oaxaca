@@ -27,8 +27,9 @@ def place_order(payload: OrderIn):
     )
     order_id = cursor.lastrowid
     cursor.executemany(
-        "INSERT INTO order_item (order_id, item_id, quantity) VALUES (?, ?, ?)",
-        [(order_id, i["item_id"], i["quantity"]) for i in payload.items]
+        "INSERT INTO order_item (order_id, item_id, quantity, unit_price) VALUES (?, ?, ?, ?)",
+        [(order_id, i["item_id"], i["quantity"], i.get("price"))
+         for i in payload.items]
     )
     conn.commit()
     conn.close()
@@ -49,7 +50,9 @@ def get_orders(waiter_id: int | None = Query(default=None)):
     result = []
     for order in orders:
         items = conn.execute("""
-            SELECT oi.quantity, mi.item_name, mi.price, mi.prep_time_mins
+            SELECT oi.quantity, mi.item_name, 
+                   COALESCE(oi.unit_price, mi.price) as price, 
+                   mi.prep_time_mins
             FROM order_item oi
             JOIN menu_items mi ON oi.item_id = mi.item_id
             WHERE oi.order_id = ?
@@ -112,6 +115,74 @@ def pay_order(order_id: int):
     conn.commit()
     conn.close()
     return {"order_id": order_id, "status": "Paid"}
+
+
+class OrderItemAdd(BaseModel):
+    item_id: int
+    quantity: int
+    price: float
+    name: str
+
+
+@router.post("/orders/{order_id}/items", status_code=201)
+def add_item_to_order(order_id: int, payload: OrderItemAdd):
+    conn = get_conn()
+    row = conn.execute(
+        "SELECT * FROM orders WHERE order_id = ?", (order_id,)
+    ).fetchone()
+    if not row:
+        raise HTTPException(status_code=404, detail="Order not found")
+    existing = conn.execute(
+        "SELECT order_item_id, quantity FROM order_item WHERE order_id = ? AND item_id = ?",
+        (order_id, payload.item_id)
+    ).fetchone()
+    if existing:
+        conn.execute(
+            "UPDATE order_item SET quantity = quantity + ? WHERE order_item_id = ?",
+            (payload.quantity, existing["order_item_id"])
+        )
+    else:
+        conn.execute(
+            "INSERT INTO order_item (order_id, item_id, quantity, unit_price) VALUES (?, ?, ?, ?)",
+            (order_id, payload.item_id, payload.quantity, payload.price)
+        )
+    new_total = conn.execute("""
+        SELECT SUM(oi.quantity * COALESCE(oi.unit_price, mi.price))
+        FROM order_item oi
+        JOIN menu_items mi ON oi.item_id = mi.item_id
+        WHERE oi.order_id = ?
+    """, (order_id,)).fetchone()[0] or 0
+    conn.execute(
+        "UPDATE orders SET total_cost = ? WHERE order_id = ?", (new_total, order_id))
+    conn.commit()
+    conn.close()
+    return {"order_id": order_id, "total_cost": new_total}
+
+
+@router.delete("/orders/{order_id}/items/{item_index}", status_code=200)
+def remove_item_from_order(order_id: int, item_index: int):
+    conn = get_conn()
+    items = conn.execute(
+        "SELECT order_item_id FROM order_item WHERE order_id = ? ORDER BY order_item_id",
+        (order_id,)
+    ).fetchall()
+    if item_index >= len(items):
+        raise HTTPException(status_code=404, detail="Item not found")
+    conn.execute(
+        "DELETE FROM order_item WHERE order_item_id = ?",
+        (items[item_index]["order_item_id"],)
+    )
+    new_total = conn.execute("""
+        SELECT SUM(oi.quantity * COALESCE(oi.unit_price, mi.price))
+        FROM order_item oi
+        JOIN menu_items mi ON oi.item_id = mi.item_id
+        WHERE oi.order_id = ?
+    """, (order_id,)).fetchone()[0] or 0
+    conn.execute(
+        "UPDATE orders SET total_cost = ? WHERE order_id = ?", (new_total, order_id))
+    conn.commit()
+    conn.close()
+    return {"order_id": order_id, "total_cost": new_total}
 
 
 @router.delete("/orders/{order_id}/cleanup")

@@ -878,6 +878,19 @@ export default function App() {
     const [estMins, setEstMins] = useState(null);
 
     useEffect(() => {
+        const handler = (e) => {
+            if (e.key !== "oaxaca_placed_order" || !e.newValue) return;
+            try {
+                const updated = JSON.parse(e.newValue);
+                setPlacedOrder(updated);
+                sessionStorage.setItem("oaxaca_placed_order", e.newValue);
+            } catch (_) { }
+        };
+        window.addEventListener("storage", handler);
+        return () => window.removeEventListener("storage", handler);
+    }, []);
+
+    useEffect(() => {
         const fetchAvailability = () => {
             fetch('http://127.0.0.1:8000/menu_items')
                 .then(r => r.json())
@@ -1054,8 +1067,19 @@ export default function App() {
         setHasActiveOrder(true);
         setIsPaid(false);
         setCurrentStep(1);
-        setPlacedOrder(cart);
-        sessionStorage.setItem("oaxaca_placed_order", JSON.stringify(cart));
+        setPlacedOrder(prev => {
+            const merged = { ...prev };
+            Object.entries(cart).forEach(([key, value]) => {
+                if (merged[key]) {
+                    merged[key] = { ...merged[key], qty: merged[key].qty + value.qty };
+                } else {
+                    merged[key] = value;
+                }
+            });
+            sessionStorage.setItem("oaxaca_placed_order", JSON.stringify(merged));
+            localStorage.setItem("oaxaca_placed_order", JSON.stringify(merged));
+            return merged;
+        });
         setCartOpen(false);
         setCart({});
         setConfirmed(true);
@@ -1090,6 +1114,7 @@ export default function App() {
         setHasActiveOrder(false);
         setPlacedOrder({});
         sessionStorage.removeItem("oaxaca_placed_order");
+        localStorage.removeItem("oaxaca_placed_order");
         setCurrentStep(1);
         setLiveOrderId(null);
         sessionStorage.clear();

@@ -1,8 +1,8 @@
 import sqlite3
 import os
 
-BASE = os.path.dirname(__file__)                   
-DB   = os.path.join(BASE, "..", "oaxaca.db")       
+BASE = os.path.dirname(__file__)
+DB = os.path.join(BASE, "..", "oaxaca.db")
 
 conn = sqlite3.connect(DB)
 
@@ -64,6 +64,7 @@ conn.execute('''CREATE TABLE order_item (
     order_id      INTEGER,
     item_id       INTEGER,
     quantity      INTEGER NOT NULL DEFAULT 1,
+    unit_price    REAL,
     FOREIGN KEY (order_id) REFERENCES orders(order_id),
     FOREIGN KEY (item_id) REFERENCES menu_items(item_id)
 )''')

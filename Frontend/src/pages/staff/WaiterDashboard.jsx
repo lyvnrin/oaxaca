@@ -327,6 +327,7 @@ function OrderCard({ order, onConfirm, onCancel, onDeliver, onAddItems, onStatus
     const isPending = order.status === "Pending";
     const isReady = order.status === "Ready";
     const isDelivered = order.status === "Completed";
+    const isLocked = order.status === "In Progress" || order.status === "Ready" || order.status === "Completed";
 
     const elapsedMins = Math.floor((Date.now() - order.startedAt) / 60000);
     const remaining = Math.max(0, order.estMins - elapsedMins);
@@ -393,7 +394,7 @@ function OrderCard({ order, onConfirm, onCancel, onDeliver, onAddItems, onStatus
                             <span style={{ fontWeight: 600, color: C.mid, fontSize: 11, minWidth: 48, textAlign: "right" }}>
                                 £{(item.price * item.qty).toFixed(2)}
                             </span>
-                            {!isDelivered && (
+                            {!isDelivered && !isLocked && (
                                 <button onClick={() => onRemoveItem(order.id, ii)}
                                     style={{ marginLeft: 4, width: 18, height: 18, borderRadius: "50%", border: "none", background: C.redL, color: C.red, fontSize: 11, cursor: "pointer", display: "grid", placeItems: "center", flexShrink: 0 }}>
                                     ✕
@@ -420,7 +421,7 @@ function OrderCard({ order, onConfirm, onCancel, onDeliver, onAddItems, onStatus
                         Mark Delivered
                     </button>
                 )}
-                {!isDelivered && (
+                {!isDelivered && !isLocked && (
                     <button onClick={() => onAddItems(order)} style={{ padding: "7px 10px", border: `1px solid ${C.border}`, borderRadius: 6, background: C.panel, color: C.mid, fontSize: 10, fontWeight: 600, letterSpacing: ".06em", textTransform: "uppercase", cursor: "pointer", fontFamily: "Jost, sans-serif" }}>
                         + Add Items
                     </button>
@@ -483,15 +484,18 @@ function OrdersTab({ orders, setOrders, menu, addToast, staffId, myTables }) {
     };
 
 
-    const removeItem = (orderId, itemIndex) => {
+    const removeItem = async (orderId, itemIndex) => {
         setOrders(p => p.map(o => {
             if (o.id !== orderId) return o;
             const items = o.items.filter((_, i) => i !== itemIndex);
             return items.length === 0 ? null : { ...o, items };
         }).filter(Boolean));
+        await fetch(`http://127.0.0.1:8000/orders/${orderId}/items/${itemIndex}`, {
+            method: 'DELETE',
+        });
         addToast("Item removed from order");
     };
-    const addItemsToOrder = (orderId, newItems) => {
+    const addItemsToOrder = async (orderId, newItems) => {
         setOrders(p => p.map(o => {
             if (o.id !== orderId) return o;
             const merged = [...o.items];
@@ -502,6 +506,34 @@ function OrdersTab({ orders, setOrders, menu, addToast, staffId, myTables }) {
             });
             return { ...o, items: merged };
         }));
+        for (const ni of newItems) {
+            await fetch(`http://127.0.0.1:8000/orders/${orderId}/items`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    item_id: ni.id,
+                    quantity: ni.qty,
+                    price: ni.price,
+                    name: ni.name,
+                }),
+            });
+        }
+
+        // notify customer tab to update their order summary
+        const existing = JSON.parse(localStorage.getItem("oaxaca_placed_order") ?? "{}");
+        newItems.forEach(ni => {
+            const key = `${ni.id}_waiter`;
+            if (existing[key]) {
+                existing[key] = { ...existing[key], qty: existing[key].qty + ni.qty };
+            } else {
+                existing[key] = {
+                    item: { id: ni.id, name: ni.name, price: `£${ni.price.toFixed(2)}`, customization: null },
+                    qty: ni.qty,
+                };
+            }
+        });
+        localStorage.setItem("oaxaca_placed_order", JSON.stringify(existing));
+
         addToast("Items added to order ✓");
     };
 
