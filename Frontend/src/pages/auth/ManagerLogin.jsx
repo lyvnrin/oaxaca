@@ -4,12 +4,16 @@ import Grainient from "../../components/Grainient";
 import "./ManagerLogin.css";
 
 function ManagerLogin() {
+
+    // NAVIGATION --------------------------
     const navigate = useNavigate();
     const goBack = () => navigate("/staff");
 
+    // STATE --------------------------
     const [formData, setFormData] = useState({ username: '', password: '' });
     const [errors, setErrors] = useState({});
 
+    // INPUT CHANGE HANDLER --------------------------
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value });
@@ -18,6 +22,7 @@ function ManagerLogin() {
         }
     };
 
+    // FORM VALIDATION --------------------------
     const validateForm = () => {
         let newErrors = {};
         if (!formData.username.trim()) {
@@ -31,12 +36,14 @@ function ManagerLogin() {
         return newErrors;
     };
 
+    // FORM VALIDATION : disabling continue btn --------------------------
     const isFormValid = () => {
         return formData.username.trim() !== '' &&
             formData.password !== '' &&
             formData.password.length >= 6;
     };
 
+    // CONTINUE BTN : posts info to auth endpoint --------------------------
     const handleContinue = async () => {
         const validationErrors = validateForm();
         setErrors(validationErrors);
@@ -71,6 +78,8 @@ function ManagerLogin() {
 
     return (
         <div className="manager-login-page">
+
+            {/* BACKGROUND */}
             <Grainient
                 color1="#6d2d17" color2="#9b552c" color3="#4b2311"
                 timeSpeed={0.25} colorBalance={0}
@@ -81,11 +90,15 @@ function ManagerLogin() {
                 contrast={1.2} gamma={1} saturation={0.6}
                 centerX={-0.09} centerY={0.05} zoom={0.9}
             />
+
+            {/* BACK BTN */}
             <button className="manager-login-back-button" onClick={goBack}>←</button>
 
             <div className="manager-login-box">
                 <h2>Hello, Manager</h2>
                 <p className="manager-login-field-label">Please enter:</p>
+
+                {/* USERNAME FIELD */}
                 <p className="manager-login-field-label">USERNAME</p>
                 <input
                     className={`manager-login-input ${errors.username ? 'manager-login-input--error' : ''}`}
@@ -96,6 +109,8 @@ function ManagerLogin() {
                     placeholder="Enter your username"
                 />
                 {errors.username && <span className="manager-login-error">{errors.username}</span>}
+
+                {/* PASSWORD FIELD */}
                 <p className="manager-login-field-label">PASSWORD</p>
                 <input
                     className={`manager-login-input ${errors.password ? 'manager-login-input--error' : ''}`}
@@ -106,6 +121,8 @@ function ManagerLogin() {
                     placeholder="Enter your password"
                 />
                 {errors.password && <span className="manager-login-error">{errors.password}</span>}
+
+                {/* SUBMIT BTN */}
                 <button
                     className={`manager-login-button ${!isFormValid() ? 'manager-login-button--disabled' : ''}`}
                     onClick={handleContinue}

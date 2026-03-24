@@ -4,12 +4,16 @@ import Grainient from "../../components/Grainient";
 import "./KitchenLogin.css";
 
 function KitchenLogin() {
+    
+    // NAVIGATION --------------------------
     const navigate = useNavigate();
     const goBack = () => navigate("/staff");
 
+    // STATE --------------------------
     const [formData, setFormData] = useState({ username: '', password: '' });
     const [errors, setErrors] = useState({});
 
+    // INPUT CHANGE HANDLER --------------------------
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData({
@@ -24,6 +28,7 @@ function KitchenLogin() {
         }
     };
 
+    // FORM VALIDATION --------------------------
     const validateForm = () => {
         let newErrors = {};
         if (!formData.username.trim()) {
@@ -37,12 +42,14 @@ function KitchenLogin() {
         return newErrors;
     };
 
+    // FORM VALIDATION : disabling continue btn --------------------------
     const isFormValid = () => {
         return formData.username.trim() !== '' &&
             formData.password !== '' &&
             formData.password.length >= 6;
     };
 
+    // CONTINUE BTN : posts info to auth endpoint --------------------------
     const handleContinue = async () => {
         const validationErrors = validateForm();
         setErrors(validationErrors);
@@ -77,6 +84,8 @@ function KitchenLogin() {
 
     return (
         <div className="kitchen-page">
+
+            {/* BACKGROUND */}
             <Grainient
                 color1="#6d2d17" color2="#9b552c" color3="#4b2311"
                 timeSpeed={0.25} colorBalance={0}
@@ -87,11 +96,15 @@ function KitchenLogin() {
                 contrast={1.2} gamma={1} saturation={0.6}
                 centerX={-0.09} centerY={0.05} zoom={0.9}
             />
+
+            {/* BACK BTN */}
             <button className="kitchen-back-button" onClick={goBack}>←</button>
 
             <div className="kitchen-login-box">
                 <h2>Hello, Kitchen</h2>
                 <p className="kitchen-field-label">Please enter:</p>
+
+                {/* USERNAME FIELD */}
                 <p className="kitchen-field-label">USERNAME</p>
                 <input
                     className={`kitchen-input ${errors.username ? 'input-error' : ''}`}
@@ -102,6 +115,8 @@ function KitchenLogin() {
                     placeholder="Enter your username"
                 />
                 {errors.username && <span className="error-message">{errors.username}</span>}
+
+                {/* PASSWORD FIELD */}
                 <p className="kitchen-field-label">PASSWORD</p>
                 <input
                     className={`kitchen-input ${errors.password ? 'input-error' : ''}`}
@@ -112,6 +127,8 @@ function KitchenLogin() {
                     placeholder="Enter your password"
                 />
                 {errors.password && <span className="error-message">{errors.password}</span>}
+
+                {/* SUBMIT BTN */}
                 <button
                     className={`kitchen-button ${!isFormValid() ? 'kitchen-button-disabled' : ''}`}
                     onClick={handleContinue}

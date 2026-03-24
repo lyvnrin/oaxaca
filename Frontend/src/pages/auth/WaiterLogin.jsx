@@ -4,13 +4,16 @@ import Grainient from "../../components/Grainient";
 import "./WaiterLogin.css";
 
 function WaiterLogin() {
+    // NAVIGATION --------------------------
     const navigate = useNavigate();
     const goBack = () => navigate("/staff");
     const goToDashboard = () => navigate("/waiter-dashboard", { state: { role: 'waiter' } });
 
+    // STATE --------------------------
     const [formData, setFormData] = useState({ username: '', password: '' });
     const [errors, setErrors] = useState({});
 
+    // INPUT CHANGE HANDLER --------------------------
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData({
@@ -26,6 +29,7 @@ function WaiterLogin() {
         }
     };
 
+    // FORM VALIDATION --------------------------
     const validateForm = () => {
         let newErrors = {};
 
@@ -42,12 +46,14 @@ function WaiterLogin() {
         return newErrors;
     };
 
+    // FORM VALIDATION : disabling continue btn --------------------------
     const isFormValid = () => {
         return formData.username.trim() !== '' &&
             formData.password !== '' &&
             formData.password.length >= 6;
     };
 
+    // CONTINUE BTN : posts info to auth endpoint --------------------------
     const handleContinue = async () => {
         const validationErrors = validateForm();
         setErrors(validationErrors);
@@ -82,6 +88,8 @@ function WaiterLogin() {
 
     return (
         <div className="waiter-page">
+
+            {/* BACKGROUND */}
             <Grainient
                 color1="#6d2d17" color2="#9b552c" color3="#4b2311"
                 timeSpeed={0.25} colorBalance={0}
@@ -92,11 +100,15 @@ function WaiterLogin() {
                 contrast={1.2} gamma={1} saturation={0.6}
                 centerX={-0.09} centerY={0.05} zoom={0.9}
             />
+
+            {/* BACK BUTTON */}
             <button className="waiter-back-button" onClick={goBack}>←</button>
 
             <div className="waiter-login-box">
                 <h2>Hello, Waiter</h2>
                 <p className="waiter-field-label">Please enter:</p>
+
+                {/* USERNAME FIELD */}
                 <p className="waiter-field-label">USERNAME</p>
                 <input
                     className={`waiter-input ${errors.username ? 'input-error' : ''}`}
@@ -107,6 +119,8 @@ function WaiterLogin() {
                     placeholder="Enter your username"
                 />
                 {errors.username && <span className="error-message">{errors.username}</span>}
+
+                {/* PASSWORD FIELD */}
                 <p className="waiter-field-label">PASSWORD</p>
                 <input
                     className={`waiter-input ${errors.password ? 'input-error' : ''}`}
@@ -117,6 +131,8 @@ function WaiterLogin() {
                     placeholder="Enter your password"
                 />
                 {errors.password && <span className="error-message">{errors.password}</span>}
+
+                {/* SUBMIT BTN */}
                 <button
                     className={`waiter-button ${!isFormValid() ? 'waiter-button-disabled' : ''}`}
                     onClick={handleContinue}
