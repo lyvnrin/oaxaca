@@ -192,7 +192,7 @@ function CustomizationPopup({ item, onClose, onAddToCart }) {
                     </div>
                     {itemExtras.length > 0 && (
                         <div className="customization-section">
-                            <h3 className="section-title">Add Extras</h3>
+                            <h3 className="section-title">Extras</h3>
                             <div className="extras-list">
                                 {itemExtras.map((extra) => {
                                     const isSelected = selectedExtras.some(e => e.name === extra.name);
