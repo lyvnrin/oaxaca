@@ -72,3 +72,17 @@ def deplete_stock(payload: OrderIn):
     conn.commit()
     conn.close()
     return {"message": "Stock depleted"}
+
+
+@router.post("/stock/replenish")
+def replenish_stock(payload: OrderIn):
+    conn = get_conn()
+    for item in payload.items:
+        for stock_id, pct in DISH_DEPLETIONS.get(item["item_id"], []):
+            conn.execute(
+                "UPDATE stock SET level = MIN(100, level + ?) WHERE stock_id = ?",
+                (pct * item["quantity"], stock_id)
+            )
+    conn.commit()
+    conn.close()
+    return {"message": "Stock replenished"}

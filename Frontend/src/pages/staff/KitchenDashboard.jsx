@@ -87,7 +87,7 @@ function NotificationsPanel({ notifications, setNotifications }) {
             onMouseLeave={e => e.currentTarget.style.background = n.read ? "transparent" : "rgba(196,118,58,.04)"}>
             <div style={{ width: 3, borderRadius: 2, background: typeColor[n.type] ?? C.warm, flexShrink: 0, alignSelf: "stretch" }} />
             <div style={{ flex: 1 }}>
-              <div style={{ fontSize: 12, fontWeight: n.read ? 400 : 700, color: C.text }}>Table {n.table} — Order #{n.order}</div>
+              <div style={{ fontSize: 12, fontWeight: n.read ? 400 : 700, color: C.text }}>Table {n.table}{n.order && n.order !== "–" ? ` — Order #${n.order}` : ""}</div>
               <p style={{ fontSize: 11, color: typeColor[n.type] ?? C.warm, marginTop: 3, fontWeight: 600 }}>{n.status}</p>
               {n.customerMessage && (
                 <p style={{ fontSize: 11, color: C.muted, marginTop: 3, fontStyle: "italic" }}>"{n.customerMessage}"</p>
@@ -103,7 +103,7 @@ function NotificationsPanel({ notifications, setNotifications }) {
 }
 
 // ACCOUNT PANEL --------------------------
-function AccountPanel({ addToast, staffInfo }) {
+function AccountPanel({ addToast, staffInfo, onLogout }) {
   const initials = staffInfo?.name ? staffInfo.name.slice(0, 2).toUpperCase() : "??";
   const displayName = staffInfo?.name ?? "Unknown";
   const role = staffInfo?.role ?? "Kitchen Staff";
@@ -119,10 +119,7 @@ function AccountPanel({ addToast, staffInfo }) {
         </div>
       </div>
       <div onClick={async () => {
-        if (staffInfo?.staff_id) {
-          await fetch(`http://127.0.0.1:8000/auth/logout/${staffInfo.staff_id}`, { method: 'POST' }).catch(() => { });
-        }
-        window.location.href = "/";
+        onLogout();
       }}
         style={{ padding: "13px 16px", display: "flex", alignItems: "center", gap: 10, cursor: "pointer", transition: "background .15s", borderRadius: "0 0 10px 10px" }}
         onMouseEnter={e => e.currentTarget.style.background = C.redL}
@@ -156,7 +153,8 @@ function OrderCard({ order, btnLabel, btnColor, onAction }) {
       {/* PREP TIME INDICATOR */}
       <div style={{
         fontSize: 10, fontWeight: 600, marginBottom: 8,
-        color: overdue ? C.red : remaining <= 5 ? C.amber : C.green, }}>
+        color: overdue ? C.red : remaining <= 5 ? C.amber : C.green,
+      }}>
         {overdue ? `⚠ ${elapsedMins - order.estMins}m overdue (est. ${order.estMins}m)` : `~${remaining}m remaining · est. ${order.estMins}m total`}
       </div>
 
@@ -259,21 +257,21 @@ export default function App() {
 
       const mapItems = (o) => o.items.map(i => {
         const mods = JSON.parse(
-            localStorage.getItem(`oaxaca_customisations_${o.order_id}`) || '{}'
+          localStorage.getItem(`oaxaca_customisations_${o.order_id}`) || '{}'
         );
         return {
-            name: i.item_name,
-            qty: i.quantity,
-            price: i.price,
-            note: mods[i.item_name] || null,
-            prepTime: i.prep_time_mins,
+          name: i.item_name,
+          qty: i.quantity,
+          price: i.price,
+          note: mods[i.item_name] || null,
+          prepTime: i.prep_time_mins,
         };
       });
 
       setPending(data.filter(o => o.status === "Waiter Confirmed").map(o => ({
         id: String(o.order_id),
         table: `Table ${o.table_id}`,
-        startedAt: Date.now(),
+        startedAt: o.created_at ? new Date(o.created_at).getTime() : Date.now(),
         estMins: o.est_mins ?? 15,
         items: mapItems(o),
       })));
@@ -281,15 +279,15 @@ export default function App() {
       setPreparing(data.filter(o => o.status === "In Progress").map(o => ({
         id: String(o.order_id),
         table: `Table ${o.table_id}`,
-        startedAt: Date.now(),
-         estMins: o.est_mins ?? 15,
+        startedAt: o.created_at ? new Date(o.created_at).getTime() : Date.now(),
+        estMins: o.est_mins ?? 15,
         items: mapItems(o),
       })));
 
       setReady(data.filter(o => o.status === "Ready").map(o => ({
         id: String(o.order_id),
         table: `Table ${o.table_id}`,
-        startedAt: Date.now(),
+        startedAt: o.created_at ? new Date(o.created_at).getTime() : Date.now(),
         estMins: o.est_mins ?? 15,
         items: mapItems(o),
       })));
@@ -301,7 +299,11 @@ export default function App() {
 
   // UI STATE --------------------------
   const [toasts, setToasts] = useState([]);
-  const [notifications, setNotifications] = useState([]);
+  const [loggingOut, setLoggingOut] = useState(false);
+  const [notifications, setNotifications] = useState(() => {
+    try { return JSON.parse(localStorage.getItem("oaxaca_kitchen_notifications") ?? "[]"); }
+    catch { return []; }
+  });
   const [showNotifs, setShowNotifs] = useState(false);
   const [showAccount, setShowAccount] = useState(false);
   const accountRef = useRef(null);
@@ -311,8 +313,50 @@ export default function App() {
 
   // TOAST NOTIFS --------------------------
   const addToast = msg => { const id = Date.now(); setToasts(p => [...p, { id, msg }]); setTimeout(() => setToasts(p => p.filter(t => t.id !== id)), 1800); };
+  useEffect(() => {
+    localStorage.setItem("oaxaca_kitchen_notifications", JSON.stringify(notifications));
+  }, [notifications]);
   useWaiterAlerts(setNotifications, addToast);
 
+  const cancelOrder = async (id) => {
+    const order = pending.find(o => o.id === id) || preparing.find(o => o.id === id) || ready.find(o => o.id === id);
+    const wasConfirmed = preparing.find(o => o.id === id) || ready.find(o => o.id === id);
+
+    setPending(p => p.filter(o => o.id !== id));
+    setPreparing(p => p.filter(o => o.id !== id));
+    setReady(p => p.filter(o => o.id !== id));
+
+    await fetch(`http://127.0.0.1:8000/orders/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: "Cancelled" }),
+    });
+
+    // only replenish if kitchen had already confirmed (stock was depleted)
+    if (wasConfirmed) {
+      try {
+        const fullOrderRes = await fetch('http://127.0.0.1:8000/orders');
+        const allOrders = await fullOrderRes.json();
+        const fullOrder = allOrders.find(o => String(o.order_id) === String(id));
+        if (fullOrder) {
+          await fetch('http://127.0.0.1:8000/stock/replenish', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              cust_id: fullOrder.cust_id,
+              table_id: fullOrder.table_id,
+              items: fullOrder.items.map(i => ({
+                item_id: i.item_id,
+                quantity: i.quantity,
+              })),
+            }),
+          });
+        }
+      } catch (_) { }
+    }
+
+    addToast(`Order cancelled`);
+  };
   // ORDER ACTIONS --------------------------
   const confirmOrder = async (id) => {
     const order = pending.find(o => o.id === id);
@@ -324,6 +368,30 @@ export default function App() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status: "In Progress" }),
     });
+
+    // deplete stock now that kitchen has confirmed — waiter edits are done
+    try {
+      const orderRes = await fetch(`http://127.0.0.1:8000/orders/${id}`);
+      const orderData = await orderRes.json();
+      const fullOrderRes = await fetch('http://127.0.0.1:8000/orders');
+      const allOrders = await fullOrderRes.json();
+      const fullOrder = allOrders.find(o => String(o.order_id) === String(id));
+      if (fullOrder) {
+        await fetch('http://127.0.0.1:8000/stock/deplete', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            cust_id: fullOrder.cust_id,
+            table_id: fullOrder.table_id,
+            items: fullOrder.items.map(i => ({
+              item_id: i.item_id,
+              quantity: i.quantity,
+            })),
+          }),
+        });
+      }
+    } catch (_) { }
+
     addToast(`${order.table} confirmed`);
   };
 
@@ -338,14 +406,22 @@ export default function App() {
       body: JSON.stringify({ status: "Ready" }),
     });
 
-    // CROSS-TAB NOTIFS TO WAITER DASH --------------------------
+    const tableNum = parseInt(order.table.replace("Table ", ""));
+    let assignedWaiter = null;
+    try {
+      const res = await fetch(`http://127.0.0.1:8000/tables/${tableNum}/waiter`);
+      const data = await res.json();
+      assignedWaiter = data.assigned_waiter ?? null;
+    } catch (_) { }
+
     localStorage.setItem("oaxaca_kitchen_notify", JSON.stringify({
       id: Date.now(),
       order: id,
-      table: parseInt(order.table.replace("Table ", "")),
+      table: tableNum,
       status: "Ready for Collection",
       type: "ready",
       read: false,
+      assigned_waiter: assignedWaiter,
     }));
     addToast(`${order.table} — waiter notified`);
   };
@@ -412,10 +488,25 @@ export default function App() {
               style={{ width: 36, height: 36, borderRadius: "50%", background: showAccount ? C.mid : C.green, display: "grid", placeItems: "center", cursor: "pointer", color: "white", fontSize: 11, fontWeight: 700, border: `2px solid ${showAccount ? C.light : "transparent"}`, transition: "all .15s", userSelect: "none" }}>
               {staffInfo?.name ? staffInfo.name.slice(0, 2).toUpperCase() : "??"}
             </div>
-            {showAccount && <AccountPanel addToast={addToast} staffInfo={staffInfo} />}
+            {showAccount && <AccountPanel addToast={addToast} staffInfo={staffInfo} onLogout={async () => {
+              if (staffInfo?.staff_id) {
+                await fetch(`http://127.0.0.1:8000/auth/logout/${staffInfo.staff_id}`, { method: 'POST' }).catch(() => { });
+              }
+              localStorage.removeItem("oaxaca_kitchen_notifications");
+              setShowAccount(false);
+              setLoggingOut(true);
+              setTimeout(() => { window.location.href = "/"; }, 2500);
+            }} />}
           </div>
         </div>
       </nav>
+
+      {notifications.filter(n => !n.read).length > 0 && (
+        <div style={{ background: "#c4763a", color: "white", padding: "9px 28px", display: "flex", alignItems: "center", gap: 10, fontSize: 12, fontWeight: 600, letterSpacing: ".04em", flexShrink: 0 }}>
+          <div style={{ width: 8, height: 8, borderRadius: "50%", background: "white", animation: "pulse 1.4s infinite", flexShrink: 0 }} />
+          {notifications.filter(n => !n.read).length} unread notification{notifications.filter(n => !n.read).length > 1 ? "s" : ""} — check alerts
+        </div>
+      )}
 
       {/* PAGE HEADER */}
       <div style={{ padding: "18px 28px 0", display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0 }}>
@@ -468,6 +559,23 @@ export default function App() {
           </div>
         ))}
       </div>
+      {loggingOut && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.5)", zIndex: 9999, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <div style={{ background: "#faf7f2", border: "1.5px solid #d4b896", borderRadius: 12, padding: "40px 48px", textAlign: "center", boxShadow: "0 12px 40px rgba(0,0,0,.25)", animation: "dropIn .2s ease" }}>
+            <div style={{ width: 56, height: 56, borderRadius: "50%", background: "#d4edda", display: "grid", placeItems: "center", margin: "0 auto 16px" }}>
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#4a7c59" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10" />
+                <path d="M8 14s1.5 2 4 2 4-2 4-2" />
+                <line x1="9" y1="9" x2="9.01" y2="9" strokeWidth="3" />
+                <line x1="15" y1="9" x2="15.01" y2="9" strokeWidth="3" />
+              </svg>
+            </div>
+            <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 24, fontWeight: 700, color: "#2D2218", marginBottom: 8 }}>See you soon!</h2>
+            <p style={{ fontSize: 13, color: "#7a5c44", marginBottom: 6 }}>You have been signed out successfully.</p>
+            <p style={{ fontSize: 11, color: "#8b4513" }}>Returning to home...</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -81,7 +81,7 @@ const tileColors = (status) => ({
 }[status] || { bg: "#f0f7f2", border: "#b8d4c0", num: C.green, label: C.green });
 
 const urgencyColor = { urgent: C.red, normal: C.amber, info: C.green };
-const notifTypeColor = { urgent: C.red, warn: C.amber, info: C.green };
+const notifTypeColor = { urgent: C.red, warn: C.amber, info: C.green, alert: C.red };
 
 function useOutsideClick(ref, cb) {
     useEffect(() => {
@@ -115,7 +115,7 @@ function NotificationsPanel({ notifications, setNotifications }) {
     const dismiss = (id) => setNotifications(p => p.filter(n => n.id !== id));
     const markAll = () => setNotifications(p => p.map(n => ({ ...n, read: true })));
     const clearAll = () => setNotifications([]);
-    const notifTypeColor = { urgent: C.red, warn: C.amber, info: C.green };
+    const notifTypeColor = { urgent: C.red, warn: C.amber, info: C.green, alert: C.red };
     const filtered = notifications.filter(n =>
         filter === "Urgent" ? n.type === "urgent" : filter === "Unread" ? !n.read : true
     );
@@ -153,7 +153,7 @@ function NotificationsPanel({ notifications, setNotifications }) {
                         <div style={{ width: 3, borderRadius: 2, background: notifTypeColor[n.type] ?? C.warm, flexShrink: 0, alignSelf: "stretch" }} />
                         <div style={{ flex: 1, minWidth: 0 }}>
                             <div style={{ fontSize: 12, fontWeight: n.read ? 400 : 700, color: C.text }}>
-                                {n.title ?? `Table ${n.table} — Order #${n.order}`}
+                                {n.title ?? `Table ${n.table}${n.order && n.order !== "–" ? ` — Order #${n.order}` : ""}`}
                             </div>
                             <p style={{ fontSize: 11, color: notifTypeColor[n.type] ?? C.warm, marginTop: 3, fontWeight: 600 }}>
                                 {n.body ?? n.status}
@@ -176,7 +176,7 @@ function NotificationsPanel({ notifications, setNotifications }) {
     );
 }
 
-function AccountPanel({ staffInfo }) {
+function AccountPanel({ staffInfo, onLogout }) {
     const navigate = useNavigate();
     const initials = staffInfo?.name ? staffInfo.name.slice(0, 2).toUpperCase() : "??";
     const displayName = staffInfo?.name ?? "Unknown";
@@ -193,10 +193,7 @@ function AccountPanel({ staffInfo }) {
                 </div>
             </div>
             <div onClick={async () => {
-                if (staffInfo?.staff_id) {
-                    await fetch(`http://127.0.0.1:8000/auth/logout/${staffInfo.staff_id}`, { method: 'POST' }).catch(() => { });
-                }
-                navigate('/');
+                onLogout();
             }}
                 style={{ padding: "13px 16px", display: "flex", alignItems: "center", gap: 10, cursor: "pointer", transition: "background .15s", borderRadius: "0 0 10px 10px" }}
                 onMouseEnter={e => e.currentTarget.style.background = C.redL}
@@ -951,10 +948,14 @@ export default function ManagerDashboard() {
         const poll = setInterval(fetchStock, 3000);
         return () => clearInterval(poll);
     }, []);
-    const [notifications, setNotifications] = useState(INIT_NOTIFICATIONS);
+    const [notifications, setNotifications] = useState(() => {
+        try { return JSON.parse(localStorage.getItem("oaxaca_manager_notifications") ?? "[]"); }
+        catch { return []; }
+    });
     const [toasts, setToasts] = useState([]);
     const [showNotifs, setShowNotifs] = useState(false);
     const [showAccount, setShowAccount] = useState(false);
+    const [loggingOut, setLoggingOut] = useState(false);
 
     useEffect(() => {
         fetch('http://127.0.0.1:8000/menu_items')
@@ -1025,7 +1026,9 @@ export default function ManagerDashboard() {
         setToasts(p => [...p, { id, msg }]);
         setTimeout(() => setToasts(p => p.filter(t => t.id !== id)), 2800);
     };
-
+    useEffect(() => {
+        localStorage.setItem("oaxaca_manager_notifications", JSON.stringify(notifications));
+    }, [notifications]);
     useWaiterAlerts(setNotifications, addToast);
 
     useEffect(() => {
@@ -1062,7 +1065,7 @@ export default function ManagerDashboard() {
 
             <nav style={{ background: C.dark, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 28px", height: 56, position: "relative", zIndex: 700 }}>
                 <span style={{ fontFamily: "Cormorant Garamond, serif", fontSize: 22, letterSpacing: ".25em", color: C.bg, fontWeight: 600 }}>OAXACA</span>
-                <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                     <span style={{ fontSize: 11, letterSpacing: ".1em", textTransform: "uppercase", color: "rgba(245,240,232,.55)", fontWeight: 500 }}>Manager View</span>
                     <div ref={notifRef} style={{ position: "relative" }}>
                         <div onClick={() => { setShowNotifs(v => !v); setShowAccount(false); }}
@@ -1077,14 +1080,25 @@ export default function ManagerDashboard() {
                             style={{ width: 36, height: 36, borderRadius: "50%", background: showAccount ? C.mid : C.warm, display: "grid", placeItems: "center", cursor: "pointer", color: "white", fontSize: 11, fontWeight: 700, border: `2px solid ${showAccount ? C.light : "transparent"}`, transition: "all .15s", userSelect: "none" }}>
                             {staffInfo?.name ? staffInfo.name.slice(0, 2).toUpperCase() : "??"}
                         </div>
-                        {showAccount && <AccountPanel staffInfo={staffInfo} />}
+                        {showAccount && <AccountPanel staffInfo={staffInfo} onLogout={async () => {
+                            if (staffInfo?.staff_id) {
+                                await fetch(`http://127.0.0.1:8000/auth/logout/${staffInfo.staff_id}`, { method: 'POST' }).catch(() => { });
+                            }
+                            localStorage.removeItem("oaxaca_manager_notifications");
+                            setShowAccount(false);
+                            setLoggingOut(true);
+                            setTimeout(() => { navigate('/'); }, 2500);
+                        }} />}
                     </div>
                 </div>
             </nav>
 
-            <div style={{ padding: "22px 28px 0" }}>
-                <h1 style={{ fontFamily: "Cormorant Garamond, serif", fontSize: 32, fontWeight: 700, color: C.dark }}>Manager Dashboard</h1>
-            </div>
+            {notifications.filter(n => !n.read).length > 0 && (
+                <div style={{ background: "#c4763a", color: "white", padding: "9px 28px", display: "flex", alignItems: "center", gap: 10, fontSize: 12, fontWeight: 600, letterSpacing: ".04em" }}>
+                    <div style={{ width: 8, height: 8, borderRadius: "50%", background: "white", animation: "pulse 1.4s infinite", flexShrink: 0 }} />
+                    {notifications.filter(n => !n.read).length} unread notification{notifications.filter(n => !n.read).length > 1 ? "s" : ""} — check alerts
+                </div>
+            )}
 
             <div style={{ padding: "16px 28px 0", display: "flex", gap: 4, borderBottom: `1.5px solid ${C.border}` }}>
                 {["Overview", "Menu", "Employees", "Stock"].map(t => (
@@ -1107,6 +1121,23 @@ export default function ManagerDashboard() {
                     <div key={t.id} style={{ background: C.dark, color: C.bg, padding: "10px 18px", borderRadius: 6, fontSize: 12, fontFamily: "Jost, sans-serif", fontWeight: 500, boxShadow: "0 4px 16px rgba(0,0,0,.25)", animation: "fadeInUp .2s ease" }}>{t.msg}</div>
                 ))}
             </div>
+            {loggingOut && (
+                <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.5)", zIndex: 9999, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <div style={{ background: "#faf7f2", border: "1.5px solid #d4b896", borderRadius: 12, padding: "40px 48px", textAlign: "center", boxShadow: "0 12px 40px rgba(0,0,0,.25)", animation: "dropIn .2s ease" }}>
+                        <div style={{ width: 56, height: 56, borderRadius: "50%", background: "#d4edda", display: "grid", placeItems: "center", margin: "0 auto 16px" }}>
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#4a7c59" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <circle cx="12" cy="12" r="10" />
+                                <path d="M8 14s1.5 2 4 2 4-2 4-2" />
+                                <line x1="9" y1="9" x2="9.01" y2="9" strokeWidth="3" />
+                                <line x1="15" y1="9" x2="15.01" y2="9" strokeWidth="3" />
+                            </svg>
+                        </div>
+                        <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 24, fontWeight: 700, color: "#2D2218", marginBottom: 8 }}>See you soon!</h2>
+                        <p style={{ fontSize: 13, color: "#7a5c44", marginBottom: 6 }}>You have been signed out successfully.</p>
+                        <p style={{ fontSize: 11, color: "#8b4513" }}>Returning to home...</p>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
