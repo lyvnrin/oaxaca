@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel
 from ..database import get_conn
 
@@ -36,9 +36,16 @@ def place_order(payload: OrderIn):
 
 
 @router.get("/orders")
-def get_orders():
+def get_orders(waiter_id: int | None = Query(default=None)):
     conn = get_conn()
-    orders = conn.execute("SELECT * FROM orders").fetchall()
+    if waiter_id is not None:
+        orders = conn.execute("""
+            SELECT o.* FROM orders o
+            JOIN tables t ON o.table_id = t.table_id
+            WHERE t.assigned_waiter = ?
+        """, (waiter_id,)).fetchall()
+    else:
+        orders = conn.execute("SELECT * FROM orders").fetchall()
     result = []
     for order in orders:
         items = conn.execute("""
@@ -48,7 +55,8 @@ def get_orders():
             WHERE oi.order_id = ?
         """, (order["order_id"],)).fetchall()
         est_mins = max((i["prep_time_mins"] for i in items), default=15)
-        result.append({**dict(order), "items": [dict(i) for i in items], "est_mins": est_mins})
+        result.append(
+            {**dict(order), "items": [dict(i) for i in items], "est_mins": est_mins})
     conn.close()
     return result
 

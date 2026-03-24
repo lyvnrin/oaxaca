@@ -304,6 +304,13 @@ function ContactWaiterModal({ tableId, onClose }) {
     const [sent, setSent] = useState(false);
 
     const handleSend = async () => {
+        let assignedWaiter = null;
+        try {
+            const res = await fetch(`http://127.0.0.1:8000/tables/${parseInt(tableId)}/waiter`);
+            const data = await res.json();
+            assignedWaiter = data.assigned_waiter ?? null;
+        } catch (_) { }
+
         localStorage.setItem("oaxaca_customer_alert", JSON.stringify({
             id: Date.now(),
             table: parseInt(tableId),
@@ -312,6 +319,7 @@ function ContactWaiterModal({ tableId, onClose }) {
             type: "Help_Needed",
             read: false,
             customerMessage: message.trim() || null,
+            assigned_waiter: assignedWaiter,
         }));
 
         try {

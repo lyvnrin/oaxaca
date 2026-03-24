@@ -11,7 +11,6 @@ const C = {
     text: "#2c1810", muted: "#7a5c44", border: "#d4b896",
 };
 
-const MY_TABLES = [3, 7, 12];
 const now = () => Date.now();
 
 const ORDER_STATUSES = ["Pending", "Waiter Confirmed", "In Progress", "Ready", "Completed", "Cancelled"];
@@ -58,12 +57,13 @@ function elapsedColor(startedAt) {
 }
 
 // HOOK: listens for kitchen "NOTIFY WAITER" events from localStorage (cross-tab)
-function useKitchenNotifications(setNotifications, addToast, onNewOrder) {
+function useKitchenNotifications(setNotifications, addToast, onNewOrder, staffId) {
     useEffect(() => {
         const handler = (e) => {
             if (e.key !== "oaxaca_kitchen_notify" || !e.newValue) return;
             try {
                 const incoming = JSON.parse(e.newValue);
+                if (incoming.assigned_waiter && incoming.assigned_waiter !== staffId) return;
                 setNotifications(prev => {
                     if (prev.some(n => n.id === incoming.id)) return prev;
                     return [incoming, ...prev];
@@ -74,7 +74,7 @@ function useKitchenNotifications(setNotifications, addToast, onNewOrder) {
         };
         window.addEventListener("storage", handler);
         return () => window.removeEventListener("storage", handler);
-    }, [setNotifications, addToast, onNewOrder]);
+    }, [setNotifications, addToast, onNewOrder, staffId]);
 }
 
 const IconAlert = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></svg>;
@@ -155,7 +155,7 @@ function NotificationsPanel({ notifications, setNotifications }) {
                         onMouseLeave={e => e.currentTarget.style.background = n.read ? "transparent" : "rgba(196,118,58,.04)"}>
                         <div style={{ width: 3, borderRadius: 2, background: notifColor[n.type], flexShrink: 0, alignSelf: "stretch" }} />
                         <div style={{ flex: 1 }}>
-                            <div style={{ fontSize: 12, fontWeight: n.read ? 400 : 700, color: C.text }}>Table {n.table} — Order #{n.order}</div>
+                            <div style={{ fontSize: 12, fontWeight: n.read ? 400 : 700, color: C.text }}>Table {n.table}{n.order && n.order !== "–" ? ` — Order #${n.order}` : ""}</div>
                             <p style={{ fontSize: 11, color: notifColor[n.type], marginTop: 3, fontWeight: 600 }}>{n.status}</p>
                             {n.customerMessage && (
                                 <p style={{ fontSize: 11, color: C.muted, marginTop: 3, fontStyle: "italic" }}>"{n.customerMessage}"</p>
@@ -319,10 +319,10 @@ function AddItemsModal({ order, menu, onAdd, onClose }) {
     );
 }
 
-function OrderCard({ order, onConfirm, onCancel, onDeliver, onAddItems, onStatusChange, onRemoveItem }) {
+function OrderCard({ order, onConfirm, onCancel, onDeliver, onAddItems, onStatusChange, onRemoveItem, myTables }) {
     const [showStatusMenu, setShowStatusMenu] = useState(false);
     const elapsed = useElapsed(order.startedAt);
-    const isMine = MY_TABLES.includes(order.table);
+    const isMine = myTables.includes(order.table);
     const rowTotal = order.items.reduce((s, i) => s + i.price * i.qty, 0);
     const isPending = order.status === "Pending";
     const isReady = order.status === "Ready";
@@ -348,13 +348,13 @@ function OrderCard({ order, onConfirm, onCancel, onDeliver, onAddItems, onStatus
                     </div>
 
                     <div style={{
-                    fontSize: 10, fontWeight: 600, marginBottom: 6,
-                    color: overdue ? C.red : remaining <= 5 ? C.amber : C.green,
-                }}>
-                    {overdue
-                        ? `⚠ ${elapsedMins - order.estMins}m overdue`
-                        : `~${remaining}m remaining · est. ${order.estMins}m`}
-                </div>
+                        fontSize: 10, fontWeight: 600, marginBottom: 6,
+                        color: overdue ? C.red : remaining <= 5 ? C.amber : C.green,
+                    }}>
+                        {overdue
+                            ? `⚠ ${elapsedMins - order.estMins}m overdue`
+                            : `~${remaining}m remaining · est. ${order.estMins}m`}
+                    </div>
                 </div>
                 <div style={{ position: "relative" }}>
                     <div
@@ -435,7 +435,7 @@ function OrderCard({ order, onConfirm, onCancel, onDeliver, onAddItems, onStatus
     );
 }
 
-function OrdersTab({ orders, setOrders, menu, addToast, staffId }) {
+function OrdersTab({ orders, setOrders, menu, addToast, staffId, myTables }) {
     const [addItemsOrder, setAddItemsOrder] = useState(null);
 
     const confirmOrder = async (id) => {
@@ -545,12 +545,13 @@ function OrdersTab({ orders, setOrders, menu, addToast, staffId }) {
                                     <OrderCard key={order.id} order={order}
                                         onConfirm={confirmOrder} onCancel={cancelOrder}
                                         onDeliver={deliverOrder} onAddItems={o => setAddItemsOrder(o)}
-                                        onStatusChange={changeStatus} onRemoveItem={removeItem} />
+                                        onStatusChange={changeStatus} onRemoveItem={removeItem}
+                                        myTables={myTables} />
                                 ))
                             }
                         </div>
 
-                        
+
                     </div>
                 ))}
             </div>
@@ -562,7 +563,7 @@ function OrdersTab({ orders, setOrders, menu, addToast, staffId }) {
     );
 }
 
-function TablesTab({ unpaidTables, addToast, raiseAlert, onMarkPaid }) {
+function TablesTab({ unpaidTables, addToast, raiseAlert, onMarkPaid, myTables }) {
     const [showUnpaidModal, setShowUnpaidModal] = useState(false);
     const [alertTable, setAlertTable] = useState("");
     const [customTable, setCustomTable] = useState("");
@@ -571,11 +572,11 @@ function TablesTab({ unpaidTables, addToast, raiseAlert, onMarkPaid }) {
         <div style={{ padding: "20px 28px 32px" }}>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
                 <SectionCard accentColor={C.warm} title="Assigned Tables"
-                    badge={<span style={{ fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 10, background: C.pale, color: C.muted }}>{MY_TABLES.length} tables</span>}>
+                    badge={<span style={{ fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 10, background: C.pale, color: C.muted }}>{myTables.length} tables</span>}>
                     <div style={{ padding: "12px 16px 16px" }}>
                         <p style={{ fontSize: 12, color: C.muted, marginBottom: 12 }}>You are responsible for these tables during your shift.</p>
                         <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-                            {MY_TABLES.map(t => (
+                            {myTables.map(t => (
                                 <div key={t} style={{ background: C.bg, border: `2px solid ${C.warm}`, borderRadius: 8, padding: "14px 20px", textAlign: "center", minWidth: 80 }}>
                                     <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 26, fontWeight: 700, color: C.dark }}>T{t}</div>
                                     <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: ".08em", textTransform: "uppercase", color: C.warm, marginTop: 2 }}>Active</div>
@@ -590,7 +591,7 @@ function TablesTab({ unpaidTables, addToast, raiseAlert, onMarkPaid }) {
                         <div style={{ marginBottom: 12 }}>
                             <label style={{ fontSize: 10, fontWeight: 700, letterSpacing: ".08em", textTransform: "uppercase", color: C.muted, display: "block", marginBottom: 6 }}>Table Number</label>
                             <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-                                {MY_TABLES.map(t => (
+                                {myTables.map(t => (
                                     <button key={t}
                                         onClick={() => setAlertTable(alertTable === t ? "" : t)}
                                         style={{ padding: "6px 14px", borderRadius: 6, border: `1.5px solid ${alertTable === t ? C.warm : C.border}`, background: alertTable === t ? C.pale : C.bg, color: alertTable === t ? C.dark : C.muted, fontSize: 12, fontWeight: alertTable === t ? 700 : 500, cursor: "pointer", fontFamily: "Jost, sans-serif", transition: "all .15s" }}>
@@ -774,20 +775,21 @@ function MenuItemCard({ item, onToggle }) {
 }
 
 // CUSTOMER ASSISTANCE ALERT
-function useCustomerAlerts(setNotifications, addToast) {
-    const cbRef = useRef({ setNotifications, addToast });
-    useEffect(() => { cbRef.current = { setNotifications, addToast }; });
+function useCustomerAlerts(setNotifications, addToast, staffId) {
+    const cbRef = useRef({ setNotifications, addToast, staffId });
+    useEffect(() => { cbRef.current = { setNotifications, addToast, staffId }; });
 
     useEffect(() => {
         const handler = (e) => {
             if (e.key !== "oaxaca_customer_alert" || !e.newValue) return;
             try {
                 const incoming = JSON.parse(e.newValue);
+                if (incoming.assigned_waiter && incoming.assigned_waiter !== cbRef.current.staffId) return;
                 cbRef.current.setNotifications(prev => {
                     if (prev.some(n => n.id === incoming.id)) return prev;
                     return [incoming, ...prev];
                 });
-                addToast(`Table ${incoming.table} needs assistance!`);
+                cbRef.current.addToast(`Table ${incoming.table} needs assistance!`);
             } catch (_) { }
         };
         window.addEventListener("storage", handler);
@@ -852,7 +854,10 @@ export default function App() {
 
     const [tab, setTab] = useState("Orders");
 
-    const [notifications, setNotifications] = useState(INIT_NOTIFICATIONS);
+    const [notifications, setNotifications] = useState(() => {
+        try { return JSON.parse(localStorage.getItem("oaxaca_waiter_notifications") ?? "[]"); }
+        catch { return []; }
+    });
     const [toasts, setToasts] = useState([]);
     const [showNotifs, setShowNotifs] = useState(false);
     const [showAccount, setShowAccount] = useState(false);
@@ -861,13 +866,17 @@ export default function App() {
     const accountRef = useRef(null);
     useOutsideClick(notifRef, () => setShowNotifs(false));
     useOutsideClick(accountRef, () => setShowAccount(false));
+    useEffect(() => {
+        localStorage.setItem("oaxaca_waiter_notifications", JSON.stringify(notifications));
+    }, [notifications]);
 
     const addToast = msg => { const id = Date.now(); setToasts(p => [...p, { id, msg }]); setTimeout(() => setToasts(p => p.filter(t => t.id !== id)), 3000); };
     const raiseAlert = async (table) => {
         const id = Date.now();
+        const activeOrder = orders.find(o => o.table === table && o.status !== "Completed" && o.status !== "Cancelled");
         const alert = {
             id,
-            order: "–",
+            order: activeOrder?.id ?? "–",
             table,
             status: `Table ${table} needs assistance`,
             type: "alert",
@@ -893,7 +902,6 @@ export default function App() {
     };
 
     // LISTENING FOR KITCHEN NOTIFY EVENTS
-    useKitchenNotifications(setNotifications, addToast, () => { });
 
     const unread = notifications.filter(n => !n.read).length;
     const alertCount = notifications.filter(n => n.type === "alert" || n.type === "Help_Needed").length;
@@ -903,7 +911,7 @@ export default function App() {
     const [orders, setOrders] = useState([]);
     useEffect(() => {
         const fetchOrders = async () => {
-            const res = await fetch('http://127.0.0.1:8000/orders');
+            const res = await fetch(`http://127.0.0.1:8000/orders${staffId ? `?waiter_id=${staffId}` : ''}`);
             const data = await res.json();
             setOrders(prev => {
                 return data.map(o => {
@@ -932,7 +940,6 @@ export default function App() {
         return () => clearInterval(poll);
     }, []);
 
-    useCustomerAlerts(setNotifications, addToast);
     useWaiterAlerts(setNotifications, addToast);
 
     useEffect(() => {
@@ -1010,8 +1017,24 @@ export default function App() {
 
 
     // ACCOUNT LOGIN VALIDATION
+    const [myTables, setMyTables] = useState([]);
     const [staffInfo, setStaffInfo] = useState(null);
     const staffId = location.state?.staff_id ?? sessionStorage.getItem('staff_id');
+    useCustomerAlerts(setNotifications, addToast, staffId);
+    useKitchenNotifications(setNotifications, addToast, () => { }, staffId);
+
+    useEffect(() => {
+        if (!staffId) return;
+        const fetchTables = () => {
+            fetch(`http://127.0.0.1:8000/staff/${staffId}/tables`)
+                .then(r => r.json())
+                .then(data => setMyTables(data))
+                .catch(() => { });
+        };
+        fetchTables();
+        const poll = setInterval(fetchTables, 3000);
+        return () => clearInterval(poll);
+    }, [staffId]);
 
     useEffect(() => {
         if (!staffId) return;
@@ -1073,7 +1096,7 @@ export default function App() {
                     <div>
                         <h1 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 28, fontWeight: 700, color: C.dark }}>Waiter Dashboard</h1>
                         <p style={{ fontSize: 12, color: C.muted, marginTop: 2, letterSpacing: ".05em" }}>
-                            {new Date().toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" })} · Tables: {MY_TABLES.join(", ")}
+                            {new Date().toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" })} · Tables: {myTables.length > 0 ? myTables.join(", ") : "None assigned yet"}
                         </p>
                     </div>
                     <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11, letterSpacing: ".1em", textTransform: "uppercase", color: C.green, fontWeight: 600, background: C.greenL, padding: "5px 12px", borderRadius: 20, marginBottom: 4 }}>
@@ -1092,8 +1115,8 @@ export default function App() {
             </div>
 
             {/* TAB CONTENT */}
-            {tab === "Orders" && <OrdersTab orders={orders} setOrders={setOrders} menu={menu} addToast={addToast} staffId={staffInfo?.staff_id} />}
-            {tab === "Tables" && <TablesTab unpaidTables={unpaidTables} addToast={addToast} raiseAlert={raiseAlert} onMarkPaid={markAsPaid} />}
+            {tab === "Orders" && <OrdersTab orders={orders} setOrders={setOrders} menu={menu} addToast={addToast} staffId={staffInfo?.staff_id} myTables={myTables} />}
+            {tab === "Tables" && <TablesTab unpaidTables={unpaidTables} addToast={addToast} raiseAlert={raiseAlert} onMarkPaid={markAsPaid} myTables={myTables} />}
             {tab === "Menu" && <MenuTab menu={menu} setMenu={setMenu} addToast={addToast} lowStockDishes={lowStockDishes} />}
 
             {/* TOASTS */}

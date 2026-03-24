@@ -87,7 +87,7 @@ function NotificationsPanel({ notifications, setNotifications }) {
             onMouseLeave={e => e.currentTarget.style.background = n.read ? "transparent" : "rgba(196,118,58,.04)"}>
             <div style={{ width: 3, borderRadius: 2, background: typeColor[n.type] ?? C.warm, flexShrink: 0, alignSelf: "stretch" }} />
             <div style={{ flex: 1 }}>
-              <div style={{ fontSize: 12, fontWeight: n.read ? 400 : 700, color: C.text }}>Table {n.table} — Order #{n.order}</div>
+              <div style={{ fontSize: 12, fontWeight: n.read ? 400 : 700, color: C.text }}>Table {n.table}{n.order && n.order !== "–" ? ` — Order #${n.order}` : ""}</div>
               <p style={{ fontSize: 11, color: typeColor[n.type] ?? C.warm, marginTop: 3, fontWeight: 600 }}>{n.status}</p>
               {n.customerMessage && (
                 <p style={{ fontSize: 11, color: C.muted, marginTop: 3, fontStyle: "italic" }}>"{n.customerMessage}"</p>
@@ -156,7 +156,8 @@ function OrderCard({ order, btnLabel, btnColor, onAction }) {
       {/* PREP TIME INDICATOR */}
       <div style={{
         fontSize: 10, fontWeight: 600, marginBottom: 8,
-        color: overdue ? C.red : remaining <= 5 ? C.amber : C.green, }}>
+        color: overdue ? C.red : remaining <= 5 ? C.amber : C.green,
+      }}>
         {overdue ? `⚠ ${elapsedMins - order.estMins}m overdue (est. ${order.estMins}m)` : `~${remaining}m remaining · est. ${order.estMins}m total`}
       </div>
 
@@ -259,14 +260,14 @@ export default function App() {
 
       const mapItems = (o) => o.items.map(i => {
         const mods = JSON.parse(
-            localStorage.getItem(`oaxaca_customisations_${o.order_id}`) || '{}'
+          localStorage.getItem(`oaxaca_customisations_${o.order_id}`) || '{}'
         );
         return {
-            name: i.item_name,
-            qty: i.quantity,
-            price: i.price,
-            note: mods[i.item_name] || null,
-            prepTime: i.prep_time_mins,
+          name: i.item_name,
+          qty: i.quantity,
+          price: i.price,
+          note: mods[i.item_name] || null,
+          prepTime: i.prep_time_mins,
         };
       });
 
@@ -282,7 +283,7 @@ export default function App() {
         id: String(o.order_id),
         table: `Table ${o.table_id}`,
         startedAt: Date.now(),
-         estMins: o.est_mins ?? 15,
+        estMins: o.est_mins ?? 15,
         items: mapItems(o),
       })));
 
@@ -301,7 +302,10 @@ export default function App() {
 
   // UI STATE --------------------------
   const [toasts, setToasts] = useState([]);
-  const [notifications, setNotifications] = useState([]);
+  const [notifications, setNotifications] = useState(() => {
+    try { return JSON.parse(localStorage.getItem("oaxaca_kitchen_notifications") ?? "[]"); }
+    catch { return []; }
+  });
   const [showNotifs, setShowNotifs] = useState(false);
   const [showAccount, setShowAccount] = useState(false);
   const accountRef = useRef(null);
@@ -311,6 +315,9 @@ export default function App() {
 
   // TOAST NOTIFS --------------------------
   const addToast = msg => { const id = Date.now(); setToasts(p => [...p, { id, msg }]); setTimeout(() => setToasts(p => p.filter(t => t.id !== id)), 1800); };
+  useEffect(() => {
+    localStorage.setItem("oaxaca_kitchen_notifications", JSON.stringify(notifications));
+  }, [notifications]);
   useWaiterAlerts(setNotifications, addToast);
 
   // ORDER ACTIONS --------------------------
@@ -338,14 +345,22 @@ export default function App() {
       body: JSON.stringify({ status: "Ready" }),
     });
 
-    // CROSS-TAB NOTIFS TO WAITER DASH --------------------------
+    const tableNum = parseInt(order.table.replace("Table ", ""));
+    let assignedWaiter = null;
+    try {
+      const res = await fetch(`http://127.0.0.1:8000/tables/${tableNum}/waiter`);
+      const data = await res.json();
+      assignedWaiter = data.assigned_waiter ?? null;
+    } catch (_) { }
+
     localStorage.setItem("oaxaca_kitchen_notify", JSON.stringify({
       id: Date.now(),
       order: id,
-      table: parseInt(order.table.replace("Table ", "")),
+      table: tableNum,
       status: "Ready for Collection",
       type: "ready",
       read: false,
+      assigned_waiter: assignedWaiter,
     }));
     addToast(`${order.table} — waiter notified`);
   };

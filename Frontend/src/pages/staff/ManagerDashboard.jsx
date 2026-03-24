@@ -153,7 +153,7 @@ function NotificationsPanel({ notifications, setNotifications }) {
                         <div style={{ width: 3, borderRadius: 2, background: notifTypeColor[n.type] ?? C.warm, flexShrink: 0, alignSelf: "stretch" }} />
                         <div style={{ flex: 1, minWidth: 0 }}>
                             <div style={{ fontSize: 12, fontWeight: n.read ? 400 : 700, color: C.text }}>
-                                {n.title ?? `Table ${n.table} — Order #${n.order}`}
+                                {n.title ?? `Table ${n.table}${n.order && n.order !== "–" ? ` — Order #${n.order}` : ""}`}
                             </div>
                             <p style={{ fontSize: 11, color: notifTypeColor[n.type] ?? C.warm, marginTop: 3, fontWeight: 600 }}>
                                 {n.body ?? n.status}
@@ -951,7 +951,10 @@ export default function ManagerDashboard() {
         const poll = setInterval(fetchStock, 3000);
         return () => clearInterval(poll);
     }, []);
-    const [notifications, setNotifications] = useState(INIT_NOTIFICATIONS);
+    const [notifications, setNotifications] = useState(() => {
+        try { return JSON.parse(localStorage.getItem("oaxaca_manager_notifications") ?? "[]"); }
+        catch { return []; }
+    });
     const [toasts, setToasts] = useState([]);
     const [showNotifs, setShowNotifs] = useState(false);
     const [showAccount, setShowAccount] = useState(false);
@@ -1025,7 +1028,9 @@ export default function ManagerDashboard() {
         setToasts(p => [...p, { id, msg }]);
         setTimeout(() => setToasts(p => p.filter(t => t.id !== id)), 2800);
     };
-
+    useEffect(() => {
+        localStorage.setItem("oaxaca_manager_notifications", JSON.stringify(notifications));
+    }, [notifications]);
     useWaiterAlerts(setNotifications, addToast);
 
     useEffect(() => {
