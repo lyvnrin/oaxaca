@@ -194,6 +194,7 @@ function AccountPanel({ addToast, staffInfo }) {
                 if (staffInfo?.staff_id) {
                     await fetch(`http://127.0.0.1:8000/auth/logout/${staffInfo.staff_id}`, { method: 'POST' }).catch(() => { });
                 }
+                localStorage.removeItem("oaxaca_waiter_notifications");
                 window.location.href = "/";
             }}
                 style={{ padding: "13px 16px", display: "flex", alignItems: "center", gap: 10, cursor: "pointer", transition: "background .15s", borderRadius: "0 0 10px 10px" }}
