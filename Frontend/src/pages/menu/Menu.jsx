@@ -858,7 +858,10 @@ export default function App() {
     const [paymentOpen, setPaymentOpen] = useState(false);
     const [orderId, setOrderId] = useState('');
     const [currentStep, setCurrentStep] = useState(1);
-    const [placedOrder, setPlacedOrder] = useState({});
+    const [placedOrder, setPlacedOrder] = useState(() => {
+        try { return JSON.parse(sessionStorage.getItem("oaxaca_placed_order") ?? "{}"); }
+        catch { return {}; }
+    });
 
     const [orderCancelled, setOrderCancelled] = useState(false);
     const orderPaidRef = useRef(false);
@@ -1052,6 +1055,7 @@ export default function App() {
         setIsPaid(false);
         setCurrentStep(1);
         setPlacedOrder(cart);
+        sessionStorage.setItem("oaxaca_placed_order", JSON.stringify(cart));
         setCartOpen(false);
         setCart({});
         setConfirmed(true);
@@ -1085,6 +1089,7 @@ export default function App() {
         setPaymentOpen(false);
         setHasActiveOrder(false);
         setPlacedOrder({});
+        sessionStorage.removeItem("oaxaca_placed_order");
         setCurrentStep(1);
         setLiveOrderId(null);
         sessionStorage.clear();
