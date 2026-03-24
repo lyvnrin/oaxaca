@@ -123,6 +123,7 @@ function AccountPanel({ addToast, staffInfo }) {
           await fetch(`http://127.0.0.1:8000/auth/logout/${staffInfo.staff_id}`, { method: 'POST' }).catch(() => { });
         }
         localStorage.removeItem("oaxaca_kitchen_notifications");
+        localStorage.removeItem("oaxaca_order_start_times");
         window.location.href = "/";
       }}
         style={{ padding: "13px 16px", display: "flex", alignItems: "center", gap: 10, cursor: "pointer", transition: "background .15s", borderRadius: "0 0 10px 10px" }}
@@ -331,6 +332,45 @@ export default function App() {
   }, [notifications]);
   useWaiterAlerts(setNotifications, addToast);
 
+  const cancelOrder = async (id) => {
+    const order = pending.find(o => o.id === id) || preparing.find(o => o.id === id) || ready.find(o => o.id === id);
+    const wasConfirmed = preparing.find(o => o.id === id) || ready.find(o => o.id === id);
+
+    setPending(p => p.filter(o => o.id !== id));
+    setPreparing(p => p.filter(o => o.id !== id));
+    setReady(p => p.filter(o => o.id !== id));
+
+    await fetch(`http://127.0.0.1:8000/orders/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: "Cancelled" }),
+    });
+
+    // only replenish if kitchen had already confirmed (stock was depleted)
+    if (wasConfirmed) {
+      try {
+        const fullOrderRes = await fetch('http://127.0.0.1:8000/orders');
+        const allOrders = await fullOrderRes.json();
+        const fullOrder = allOrders.find(o => String(o.order_id) === String(id));
+        if (fullOrder) {
+          await fetch('http://127.0.0.1:8000/stock/replenish', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              cust_id: fullOrder.cust_id,
+              table_id: fullOrder.table_id,
+              items: fullOrder.items.map(i => ({
+                item_id: i.item_id,
+                quantity: i.quantity,
+              })),
+            }),
+          });
+        }
+      } catch (_) { }
+    }
+
+    addToast(`Order cancelled`);
+  };
   // ORDER ACTIONS --------------------------
   const confirmOrder = async (id) => {
     const order = pending.find(o => o.id === id);

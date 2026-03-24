@@ -195,6 +195,7 @@ function AccountPanel({ addToast, staffInfo }) {
                     await fetch(`http://127.0.0.1:8000/auth/logout/${staffInfo.staff_id}`, { method: 'POST' }).catch(() => { });
                 }
                 localStorage.removeItem("oaxaca_waiter_notifications");
+                localStorage.removeItem("oaxaca_order_start_times");
                 window.location.href = "/";
             }}
                 style={{ padding: "13px 16px", display: "flex", alignItems: "center", gap: 10, cursor: "pointer", transition: "background .15s", borderRadius: "0 0 10px 10px" }}
@@ -487,12 +488,39 @@ function OrdersTab({ orders, setOrders, menu, addToast, staffId, myTables }) {
         const startTimes = JSON.parse(localStorage.getItem("oaxaca_order_start_times") ?? "{}");
         delete startTimes[String(id)];
         localStorage.setItem("oaxaca_order_start_times", JSON.stringify(startTimes));
+
+        const orderToCancel = orders.find(o => o.id === id);
+        const wasConfirmed = orderToCancel && ["In Progress", "Ready", "Completed"].includes(orderToCancel.status);
+
         setOrders(p => p.filter(o => o.id !== id));
         await fetch(`http://127.0.0.1:8000/orders/${id}`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ status: "Cancelled" }),
         });
+
+        if (wasConfirmed) {
+            try {
+                const fullOrderRes = await fetch('http://127.0.0.1:8000/orders');
+                const allOrders = await fullOrderRes.json();
+                const fullOrder = allOrders.find(o => String(o.order_id) === String(id));
+                if (fullOrder) {
+                    await fetch('http://127.0.0.1:8000/stock/replenish', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            cust_id: fullOrder.cust_id,
+                            table_id: fullOrder.table_id,
+                            items: fullOrder.items.map(i => ({
+                                item_id: i.item_id,
+                                quantity: i.quantity,
+                            })),
+                        }),
+                    });
+                }
+            } catch (_) { }
+        }
+
         addToast("Order cancelled");
         setTimeout(async () => {
             await fetch(`http://127.0.0.1:8000/orders/${id}/cleanup`, { method: 'DELETE' });
