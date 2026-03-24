@@ -257,8 +257,31 @@ function AddItemsModal({ order, menu, onAdd, onClose }) {
     const q = search.trim().toLowerCase();
     const filtered = q ? availMenu.filter(m => m.name.toLowerCase().includes(q) || m.section.toLowerCase().includes(q)) : availMenu;
 
-    const toggle = item => setSelected(p => { const n = { ...p }; if (n[item.id]) delete n[item.id]; else n[item.id] = { ...item, qty: 1 }; return n; });
-    const changeQty = (id, delta) => setSelected(p => { const n = { ...p }; if (!n[id]) return n; const q = n[id].qty + delta; if (q < 1) { delete n[id]; return n; } n[id] = { ...n[id], qty: q }; return n; });
+    const toggle = (item) => setSelected(p => {
+        const n = { ...p };
+        if (n[item.id]) { delete n[item.id]; return n; }
+        const existingQtyInOrder = (order?.items ?? [])
+            .filter(i => i.name === item.name)
+            .reduce((sum, i) => sum + i.qty, 0);
+        const selectedQty = Object.values(n)
+            .filter(v => v.id === item.id)
+            .reduce((sum, v) => sum + v.qty, 0);
+        if (existingQtyInOrder + selectedQty >= 25) return n;
+        n[item.id] = { ...item, qty: 1 };
+        return n;
+    });
+    const changeQty = (id, delta) => setSelected(p => {
+        const n = { ...p };
+        if (!n[id]) return n;
+        const q = n[id].qty + delta;
+        if (q < 1) { delete n[id]; return n; }
+        const totalForItem = Object.entries(n)
+            .filter(([k]) => k !== id)
+            .reduce((sum, [k, v]) => v.id === n[id]?.id ? sum + v.qty : sum, 0);
+        if (totalForItem + q > 25) return n;
+        n[id] = { ...n[id], qty: q };
+        return n;
+    });
     const totalAdded = Object.values(selected).reduce((s, i) => s + i.price * i.qty, 0);
     const hasSelected = Object.keys(selected).length > 0;
 

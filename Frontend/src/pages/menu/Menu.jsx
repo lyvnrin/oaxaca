@@ -1004,6 +1004,11 @@ export default function App() {
     }
 
     function handleAddToCart(item) {
+        const totalQtyForItem = Object.values(cart)
+            .filter(v => v.item.id === item.id)
+            .reduce((sum, v) => sum + v.qty, 0);
+        if (totalQtyForItem >= 25) return;
+
         const existingItemKey = Object.keys(cart).find(key => {
             const cartItem = cart[key].item;
             if (item.customization) {
@@ -1022,6 +1027,11 @@ export default function App() {
 
     function handleUpdateQty(itemKey, newQty) {
         if (newQty <= 0) { handleRemove(itemKey); return; }
+        const itemId = cart[itemKey].item.id;
+        const otherQty = Object.entries(cart)
+            .filter(([k]) => k !== itemKey)
+            .reduce((sum, [, v]) => v.item.id === itemId ? sum + v.qty : sum, 0);
+        if (otherQty + newQty > 25) return;
         setCart((prev) => ({ ...prev, [itemKey]: { ...prev[itemKey], qty: newQty } }));
     }
 
@@ -1051,7 +1061,13 @@ export default function App() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ cust_id, table_id, items }),
             });
-            if (!res.ok) { console.error('Order failed:', await res.json()); return; }
+            if (!res.ok) {
+                const err = await res.json();
+                if (err.detail?.includes("limit exceeded")) {
+                    alert("You've reached the maximum of 25 for one or more items. Please adjust your order.");
+                }
+                return;
+            }
 
             const data = await res.json();
             setLiveOrderId(data.order_id);

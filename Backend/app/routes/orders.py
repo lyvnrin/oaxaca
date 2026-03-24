@@ -20,6 +20,20 @@ class OrderStatusUpdate(BaseModel):
 def place_order(payload: OrderIn):
     conn = get_conn()
     cursor = conn.cursor()
+    for i in payload.items:
+        existing_qty = conn.execute("""
+            SELECT COALESCE(SUM(oi.quantity), 0)
+            FROM order_item oi
+            JOIN orders o ON oi.order_id = o.order_id
+            WHERE o.table_id = ? AND oi.item_id = ?
+            AND o.status NOT IN ('Cancelled', 'Paid')
+        """, (payload.table_id, i["item_id"])).fetchone()[0]
+        if existing_qty + i["quantity"] > 25:
+            conn.close()
+            raise HTTPException(
+                status_code=400,
+                detail=f"Item limit exceeded: cannot order more than 25 of the same item per table"
+            )
     total = sum(i["price"] * i["quantity"] for i in payload.items)
     cursor.execute(
         "INSERT INTO orders (cust_id, table_id, total_cost, status) VALUES (?, ?, ?, ?)",
@@ -132,6 +146,19 @@ def add_item_to_order(order_id: int, payload: OrderItemAdd):
     ).fetchone()
     if not row:
         raise HTTPException(status_code=404, detail="Order not found")
+    existing_qty = conn.execute("""
+        SELECT COALESCE(SUM(oi.quantity), 0)
+        FROM order_item oi
+        JOIN orders o ON oi.order_id = o.order_id
+        WHERE o.table_id = ? AND oi.item_id = ?
+        AND o.status NOT IN ('Cancelled', 'Paid')
+    """, (row["table_id"], payload.item_id)).fetchone()[0]
+    if existing_qty + payload.quantity > 25:
+        conn.close()
+        raise HTTPException(
+            status_code=400,
+            detail=f"Item limit exceeded: cannot order more than 25 of the same item per table"
+        )
     existing = conn.execute(
         "SELECT order_item_id, quantity FROM order_item WHERE order_id = ? AND item_id = ?",
         (order_id, payload.item_id)
