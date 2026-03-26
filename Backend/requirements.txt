@@ -1,3 +1,5 @@
-Flask==2.3.3
-
-# later add: Flask-SQLAlchemy
+fastapi==0.109.0
+uvicorn[standard]==0.23.2
+pydantic==2.5.1
+sqlalchemy==2.0.22
+databases==0.7.3
