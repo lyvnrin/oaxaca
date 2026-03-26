@@ -11,7 +11,6 @@ const C = {
     text: "#2c1810", muted: "#7a5c44", border: "#d4b896",
 };
 
-const MY_TABLES = [3, 7, 12];
 const now = () => Date.now();
 
 const ORDER_STATUSES = ["Pending", "Waiter Confirmed", "In Progress", "Ready", "Completed", "Cancelled"];
@@ -24,7 +23,7 @@ const INIT_UNPAID = [
     { table: 11, order: "1232", total: 67.00, waiting: "28 mins" },
 ];
 
-const notifColor = { ready: C.green, alert: C.blue, allergy: C.amber, Help_Needed: C.blue };
+const notifColor = { ready: C.green, alert: C.red, allergy: C.amber, Help_Needed: C.blue };
 const statusColor = {
     "Pending": C.amber,
     "Waiter Confirmed": C.blue,
@@ -58,12 +57,13 @@ function elapsedColor(startedAt) {
 }
 
 // HOOK: listens for kitchen "NOTIFY WAITER" events from localStorage (cross-tab)
-function useKitchenNotifications(setNotifications, addToast, onNewOrder) {
+function useKitchenNotifications(setNotifications, addToast, onNewOrder, staffId) {
     useEffect(() => {
         const handler = (e) => {
             if (e.key !== "oaxaca_kitchen_notify" || !e.newValue) return;
             try {
                 const incoming = JSON.parse(e.newValue);
+                if (incoming.assigned_waiter && incoming.assigned_waiter !== staffId) return;
                 setNotifications(prev => {
                     if (prev.some(n => n.id === incoming.id)) return prev;
                     return [incoming, ...prev];
@@ -74,7 +74,7 @@ function useKitchenNotifications(setNotifications, addToast, onNewOrder) {
         };
         window.addEventListener("storage", handler);
         return () => window.removeEventListener("storage", handler);
-    }, [setNotifications, addToast, onNewOrder]);
+    }, [setNotifications, addToast, onNewOrder, staffId]);
 }
 
 const IconAlert = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></svg>;
@@ -155,7 +155,7 @@ function NotificationsPanel({ notifications, setNotifications }) {
                         onMouseLeave={e => e.currentTarget.style.background = n.read ? "transparent" : "rgba(196,118,58,.04)"}>
                         <div style={{ width: 3, borderRadius: 2, background: notifColor[n.type], flexShrink: 0, alignSelf: "stretch" }} />
                         <div style={{ flex: 1 }}>
-                            <div style={{ fontSize: 12, fontWeight: n.read ? 400 : 700, color: C.text }}>Table {n.table} — Order #{n.order}</div>
+                            <div style={{ fontSize: 12, fontWeight: n.read ? 400 : 700, color: C.text }}>Table {n.table}{n.order && n.order !== "–" ? ` — Order #${n.order}` : ""}</div>
                             <p style={{ fontSize: 11, color: notifColor[n.type], marginTop: 3, fontWeight: 600 }}>{n.status}</p>
                             {n.customerMessage && (
                                 <p style={{ fontSize: 11, color: C.muted, marginTop: 3, fontStyle: "italic" }}>"{n.customerMessage}"</p>
@@ -171,7 +171,7 @@ function NotificationsPanel({ notifications, setNotifications }) {
     );
 }
 
-function AccountPanel({ addToast, staffInfo }) {
+function AccountPanel({ addToast, staffInfo, onLogout }) {
     const initials = staffInfo?.name
         ? staffInfo.name.slice(0, 2).toUpperCase()
         : "??";
@@ -190,12 +190,7 @@ function AccountPanel({ addToast, staffInfo }) {
                     <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: ".08em", textTransform: "uppercase", color: C.mid, marginTop: 2 }}>{role}</div>
                 </div>
             </div>
-            <div onClick={async () => {
-                if (staffInfo?.staff_id) {
-                    await fetch(`http://127.0.0.1:8000/auth/logout/${staffInfo.staff_id}`, { method: 'POST' }).catch(() => { });
-                }
-                window.location.href = "/";
-            }}
+            <div onClick={onLogout}
                 style={{ padding: "13px 16px", display: "flex", alignItems: "center", gap: 10, cursor: "pointer", transition: "background .15s", borderRadius: "0 0 10px 10px" }}
                 onMouseEnter={e => e.currentTarget.style.background = C.redL}
                 onMouseLeave={e => e.currentTarget.style.background = "transparent"}>
@@ -235,7 +230,7 @@ function UnpaidModal({ unpaidTables, onClose }) {
                         <div key={i} style={{ background: C.bg, border: `1.5px solid ${C.border}`, borderRadius: 8, padding: "12px 14px", marginTop: 10, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                             <div>
                                 <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 17, fontWeight: 700, color: C.dark }}>Table {t.table}</div>
-                                <div style={{ fontSize: 11, color: C.muted, marginTop: 2 }}>Order #{t.order} · Waiting {t.waiting}</div>
+                                <div style={{ fontSize: 11, color: C.muted, marginTop: 2 }}>{t.orderIds?.length > 1 ? `${t.orderIds.length} orders` : `Order #${t.order}`} · Waiting {t.waiting}</div>
                             </div>
                             <div style={{ textAlign: "right" }}>
                                 <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 22, fontWeight: 700, color: C.warm }}>£{t.total.toFixed(2)}</div>
@@ -256,8 +251,31 @@ function AddItemsModal({ order, menu, onAdd, onClose }) {
     const q = search.trim().toLowerCase();
     const filtered = q ? availMenu.filter(m => m.name.toLowerCase().includes(q) || m.section.toLowerCase().includes(q)) : availMenu;
 
-    const toggle = item => setSelected(p => { const n = { ...p }; if (n[item.id]) delete n[item.id]; else n[item.id] = { ...item, qty: 1 }; return n; });
-    const changeQty = (id, delta) => setSelected(p => { const n = { ...p }; if (!n[id]) return n; const q = n[id].qty + delta; if (q < 1) { delete n[id]; return n; } n[id] = { ...n[id], qty: q }; return n; });
+    const toggle = (item) => setSelected(p => {
+        const n = { ...p };
+        if (n[item.id]) { delete n[item.id]; return n; }
+        const existingQtyInOrder = (order?.items ?? [])
+            .filter(i => i.name === item.name)
+            .reduce((sum, i) => sum + i.qty, 0);
+        const selectedQty = Object.values(n)
+            .filter(v => v.id === item.id)
+            .reduce((sum, v) => sum + v.qty, 0);
+        if (existingQtyInOrder + selectedQty >= 25) return n;
+        n[item.id] = { ...item, qty: 1 };
+        return n;
+    });
+    const changeQty = (id, delta) => setSelected(p => {
+        const n = { ...p };
+        if (!n[id]) return n;
+        const q = n[id].qty + delta;
+        if (q < 1) { delete n[id]; return n; }
+        const totalForItem = Object.entries(n)
+            .filter(([k]) => k !== id)
+            .reduce((sum, [k, v]) => v.id === n[id]?.id ? sum + v.qty : sum, 0);
+        if (totalForItem + q > 25) return n;
+        n[id] = { ...n[id], qty: q };
+        return n;
+    });
     const totalAdded = Object.values(selected).reduce((s, i) => s + i.price * i.qty, 0);
     const hasSelected = Object.keys(selected).length > 0;
 
@@ -319,14 +337,15 @@ function AddItemsModal({ order, menu, onAdd, onClose }) {
     );
 }
 
-function OrderCard({ order, onConfirm, onCancel, onDeliver, onAddItems, onStatusChange, onRemoveItem }) {
+function OrderCard({ order, onConfirm, onCancel, onDeliver, onAddItems, onStatusChange, onRemoveItem, myTables }) {
     const [showStatusMenu, setShowStatusMenu] = useState(false);
     const elapsed = useElapsed(order.startedAt);
-    const isMine = MY_TABLES.includes(order.table);
+    const isMine = myTables.includes(order.table);
     const rowTotal = order.items.reduce((s, i) => s + i.price * i.qty, 0);
     const isPending = order.status === "Pending";
     const isReady = order.status === "Ready";
     const isDelivered = order.status === "Completed";
+    const isLocked = order.status === "In Progress" || order.status === "Ready" || order.status === "Completed";
 
     const elapsedMins = Math.floor((Date.now() - order.startedAt) / 60000);
     const remaining = Math.max(0, order.estMins - elapsedMins);
@@ -348,13 +367,13 @@ function OrderCard({ order, onConfirm, onCancel, onDeliver, onAddItems, onStatus
                     </div>
 
                     <div style={{
-                    fontSize: 10, fontWeight: 600, marginBottom: 6,
-                    color: overdue ? C.red : remaining <= 5 ? C.amber : C.green,
-                }}>
-                    {overdue
-                        ? `⚠ ${elapsedMins - order.estMins}m overdue`
-                        : `~${remaining}m remaining · est. ${order.estMins}m`}
-                </div>
+                        fontSize: 10, fontWeight: 600, marginBottom: 6,
+                        color: overdue ? C.red : remaining <= 5 ? C.amber : C.green,
+                    }}>
+                        {overdue
+                            ? `⚠ ${elapsedMins - order.estMins}m overdue`
+                            : `~${remaining}m remaining · est. ${order.estMins}m`}
+                    </div>
                 </div>
                 <div style={{ position: "relative" }}>
                     <div
@@ -393,7 +412,7 @@ function OrderCard({ order, onConfirm, onCancel, onDeliver, onAddItems, onStatus
                             <span style={{ fontWeight: 600, color: C.mid, fontSize: 11, minWidth: 48, textAlign: "right" }}>
                                 £{(item.price * item.qty).toFixed(2)}
                             </span>
-                            {!isDelivered && (
+                            {!isDelivered && !isLocked && (
                                 <button onClick={() => onRemoveItem(order.id, ii)}
                                     style={{ marginLeft: 4, width: 18, height: 18, borderRadius: "50%", border: "none", background: C.redL, color: C.red, fontSize: 11, cursor: "pointer", display: "grid", placeItems: "center", flexShrink: 0 }}>
                                     ✕
@@ -420,7 +439,7 @@ function OrderCard({ order, onConfirm, onCancel, onDeliver, onAddItems, onStatus
                         Mark Delivered
                     </button>
                 )}
-                {!isDelivered && (
+                {!isDelivered && !isLocked && (
                     <button onClick={() => onAddItems(order)} style={{ padding: "7px 10px", border: `1px solid ${C.border}`, borderRadius: 6, background: C.panel, color: C.mid, fontSize: 10, fontWeight: 600, letterSpacing: ".06em", textTransform: "uppercase", cursor: "pointer", fontFamily: "Jost, sans-serif" }}>
                         + Add Items
                     </button>
@@ -435,7 +454,7 @@ function OrderCard({ order, onConfirm, onCancel, onDeliver, onAddItems, onStatus
     );
 }
 
-function OrdersTab({ orders, setOrders, menu, addToast, staffId }) {
+function OrdersTab({ orders, setOrders, menu, addToast, staffId, myTables }) {
     const [addItemsOrder, setAddItemsOrder] = useState(null);
 
     const confirmOrder = async (id) => {
@@ -459,12 +478,42 @@ function OrdersTab({ orders, setOrders, menu, addToast, staffId }) {
     };
 
     const cancelOrder = async (id) => {
+        const startTimes = JSON.parse(localStorage.getItem("oaxaca_order_start_times") ?? "{}");
+        delete startTimes[String(id)];
+        localStorage.setItem("oaxaca_order_start_times", JSON.stringify(startTimes));
+
+        const orderToCancel = orders.find(o => o.id === id);
+        const wasConfirmed = orderToCancel && ["In Progress", "Ready", "Completed"].includes(orderToCancel.status);
+
         setOrders(p => p.filter(o => o.id !== id));
         await fetch(`http://127.0.0.1:8000/orders/${id}`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ status: "Cancelled" }),
         });
+
+        if (wasConfirmed) {
+            try {
+                const fullOrderRes = await fetch('http://127.0.0.1:8000/orders');
+                const allOrders = await fullOrderRes.json();
+                const fullOrder = allOrders.find(o => String(o.order_id) === String(id));
+                if (fullOrder) {
+                    await fetch('http://127.0.0.1:8000/stock/replenish', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            cust_id: fullOrder.cust_id,
+                            table_id: fullOrder.table_id,
+                            items: fullOrder.items.map(i => ({
+                                item_id: i.item_id,
+                                quantity: i.quantity,
+                            })),
+                        }),
+                    });
+                }
+            } catch (_) { }
+        }
+
         addToast("Order cancelled");
         setTimeout(async () => {
             await fetch(`http://127.0.0.1:8000/orders/${id}/cleanup`, { method: 'DELETE' });
@@ -483,15 +532,36 @@ function OrdersTab({ orders, setOrders, menu, addToast, staffId }) {
     };
 
 
-    const removeItem = (orderId, itemIndex) => {
+    const removeItem = async (orderId, itemIndex) => {
+        const order = orders.find(o => o.id === orderId);
         setOrders(p => p.map(o => {
             if (o.id !== orderId) return o;
             const items = o.items.filter((_, i) => i !== itemIndex);
             return items.length === 0 ? null : { ...o, items };
         }).filter(Boolean));
+        await fetch(`http://127.0.0.1:8000/orders/${orderId}/items/${itemIndex}`, {
+            method: 'DELETE',
+        });
+
+        // update customer tab
+        if (order) {
+            const updatedItems = order.items.filter((_, i) => i !== itemIndex);
+            const existing = JSON.parse(localStorage.getItem("oaxaca_placed_order") ?? "{}");
+            const updatedCart = {};
+            // keep only items that still exist in the order
+            Object.entries(existing).forEach(([key, value]) => {
+                const stillExists = updatedItems.some(i => i.name === value.item?.name);
+                if (stillExists) {
+                    const matchingItem = updatedItems.find(i => i.name === value.item?.name);
+                    updatedCart[key] = { ...value, qty: matchingItem.qty };
+                }
+            });
+            localStorage.setItem("oaxaca_placed_order", JSON.stringify(updatedCart));
+        }
+
         addToast("Item removed from order");
     };
-    const addItemsToOrder = (orderId, newItems) => {
+    const addItemsToOrder = async (orderId, newItems) => {
         setOrders(p => p.map(o => {
             if (o.id !== orderId) return o;
             const merged = [...o.items];
@@ -502,6 +572,34 @@ function OrdersTab({ orders, setOrders, menu, addToast, staffId }) {
             });
             return { ...o, items: merged };
         }));
+        for (const ni of newItems) {
+            await fetch(`http://127.0.0.1:8000/orders/${orderId}/items`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    item_id: ni.id,
+                    quantity: ni.qty,
+                    price: ni.price,
+                    name: ni.name,
+                }),
+            });
+        }
+
+        // notify customer tab to update their order summary
+        const existing = JSON.parse(localStorage.getItem("oaxaca_placed_order") ?? "{}");
+        newItems.forEach(ni => {
+            const key = `${ni.id}_waiter`;
+            if (existing[key]) {
+                existing[key] = { ...existing[key], qty: existing[key].qty + ni.qty };
+            } else {
+                existing[key] = {
+                    item: { id: ni.id, name: ni.name, price: `£${ni.price.toFixed(2)}`, customization: null },
+                    qty: ni.qty,
+                };
+            }
+        });
+        localStorage.setItem("oaxaca_placed_order", JSON.stringify(existing));
+
         addToast("Items added to order ✓");
     };
 
@@ -545,12 +643,13 @@ function OrdersTab({ orders, setOrders, menu, addToast, staffId }) {
                                     <OrderCard key={order.id} order={order}
                                         onConfirm={confirmOrder} onCancel={cancelOrder}
                                         onDeliver={deliverOrder} onAddItems={o => setAddItemsOrder(o)}
-                                        onStatusChange={changeStatus} onRemoveItem={removeItem} />
+                                        onStatusChange={changeStatus} onRemoveItem={removeItem}
+                                        myTables={myTables} />
                                 ))
                             }
                         </div>
 
-                        
+
                     </div>
                 ))}
             </div>
@@ -562,7 +661,7 @@ function OrdersTab({ orders, setOrders, menu, addToast, staffId }) {
     );
 }
 
-function TablesTab({ unpaidTables, addToast, raiseAlert, onMarkPaid }) {
+function TablesTab({ unpaidTables, addToast, raiseAlert, onMarkPaid, myTables }) {
     const [showUnpaidModal, setShowUnpaidModal] = useState(false);
     const [alertTable, setAlertTable] = useState("");
     const [customTable, setCustomTable] = useState("");
@@ -571,11 +670,11 @@ function TablesTab({ unpaidTables, addToast, raiseAlert, onMarkPaid }) {
         <div style={{ padding: "20px 28px 32px" }}>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
                 <SectionCard accentColor={C.warm} title="Assigned Tables"
-                    badge={<span style={{ fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 10, background: C.pale, color: C.muted }}>{MY_TABLES.length} tables</span>}>
+                    badge={<span style={{ fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 10, background: C.pale, color: C.muted }}>{myTables.length} tables</span>}>
                     <div style={{ padding: "12px 16px 16px" }}>
                         <p style={{ fontSize: 12, color: C.muted, marginBottom: 12 }}>You are responsible for these tables during your shift.</p>
                         <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-                            {MY_TABLES.map(t => (
+                            {myTables.map(t => (
                                 <div key={t} style={{ background: C.bg, border: `2px solid ${C.warm}`, borderRadius: 8, padding: "14px 20px", textAlign: "center", minWidth: 80 }}>
                                     <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 26, fontWeight: 700, color: C.dark }}>T{t}</div>
                                     <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: ".08em", textTransform: "uppercase", color: C.warm, marginTop: 2 }}>Active</div>
@@ -590,7 +689,7 @@ function TablesTab({ unpaidTables, addToast, raiseAlert, onMarkPaid }) {
                         <div style={{ marginBottom: 12 }}>
                             <label style={{ fontSize: 10, fontWeight: 700, letterSpacing: ".08em", textTransform: "uppercase", color: C.muted, display: "block", marginBottom: 6 }}>Table Number</label>
                             <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-                                {MY_TABLES.map(t => (
+                                {myTables.map(t => (
                                     <button key={t}
                                         onClick={() => setAlertTable(alertTable === t ? "" : t)}
                                         style={{ padding: "6px 14px", borderRadius: 6, border: `1.5px solid ${alertTable === t ? C.warm : C.border}`, background: alertTable === t ? C.pale : C.bg, color: alertTable === t ? C.dark : C.muted, fontSize: 12, fontWeight: alertTable === t ? 700 : 500, cursor: "pointer", fontFamily: "Jost, sans-serif", transition: "all .15s" }}>
@@ -646,7 +745,7 @@ function TablesTab({ unpaidTables, addToast, raiseAlert, onMarkPaid }) {
                                                 <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 20, fontWeight: 700, color: C.warm, marginTop: 6 }}>£{t.total.toFixed(2)}</div>
                                                 <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: ".08em", color: C.red, textTransform: "uppercase", marginTop: 2 }}>Unpaid</div>
                                                 <button
-                                                    onClick={() => onMarkPaid(t.order)}
+                                                    onClick={() => onMarkPaid(t.order, t.orderIds)}
                                                     style={{ marginTop: 8, width: "100%", padding: "6px", background: C.green, color: "white", border: "none", borderRadius: 6, fontSize: 10, fontWeight: 700, letterSpacing: ".07em", textTransform: "uppercase", cursor: "pointer", fontFamily: "Jost, sans-serif" }}>
                                                     ✓ Mark as Paid
                                                 </button>
@@ -774,20 +873,21 @@ function MenuItemCard({ item, onToggle }) {
 }
 
 // CUSTOMER ASSISTANCE ALERT
-function useCustomerAlerts(setNotifications, addToast) {
-    const cbRef = useRef({ setNotifications, addToast });
-    useEffect(() => { cbRef.current = { setNotifications, addToast }; });
+function useCustomerAlerts(setNotifications, addToast, staffId) {
+    const cbRef = useRef({ setNotifications, addToast, staffId });
+    useEffect(() => { cbRef.current = { setNotifications, addToast, staffId }; });
 
     useEffect(() => {
         const handler = (e) => {
             if (e.key !== "oaxaca_customer_alert" || !e.newValue) return;
             try {
                 const incoming = JSON.parse(e.newValue);
+                if (incoming.assigned_waiter && incoming.assigned_waiter !== cbRef.current.staffId) return;
                 cbRef.current.setNotifications(prev => {
                     if (prev.some(n => n.id === incoming.id)) return prev;
                     return [incoming, ...prev];
                 });
-                addToast(`Table ${incoming.table} needs assistance!`);
+                cbRef.current.addToast(`Table ${incoming.table} needs assistance!`);
             } catch (_) { }
         };
         window.addEventListener("storage", handler);
@@ -851,8 +951,12 @@ export default function App() {
     }, []);
 
     const [tab, setTab] = useState("Orders");
+    const [loggingOut, setLoggingOut] = useState(false);
 
-    const [notifications, setNotifications] = useState(INIT_NOTIFICATIONS);
+    const [notifications, setNotifications] = useState(() => {
+        try { return JSON.parse(localStorage.getItem("oaxaca_waiter_notifications") ?? "[]"); }
+        catch { return []; }
+    });
     const [toasts, setToasts] = useState([]);
     const [showNotifs, setShowNotifs] = useState(false);
     const [showAccount, setShowAccount] = useState(false);
@@ -861,13 +965,17 @@ export default function App() {
     const accountRef = useRef(null);
     useOutsideClick(notifRef, () => setShowNotifs(false));
     useOutsideClick(accountRef, () => setShowAccount(false));
+    useEffect(() => {
+        localStorage.setItem("oaxaca_waiter_notifications", JSON.stringify(notifications));
+    }, [notifications]);
 
     const addToast = msg => { const id = Date.now(); setToasts(p => [...p, { id, msg }]); setTimeout(() => setToasts(p => p.filter(t => t.id !== id)), 3000); };
     const raiseAlert = async (table) => {
         const id = Date.now();
+        const activeOrder = orders.find(o => o.table === table && o.status !== "Completed" && o.status !== "Cancelled");
         const alert = {
             id,
-            order: "–",
+            order: activeOrder?.id ?? "–",
             table,
             status: `Table ${table} needs assistance`,
             type: "alert",
@@ -893,7 +1001,6 @@ export default function App() {
     };
 
     // LISTENING FOR KITCHEN NOTIFY EVENTS
-    useKitchenNotifications(setNotifications, addToast, () => { });
 
     const unread = notifications.filter(n => !n.read).length;
     const alertCount = notifications.filter(n => n.type === "alert" || n.type === "Help_Needed").length;
@@ -903,16 +1010,15 @@ export default function App() {
     const [orders, setOrders] = useState([]);
     useEffect(() => {
         const fetchOrders = async () => {
-            const res = await fetch('http://127.0.0.1:8000/orders');
+            const res = await fetch(`http://127.0.0.1:8000/orders${staffId ? `?waiter_id=${staffId}` : ''}`);
             const data = await res.json();
             setOrders(prev => {
                 return data.map(o => {
-                    const existing = prev.find(p => p.id === String(o.order_id));
                     return {
                         id: String(o.order_id),
                         table: o.table_id,
                         status: o.status ?? "Pending",
-                        startedAt: existing ? existing.startedAt : Date.now(),
+                        startedAt: o.created_at ? new Date(o.created_at).getTime() : Date.now(),
                         estMins: o.est_mins ?? 15,
                         items: o.items.map(i => ({
                             menuId: null,
@@ -932,7 +1038,6 @@ export default function App() {
         return () => clearInterval(poll);
     }, []);
 
-    useCustomerAlerts(setNotifications, addToast);
     useWaiterAlerts(setNotifications, addToast);
 
     useEffect(() => {
@@ -991,27 +1096,59 @@ export default function App() {
         return () => clearInterval(poll);
     }, []);
 
-    const markAsPaid = async (orderId) => {
-        await fetch(`http://127.0.0.1:8000/orders/${orderId}/pay`, {
-            method: 'POST',
-        });
-        setOrders(p => p.filter(o => o.id !== String(orderId)));
-        addToast(`Order #${orderId} marked as paid ✓`);
+    const markAsPaid = async (orderId, allOrderIds) => {
+        const ids = allOrderIds ?? [orderId];
+        for (const id of ids) {
+            await fetch(`http://127.0.0.1:8000/orders/${id}/pay`, { method: 'POST' });
+        }
+        setOrders(p => p.filter(o => !ids.map(String).includes(o.id)));
+        // notify customer tab to log out
+        localStorage.setItem("oaxaca_table_paid", JSON.stringify({ ids, timestamp: Date.now() }));
+        addToast(`Table marked as paid ✓`);
     };
 
-    const unpaidTables = orders
-        .filter(o => o.status === "Completed")
-        .map(o => ({
-            table: o.table,
-            order: o.id,
-            total: o.items.reduce((s, i) => s + i.price * i.qty, 0),
-            waiting: "—"
-        }));
+    const unpaidTables = Object.values(
+        orders
+            .filter(o => o.status === "Completed")
+            .reduce((acc, o) => {
+                const table = o.table;
+                const orderTotal = o.items.reduce((s, i) => s + i.price * i.qty, 0);
+                if (acc[table]) {
+                    acc[table].total += orderTotal;
+                    acc[table].orderIds.push(o.id);
+                } else {
+                    acc[table] = {
+                        table,
+                        order: o.id,
+                        orderIds: [o.id],
+                        total: orderTotal,
+                        waiting: "—"
+                    };
+                }
+                return acc;
+            }, {})
+    );
 
 
     // ACCOUNT LOGIN VALIDATION
+    const [myTables, setMyTables] = useState([]);
     const [staffInfo, setStaffInfo] = useState(null);
     const staffId = location.state?.staff_id ?? sessionStorage.getItem('staff_id');
+    useCustomerAlerts(setNotifications, addToast, staffId);
+    useKitchenNotifications(setNotifications, addToast, () => { }, staffId);
+
+    useEffect(() => {
+        if (!staffId) return;
+        const fetchTables = () => {
+            fetch(`http://127.0.0.1:8000/staff/${staffId}/tables`)
+                .then(r => r.json())
+                .then(data => setMyTables(data))
+                .catch(() => { });
+        };
+        fetchTables();
+        const poll = setInterval(fetchTables, 3000);
+        return () => clearInterval(poll);
+    }, [staffId]);
 
     useEffect(() => {
         if (!staffId) return;
@@ -1054,7 +1191,15 @@ export default function App() {
                             style={{ width: 36, height: 36, borderRadius: "50%", background: showAccount ? C.mid : C.green, display: "grid", placeItems: "center", cursor: "pointer", color: "white", fontSize: 11, fontWeight: 700, border: `2px solid ${showAccount ? C.light : "transparent"}`, transition: "all .15s", userSelect: "none" }}>
                             {staffInfo?.name ? staffInfo.name.slice(0, 2).toUpperCase() : "??"}
                         </div>
-                        {showAccount && <AccountPanel addToast={addToast} staffInfo={staffInfo} />}
+                        {showAccount && <AccountPanel addToast={addToast} staffInfo={staffInfo} onLogout={async () => {
+                            if (staffInfo?.staff_id) {
+                                await fetch(`http://127.0.0.1:8000/auth/logout/${staffInfo.staff_id}`, { method: 'POST' }).catch(() => { });
+                            }
+                            localStorage.removeItem("oaxaca_waiter_notifications");
+                            setShowAccount(false);
+                            setLoggingOut(true);
+                            setTimeout(() => { window.location.href = "/"; }, 2500);
+                        }} />}
                     </div>
                 </div>
             </nav>
@@ -1073,7 +1218,7 @@ export default function App() {
                     <div>
                         <h1 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 28, fontWeight: 700, color: C.dark }}>Waiter Dashboard</h1>
                         <p style={{ fontSize: 12, color: C.muted, marginTop: 2, letterSpacing: ".05em" }}>
-                            {new Date().toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" })} · Tables: {MY_TABLES.join(", ")}
+                            {new Date().toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" })} · Tables: {myTables.length > 0 ? myTables.join(", ") : "None assigned yet"}
                         </p>
                     </div>
                     <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11, letterSpacing: ".1em", textTransform: "uppercase", color: C.green, fontWeight: 600, background: C.greenL, padding: "5px 12px", borderRadius: 20, marginBottom: 4 }}>
@@ -1092,14 +1237,31 @@ export default function App() {
             </div>
 
             {/* TAB CONTENT */}
-            {tab === "Orders" && <OrdersTab orders={orders} setOrders={setOrders} menu={menu} addToast={addToast} staffId={staffInfo?.staff_id} />}
-            {tab === "Tables" && <TablesTab unpaidTables={unpaidTables} addToast={addToast} raiseAlert={raiseAlert} onMarkPaid={markAsPaid} />}
+            {tab === "Orders" && <OrdersTab orders={orders} setOrders={setOrders} menu={menu} addToast={addToast} staffId={staffInfo?.staff_id} myTables={myTables} />}
+            {tab === "Tables" && <TablesTab unpaidTables={unpaidTables} addToast={addToast} raiseAlert={raiseAlert} onMarkPaid={markAsPaid} myTables={myTables} />}
             {tab === "Menu" && <MenuTab menu={menu} setMenu={setMenu} addToast={addToast} lowStockDishes={lowStockDishes} />}
 
             {/* TOASTS */}
             <div style={{ position: "fixed", bottom: 24, right: 24, display: "flex", flexDirection: "column", gap: 8, zIndex: 9999, pointerEvents: "none" }}>
                 {toasts.map(t => <div key={t.id} style={{ background: C.dark, color: C.bg, padding: "10px 18px", borderRadius: 6, fontSize: 12, fontWeight: 500, boxShadow: "0 4px 16px rgba(0,0,0,.25)", animation: "fadeInUp .2s ease" }}>{t.msg}</div>)}
             </div>
+            {loggingOut && (
+                <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.5)", zIndex: 9999, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <div style={{ background: "#faf7f2", border: "1.5px solid #d4b896", borderRadius: 12, padding: "40px 48px", textAlign: "center", boxShadow: "0 12px 40px rgba(0,0,0,.25)", animation: "dropIn .2s ease" }}>
+                        <div style={{ width: 56, height: 56, borderRadius: "50%", background: "#d4edda", display: "grid", placeItems: "center", margin: "0 auto 16px" }}>
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#4a7c59" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <circle cx="12" cy="12" r="10" />
+                                <path d="M8 14s1.5 2 4 2 4-2 4-2" />
+                                <line x1="9" y1="9" x2="9.01" y2="9" strokeWidth="3" />
+                                <line x1="15" y1="9" x2="15.01" y2="9" strokeWidth="3" />
+                            </svg>
+                        </div>
+                        <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 24, fontWeight: 700, color: "#2D2218", marginBottom: 8 }}>See you soon!</h2>
+                        <p style={{ fontSize: 13, color: "#7a5c44", marginBottom: 6 }}>You have been signed out successfully.</p>
+                        <p style={{ fontSize: 11, color: "#8b4513" }}>Returning to home...</p>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

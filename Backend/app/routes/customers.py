@@ -4,14 +4,17 @@ from ..database import get_conn
 
 router = APIRouter(tags=["customers"])
 
+
 class CustomerIn(BaseModel):
     name: str
     table_id: int | None = None
 
+
 @router.get("/customers")
 def get_customers():
     conn = get_conn()
-    rows = conn.execute("SELECT * FROM customers ORDER BY created_at DESC").fetchall()
+    rows = conn.execute(
+        "SELECT * FROM customers ORDER BY created_at DESC").fetchall()
     conn.close()
     return [dict(r) for r in rows]
 
@@ -54,6 +57,18 @@ def add_customer(payload: CustomerIn):
         raise HTTPException(status_code=500, detail=str(e))
     finally:
         conn.close()
+
+
+@router.get("/tables/{table_id}/waiter")
+def get_table_waiter(table_id: int):
+    conn = get_conn()
+    row = conn.execute(
+        "SELECT assigned_waiter FROM tables WHERE table_id = ?", (table_id,)
+    ).fetchone()
+    conn.close()
+    if not row:
+        raise HTTPException(status_code=404, detail="Table not found")
+    return {"table_id": table_id, "assigned_waiter": row["assigned_waiter"]}
 
 
 @router.delete("/customers/{cust_id}")
