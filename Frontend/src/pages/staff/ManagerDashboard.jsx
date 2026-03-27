@@ -591,61 +591,6 @@ function EmployeesTab({ employees }) {
     );
 }
 
-const INIT_STOCK = [
-    { id: 1, name: "Avocado", category: "Produce", level: 75, unit: "units", reorderAt: 30, usedIn: ["Guacamole & Chips", "Tlayuda Tostada", "+ Extra Guacamole"] },
-    { id: 2, name: "Lime", category: "Produce", level: 85, unit: "units", reorderAt: 25, usedIn: ["Guacamole & Chips", "Ceviche Verde", "Barbacoa Tacos", "Hibiscus Agua Fresca", "Mezcal Margarita", "Mango Sorbet"] },
-    { id: 3, name: "Jalapeño", category: "Produce", level: 60, unit: "units", reorderAt: 20, usedIn: ["Guacamole & Chips", "Pickled Jalapeños", "+ Extra Jalapeños"] },
-    { id: 4, name: "Corn (fresh)", category: "Produce", level: 55, unit: "kg", reorderAt: 25, usedIn: ["Elote Esquites"] },
-    { id: 5, name: "Tomatillo", category: "Produce", level: 48, unit: "kg", reorderAt: 20, usedIn: ["Ceviche Verde"] },
-    { id: 6, name: "Mango (Alphonso)", category: "Produce", level: 50, unit: "units", reorderAt: 20, usedIn: ["Mango Sorbet"] },
-    { id: 7, name: "Portobello Mushrooms", category: "Produce", level: 40, unit: "kg", reorderAt: 20, usedIn: ["Portobello Enchiladas"] },
-    { id: 8, name: "White Onion", category: "Produce", level: 65, unit: "kg", reorderAt: 15, usedIn: ["Barbacoa Tacos", "Pickled Jalapeños"] },
-    { id: 9, name: "Red Onion", category: "Produce", level: 70, unit: "kg", reorderAt: 15, usedIn: ["Cochinita Pibil", "+ Pickled Onion"] },
-    { id: 10, name: "Cucumber", category: "Produce", level: 55, unit: "units", reorderAt: 15, usedIn: ["Ceviche Verde"] },
-    { id: 11, name: "Coriander", category: "Produce", level: 72, unit: "bunches", reorderAt: 20, usedIn: ["Ceviche Verde", "Barbacoa Tacos", "Mexican Rice"] },
-    { id: 12, name: "Hibiscus (dried)", category: "Produce", level: 58, unit: "kg", reorderAt: 20, usedIn: ["Hibiscus Agua Fresca"] },
-    { id: 13, name: "Mint", category: "Produce", level: 65, unit: "bunches", reorderAt: 15, usedIn: ["Horchata"] },
-    { id: 14, name: "Tomatoes", category: "Produce", level: 62, unit: "kg", reorderAt: 20, usedIn: ["Snapper Veracruz", "Mexican Rice"] },
-    { id: 15, name: "Olives", category: "Produce", level: 44, unit: "kg", reorderAt: 15, usedIn: ["Snapper Veracruz"] },
-    { id: 16, name: "Capers", category: "Produce", level: 50, unit: "kg", reorderAt: 15, usedIn: ["Snapper Veracruz"] },
-    { id: 17, name: "Chilli Salt (Mango)", category: "Produce", level: 68, unit: "units", reorderAt: 15, usedIn: ["Mango Sorbet"] },
-    { id: 18, name: "Sea Bass / Snapper", category: "Protein", level: 12, unit: "kg", reorderAt: 30, usedIn: ["Ceviche Verde", "Snapper Veracruz"] },
-    { id: 19, name: "Beef Cheek", category: "Protein", level: 60, unit: "kg", reorderAt: 25, usedIn: ["Barbacoa Tacos", "+ Extra Beef"] },
-    { id: 20, name: "Chicken (free-range)", category: "Protein", level: 55, unit: "kg", reorderAt: 25, usedIn: ["Mole Negro Chicken"] },
-    { id: 21, name: "Pork Shoulder", category: "Protein", level: 50, unit: "kg", reorderAt: 20, usedIn: ["Cochinita Pibil"] },
-    { id: 22, name: "Chorizo", category: "Protein", level: 55, unit: "kg", reorderAt: 25, usedIn: ["Tlayuda Tostada", "+ Extra Chorizo"] },
-    { id: 23, name: "Cotija Cheese", category: "Dairy", level: 40, unit: "kg", reorderAt: 30, usedIn: ["Elote Esquites", "Tlayuda Tostada", "+ Extra Cheese"] },
-    { id: 24, name: "Quesillo", category: "Dairy", level: 35, unit: "kg", reorderAt: 25, usedIn: ["Tlayuda Tostada", "+ Extra Quesillo"] },
-    { id: 25, name: "Crema / Sour Cream", category: "Dairy", level: 68, unit: "kg", reorderAt: 25, usedIn: ["Elote Esquites", "Black Bean Pot", "+ Extra Sour Cream"] },
-    { id: 26, name: "Eggs", category: "Dairy", level: 80, unit: "units", reorderAt: 30, usedIn: ["Churro Sundae", "Mezcal Flan"] },
-    { id: 27, name: "Vanilla Ice Cream", category: "Dairy", level: 55, unit: "litres", reorderAt: 20, usedIn: ["Churro Sundae"] },
-    { id: 28, name: "Oat Milk", category: "Dairy", level: 60, unit: "litres", reorderAt: 20, usedIn: ["Mexican Hot Chocolate"] },
-    { id: 29, name: "Corn Masa (nixtamal)", category: "Dry Goods", level: 35, unit: "kg", reorderAt: 40, usedIn: ["Corn Tortillas", "Tlayuda Tostada"] },
-    { id: 30, name: "Black Beans (dried)", category: "Dry Goods", level: 90, unit: "kg", reorderAt: 20, usedIn: ["Black Bean Pot", "Tlayuda Tostada", "Portobello Enchiladas"] },
-    { id: 31, name: "Rice", category: "Dry Goods", level: 78, unit: "kg", reorderAt: 20, usedIn: ["Mexican Rice", "Mole Negro Chicken", "Horchata"] },
-    { id: 32, name: "Ancho Chilli", category: "Dry Goods", level: 22, unit: "units", reorderAt: 25, usedIn: ["Elote Esquites", "Mole Negro Chicken", "+ Extra Chilli"] },
-    { id: 33, name: "Achiote Paste", category: "Dry Goods", level: 45, unit: "kg", reorderAt: 20, usedIn: ["Cochinita Pibil"] },
-    { id: 34, name: "Epazote", category: "Dry Goods", level: 50, unit: "bunches", reorderAt: 15, usedIn: ["Elote Esquites", "Black Bean Pot"] },
-    { id: 35, name: "Sesame Seeds", category: "Dry Goods", level: 60, unit: "kg", reorderAt: 15, usedIn: ["Mole Negro Chicken"] },
-    { id: 36, name: "Chipotle Sauce", category: "Dry Goods", level: 42, unit: "kg", reorderAt: 15, usedIn: ["Portobello Enchiladas"] },
-    { id: 37, name: "Dark Chocolate", category: "Dry Goods", level: 48, unit: "kg", reorderAt: 20, usedIn: ["Churro Sundae", "+ Extra Chocolate Sauce"] },
-    { id: 38, name: "Cashew Crema", category: "Dry Goods", level: 38, unit: "kg", reorderAt: 20, usedIn: ["Portobello Enchiladas"] },
-    { id: 39, name: "Cinnamon", category: "Dry Goods", level: 70, unit: "units", reorderAt: 15, usedIn: ["Horchata"] },
-    { id: 40, name: "Vanilla Extract", category: "Dry Goods", level: 65, unit: "units", reorderAt: 15, usedIn: ["Horchata", "Churro Sundae"] },
-    { id: 41, name: "Habanero Salsa", category: "Dry Goods", level: 55, unit: "kg", reorderAt: 15, usedIn: ["Cochinita Pibil", "+ Extra Habanero"] },
-    { id: 42, name: "Salsa Verde", category: "Dry Goods", level: 60, unit: "kg", reorderAt: 15, usedIn: ["Barbacoa Tacos", "+ Salsa Verde"] },
-    { id: 43, name: "Apple Cider Vinegar", category: "Dry Goods", level: 72, unit: "litres", reorderAt: 15, usedIn: ["Pickled Jalapeños"] },
-    { id: 44, name: "Cumin", category: "Dry Goods", level: 80, unit: "units", reorderAt: 15, usedIn: ["Mexican Rice"] },
-    { id: 45, name: "Almond (extract)", category: "Dry Goods", level: 55, unit: "units", reorderAt: 15, usedIn: ["Horchata"] },
-    { id: 46, name: "Caramel", category: "Dry Goods", level: 48, unit: "kg", reorderAt: 20, usedIn: ["Mezcal Flan"] },
-    { id: 47, name: "Mezcal (Joven)", category: "Bar", level: 45, unit: "bottles", reorderAt: 30, usedIn: ["Mezcal Margarita", "Mezcal Flan"] },
-    { id: 48, name: "Agave Syrup", category: "Bar", level: 55, unit: "litres", reorderAt: 20, usedIn: ["Mezcal Margarita"] },
-    { id: 49, name: "Smoked Salt", category: "Bar", level: 70, unit: "units", reorderAt: 15, usedIn: ["Mezcal Margarita"] },
-    { id: 50, name: "Mexican Lager", category: "Bar", level: 70, unit: "bottles", reorderAt: 30, usedIn: ["Mexican Lager"] },
-    { id: 51, name: "Still / Sparkling Water", category: "Bar", level: 80, unit: "bottles", reorderAt: 20, usedIn: ["Water"] },
-    { id: 52, name: "Cane Sugar", category: "Bar", level: 75, unit: "kg", reorderAt: 15, usedIn: ["Hibiscus Agua Fresca"] },
-];
-
 const stockStatus = (level) =>
     level >= 50 ? { color: C.green, bg: C.greenL, label: "Good" }
         : level >= 25 ? { color: C.amber, bg: C.amberL, label: "Low" }
@@ -676,12 +621,23 @@ function StockInput({ level, onRestock }) {
 
 function StockTab({ stock, fetchStock }) {
     const [search, setSearch] = useState("");
-    const restock = (stockId, level) => {
-        fetch('http://127.0.0.1:8000/stock/restock', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ stock_id: stockId, level }),
-        }).then(() => fetchStock());
+    const restock = async (stockId, level) => {
+        try {
+            const response = await fetch('http://127.0.0.1:8000/stock/restock', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ stock_id: stockId, level }),
+            });
+            
+            if (response.ok) {
+                await fetchStock();
+                addToast(`Stock updated to ${level}%`);
+            } else {
+                addToast('Failed to update stock');
+            }
+        } catch (error) {
+            addToast('Error updating stock');
+        }
     };
 
     const q = search.trim().toLowerCase();
@@ -861,8 +817,8 @@ export default function ManagerDashboard() {
         const poll = setInterval(fetchEmployees, 3000);
         return () => clearInterval(poll);
     }, []);
-    const [stock, setStock] = useState(INIT_STOCK);
 
+    const [stock, setStock] = useState([]);
     useEffect(() => {
         const staffId = location.state?.staff_id;
         if (!staffId) return;
