@@ -1,12 +1,8 @@
-### Backend
+## Project Structure : Backend
 
-From the `Backend/` directory:
-```bash
-rm -rf oaxaca.db
-python -m scripts.db_init && python -m scripts.seed_all
-uvicorn app.main:app --reload```
-
-1. Delete current DB
-2. Initialise DB
-3. Seed entries to DB
-4. Start the API server
+* `app/` - FastAPI application: routes, models, and database connection
+* `data/` - Raw data files used for seeding the database, CSV
+* `scripts/` - Database initialisation and seeding scripts
+* `test/` - API and unit tests
+* `oaxaca.db` - SQLite database (auto-generated on first run)
+* `requirements.txt` - Python dependencies

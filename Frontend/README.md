@@ -1,7 +1,12 @@
-### Frontend
-From the `Frontend/` directory:
-```bash
-npm run dev
-```
+## Project Structure
 
-The app will be available at `http://localhost:5173` (or whichever port Vite assigns).
+* `public/` - Static assets served directly
+* `src/`
+  * `assets/` - Images and static files used in the app
+  * `components/` - Reusable UI components
+  * `pages/` - Page-level components organised by role
+    * `auth/` - Login pages for customers and staff
+    * `menu/` - Customer-facing menu and ordering flow
+    * `staff/` - Waiter and kitchen dashboards
+  * `App.jsx` - Root component and route definitions
+  * `main.jsx` - Application entry point
