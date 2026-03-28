@@ -12,7 +12,6 @@ const C = {
     text: "#2c1810", muted: "#7a5c44", border: "#d4b896",
 };
 
-// CONSTANTS --------------------------
 const ORDER_STATUSES = ["Pending", "Waiter Confirmed", "In Progress", "Ready", "Completed", "Cancelled"];
 const notifColor = { ready: C.green, alert: C.red, allergy: C.amber, Help_Needed: C.blue };
 const statusColor = {
@@ -838,7 +837,6 @@ function MenuTab({ menu, setMenu, addToast, lowStockDishes }) {
         </div>
     );
 }
-
 
 // HOOK : CUSTOMER ASSISTANCE ALERT --------------------------
 function useCustomerAlerts(setNotifications, addToast, staffId) {

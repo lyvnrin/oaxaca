@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import "./Menu.css";
 import { MENU_DATA, INGREDIENTS, EXTRAS_BY_ID } from "./menuData.js";
 
@@ -904,19 +904,28 @@ function TrackingPopup({ orderId, tableNumber, orderItems, total, onClose, onPay
 
 // MAIN APP --------------------------
 export default function App() {
+    
     const [openSection, setOpenSection] = useState(null);
     const [activeFilters, setActiveFilters] = useState([]);
     const [excludedAllergens, setExcludedAllergens] = useState([]);
 
     const { state } = useLocation();
+    const navigate = useNavigate();
 
     if (state?.cust_id) {
         sessionStorage.setItem('cust_id', state.cust_id);
         sessionStorage.setItem('table_id', state.table_id);
     }
 
-    const cust_id = state?.cust_id ?? sessionStorage.getItem('cust_id');
+    const cust_id = state?.cust_id ?? sessionStorage.getItem('cust_id', true);
     const table_id = state?.table_id ?? sessionStorage.getItem('table_id');
+
+    // URL AUTH GUARD --------------------------  
+    if (!cust_id || !table_id || !sessionStorage.getItem('customer_session_active')) {
+        window.location.href = '/';
+        return null;
+    }
+    
     const [cart, setCart] = useState({});
     const [cartOpen, setCartOpen] = useState(false);
     const [contactWaiterOpen, setContactWaiterOpen] = useState(false);

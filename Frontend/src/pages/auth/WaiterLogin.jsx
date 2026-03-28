@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Grainient from "../../components/Grainient";
 import "./WaiterLogin.css";
@@ -7,7 +7,6 @@ function WaiterLogin() {
     // NAVIGATION --------------------------
     const navigate = useNavigate();
     const goBack = () => navigate("/staff");
-    const goToDashboard = () => navigate("/waiter-dashboard", { state: { role: 'waiter' } });
 
     // STATE --------------------------
     const [formData, setFormData] = useState({ username: '', password: '' });
