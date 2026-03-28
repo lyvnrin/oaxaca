@@ -85,6 +85,12 @@ function WaiterLogin() {
         }
     };
 
+    const [flashPassword, setFlashPassword] = useState(false);
+    const handleShowPassword = () => {
+        setFlashPassword(true);
+        setTimeout(() => setFlashPassword(false), 600);
+    };
+
     return (
         <div className="waiter-page">
 
@@ -121,14 +127,33 @@ function WaiterLogin() {
 
                 {/* PASSWORD FIELD */}
                 <p className="waiter-field-label">PASSWORD</p>
-                <input
-                    className={`waiter-input ${errors.password ? 'input-error' : ''}`}
-                    type="password"
-                    name="password"
-                    value={formData.password}
-                    onChange={handleChange}
-                    placeholder="Enter your password"
-                />
+                <div style={{ position: 'relative' }}>
+                    <input
+                        className={`waiter-input ${errors.password ? 'input-error' : ''}`}
+                        type={flashPassword ? 'text' : 'password'}
+                        name="password"
+                        value={formData.password}
+                        onChange={handleChange}
+                        placeholder="Enter your password"
+                        onKeyDown={(e) => e.key === 'Enter' && handleLogin()}
+                        style={{ paddingRight: '36px' }}
+                    />
+                    <button
+                        type="button"
+                        onMouseDown={handleShowPassword}
+                        style={{
+                            position: 'absolute', right: 10, top: '50%',
+                            transform: 'translateY(-50%)', background: 'none',
+                            border: 'none', cursor: 'pointer', color: '#7a5c44',
+                            padding: 0, display: 'flex', alignItems: 'center'
+                        }}
+                    >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                            <circle cx="12" cy="12" r="3"/>
+                        </svg>
+                    </button>
+                </div>
                 {errors.password && <span className="error-message">{errors.password}</span>}
 
                 {/* SUBMIT BTN */}
