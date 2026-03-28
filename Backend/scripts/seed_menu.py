@@ -4,7 +4,6 @@ import os
 
 # MENU ITEMS --------------------------
 def load_menu_from_csv(csv_path: str, db_path: str):
-    # READS OAXACA MENU CSV + INSERTS ALL ITEMS 
     items = []
 
     with open(csv_path, newline="", encoding="utf-8") as f:
@@ -25,10 +24,19 @@ def load_menu_from_csv(csv_path: str, db_path: str):
             except (ValueError, KeyError):
                 prep_time = 15
 
+            dietary = row["Dietary Tags"].strip() if row["Dietary Tags"] else ""
+            allergens = row["Allergens"].strip() if row["Allergens"] else ""
+            calories = row["Calories (kcal)"].strip() if row["Calories (kcal)"] else ""
+
             items.append({
                 "item_id":   int(row["ID"].strip()),
                 "item_name": row["Item Name"].strip(),
+                "section":   row["Menu Type"].strip(),
+                "description": row["Item Description"].strip(),
                 "price":     price,
+                "dietary":   dietary,
+                "allergens": allergens,
+                "calories":  calories,
                 "available": 1 if row["Available"].strip().lower() == "true" else 0,
                 "cogs":      cogs,
                 "prep_time_mins": prep_time,
@@ -38,8 +46,9 @@ def load_menu_from_csv(csv_path: str, db_path: str):
     cursor = conn.cursor()
 
     cursor.executemany("""
-        INSERT OR REPLACE INTO menu_items (item_id, item_name, price, available, cogs, prep_time_mins)
-        VALUES (:item_id, :item_name, :price, :available, :cogs, :prep_time_mins)
+        INSERT OR REPLACE INTO menu_items 
+        (item_id, item_name, section, description, price, dietary, allergens, calories, available, cogs, prep_time_mins)
+        VALUES (:item_id, :item_name, :section, :description, :price, :dietary, :allergens, :calories, :available, :cogs, :prep_time_mins)
     """, items)
     conn.commit()
 

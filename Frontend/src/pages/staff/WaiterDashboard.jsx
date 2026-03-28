@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from 'react-router-dom';
 
+// STYLE CONSTANTS --------------------------
 const C = {
     bg: "#f5f0e8", panel: "#faf7f2", dark: "#2D2218", mid: "#8b4513",
     warm: "#c4763a", light: "#e8d5b7", pale: "#f0e6d3",
@@ -11,18 +12,7 @@ const C = {
     text: "#2c1810", muted: "#7a5c44", border: "#d4b896",
 };
 
-const now = () => Date.now();
-
 const ORDER_STATUSES = ["Pending", "Waiter Confirmed", "In Progress", "Ready", "Completed", "Cancelled"];
-
-const INIT_NOTIFICATIONS = [];
-
-const INIT_UNPAID = [
-    { table: 2, order: "1230", total: 34.50, waiting: "12 mins" },
-    { table: 6, order: "1231", total: 22.00, waiting: "5 mins" },
-    { table: 11, order: "1232", total: 67.00, waiting: "28 mins" },
-];
-
 const notifColor = { ready: C.green, alert: C.red, allergy: C.amber, Help_Needed: C.blue };
 const statusColor = {
     "Pending": C.amber,
@@ -33,6 +23,7 @@ const statusColor = {
     "Cancelled": C.red,
 };
 
+// CUSTOM HOOKS --------------------------
 function useOutsideClick(ref, cb) {
     useEffect(() => {
         const fn = e => { if (ref.current && !ref.current.contains(e.target)) cb(); };
@@ -56,7 +47,7 @@ function elapsedColor(startedAt) {
     return mins > 20 ? C.red : mins > 10 ? C.amber : C.green;
 }
 
-// HOOK: listens for kitchen "NOTIFY WAITER" events from localStorage (cross-tab)
+// HOOK : LISTENS FOR KITCHEN NOTIFS --------------------------
 function useKitchenNotifications(setNotifications, addToast, onNewOrder, staffId) {
     useEffect(() => {
         const handler = (e) => {
@@ -77,11 +68,13 @@ function useKitchenNotifications(setNotifications, addToast, onNewOrder, staffId
     }, [setNotifications, addToast, onNewOrder, staffId]);
 }
 
+// ICON COMPONENTS --------------------------
 const IconAlert = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></svg>;
 const IconBell = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 0 1-3.46 0" /></svg>;
 const IconClock = () => <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>;
 const IconDoor = () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={C.red} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></svg>;
 
+// NAVIGATION ICON --------------------------
 function Dropdown({ children, width = 360 }) {
     return (
         <div style={{ position: "absolute", top: "calc(100% + 10px)", right: 0, width, background: C.panel, border: `1.5px solid ${C.border}`, borderRadius: 10, boxShadow: "0 8px 32px rgba(0,0,0,.2)", zIndex: 900, animation: "dropIn .15s ease" }}>
@@ -102,6 +95,7 @@ function NavIcon({ icon, onClick, active, badge, badgeColor }) {
     );
 }
 
+// SECTION CARD --------------------------
 function SectionCard({ accentColor, title, badge, children, action }) {
     return (
         <div style={{ background: C.panel, border: `1.5px solid ${C.border}`, borderRadius: 10, overflow: "hidden" }}>
@@ -118,6 +112,7 @@ function SectionCard({ accentColor, title, badge, children, action }) {
     );
 }
 
+// NOTIFS PANEL --------------------------
 function NotificationsPanel({ notifications, setNotifications }) {
     const [filter, setFilter] = useState("All");
     const unread = notifications.filter(n => !n.read).length;
@@ -171,6 +166,7 @@ function NotificationsPanel({ notifications, setNotifications }) {
     );
 }
 
+// ACCOUNT PANEL --------------------------
 function AccountPanel({ addToast, staffInfo, onLogout }) {
     const initials = staffInfo?.name
         ? staffInfo.name.slice(0, 2).toUpperCase()
@@ -200,6 +196,7 @@ function AccountPanel({ addToast, staffInfo, onLogout }) {
     );
 }
 
+// MODAL --------------------------
 function Modal({ title, subtitle, onClose, children, footer }) {
     return (
         <>
@@ -219,6 +216,7 @@ function Modal({ title, subtitle, onClose, children, footer }) {
     );
 }
 
+// UNPAID MODAL --------------------------
 function UnpaidModal({ unpaidTables, onClose }) {
     return (
         <Modal title="Unpaid Tables" onClose={onClose}>
@@ -243,6 +241,7 @@ function UnpaidModal({ unpaidTables, onClose }) {
     );
 }
 
+// ADD ITEMS MODAL --------------------------
 function AddItemsModal({ order, menu, onAdd, onClose }) {
     const [selected, setSelected] = useState({});
     const [search, setSearch] = useState("");
@@ -337,6 +336,7 @@ function AddItemsModal({ order, menu, onAdd, onClose }) {
     );
 }
 
+// ORDER CARD --------------------------
 function OrderCard({ order, onConfirm, onCancel, onDeliver, onAddItems, onStatusChange, onRemoveItem, myTables }) {
     const [showStatusMenu, setShowStatusMenu] = useState(false);
     const elapsed = useElapsed(order.startedAt);
@@ -454,6 +454,7 @@ function OrderCard({ order, onConfirm, onCancel, onDeliver, onAddItems, onStatus
     );
 }
 
+// ORDERS TAB --------------------------
 function OrdersTab({ orders, setOrders, menu, addToast, staffId, myTables }) {
     const [addItemsOrder, setAddItemsOrder] = useState(null);
 
@@ -543,12 +544,10 @@ function OrdersTab({ orders, setOrders, menu, addToast, staffId, myTables }) {
             method: 'DELETE',
         });
 
-        // update customer tab
         if (order) {
             const updatedItems = order.items.filter((_, i) => i !== itemIndex);
             const existing = JSON.parse(localStorage.getItem("oaxaca_placed_order") ?? "{}");
             const updatedCart = {};
-            // keep only items that still exist in the order
             Object.entries(existing).forEach(([key, value]) => {
                 const stillExists = updatedItems.some(i => i.name === value.item?.name);
                 if (stillExists) {
@@ -561,6 +560,7 @@ function OrdersTab({ orders, setOrders, menu, addToast, staffId, myTables }) {
 
         addToast("Item removed from order");
     };
+
     const addItemsToOrder = async (orderId, newItems) => {
         setOrders(p => p.map(o => {
             if (o.id !== orderId) return o;
@@ -572,6 +572,7 @@ function OrdersTab({ orders, setOrders, menu, addToast, staffId, myTables }) {
             });
             return { ...o, items: merged };
         }));
+
         for (const ni of newItems) {
             await fetch(`http://127.0.0.1:8000/orders/${orderId}/items`, {
                 method: 'POST',
@@ -585,7 +586,7 @@ function OrdersTab({ orders, setOrders, menu, addToast, staffId, myTables }) {
             });
         }
 
-        // notify customer tab to update their order summary
+        // NOTIFIES CUSTOMER TAB TO UPDATE ORDER SUMMARY
         const existing = JSON.parse(localStorage.getItem("oaxaca_placed_order") ?? "{}");
         newItems.forEach(ni => {
             const key = `${ni.id}_waiter`;
@@ -648,12 +649,9 @@ function OrdersTab({ orders, setOrders, menu, addToast, staffId, myTables }) {
                                 ))
                             }
                         </div>
-
-
                     </div>
                 ))}
             </div>
-
             {addItemsOrder && (
                 <AddItemsModal order={addItemsOrder} menu={menu} onAdd={addItemsToOrder} onClose={() => setAddItemsOrder(null)} />
             )}
@@ -661,6 +659,7 @@ function OrdersTab({ orders, setOrders, menu, addToast, staffId, myTables }) {
     );
 }
 
+// TABLES TAB --------------------------
 function TablesTab({ unpaidTables, addToast, raiseAlert, onMarkPaid, myTables }) {
     const [showUnpaidModal, setShowUnpaidModal] = useState(false);
     const [alertTable, setAlertTable] = useState("");
@@ -762,6 +761,7 @@ function TablesTab({ unpaidTables, addToast, raiseAlert, onMarkPaid, myTables })
     );
 }
 
+// MENU TAB --------------------------
 function MenuTab({ menu, setMenu, addToast, lowStockDishes }) {
     const toggleAvail = async (id) => {
         const item = menu.find(m => m.id === id);
@@ -838,41 +838,7 @@ function MenuTab({ menu, setMenu, addToast, lowStockDishes }) {
     );
 }
 
-function MenuItemCard({ item, onToggle }) {
-    return (
-        <div
-            style={{ background: C.bg, border: `1.5px solid ${item.avail ? C.border : C.red + "55"}`, borderRadius: 8, padding: "12px 14px", opacity: item.avail ? 1 : .75, transition: "box-shadow .15s" }}
-            onMouseEnter={e => e.currentTarget.style.boxShadow = "0 2px 8px rgba(0,0,0,.06)"}
-            onMouseLeave={e => e.currentTarget.style.boxShadow = ""}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 4 }}>
-                <span style={{ fontSize: 13, fontWeight: 600, color: C.text, flex: 1, paddingRight: 8 }}>{item.name}</span>
-                <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 15, fontWeight: 700, color: C.mid, flexShrink: 0 }}>£{item.price.toFixed(2)}</span>
-            </div>
-            <p style={{ fontSize: 11, color: C.muted, marginBottom: 6, lineHeight: 1.45 }}>{item.description}</p>
-            <p style={{ fontSize: 10, color: C.muted, marginBottom: 4 }}>{item.calories}</p>
-            {item.allergens.length > 0 && (
-                <p style={{ fontSize: 10, color: C.amber, fontWeight: 700, marginBottom: 6 }}>⚠ Contains: {item.allergens.join(", ")}</p>
-            )}
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 4 }}>
-                <div onClick={() => onToggle(item.id)} style={{ display: "flex", alignItems: "center", gap: 7, cursor: "pointer" }}>
-                    <div style={{ width: 36, height: 20, borderRadius: 10, background: item.avail ? C.green : C.light, position: "relative", transition: "background .2s" }}>
-                        <div style={{ width: 16, height: 16, borderRadius: "50%", background: "white", position: "absolute", top: 2, left: item.avail ? 18 : 2, transition: "left .2s", boxShadow: "0 1px 4px rgba(0,0,0,.2)" }} />
-                    </div>
-                    <span style={{ fontSize: 11, color: item.avail ? C.green : C.muted, fontWeight: 600 }}>{item.avail ? "Available" : "Unavailable"}</span>
-                </div>
-                {item.dietary.length > 0 && (
-                    <div style={{ display: "flex", gap: 3, flexWrap: "wrap", justifyContent: "flex-end" }}>
-                        {item.dietary.map(d => (
-                            <span key={d} style={{ fontSize: 9, fontWeight: 600, padding: "1px 6px", borderRadius: 8, background: C.pale, color: C.muted }}>{d}</span>
-                        ))}
-                    </div>
-                )}
-            </div>
-        </div>
-    );
-}
-
-// CUSTOMER ASSISTANCE ALERT
+// HOOK : CUSTOMER ASSISTANCE ALERT --------------------------
 function useCustomerAlerts(setNotifications, addToast, staffId) {
     const cbRef = useRef({ setNotifications, addToast, staffId });
     useEffect(() => { cbRef.current = { setNotifications, addToast, staffId }; });
@@ -895,6 +861,7 @@ function useCustomerAlerts(setNotifications, addToast, staffId) {
     }, []);
 }
 
+// HOOK : WAITER ALERTS --------------------------
 function useWaiterAlerts(setNotifications, addToast) {
     const cbRef = useRef({ setNotifications, addToast });
     useEffect(() => { cbRef.current = { setNotifications, addToast }; });
@@ -916,6 +883,7 @@ function useWaiterAlerts(setNotifications, addToast) {
     }, []);
 }
 
+// MENU METADATA --------------------------
 const MENU_META = {
     1: { section: "Starters", dietary: ["Vegan", "Gluten-Free"], allergens: [], calories: "350" },
     2: { section: "Starters", dietary: ["Gluten-Free"], allergens: ["Milk", "Soy"], calories: "500" },
@@ -939,8 +907,10 @@ const MENU_META = {
     20: { section: "Drinks", dietary: [], allergens: [], calories: "0" },
 };
 
+// MAIN APP COMPONENT --------------------------
 export default function App() {
-    // AUTH GUARD
+    
+    // AUTH GUARD --------------------------
     const location = useLocation();
     const navigate = useNavigate();
 
@@ -950,6 +920,7 @@ export default function App() {
         }
     }, []);
 
+    // STATE VARIABLES --------------------------
     const [tab, setTab] = useState("Orders");
     const [loggingOut, setLoggingOut] = useState(false);
 
@@ -969,7 +940,9 @@ export default function App() {
         localStorage.setItem("oaxaca_waiter_notifications", JSON.stringify(notifications));
     }, [notifications]);
 
+    // HELPER FUNCTIONS --------------------------
     const addToast = msg => { const id = Date.now(); setToasts(p => [...p, { id, msg }]); setTimeout(() => setToasts(p => p.filter(t => t.id !== id)), 3000); };
+    
     const raiseAlert = async (table) => {
         const id = Date.now();
         const activeOrder = orders.find(o => o.table === table && o.status !== "Completed" && o.status !== "Cancelled");
@@ -1000,13 +973,13 @@ export default function App() {
         } catch (_) { }
     };
 
-    // LISTENING FOR KITCHEN NOTIFY EVENTS
-
+    // COMPUTER VALUES --------------------------
     const unread = notifications.filter(n => !n.read).length;
     const alertCount = notifications.filter(n => n.type === "alert" || n.type === "Help_Needed").length;
 
     const TABS = ["Orders", "Tables", "Menu"];
 
+    // ORDERS STATE --------------------------
     const [orders, setOrders] = useState([]);
     useEffect(() => {
         const fetchOrders = async () => {
@@ -1040,6 +1013,7 @@ export default function App() {
 
     useWaiterAlerts(setNotifications, addToast);
 
+    // MENU STATE --------------------------
     useEffect(() => {
         const handler = (e) => {
             if (e.key !== 'oaxaca_menu_update') return;
@@ -1060,7 +1034,6 @@ export default function App() {
         return () => window.removeEventListener('storage', handler);
     }, []);
 
-
     const [menu, setMenu] = useState([]);
     useEffect(() => {
         fetch('http://127.0.0.1:8000/menu_items')
@@ -1076,6 +1049,7 @@ export default function App() {
                 calories: MENU_META[item.item_id]?.calories ?? "",
             }))));
     }, []);
+
     const [lowStockDishes, setLowStockDishes] = useState(new Set());
 
     useEffect(() => {
@@ -1102,7 +1076,6 @@ export default function App() {
             await fetch(`http://127.0.0.1:8000/orders/${id}/pay`, { method: 'POST' });
         }
         setOrders(p => p.filter(o => !ids.map(String).includes(o.id)));
-        // notify customer tab to log out
         localStorage.setItem("oaxaca_table_paid", JSON.stringify({ ids, timestamp: Date.now() }));
         addToast(`Table marked as paid ✓`);
     };
@@ -1129,8 +1102,7 @@ export default function App() {
             }, {})
     );
 
-
-    // ACCOUNT LOGIN VALIDATION
+    // ACCOUNT LOGIN VALIDATION --------------------------
     const [myTables, setMyTables] = useState([]);
     const [staffInfo, setStaffInfo] = useState(null);
     const staffId = location.state?.staff_id ?? sessionStorage.getItem('staff_id');

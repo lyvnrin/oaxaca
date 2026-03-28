@@ -1,37 +1,14 @@
-// Grouped by section to match the menu layout
+// MENU ITEM IMAGES --------------------------
+import { guacamole, tlayuda, ceviche, elote,
+         barbacoa, moleNegro, portobello, snapper,
+         churro, sorbet, mezcal,
+         corn, rice, jalapenos, bean,
+         hibiscus, horchata, lager, margarita, water } from "../../assets/index.js";
 
-// starters
-import guacamole from "../../assets/Starters/guacamole-chips.jpg";
-import tlayuda from "../../assets/Starters/tlayuda-tostada.jpg";
-import ceviche from "../../assets/Starters/ceviche-verde.jpg";
-import elote from "../../assets/Starters/elote-esquites..jpg";
-
-// mains
-import barbacoa from "../../assets/Mains/barbacoa-tacos.jpg";
-import moleNegro from "../../assets/Mains/mole-negro-chicken.jpg";
-import portobello from "../../assets/Mains/portobello-enchiladas.jpg";
-import snapper from "../../assets/Mains/snapper-veracruz.jpg";
-
-// sides
-// need to add black bean
-import corn from "../../assets/Sides/Corn Tortillas.jpg";
-import rice from "../../assets/Sides/Mexican Rice.jpg"
-import jalapenos from "../../assets/Sides/Pickled Jalapeños.jpg"
-import bean from "../../assets/Sides/black-bean.png"
-
-// drinks
-import hibiscus from "../../assets/Drinks/hibiscus agua fresca.jpg"
-import horchata from "../../assets/Drinks/horchata drink.jpg"
-import lager from "../../assets/Drinks/mexican lager beer.jpg"
-import margartia from "../../assets/Drinks/mezcal margarita.jpg"
-import water from "../../assets/Drinks/water.jpg"
-
-// dessert
-import churro from "../../assets/Dessert/churro-sundae.jpeg";
-import sorbet from "../../assets/Dessert/mango-sorbet.jpg"
-import mezcal from "../../assets/Dessert/mezcal-flan..jpg"
-
+// MENU ITEMS --------------------------
 export const MENU_DATA = {
+
+    // STARTERS --------------------------
     Starters: [
         {
             id: 1,
@@ -74,6 +51,8 @@ export const MENU_DATA = {
             calories: "250 kcal",
         },
     ],
+    
+    // MAINS --------------------------
     Mains: [
         {
             id: 5,
@@ -104,6 +83,9 @@ export const MENU_DATA = {
             dietary: ["Vegan"],
             allergens: [],
             calories: "400 kcal",
+            imageStyle: {
+               objectPosition: "center 20%",
+            }
         },
         {
             id: 8,
@@ -116,6 +98,8 @@ export const MENU_DATA = {
             calories: "450 kcal",
         },
     ],
+
+    // DESSERT --------------------------
     Dessert: [
         {
             id: 9,
@@ -146,8 +130,13 @@ export const MENU_DATA = {
             dietary: ["Vegan", "Gluten-Free"],
             allergens: [],
             calories: "120 kcal",
+            imageStyle: {
+               objectPosition: "center 20%",
+            }
         },
     ],
+
+    // SIDES --------------------------
     Sides: [
         {
             id: 12,
@@ -178,6 +167,9 @@ export const MENU_DATA = {
             dietary: ["Vegan", "Gluten-Free"],
             allergens: [],
             calories: "5 kcal (per tbsp)",
+            imageStyle: {
+               objectPosition: "center 40%",
+            }
         },
         {
             id: 15,
@@ -188,8 +180,13 @@ export const MENU_DATA = {
             dietary: ["Vegan", "Gluten-Free"],
             allergens: [],
             calories: "200 kcal",
+            imageStyle: {
+               objectPosition: "center 20%",
+            }
         },
     ],
+
+    // DRINKS --------------------------
     Drinks: [
         {
             id: 16,
@@ -204,12 +201,15 @@ export const MENU_DATA = {
         {
             id: 17,
             name: "Mezcal Margarita",
-            image: margartia,
+            image: margarita,
             description: "Joven mezcal, fresh lime juice, agave syrup & smoked salt rim.",
             price: "£11.00",
             dietary: ["Vegan", "Gluten-Free"],
             allergens: [],
             calories: "250 kcal",
+            imageStyle: {
+               objectPosition: "center 20%",
+            }
         },
         {
             id: 18,
@@ -220,6 +220,9 @@ export const MENU_DATA = {
             dietary: ["Vegan", "Gluten-Free"],
             allergens: ["Nuts"],
             calories: "150 kcal (per cup)",
+            imageStyle: {
+               objectPosition: "center 25%",
+            }
         },
         {
             id: 19,
@@ -230,6 +233,10 @@ export const MENU_DATA = {
             dietary: [],
             allergens: [],
             calories: "150 kcal (per 12 oz bottle)",
+            imageStyle: {
+               objectPosition: "center 35%",
+               scale: 1,
+            }
         },
         {
             id: 20,
@@ -240,35 +247,41 @@ export const MENU_DATA = {
             dietary: [],
             allergens: [],
             calories: "0 kcal",
+            imageStyle: {
+               objectPosition: "center 38%",
+               scale: 1,
+            }
+
         },
     ],
 };
 
+// MENU ITEM : INGREDIENTS --------------------------
 export const INGREDIENTS = {
-    // Starters
+    // STARTERS --------------------------
     "1": ["Lime", "Avocado"], // Guacamole & Chips
     "2": ["Parsley", "Carrot"], // Tlayuda Tostada
     "3": ["Cucumber", "Coriander"], // Ceviche Verde
     "4": ["Cotija Cheese", "Ancho Chilli"], // Elote Esquites
 
-    // Mains
+    // MAINS --------------------------
     "5": ["Mole Sauce", "Nuts"], // Mole Negro Chicken
     "6": ["White Onion", "Coriander"], // Barbacoa Tacos
     "7": ["Black Bean", "Chipotle Sauce"], // Portobello Enchiladas
     "8": ["Olives", "Capers"], // Snapper Veracruz
 
-    // Desserts
+    // DESSERTS --------------------------
     "9": ["Churros", "Chocolate Mole Sauce"], // Churro Sundae
     "10": ["Caramel Custard", "Mezcal Caramel"], // Mezcal Flan
     "11": ["Chilli Salt", "Lime"], // Mango Sorbet
 
-    // Sides
+    // SIDES --------------------------
     "12": ["Epazote", "Lime Crema"], // Black Bean Pot
     "13": ["Nixtamal Masa", "Corn"], // Corn Tortillas
     "14": ["Carrots", "White Onion"], // Pickled Jalapeños
     "15": ["Garlic", "Coriander"], // Mexican Rice
 
-    // Drinks
+    // DRINKS --------------------------
     "16": ["Cane Sugar", "Lime"], // Hibiscus Agua Fresca
     "17": ["Agave Syrup", "Smoked Salt"], // Mezcal Margarita
     "18": ["Vanilla", "Almond"], // Horchata
@@ -276,10 +289,10 @@ export const INGREDIENTS = {
     "20": ["Water"] // Water
 };
 
-// ===== EXTRAS MAPPING - DIFFERENT FOR EACH ITEM ID =====
+// MENU ITEM MAPPING --------------------------
 export const EXTRAS_BY_ID = {
-    // ===== STARTERS (1-4) =====
 
+    // STARTERS --------------------------
     "1": [ // Guacamole & Chips
         {name: "Extra Avocado", price: 1.50},
         {name: "Extra Tortilla Chips", price: 1.00},
@@ -300,11 +313,10 @@ export const EXTRAS_BY_ID = {
         {name: "Extra Ancho Chilli", price: 0.25},
     ],
 
-    // ===== MAINS (5-8) =====
-
+    // MAINS --------------------------
     "5": [ // Mole Negro Chicken
         {name: "Extra Chicken Thigh", price: 3.00},
-        {name: "Extra Sesame Rice", price: 1.50}, ,
+        {name: "Extra Sesame Rice", price: 1.50}, 
     ],
 
     "6": [ // Barbacoa Tacos
@@ -322,8 +334,7 @@ export const EXTRAS_BY_ID = {
         {name: "Extra Tomato Broth", price: 1.00},
     ],
 
-    // ===== DESSERTS (9-11) =====
-
+    // DESSERTS --------------------------
     "9": [ // Churro Sundae
         {name: "Extra Ice Cream", price: 1.50},
         {name: "Extra Chocolate Mole Sauce", price: 0.75},
@@ -339,8 +350,7 @@ export const EXTRAS_BY_ID = {
         {name: "Extra Lime", price: 0.25},
     ],
 
-    // ===== SIDES (12-15) =====
-
+    // SIDES --------------------------
     "12": [ // Black Bean Pot
         {name: "Extra Black Beans", price: 1.00},
         {name: "Extra Lime Crema", price: 0.75},
@@ -361,8 +371,7 @@ export const EXTRAS_BY_ID = {
         {name: "Add Black Beans", price: 1.00},
     ],
 
-    // ===== DRINKS (16-20) =====
-
+    // DRINKS --------------------------
     "16": [ // Hibiscus Agua Fresca
         {name: "Extra Large Size", price: 1.50},
         {name: "Add Sparkling Water", price: 0.50},

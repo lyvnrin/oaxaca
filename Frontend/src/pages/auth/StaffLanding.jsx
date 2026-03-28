@@ -3,10 +3,13 @@ import Grainient from '../../components/Grainient';
 import './Landing.css';
 
 function StaffLanding() {
+    // NAVIGATION --------------------------
     const navigate = useNavigate();
 
     return (
         <div className="container">
+        
+            {/* BACKGROUND */}
             <Grainient
                 color1="#781111" color2="#b94609" color3="#9a0e0e"
                 timeSpeed={0.25} colorBalance={0}
@@ -18,6 +21,7 @@ function StaffLanding() {
                 centerX={-0.09} centerY={0.05} zoom={0.9}
             />
 
+            {/* TOP NAV : HOME LINK */}
             <div className="top-nav">
                 <a className= "nav-link" href="/">Home</a>
             </div>
@@ -25,6 +29,8 @@ function StaffLanding() {
             <div className="content">
                 <h1 className="title">OAXACA STAFF</h1>
                 <p className="welcome-text">Welcome back. Let's make today a great service.</p>
+
+                {/* ROLE SELECTION BTNS */}
                 <p className="staff-role-label">Select your role</p>
                 <div className="button-group">
                     <button className="book-btn" onClick={() => navigate('/waiter-login')}>WAITER</button>

@@ -5,22 +5,43 @@ This repository has been created to store your Team Project.
 You may edit it as you like, but please do not remove the default topics or the project members list. These need to stay as currently defined in order for your lecturer to be able to find and mark your work.
 
 ## Running the Project
-### Backend
 
-From the `Backend/` directory:
+Everything runs from a single command — no need to manage multiple terminals.
+
+### First time / reset database
+
+**Mac/Linux:**
 ```bash
-rm -rf oaxaca.db # 1. Delete current DB
-python -m scripts.db_init # 2. Initialise DB
-python -m scripts.seed_all # 3. Seed entries to DB
-uvicorn app.main:app --reload # 4. Start the API server
+chmod +x reset.sh start.sh
+./reset.sh
 ```
 
-The API will be available at `http://localhost:8000`.
-
-### Frontend
-From the `Frontend/` directory:
-```bash
-npm run dev
+**Windows:**
+```
+reset.bat
 ```
 
-The app will be available at `http://localhost:5173` (or whichever port Vite assigns).
+This will delete and reinitialise the database, seed it with default data, and start both the frontend and backend automatically.
+
+### Subsequent runs (keep existing data)
+
+**Mac/Linux:**
+```bash
+./start.sh
+```
+
+**Windows:**
+```
+start.bat
+```
+
+### Once running
+
+| Service  | URL |
+|----------|-----|
+| Frontend | http://localhost:5173 |
+| Backend API | http://localhost:8000 |
+| API Docs | http://localhost:8000/docs |
+
+> **Mac/Linux:** Press `Ctrl+C` in the terminal to stop both servers.
+> **Windows:** Close the frontend and backend windows that opened.

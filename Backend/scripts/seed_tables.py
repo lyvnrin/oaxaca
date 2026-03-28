@@ -4,9 +4,6 @@ import os
 
 def load_tables_from_csv(csv_path: str, db_path: str):
     tables = []
-    
-    # column mapping: CSV -> DB
-    column_map = {"ID": "table_id", "Name": "name", "Occupied": "occupied"}
 
     with open(csv_path, newline="", encoding="utf-8") as f:
         reader = csv.DictReader(f)
