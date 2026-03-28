@@ -1,19 +1,20 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Grainient from "../../components/Grainient";
 import "./CustomerLogin.css";
 
 function CustomerLogin() {
+    // NAVIGATION --------------------------
     const navigate = useNavigate();
-    const goToMenu = () => navigate("/menu");
     const goToRoles = () => navigate("/");
 
+    // STATE --------------------------
     const [tableNumber, setTableNumber] = useState('');
     const [error, setError] = useState('');
 
+    // INPUT CHANGE HANDLER : valides range 1-20
     const handleChange = (e) => {
         const raw = e.target.value;
-        // strip "Table " prefix if present, keep only the number
         const stripped = raw.replace(/^Table\s*/i, '').trim();
         const num = parseInt(stripped, 10);
 
@@ -25,6 +26,7 @@ function CustomerLogin() {
         if (error) setError('');
     };
 
+    // KEYBOARD ARROW SUPPORT : for incrementing / decrementing table num.
     const handleKeyDown = (e) => {
         const current = tableNumber === '' ? 0 : Number(tableNumber);
         if (e.key === 'ArrowUp') {
@@ -33,12 +35,16 @@ function CustomerLogin() {
         } else if (e.key === 'ArrowDown') {
             e.preventDefault();
             if (current > 1) setTableNumber(String(current - 1));
+        } else if (e.key === 'Enter' && isFormValid()) { 
+            handleContinue();
         }
         if (error) setError('');
     };
 
+    // FORM VALIDATION --------------------------
     const isFormValid = () => tableNumber !== '';
 
+    // CONTINUE BUTTON : POSTs new cust. to Backend; navs to Menu on success
     const handleContinue = async () => {
         console.log("Sending:", { name: `Table ${tableNumber}`, table_id: parseInt(tableNumber) });
 
@@ -60,6 +66,7 @@ function CustomerLogin() {
                 setError(data.detail || 'Something went wrong');
                 return;
             }
+            sessionStorage.setItem('customer_session_active', 'true'); 
             const customer = await res.json();
             navigate('/menu', { 
                 state: { 
@@ -75,6 +82,7 @@ function CustomerLogin() {
 
     return (
         <div className="customer-page">
+            {/* BACKGROUND */}
             <Grainient
                 color1="#6d2d17" color2="#9b552c" color3="#4b2311"
                 timeSpeed={0.25} colorBalance={0}
@@ -85,12 +93,16 @@ function CustomerLogin() {
                 contrast={1.2} gamma={1} saturation={0.6}
                 centerX={-0.09} centerY={0.05} zoom={0.9}
             />
+
+            {/* BACK BTN */}
             <button className="back-button" onClick={goToRoles}>←</button>
 
             <div className="customer-login-box">
                 <h2>Hello, Customer</h2>
                 <p className="customer-field-label">Please enter:</p>
                 <p className="customer-field-label">TABLE NUMBER</p>
+
+                {/* TABLE NUM. INPUT */}
                 <div className="customer-input-wrapper">
                     <input
                         className={`customer-input ${error ? 'input-error' : ''}`}
@@ -121,7 +133,11 @@ function CustomerLogin() {
                         >▼</button>
                     </div>
                 </div>
+
+                {/* ERROR MESSAGE */}
                 {error && <span className="error-message">{error}</span>}
+
+                {/* SUBMIT BTN */}
                 <button
                     className={`customer-button ${!isFormValid() ? 'customer-button-disabled' : ''}`}
                     onClick={handleContinue}

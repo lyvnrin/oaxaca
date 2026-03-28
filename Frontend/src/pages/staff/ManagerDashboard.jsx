@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
+// STYLE CONSTANTS --------------------------
 const C = {
     bg: "#f5f0e8", panel: "#faf7f2", dark: "#2D2218", mid: "#8b4513",
     warm: "#c4763a", light: "#e8d5b7", pale: "#f0e6d3",
@@ -8,68 +9,6 @@ const C = {
     red: "#c0392b", redL: "#fde8e6",
     amber: "#d4870e", amberL: "#fef3cd",
     text: "#2c1810", muted: "#7a5c44", border: "#d4b896",
-};
-
-const INIT_TABLES = [
-    { id: 1, status: "Ordering", bill: null, orders: [{ name: "Guacamole & Chips", qty: 1, price: 7.00 }, { name: "Ceviche Verde", qty: 1, price: 12.00 }, { name: "Mezcal Margarita", qty: 2, price: 11.00 }] },
-    { id: 2, status: "Bill Req.", bill: null, orders: [{ name: "Mole Negro Chicken", qty: 2, price: 18.00 }, { name: "Barbacoa Tacos", qty: 1, price: 16.00 }, { name: "Black Bean Pot", qty: 2, price: 4.00 }, { name: "Horchata", qty: 1, price: 4.50 }, { name: "Water", qty: 1, price: 2.50 }] },
-    { id: 3, status: "Bill Req.", bill: 62.00, orders: [{ name: "Tlayuda Tostada", qty: 2, price: 9.00 }, { name: "Snapper Veracruz", qty: 1, price: 22.00 }, { name: "Churro Sundae", qty: 1, price: 8.00 }, { name: "Mezcal Margarita", qty: 2, price: 11.00 }] },
-    { id: 4, status: "Free", bill: null, orders: [] },
-    { id: 5, status: "Preparing", bill: null, orders: [{ name: "Elote Esquites", qty: 1, price: 8.00 }, { name: "Portobello Enchiladas", qty: 1, price: 14.00 }] },
-    { id: 6, status: "Service", bill: null, orders: [] },
-    { id: 7, status: "Free", bill: null, orders: [] },
-    { id: 8, status: "Bill Req.", bill: null, orders: [{ name: "Barbacoa Tacos", qty: 2, price: 16.00 }, { name: "Mexican Rice", qty: 2, price: 4.00 }, { name: "Mango Sorbet", qty: 2, price: 6.00 }, { name: "Mexican Lager", qty: 2, price: 5.00 }] },
-    { id: 9, status: "Free", bill: null, orders: [] },
-    { id: 10, status: "Ordering", bill: null, orders: [{ name: "Guacamole & Chips", qty: 2, price: 7.00 }, { name: "Hibiscus Agua Fresca", qty: 2, price: 4.00 }] },
-    { id: 11, status: "Free", bill: null, orders: [] },
-    { id: 12, status: "Bill Req.", bill: null, orders: [{ name: "Mole Negro Chicken", qty: 1, price: 18.00 }, { name: "Snapper Veracruz", qty: 1, price: 22.00 }, { name: "Corn Tortillas", qty: 1, price: 3.00 }] },
-    { id: 13, status: "Free", bill: null, orders: [] },
-    { id: 14, status: "Preparing", bill: null, orders: [{ name: "Mezcal Flan", qty: 1, price: 7.00 }] },
-    { id: 15, status: "Free", bill: null, orders: [] },
-];
-
-const INIT_NOTIFICATIONS = [];
-
-const INIT_MENU = [
-    { id: 1, section: "Starters", name: "Guacamole & Chips", cogs: 2.80, price: 7.00, avail: true, description: "Hand-mashed avocado, jalapeño, lime zest & Oaxacan pink salt.", dietary: ["Vegan", "Gluten-Free"], allergens: [], calories: "350 kcal" },
-    { id: 2, section: "Starters", name: "Tlayuda Tostada", cogs: 3.60, price: 9.00, avail: true, description: "Crispy corn base, black bean, quesillo, chorizo & fresh avocado.", dietary: ["Gluten-Free"], allergens: ["Milk", "Soy"], calories: "500 kcal" },
-    { id: 3, section: "Starters", name: "Ceviche Verde", cogs: 4.80, price: 12.00, avail: true, description: "Sea bass, tomatillo, cucumber, coriander & tiger's milk.", dietary: ["Gluten-Free"], allergens: ["Fish"], calories: "180 kcal" },
-    { id: 4, section: "Starters", name: "Elote Esquites", cogs: 3.20, price: 8.00, avail: true, description: "Charred corn, crema, cotija cheese, ancho chilli & epazote.", dietary: ["Vegetarian", "Gluten-Free"], allergens: ["Milk"], calories: "250 kcal" },
-    { id: 5, section: "Mains", name: "Mole Negro Chicken", cogs: 6.50, price: 18.00, avail: true, description: "Free-range thigh braised in a 30-ingredient black mole, sesame rice.", dietary: [], allergens: ["Soy", "Nuts"], calories: "600 kcal" },
-    { id: 6, section: "Mains", name: "Barbacoa Tacos", cogs: 5.50, price: 16.00, avail: true, description: "Slow-braised beef cheek, white onion, coriander & salsa roja. Three pieces.", dietary: [], allergens: [], calories: "300 kcal (per taco)" },
-    { id: 7, section: "Mains", name: "Portobello Enchiladas", cogs: 4.20, price: 14.00, avail: false, description: "Roasted mushrooms, black bean, chipotle sauce & cashew crema.", dietary: ["Vegan"], allergens: [], calories: "400 kcal" },
-    { id: 8, section: "Mains", name: "Snapper Veracruz", cogs: 7.80, price: 22.00, avail: true, description: "Pan-seared whole snapper, olives, capers & fresh tomato broth.", dietary: ["Gluten-Free"], allergens: ["Fish"], calories: "450 kcal" },
-    { id: 9, section: "Desserts", name: "Churro Sundae", cogs: 2.10, price: 8.00, avail: true, description: "Crispy churros, vanilla bean ice cream & dark chocolate mole sauce.", dietary: ["Vegetarian"], allergens: ["Milk", "Gluten", "Eggs"], calories: "550 kcal" },
-    { id: 10, section: "Desserts", name: "Mezcal Flan", cogs: 2.00, price: 7.00, avail: true, description: "Silky caramel custard with a smoky mezcal caramel drizzle.", dietary: ["Vegetarian", "Gluten-Free"], allergens: ["Milk", "Eggs"], calories: "320 kcal" },
-    { id: 11, section: "Desserts", name: "Mango Sorbet", cogs: 1.40, price: 6.00, avail: true, description: "Alphonso mango, chilli salt & fresh lime. Completely dairy free.", dietary: ["Vegan", "Gluten-Free"], allergens: [], calories: "120 kcal" },
-    { id: 12, section: "Sides", name: "Black Bean Pot", cogs: 1.20, price: 4.00, avail: true, description: "Slow-cooked with avocado leaf, epazote & lime crema.", dietary: ["Vegan", "Gluten-Free"], allergens: [], calories: "200 kcal" },
-    { id: 13, section: "Sides", name: "Corn Tortillas", cogs: 0.80, price: 3.00, avail: true, description: "Fresh nixtamal masa, made in-house daily. Four pieces.", dietary: ["Vegan", "Gluten-Free"], allergens: [], calories: "60 kcal (per tortilla)" },
-    { id: 14, section: "Sides", name: "Pickled Jalapeños", cogs: 0.60, price: 3.00, avail: true, description: "House-pickled chillies, carrots & white onion in apple cider vinegar.", dietary: ["Vegan", "Gluten-Free"], allergens: [], calories: "5 kcal (per tbsp)" },
-    { id: 15, section: "Sides", name: "Mexican Rice", cogs: 0.90, price: 4.00, avail: true, description: "Tomato-braised rice with cumin, garlic & fresh coriander.", dietary: ["Vegan", "Gluten-Free"], allergens: [], calories: "200 kcal" },
-    { id: 16, section: "Drinks", name: "Hibiscus Agua Fresca", cogs: 1.00, price: 4.00, avail: true, description: "House-dried hibiscus, lime, cane sugar & still water.", dietary: ["Vegan", "Gluten-Free"], allergens: [], calories: "70 kcal (per cup)" },
-    { id: 17, section: "Drinks", name: "Mezcal Margarita", cogs: 3.50, price: 11.00, avail: true, description: "Joven mezcal, fresh lime juice, agave syrup & smoked salt rim.", dietary: ["Vegan", "Gluten-Free"], allergens: [], calories: "250 kcal" },
-    { id: 18, section: "Drinks", name: "Horchata", cogs: 1.20, price: 4.50, avail: true, description: "Rice milk, cinnamon, vanilla & a hint of almond. Served chilled.", dietary: ["Vegan", "Gluten-Free"], allergens: ["Nuts"], calories: "150 kcal (per cup)" },
-    { id: 19, section: "Drinks", name: "Mexican Lager", cogs: 1.80, price: 5.00, avail: true, description: "Ice-cold bottle served with lime. Ask your server for today's selection.", dietary: [], allergens: [], calories: "150 kcal (per bottle)" },
-    { id: 20, section: "Drinks", name: "Water", cogs: 0.20, price: 2.50, avail: true, description: "Ice-cold and refreshing. Ask your server for alternative temperatures.", dietary: [], allergens: [], calories: "0 kcal" },
-];
-
-const INIT_EMPLOYEES = [
-    { id: 1, initials: "SR", name: "Sofia R.", role: "Waiter", tables: 6, orders: 22, sales: 342, avgTime: "6m 40s", status: "Active" },
-    { id: 2, initials: "JM", name: "James M.", role: "Waiter", tables: 5, orders: 18, sales: 268, avgTime: "7m 20s", status: "Active" },
-    { id: 3, initials: "AK", name: "Aisha K.", role: "Kitchen", tables: 0, orders: 31, sales: 0, avgTime: "8m 10s", status: "Active" },
-    { id: 4, initials: "TL", name: "Tom L.", role: "Kitchen", tables: 0, orders: 28, sales: 0, avgTime: "9m 05s", status: "Active" },
-    { id: 5, initials: "PR", name: "Priya R.", role: "Waiter", tables: 4, orders: 14, sales: 210, avgTime: "6m 55s", status: "On Break" },
-    { id: 6, initials: "CN", name: "Carlos N.", role: "Kitchen", tables: 0, orders: 19, sales: 0, avgTime: "7m 30s", status: "Active" },
-    { id: 7, initials: "EM", name: "Eve M.", role: "Waiter", tables: 3, orders: 11, sales: 174, avgTime: "8m 00s", status: "Active" },
-];
-
-const calcMargin = (cogs, price) => price > 0 ? Math.round((1 - cogs / price) * 100) : 0;
-const calcMinPrice = (cogs) => +(cogs / 0.4).toFixed(2);
-
-const marginColor = (m) => {
-    if (m >= 60) return { bg: C.greenL, text: C.green, label: `${m}%` };
-    if (m >= 50) return { bg: C.amberL, text: C.amber, label: `${m}% !` };
-    return { bg: C.redL, text: C.red, label: `${m}% ⚠` };
 };
 
 const tileColors = (status) => ({
@@ -80,9 +19,17 @@ const tileColors = (status) => ({
     "Service": { bg: "#fef9e7", border: "#f7dc6f", num: "#9a7d0a", label: "#9a7d0a" },
 }[status] || { bg: "#f0f7f2", border: "#b8d4c0", num: C.green, label: C.green });
 
-const urgencyColor = { urgent: C.red, normal: C.amber, info: C.green };
-const notifTypeColor = { urgent: C.red, warn: C.amber, info: C.green, alert: C.red };
+// HELPER FUNCTIONS --------------------------
+const calcMargin = (cogs, price) => price > 0 ? Math.round((1 - cogs / price) * 100) : 0;
+const calcMinPrice = (cogs) => +(cogs / 0.4).toFixed(2);
 
+const marginColor = (m) => {
+    if (m >= 60) return { bg: C.greenL, text: C.green, label: `${m}%` };
+    if (m >= 50) return { bg: C.amberL, text: C.amber, label: `${m}% !` };
+    return { bg: C.redL, text: C.red, label: `${m}% ⚠` };
+};
+
+// CUSTOM HOOK : CLICK OUTSIDE --------------------------
 function useOutsideClick(ref, cb) {
     useEffect(() => {
         const fn = (e) => { if (ref.current && !ref.current.contains(e.target)) cb(); };
@@ -91,9 +38,11 @@ function useOutsideClick(ref, cb) {
     }, [ref, cb]);
 }
 
+// ICONS --------------------------
 const IconBell = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 0 1-3.46 0" /></svg>;
 const IconDoor = () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={C.red} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></svg>;
 
+// MODAL --------------------------
 function Modal({ title, onClose, children }) {
     return (
         <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.45)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 600 }} onClick={onClose}>
@@ -108,6 +57,7 @@ function Modal({ title, onClose, children }) {
     );
 }
 
+// NOTIFS PANEL --------------------------
 function NotificationsPanel({ notifications, setNotifications }) {
     const [filter, setFilter] = useState("All");
     const unread = notifications.filter(n => !n.read).length;
@@ -176,8 +126,8 @@ function NotificationsPanel({ notifications, setNotifications }) {
     );
 }
 
+// ACCOUNT PANEL --------------------------
 function AccountPanel({ staffInfo, onLogout }) {
-    const navigate = useNavigate();
     const initials = staffInfo?.name ? staffInfo.name.slice(0, 2).toUpperCase() : "??";
     const displayName = staffInfo?.name ?? "Unknown";
     const role = staffInfo?.role ?? "Manager";
@@ -204,9 +154,9 @@ function AccountPanel({ staffInfo, onLogout }) {
     );
 }
 
+// OVERVIEW TAB --------------------------
 function OverviewTab({ tables }) {
     const occupied = tables.filter(t => t.status !== "Free").length;
-    const serviceCount = tables.filter(t => t.status === "Service" || t.status === "Bill Req.").length;
     const [selectedTable, setSelectedTable] = useState(null);
 
     return (
@@ -302,6 +252,7 @@ function OverviewTab({ tables }) {
     );
 }
 
+// MENU TAB --------------------------
 function MenuTab({ menu, setMenu, addToast, stock }) {
     const sections = ["Starters", "Mains", "Desserts", "Sides", "Drinks"];
     const available = menu.filter(m => m.avail).length;
@@ -455,6 +406,7 @@ function MenuTab({ menu, setMenu, addToast, stock }) {
     );
 }
 
+// EMPLOYEES TAB --------------------------
 function EmployeesTab({ employees }) {
     const roleStyle = {
         "Waiter": { bg: "#cce3f5", color: "#2e6da4" },
@@ -591,61 +543,7 @@ function EmployeesTab({ employees }) {
     );
 }
 
-const INIT_STOCK = [
-    { id: 1, name: "Avocado", category: "Produce", level: 75, unit: "units", reorderAt: 30, usedIn: ["Guacamole & Chips", "Tlayuda Tostada", "+ Extra Guacamole"] },
-    { id: 2, name: "Lime", category: "Produce", level: 85, unit: "units", reorderAt: 25, usedIn: ["Guacamole & Chips", "Ceviche Verde", "Barbacoa Tacos", "Hibiscus Agua Fresca", "Mezcal Margarita", "Mango Sorbet"] },
-    { id: 3, name: "Jalapeño", category: "Produce", level: 60, unit: "units", reorderAt: 20, usedIn: ["Guacamole & Chips", "Pickled Jalapeños", "+ Extra Jalapeños"] },
-    { id: 4, name: "Corn (fresh)", category: "Produce", level: 55, unit: "kg", reorderAt: 25, usedIn: ["Elote Esquites"] },
-    { id: 5, name: "Tomatillo", category: "Produce", level: 48, unit: "kg", reorderAt: 20, usedIn: ["Ceviche Verde"] },
-    { id: 6, name: "Mango (Alphonso)", category: "Produce", level: 50, unit: "units", reorderAt: 20, usedIn: ["Mango Sorbet"] },
-    { id: 7, name: "Portobello Mushrooms", category: "Produce", level: 40, unit: "kg", reorderAt: 20, usedIn: ["Portobello Enchiladas"] },
-    { id: 8, name: "White Onion", category: "Produce", level: 65, unit: "kg", reorderAt: 15, usedIn: ["Barbacoa Tacos", "Pickled Jalapeños"] },
-    { id: 9, name: "Red Onion", category: "Produce", level: 70, unit: "kg", reorderAt: 15, usedIn: ["Cochinita Pibil", "+ Pickled Onion"] },
-    { id: 10, name: "Cucumber", category: "Produce", level: 55, unit: "units", reorderAt: 15, usedIn: ["Ceviche Verde"] },
-    { id: 11, name: "Coriander", category: "Produce", level: 72, unit: "bunches", reorderAt: 20, usedIn: ["Ceviche Verde", "Barbacoa Tacos", "Mexican Rice"] },
-    { id: 12, name: "Hibiscus (dried)", category: "Produce", level: 58, unit: "kg", reorderAt: 20, usedIn: ["Hibiscus Agua Fresca"] },
-    { id: 13, name: "Mint", category: "Produce", level: 65, unit: "bunches", reorderAt: 15, usedIn: ["Horchata"] },
-    { id: 14, name: "Tomatoes", category: "Produce", level: 62, unit: "kg", reorderAt: 20, usedIn: ["Snapper Veracruz", "Mexican Rice"] },
-    { id: 15, name: "Olives", category: "Produce", level: 44, unit: "kg", reorderAt: 15, usedIn: ["Snapper Veracruz"] },
-    { id: 16, name: "Capers", category: "Produce", level: 50, unit: "kg", reorderAt: 15, usedIn: ["Snapper Veracruz"] },
-    { id: 17, name: "Chilli Salt (Mango)", category: "Produce", level: 68, unit: "units", reorderAt: 15, usedIn: ["Mango Sorbet"] },
-    { id: 18, name: "Sea Bass / Snapper", category: "Protein", level: 12, unit: "kg", reorderAt: 30, usedIn: ["Ceviche Verde", "Snapper Veracruz"] },
-    { id: 19, name: "Beef Cheek", category: "Protein", level: 60, unit: "kg", reorderAt: 25, usedIn: ["Barbacoa Tacos", "+ Extra Beef"] },
-    { id: 20, name: "Chicken (free-range)", category: "Protein", level: 55, unit: "kg", reorderAt: 25, usedIn: ["Mole Negro Chicken"] },
-    { id: 21, name: "Pork Shoulder", category: "Protein", level: 50, unit: "kg", reorderAt: 20, usedIn: ["Cochinita Pibil"] },
-    { id: 22, name: "Chorizo", category: "Protein", level: 55, unit: "kg", reorderAt: 25, usedIn: ["Tlayuda Tostada", "+ Extra Chorizo"] },
-    { id: 23, name: "Cotija Cheese", category: "Dairy", level: 40, unit: "kg", reorderAt: 30, usedIn: ["Elote Esquites", "Tlayuda Tostada", "+ Extra Cheese"] },
-    { id: 24, name: "Quesillo", category: "Dairy", level: 35, unit: "kg", reorderAt: 25, usedIn: ["Tlayuda Tostada", "+ Extra Quesillo"] },
-    { id: 25, name: "Crema / Sour Cream", category: "Dairy", level: 68, unit: "kg", reorderAt: 25, usedIn: ["Elote Esquites", "Black Bean Pot", "+ Extra Sour Cream"] },
-    { id: 26, name: "Eggs", category: "Dairy", level: 80, unit: "units", reorderAt: 30, usedIn: ["Churro Sundae", "Mezcal Flan"] },
-    { id: 27, name: "Vanilla Ice Cream", category: "Dairy", level: 55, unit: "litres", reorderAt: 20, usedIn: ["Churro Sundae"] },
-    { id: 28, name: "Oat Milk", category: "Dairy", level: 60, unit: "litres", reorderAt: 20, usedIn: ["Mexican Hot Chocolate"] },
-    { id: 29, name: "Corn Masa (nixtamal)", category: "Dry Goods", level: 35, unit: "kg", reorderAt: 40, usedIn: ["Corn Tortillas", "Tlayuda Tostada"] },
-    { id: 30, name: "Black Beans (dried)", category: "Dry Goods", level: 90, unit: "kg", reorderAt: 20, usedIn: ["Black Bean Pot", "Tlayuda Tostada", "Portobello Enchiladas"] },
-    { id: 31, name: "Rice", category: "Dry Goods", level: 78, unit: "kg", reorderAt: 20, usedIn: ["Mexican Rice", "Mole Negro Chicken", "Horchata"] },
-    { id: 32, name: "Ancho Chilli", category: "Dry Goods", level: 22, unit: "units", reorderAt: 25, usedIn: ["Elote Esquites", "Mole Negro Chicken", "+ Extra Chilli"] },
-    { id: 33, name: "Achiote Paste", category: "Dry Goods", level: 45, unit: "kg", reorderAt: 20, usedIn: ["Cochinita Pibil"] },
-    { id: 34, name: "Epazote", category: "Dry Goods", level: 50, unit: "bunches", reorderAt: 15, usedIn: ["Elote Esquites", "Black Bean Pot"] },
-    { id: 35, name: "Sesame Seeds", category: "Dry Goods", level: 60, unit: "kg", reorderAt: 15, usedIn: ["Mole Negro Chicken"] },
-    { id: 36, name: "Chipotle Sauce", category: "Dry Goods", level: 42, unit: "kg", reorderAt: 15, usedIn: ["Portobello Enchiladas"] },
-    { id: 37, name: "Dark Chocolate", category: "Dry Goods", level: 48, unit: "kg", reorderAt: 20, usedIn: ["Churro Sundae", "+ Extra Chocolate Sauce"] },
-    { id: 38, name: "Cashew Crema", category: "Dry Goods", level: 38, unit: "kg", reorderAt: 20, usedIn: ["Portobello Enchiladas"] },
-    { id: 39, name: "Cinnamon", category: "Dry Goods", level: 70, unit: "units", reorderAt: 15, usedIn: ["Horchata"] },
-    { id: 40, name: "Vanilla Extract", category: "Dry Goods", level: 65, unit: "units", reorderAt: 15, usedIn: ["Horchata", "Churro Sundae"] },
-    { id: 41, name: "Habanero Salsa", category: "Dry Goods", level: 55, unit: "kg", reorderAt: 15, usedIn: ["Cochinita Pibil", "+ Extra Habanero"] },
-    { id: 42, name: "Salsa Verde", category: "Dry Goods", level: 60, unit: "kg", reorderAt: 15, usedIn: ["Barbacoa Tacos", "+ Salsa Verde"] },
-    { id: 43, name: "Apple Cider Vinegar", category: "Dry Goods", level: 72, unit: "litres", reorderAt: 15, usedIn: ["Pickled Jalapeños"] },
-    { id: 44, name: "Cumin", category: "Dry Goods", level: 80, unit: "units", reorderAt: 15, usedIn: ["Mexican Rice"] },
-    { id: 45, name: "Almond (extract)", category: "Dry Goods", level: 55, unit: "units", reorderAt: 15, usedIn: ["Horchata"] },
-    { id: 46, name: "Caramel", category: "Dry Goods", level: 48, unit: "kg", reorderAt: 20, usedIn: ["Mezcal Flan"] },
-    { id: 47, name: "Mezcal (Joven)", category: "Bar", level: 45, unit: "bottles", reorderAt: 30, usedIn: ["Mezcal Margarita", "Mezcal Flan"] },
-    { id: 48, name: "Agave Syrup", category: "Bar", level: 55, unit: "litres", reorderAt: 20, usedIn: ["Mezcal Margarita"] },
-    { id: 49, name: "Smoked Salt", category: "Bar", level: 70, unit: "units", reorderAt: 15, usedIn: ["Mezcal Margarita"] },
-    { id: 50, name: "Mexican Lager", category: "Bar", level: 70, unit: "bottles", reorderAt: 30, usedIn: ["Mexican Lager"] },
-    { id: 51, name: "Still / Sparkling Water", category: "Bar", level: 80, unit: "bottles", reorderAt: 20, usedIn: ["Water"] },
-    { id: 52, name: "Cane Sugar", category: "Bar", level: 75, unit: "kg", reorderAt: 15, usedIn: ["Hibiscus Agua Fresca"] },
-];
-
+// STOCK INPUT --------------------------
 const stockStatus = (level) =>
     level >= 50 ? { color: C.green, bg: C.greenL, label: "Good" }
         : level >= 25 ? { color: C.amber, bg: C.amberL, label: "Low" }
@@ -676,12 +574,23 @@ function StockInput({ level, onRestock }) {
 
 function StockTab({ stock, fetchStock }) {
     const [search, setSearch] = useState("");
-    const restock = (stockId, level) => {
-        fetch('http://127.0.0.1:8000/stock/restock', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ stock_id: stockId, level }),
-        }).then(() => fetchStock());
+    const restock = async (stockId, level) => {
+        try {
+            const response = await fetch('http://127.0.0.1:8000/stock/restock', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ stock_id: stockId, level }),
+            });
+            
+            if (response.ok) {
+                await fetchStock();
+                addToast(`Stock updated to ${level}%`);
+            } else {
+                addToast('Failed to update stock');
+            }
+        } catch (error) {
+            addToast('Error updating stock');
+        }
     };
 
     const q = search.trim().toLowerCase();
@@ -694,8 +603,6 @@ function StockTab({ stock, fetchStock }) {
         : stock;
 
     const categories = [...new Set(filtered.map(s => s.category))];
-    const lowCount = stock.filter(s => s.level < 50).length;
-    const critCount = stock.filter(s => s.level < 25).length;
 
     return (
         <div style={{ gridColumn: "1/-1", background: C.panel, border: `1.5px solid ${C.border}`, borderRadius: 8, padding: 18, display: "flex", flexDirection: "column", gap: 16 }}>
@@ -782,28 +689,7 @@ function StockTab({ stock, fetchStock }) {
     );
 }
 
-// CUSTOMER ASSISTANCE ALERT
-function useCustomerAlerts(setNotifications, addToast) {
-    const cbRef = useRef({ setNotifications, addToast });
-    useEffect(() => { cbRef.current = { setNotifications, addToast }; });
-
-    useEffect(() => {
-        const handler = (e) => {
-            if (e.key !== "oaxaca_customer_alert" || !e.newValue) return;
-            try {
-                const incoming = JSON.parse(e.newValue);
-                cbRef.current.setNotifications(prev => {
-                    if (prev.some(n => n.id === incoming.id)) return prev;
-                    return [incoming, ...prev];
-                });
-                addToast(`Table ${incoming.table} needs assistance!`);
-            } catch (_) { }
-        };
-        window.addEventListener("storage", handler);
-        return () => window.removeEventListener("storage", handler);
-    }, []);
-}
-
+// WAITER ASSISTANCE ALERT --------------------------
 function useWaiterAlerts(setNotifications, addToast) {
     const cbRef = useRef({ setNotifications, addToast });
     useEffect(() => { cbRef.current = { setNotifications, addToast }; });
@@ -825,11 +711,11 @@ function useWaiterAlerts(setNotifications, addToast) {
     }, []);
 }
 
-
+// MAIN DASHBOARD --------------------------
 export default function ManagerDashboard() {
     const [tab, setTab] = useState("Overview");
-    const [tables, setTables] = useState(INIT_TABLES);
-    const [menu, setMenu] = useState(INIT_MENU);
+    const [tables, setTables] = useState([]);
+    const [menu, setMenu] = useState([]);
     const [employees, setEmployees] = useState([]);
     const [staffInfo, setStaffInfo] = useState(null);
     const location = useLocation();
@@ -841,7 +727,7 @@ export default function ManagerDashboard() {
         }
     }, []);
 
-
+    // FETCH EMPLOYEES --------------------------
     useEffect(() => {
         const fetchEmployees = () => {
             fetch('http://127.0.0.1:8000/staff')
@@ -861,8 +747,9 @@ export default function ManagerDashboard() {
         const poll = setInterval(fetchEmployees, 3000);
         return () => clearInterval(poll);
     }, []);
-    const [stock, setStock] = useState(INIT_STOCK);
 
+
+    // FETCH STAFF INFO : FOR LOGGED-IN MANAGER --------------------------
     useEffect(() => {
         const staffId = location.state?.staff_id;
         if (!staffId) return;
@@ -879,8 +766,9 @@ export default function ManagerDashboard() {
             .catch(() => { });
     }, [location]);
 
+    // STOCK MANAGEMENT --------------------------
+    const [stock, setStock] = useState([]);
     const prevStockRef = useRef({});
-
     const fetchStock = () => {
         fetch('http://127.0.0.1:8000/stock')
             .then(r => r.json())
@@ -948,6 +836,8 @@ export default function ManagerDashboard() {
         const poll = setInterval(fetchStock, 3000);
         return () => clearInterval(poll);
     }, []);
+
+    // NOTIFS --------------------------
     const [notifications, setNotifications] = useState(() => {
         try { return JSON.parse(localStorage.getItem("oaxaca_manager_notifications") ?? "[]"); }
         catch { return []; }
@@ -957,23 +847,24 @@ export default function ManagerDashboard() {
     const [showAccount, setShowAccount] = useState(false);
     const [loggingOut, setLoggingOut] = useState(false);
 
+    // FETCH MENU FROM API --------------------------
     useEffect(() => {
-        fetch('http://127.0.0.1:8000/menu_items')
-            .then(r => r.json())
-            .then(data => setMenu(data.map(item => ({
-                id: item.item_id,
-                name: item.item_name,
-                price: item.price,
-                cogs: item.cogs,
-                section: INIT_MENU.find(m => m.id === item.item_id)?.section ?? "Mains",
-                avail: item.available === 1,
-                dietary: INIT_MENU.find(m => m.id === item.item_id)?.dietary ?? [],
-                allergens: INIT_MENU.find(m => m.id === item.item_id)?.allergens ?? [],
-                calories: INIT_MENU.find(m => m.id === item.item_id)?.calories ?? "",
-                description: INIT_MENU.find(m => m.id === item.item_id)?.description ?? "",
-            }))))
-            .catch(() => { });
-    }, []);
+    fetch('http://127.0.0.1:8000/menu_items')
+        .then(r => r.json())
+        .then(data => setMenu(data.map(item => ({
+            id: item.item_id,
+            name: item.item_name,
+            price: item.price,
+            cogs: item.cogs,
+            section: item.section,
+            avail: item.available === 1,
+            dietary: item.dietary ? item.dietary.split(',').map(s => s.trim()) : [],
+            allergens: item.allergens ? item.allergens.split(',').map(s => s.trim()) : [],
+            calories: item.calories,
+            description: item.description,
+        }))))
+        .catch(() => { });
+}, []);
 
     useEffect(() => {
         const fetchTables = async () => {
@@ -1031,6 +922,7 @@ export default function ManagerDashboard() {
     }, [notifications]);
     useWaiterAlerts(setNotifications, addToast);
 
+    // UPDATE MENU
     useEffect(() => {
         const handler = (e) => {
             if (e.key !== 'oaxaca_menu_update') return;
@@ -1054,6 +946,7 @@ export default function ManagerDashboard() {
     }, []);
 
     const unread = notifications.filter(n => !n.read).length;
+    
     return (
         <div style={{ fontFamily: "Jost, sans-serif", background: C.bg, color: C.text, minHeight: "100vh" }}>
             <style>{`

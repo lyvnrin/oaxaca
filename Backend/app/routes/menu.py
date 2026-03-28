@@ -14,9 +14,7 @@ class MenuItemUpdate(BaseModel):
 @router.get("/menu_items")
 def get_menu_items():
     conn = get_conn()
-    rows = conn.execute(
-        "SELECT item_id, item_name, price, cogs, available FROM menu_items"
-    ).fetchall()
+    rows = conn.execute("SELECT * FROM menu_items ORDER BY item_id").fetchall()
     conn.close()
     return [dict(r) for r in rows]
 

@@ -1,11 +1,13 @@
-import React, { useState, useEffect, useRef } from "react";
-import { useLocation } from 'react-router-dom';
+import { useState, useEffect, useRef } from "react";
+import { useLocation, useNavigate } from 'react-router-dom';
 import "./Menu.css";
 import { MENU_DATA, INGREDIENTS, EXTRAS_BY_ID } from "./menuData.js";
 
+// CONSTANTS --------------------------
 const ALLERGEN_OPTIONS = ["Fish", "Soy", "Milk", "Nuts", "Eggs", "Wheat", "Sesame", "Shellfish"];
 const DIET_FILTERS = ["Vegetarian", "Gluten-Free", "Vegan"];
 
+// CART ICON --------------------------
 function CartIcon({ count, onClick }) {
     return (
         <button className="cart-icon" title="View cart" onClick={onClick}>
@@ -19,7 +21,8 @@ function CartIcon({ count, onClick }) {
     );
 }
 
-function Header({ tableNumber, tableId, cartCount, onCartClick, onCloseTable, onContactWaiter }) {
+// HEADER --------------------------
+function Header({ tableNumber, table_id, cartCount, onCartClick, onCloseTable, onContactWaiter }) {
     const [menuOpen, setMenuOpen] = useState(false);
 
     const handleCloseTable = () => {
@@ -69,6 +72,7 @@ function Header({ tableNumber, tableId, cartCount, onCartClick, onCloseTable, on
     );
 }
 
+// ALLERGEN DROPDOWN --------------------------
 function AllergenDropdown({ selected, onChange }) {
     const [open, setOpen] = useState(false);
 
@@ -101,6 +105,7 @@ function AllergenDropdown({ selected, onChange }) {
     );
 }
 
+// FILTER BAR
 function FilterBar({ activeFilters, onFilterToggle, excludedAllergens, onAllergenChange, onTrackOrder, hasActiveOrder }) {
     return (
         <div className="filter-bar">
@@ -133,6 +138,7 @@ function FilterBar({ activeFilters, onFilterToggle, excludedAllergens, onAllerge
     );
 }
 
+// CUSTOMISATION --------------------------
 function CustomizationPopup({ item, onClose, onAddToCart }) {
     const [removedIngredients, setRemovedIngredients] = useState([]);
     const [selectedExtras, setSelectedExtras] = useState([]);
@@ -232,12 +238,13 @@ function CustomizationPopup({ item, onClose, onAddToCart }) {
     );
 }
 
+// MENU ITEM CARD --------------------------
 function MenuItemCard({ item, dimmed, unavailable, lowStock, onCustomize }) {
     return (
         <div className={`menu-item-card ${dimmed ? "menu-item-card--dimmed" : ""} ${unavailable ? "menu-item-card--unavailable" : ""} ${lowStock ? "menu-item-card--unavailable" : ""}`}>
             <div className="card-image-placeholder">
                 {item.image
-                    ? <img src={item.image} alt={item.name} style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "inherit" }} />
+                    ? <img src={item.image} alt={item.name} style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "inherit", ...item.imageStyle }} />
                     : <span className="card-image-text">IMG</span>
                 }
             </div>
@@ -267,6 +274,7 @@ function MenuItemCard({ item, dimmed, unavailable, lowStock, onCustomize }) {
     );
 }
 
+// MENU SECTION --------------------------
 function MenuSection({ sectionName, items, isOpen, onToggle, matchesFilter, onCustomize, unavailableIds, lowStockDishes }) {
     return (
         <div className={`menu-section ${isOpen ? "menu-section--open" : ""}`}>
@@ -292,21 +300,22 @@ function MenuSection({ sectionName, items, isOpen, onToggle, matchesFilter, onCu
     );
 }
 
-function ContactWaiterModal({ tableId, onClose }) {
+// CONTACT WAITER MODAL --------------------------
+function ContactWaiterModal({ table_id, onClose }) {
     const [message, setMessage] = useState("");
     const [sent, setSent] = useState(false);
 
     const handleSend = async () => {
         let assignedWaiter = null;
         try {
-            const res = await fetch(`http://127.0.0.1:8000/tables/${parseInt(tableId)}/waiter`);
+            const res = await fetch(`http://127.0.0.1:8000/tables/${parseInt(table_id)}/waiter`);
             const data = await res.json();
             assignedWaiter = data.assigned_waiter ?? null;
         } catch (_) { }
 
         localStorage.setItem("oaxaca_customer_alert", JSON.stringify({
             id: Date.now(),
-            table: parseInt(tableId),
+            table: parseInt(table_id),
             order: sessionStorage.getItem('liveOrderId') ?? "–",
             status: "Needs Assistance",
             type: "Help_Needed",
@@ -320,9 +329,9 @@ function ContactWaiterModal({ tableId, onClose }) {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    table_id: parseInt(tableId),
+                    table_id: parseInt(table_id),
                     raised_by: null,
-                    message: `Table ${tableId} needs assistance`,
+                    message: `Table ${table_id} needs assistance`,
                 }),
             });
         } catch (_) { }
@@ -369,6 +378,7 @@ function ContactWaiterModal({ tableId, onClose }) {
     );
 }
 
+// CART MODAL
 function CartModal({ cart, onClose, onUpdateQty, onRemove, onPlaceOrder }) {
     const entries = Object.entries(cart).map(([key, value]) => ({ key, ...value }));
     const total = entries.reduce((sum, { item, qty }) => {
@@ -437,6 +447,7 @@ function CartModal({ cart, onClose, onUpdateQty, onRemove, onPlaceOrder }) {
     );
 }
 
+// PAYMENT VALIDATION HELPERS --------------------------
 function validateCardNumber(value) {
     const digits = value.replace(/\s/g, '');
     if (!digits) return 'Card number is required';
@@ -481,6 +492,7 @@ function formatExpiry(value) {
     return digits;
 }
 
+// PAYMENT POPUP --------------------------
 function PaymentPopup({ orderId, tableNumber, total, onClose, onConfirm }) {
     const [paymentMethod, setPaymentMethod] = useState('card');
     const [cardNumber, setCardNumber] = useState('');
@@ -639,6 +651,7 @@ function PaymentPopup({ orderId, tableNumber, total, onClose, onConfirm }) {
     );
 }
 
+// UNPAID ORDER MODAL --------------------------
 function UnpaidOrderModal({ total, onClose, onPayNow }) {
     return (
         <div className="customization-overlay">
@@ -658,6 +671,7 @@ function UnpaidOrderModal({ total, onClose, onPayNow }) {
     );
 }
 
+// ORDER CONFIRMATION MODAL --------------------------
 function OrderConfirmation() {
     return (
         <div className="customization-overlay">
@@ -673,21 +687,7 @@ function OrderConfirmation() {
     );
 }
 
-function PaymentConfirmation() {
-    return (
-        <div className="customization-overlay">
-            <div className="customization-modal confirmation-modal">
-                <div className="confirmation-icon">✓</div>
-                <h2 className="confirmation-title">Payment Successful!</h2>
-                <p className="confirmation-msg">
-                    Thank you for dining with us.<br />We hope to see you again soon!
-                </p>
-                <p className="confirmation-redirect">Returning you home...</p>
-            </div>
-        </div>
-    );
-}
-
+// PAYMENT CONFIRMATION MODAL : "Thank You" to Customer
 function ThankYouModal() {
     return (
         <div className="customization-overlay">
@@ -703,6 +703,7 @@ function ThankYouModal() {
     );
 }
 
+// CANCELLED ORDER MODAL --------------------------
 function CancelledOrderModal() {
     return (
         <div className="customization-overlay">
@@ -719,6 +720,7 @@ function CancelledOrderModal() {
     );
 }
 
+// ORDER AGE : related to Order Time Tracking
 function useOrderAge(createdAt) {
     const [elapsed, setElapsed] = useState("");
     useEffect(() => {
@@ -736,6 +738,7 @@ function useOrderAge(createdAt) {
     return elapsed;
 }
 
+// ORDER TIME BLOCK --------------------------
 function OrderTimeBlock({ orderId, estMins }) {
     const [createdAt, setCreatedAt] = useState(null);
     const elapsed = useOrderAge(createdAt);
@@ -766,7 +769,7 @@ function OrderTimeBlock({ orderId, estMins }) {
         </div>
     );
 }
-// ESTIMATION OF TRACKING ORDER TIMES
+// TRACKING POPUP --------------------------
 function TrackingPopup({ orderId, tableNumber, orderItems, total, onClose, onPaymentClick, currentStep, estMins, embedded, allDelivered, allOrderItems, allTotal }) {
     const steps = [
         { id: 1, name: "Order Placed" },
@@ -899,20 +902,30 @@ function TrackingPopup({ orderId, tableNumber, orderItems, total, onClose, onPay
     );
 }
 
+// MAIN APP --------------------------
 export default function App() {
+    
     const [openSection, setOpenSection] = useState(null);
     const [activeFilters, setActiveFilters] = useState([]);
     const [excludedAllergens, setExcludedAllergens] = useState([]);
 
     const { state } = useLocation();
+    const navigate = useNavigate();
+
     if (state?.cust_id) {
         sessionStorage.setItem('cust_id', state.cust_id);
         sessionStorage.setItem('table_id', state.table_id);
     }
 
-    const cust_id = state?.cust_id ?? sessionStorage.getItem('cust_id');
+    const cust_id = state?.cust_id ?? sessionStorage.getItem('cust_id', true);
     const table_id = state?.table_id ?? sessionStorage.getItem('table_id');
 
+    // URL AUTH GUARD --------------------------  
+    if (!cust_id || !table_id || !sessionStorage.getItem('customer_session_active')) {
+        window.location.href = '/';
+        return null;
+    }
+    
     const [cart, setCart] = useState({});
     const [cartOpen, setCartOpen] = useState(false);
     const [contactWaiterOpen, setContactWaiterOpen] = useState(false);
@@ -924,11 +937,10 @@ export default function App() {
     const orderPaidRef = useRef(false);
     const [isPaid, setIsPaid] = useState(false);
     const [unpaidModalOpen, setUnpaidModalOpen] = useState(false);
-    const [paymentConfirmed, setPaymentConfirmed] = useState(false);
     const [thankYouOpen, setThankYouOpen] = useState(false);
     const [estMins, setEstMins] = useState(null);
 
-    // per-order items stored as { orderId: { key: {item, qty} } }
+    // PRE-ORDER ITEMS : stored as { orderId: { key: {item, qty} } }
     const [orderItemsMap, setOrderItemsMap] = useState(() => {
         try { return JSON.parse(sessionStorage.getItem("oaxaca_order_items_map") ?? "{}"); }
         catch { return {}; }
@@ -950,7 +962,8 @@ export default function App() {
     const [livePrices, setLivePrices] = useState({});
     const [lowStockDishes, setLowStockDishes] = useState(new Set());
 
-    // clear on fresh login only — detect by checking if this is a new session
+    // EFFECTS --------------------------
+    // CLEARS ONLY ON FRESH LOGIN --------------------------
     useEffect(() => {
         if (state?.cust_id) {
             const existingCustId = sessionStorage.getItem('cust_id');
@@ -970,6 +983,7 @@ export default function App() {
         }
     }, []);
 
+    // STORAGE EVENT LISTEN FOR TABLE PAID STATUS --------------------------
     useEffect(() => {
         const handler = (e) => {
             if (e.key !== "oaxaca_table_paid" || !e.newValue) return;
@@ -993,13 +1007,12 @@ export default function App() {
         window.addEventListener("storage", handler);
         return () => window.removeEventListener("storage", handler);
     }, []);
-    // listen for waiter-added items via localStorage
+    
     useEffect(() => {
         const handler = (e) => {
             if (e.key !== "oaxaca_placed_order") return;
             try {
                 const updated = e.newValue ? JSON.parse(e.newValue) : {};
-                // merge into the current active order's items
                 setOrderItemsMap(prev => {
                     if (!liveOrderId) return prev;
                     const merged = { ...(prev[liveOrderId] ?? {}), ...updated };
@@ -1009,6 +1022,7 @@ export default function App() {
                 });
             } catch (_) { }
         };
+
         window.addEventListener("storage", handler);
         const poll = setInterval(() => {
             try {
@@ -1019,7 +1033,6 @@ export default function App() {
                     const existing = JSON.stringify(prev[liveOrderId] ?? {});
                     const incoming = JSON.stringify(updated);
                     if (existing === incoming) return prev;
-                    // full replace, not merge — so removals propagate
                     const next = { ...prev, [liveOrderId]: updated };
                     sessionStorage.setItem("oaxaca_order_items_map", JSON.stringify(next));
                     return next;
@@ -1029,6 +1042,7 @@ export default function App() {
         return () => { window.removeEventListener("storage", handler); clearInterval(poll); };
     }, [liveOrderId]);
 
+    // FETCHES MENU AVAILABILITY --------------------------
     useEffect(() => {
         const fetchAvailability = () => {
             fetch('http://127.0.0.1:8000/menu_items')
@@ -1046,6 +1060,7 @@ export default function App() {
         return () => clearInterval(poll);
     }, []);
 
+    // FETCHES STOCK LEVELS --------------------------
     useEffect(() => {
         const fetchStock = () => {
             fetch('http://127.0.0.1:8000/stock')
@@ -1062,13 +1077,13 @@ export default function App() {
         return () => clearInterval(poll);
     }, []);
 
+    // ORDER STATUS POLLING
     useEffect(() => {
         if (!liveOrderId) return;
         const statusToStep = { "Pending": 2, "In Progress": 3, "Ready": 4, "Completed": 5 };
-
-        // fetch steps for all orders on mount (handles refresh)
         const ids = JSON.parse(sessionStorage.getItem('liveOrderIds') ?? "[]");
         const allIds = [...new Set([...ids, String(liveOrderId)])];
+        
         allIds.forEach(oid => {
             fetch(`http://127.0.0.1:8000/orders/${oid}`)
                 .then(r => r.ok ? r.json() : null)
@@ -1083,6 +1098,8 @@ export default function App() {
                 })
                 .catch(() => { });
         });
+
+        let poll;
 
         const delay = setTimeout(() => {
             const poll = setInterval(async () => {
@@ -1125,6 +1142,7 @@ export default function App() {
                         setTimeout(() => { setOrderCancelled(false); window.location.href = '/'; }, 3000);
                         return;
                     }
+
                     const data = await res.json();
                     if (data.status === "Cancelled") {
                         clearInterval(poll);
@@ -1136,7 +1154,7 @@ export default function App() {
                             if (active.length > 0) {
                                 const latest = active[active.length - 1];
                                 const newId = String(latest.order_id);
-                                // remove cancelled order from tracking
+                                
                                 setLiveOrderIds(prev => {
                                     const updated = prev.filter(id => String(id) !== String(liveOrderId));
                                     sessionStorage.setItem('liveOrderIds', JSON.stringify(updated));
@@ -1173,11 +1191,48 @@ export default function App() {
                     });
                 } catch (_) { }
             }, 8000);
-            return () => clearInterval(poll);
         }, 5000);
-        return () => clearTimeout(delay);
+        return () => { clearTimeout(delay); clearInterval(poll); };
     }, [liveOrderId]);
 
+    // CHECK IF CUSTOMER EXISTS BEFORE PLACING ORDERS
+useEffect(() => {
+    const ensureCustomerExists = async () => {
+        if (cust_id && table_id) {
+            try {
+                const response = await fetch(`http://127.0.0.1:8000/customers?table_id=${table_id}`);
+                const customers = await response.json();
+                const customerExists = customers.some(c => c.cust_id === parseInt(cust_id));
+                
+                if (!customerExists) {
+                    console.log('Customer not found, creating new customer...');
+                    const createResponse = await fetch('http://127.0.0.1:8000/customers', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            name: `Table ${table_id}`,
+                            table_id: parseInt(table_id)
+                        })
+                    });
+                    
+                    if (createResponse.ok) {
+                        const newCustomer = await createResponse.json();
+                        const newCustId = newCustomer.cust_id;
+                        
+                        sessionStorage.setItem('cust_id', newCustId);
+                        window.location.reload();
+                    }
+                }
+            } catch (error) {
+                console.error('Error ensuring customer exists:', error);
+            }
+        }
+    };
+    
+        ensureCustomerExists();
+    }, [cust_id, table_id]);
+
+    // HANDLERS --------------------------
     function handleSectionToggle(sectionName) {
         setOpenSection((prev) => (prev === sectionName ? null : sectionName));
     }
@@ -1200,6 +1255,7 @@ export default function App() {
             if (item.customization) return cartItem.id === item.id && JSON.stringify(cartItem.customization) === JSON.stringify(item.customization);
             return false;
         });
+
         if (existingItemKey) {
             setCart((prev) => ({ ...prev, [existingItemKey]: { ...prev[existingItemKey], qty: prev[existingItemKey].qty + 1 } }));
         } else {
@@ -1227,6 +1283,16 @@ export default function App() {
     }
 
     async function handlePlaceOrder() {
+        console.log('cust_id:', cust_id);
+        console.log('table_id:', table_id);
+        console.log('Cart items:', cart);
+        
+        if (!cust_id || !table_id) {
+            console.error('Missing cust_id or table_id');
+            alert('Please refresh the page and try again. Missing customer information.');
+            return;
+        }
+        
         const items = Object.values(cart).map(({ item, qty }) => ({
             item_id: item.id,
             quantity: qty,
@@ -1236,19 +1302,32 @@ export default function App() {
             special_request: item.customization?.specialRequest || "",
         }));
 
+        console.log('Sending order payload:', { cust_id, table_id, items });
+
         try {
             const res = await fetch('http://127.0.0.1:8000/orders', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ cust_id, table_id, items }),
+                body: JSON.stringify({ cust_id: cust_id, table_id: table_id, items }),
             });
+
+            console.log('Response status:', res.status);
+            
             if (!res.ok) {
                 const err = await res.json();
-                if (err.detail?.includes("limit exceeded")) alert("You've reached the maximum of 25 for one or more items. Please adjust your order.");
+                console.error('Order failed:', err);
+                if (err.detail?.includes("limit exceeded")) {
+                    alert("You've reached the maximum of 25 for one or more items. Please adjust your order.");
+                } else if (err.detail?.includes("Customer")) {
+                    alert("Your session has expired. Please refresh the page.");
+                } else {
+                    alert(`Order failed: ${err.detail || 'Unknown error'}`);
+                }
                 return;
             }
 
             const data = await res.json();
+            console.log('Order placed successfully:', data);
             const newOrderId = String(data.order_id);
 
             setLiveOrderId(newOrderId);
@@ -1263,7 +1342,6 @@ export default function App() {
                 return next;
             });
 
-            // also write merged to localStorage for waiter cross-tab sync
             localStorage.setItem("oaxaca_placed_order", JSON.stringify(newOrderItems));
 
             setLiveOrderIds(prev => {
@@ -1284,17 +1362,18 @@ export default function App() {
             });
             localStorage.setItem(`oaxaca_customisations_${newOrderId}`, JSON.stringify(customisations));
 
-        } catch (err) {
-            console.error('Could not reach server:', err);
-            return;
-        }
-
-        setHasActiveOrder(true);
-        setIsPaid(false);
-        setCartOpen(false);
-        setCart({});
-        setConfirmed(true);
-        setTimeout(() => { setConfirmed(false); }, 2500);
+            setHasActiveOrder(true);
+            setIsPaid(false);
+            setCartOpen(false);
+            setCart({});
+            setConfirmed(true);
+            setTimeout(() => { setConfirmed(false); }, 2500);
+            
+            } catch (err) {
+                console.error('Could not reach server:', err);
+                alert('Unable to connect to server. Please try again.');
+                return;
+            }
     }
 
     function handleCloseTable() {
@@ -1307,7 +1386,6 @@ export default function App() {
     }
 
     async function handlePaymentConfirm(method) {
-        // pay all active orders
         for (const oid of liveOrderIds) {
             try {
                 await fetch(`http://127.0.0.1:8000/orders/${oid}/pay`, { method: 'POST', headers: { 'Content-Type': 'application/json' } });
@@ -1332,9 +1410,10 @@ export default function App() {
         setTimeout(() => { setThankYouOpen(false); window.location.href = '/'; }, 3000);
     }
 
+    // COMPUTED VALUES --------------------------
     const cartCount = Object.values(cart).reduce((sum, { qty }) => sum + qty, 0);
 
-    // combined total across all orders
+    // ORDER PROGRESS POPUP : Combined total across all orders
     const allOrderItems = Object.values(orderItemsMap).reduce((acc, orderItems) => ({ ...acc, ...orderItems }), {});
     const allTotal = Object.values(allOrderItems).reduce((sum, { item, qty }) => {
         const basePrice = parseFloat(item.price.replace("£", ""));
@@ -1352,11 +1431,12 @@ export default function App() {
 
     const allDelivered = liveOrderIds.length > 0 && liveOrderIds.every(oid => (liveSteps[String(oid)] ?? liveSteps[Number(oid)] ?? 1) >= 5);
 
+    // RENDER --------------------------
     return (
         <div className="app">
             <Header
                 tableNumber={table_id ? `Table ${table_id}` : "Table"}
-                tableId={table_id}
+                table_id={table_id}
                 cartCount={cartCount}
                 onCartClick={() => setCartOpen(true)}
                 onCloseTable={handleCloseTable}
@@ -1436,7 +1516,7 @@ export default function App() {
             {unpaidModalOpen && <UnpaidOrderModal total={allTotal} onClose={() => setUnpaidModalOpen(false)} onPayNow={() => { setUnpaidModalOpen(false); setPaymentOpen(true); }} />}
             {thankYouOpen && <ThankYouModal />}
             {orderCancelled && <CancelledOrderModal />}
-            {contactWaiterOpen && <ContactWaiterModal tableId={table_id} onClose={() => setContactWaiterOpen(false)} />}
+            {contactWaiterOpen && <ContactWaiterModal table_id={table_id} onClose={() => setContactWaiterOpen(false)} />}
         </div>
     );
 }
