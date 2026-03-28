@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
+// STYLE CONSTANTS --------------------------
 const C = {
     bg: "#f5f0e8", panel: "#faf7f2", dark: "#2D2218", mid: "#8b4513",
     warm: "#c4763a", light: "#e8d5b7", pale: "#f0e6d3",
@@ -8,15 +9,6 @@ const C = {
     red: "#c0392b", redL: "#fde8e6",
     amber: "#d4870e", amberL: "#fef3cd",
     text: "#2c1810", muted: "#7a5c44", border: "#d4b896",
-};
-
-const calcMargin = (cogs, price) => price > 0 ? Math.round((1 - cogs / price) * 100) : 0;
-const calcMinPrice = (cogs) => +(cogs / 0.4).toFixed(2);
-
-const marginColor = (m) => {
-    if (m >= 60) return { bg: C.greenL, text: C.green, label: `${m}%` };
-    if (m >= 50) return { bg: C.amberL, text: C.amber, label: `${m}% !` };
-    return { bg: C.redL, text: C.red, label: `${m}% ⚠` };
 };
 
 const tileColors = (status) => ({
@@ -27,7 +19,17 @@ const tileColors = (status) => ({
     "Service": { bg: "#fef9e7", border: "#f7dc6f", num: "#9a7d0a", label: "#9a7d0a" },
 }[status] || { bg: "#f0f7f2", border: "#b8d4c0", num: C.green, label: C.green });
 
+// HELPER FUNCTIONS --------------------------
+const calcMargin = (cogs, price) => price > 0 ? Math.round((1 - cogs / price) * 100) : 0;
+const calcMinPrice = (cogs) => +(cogs / 0.4).toFixed(2);
 
+const marginColor = (m) => {
+    if (m >= 60) return { bg: C.greenL, text: C.green, label: `${m}%` };
+    if (m >= 50) return { bg: C.amberL, text: C.amber, label: `${m}% !` };
+    return { bg: C.redL, text: C.red, label: `${m}% ⚠` };
+};
+
+// CUSTOM HOOK : CLICK OUTSIDE --------------------------
 function useOutsideClick(ref, cb) {
     useEffect(() => {
         const fn = (e) => { if (ref.current && !ref.current.contains(e.target)) cb(); };
@@ -36,9 +38,11 @@ function useOutsideClick(ref, cb) {
     }, [ref, cb]);
 }
 
+// ICONS --------------------------
 const IconBell = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 0 1-3.46 0" /></svg>;
 const IconDoor = () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={C.red} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></svg>;
 
+// MODAL --------------------------
 function Modal({ title, onClose, children }) {
     return (
         <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.45)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 600 }} onClick={onClose}>
@@ -53,6 +57,7 @@ function Modal({ title, onClose, children }) {
     );
 }
 
+// NOTIFS PANEL --------------------------
 function NotificationsPanel({ notifications, setNotifications }) {
     const [filter, setFilter] = useState("All");
     const unread = notifications.filter(n => !n.read).length;
@@ -121,8 +126,8 @@ function NotificationsPanel({ notifications, setNotifications }) {
     );
 }
 
+// ACCOUNT PANEL --------------------------
 function AccountPanel({ staffInfo, onLogout }) {
-    const navigate = useNavigate();
     const initials = staffInfo?.name ? staffInfo.name.slice(0, 2).toUpperCase() : "??";
     const displayName = staffInfo?.name ?? "Unknown";
     const role = staffInfo?.role ?? "Manager";
@@ -149,6 +154,7 @@ function AccountPanel({ staffInfo, onLogout }) {
     );
 }
 
+// OVERVIEW TAB --------------------------
 function OverviewTab({ tables }) {
     const occupied = tables.filter(t => t.status !== "Free").length;
     const [selectedTable, setSelectedTable] = useState(null);
@@ -246,6 +252,7 @@ function OverviewTab({ tables }) {
     );
 }
 
+// MENU TAB --------------------------
 function MenuTab({ menu, setMenu, addToast, stock }) {
     const sections = ["Starters", "Mains", "Desserts", "Sides", "Drinks"];
     const available = menu.filter(m => m.avail).length;
@@ -399,6 +406,7 @@ function MenuTab({ menu, setMenu, addToast, stock }) {
     );
 }
 
+// EMPLOYEES TAB --------------------------
 function EmployeesTab({ employees }) {
     const roleStyle = {
         "Waiter": { bg: "#cce3f5", color: "#2e6da4" },
@@ -535,6 +543,7 @@ function EmployeesTab({ employees }) {
     );
 }
 
+// STOCK INPUT --------------------------
 const stockStatus = (level) =>
     level >= 50 ? { color: C.green, bg: C.greenL, label: "Good" }
         : level >= 25 ? { color: C.amber, bg: C.amberL, label: "Low" }
@@ -594,8 +603,6 @@ function StockTab({ stock, fetchStock }) {
         : stock;
 
     const categories = [...new Set(filtered.map(s => s.category))];
-    const lowCount = stock.filter(s => s.level < 50).length;
-    const critCount = stock.filter(s => s.level < 25).length;
 
     return (
         <div style={{ gridColumn: "1/-1", background: C.panel, border: `1.5px solid ${C.border}`, borderRadius: 8, padding: 18, display: "flex", flexDirection: "column", gap: 16 }}>
@@ -682,7 +689,7 @@ function StockTab({ stock, fetchStock }) {
     );
 }
 
-// CUSTOMER ASSISTANCE ALERT
+// WAITER ASSISTANCE ALERT --------------------------
 function useWaiterAlerts(setNotifications, addToast) {
     const cbRef = useRef({ setNotifications, addToast });
     useEffect(() => { cbRef.current = { setNotifications, addToast }; });
@@ -704,7 +711,7 @@ function useWaiterAlerts(setNotifications, addToast) {
     }, []);
 }
 
-
+// MAIN DASHBOARD --------------------------
 export default function ManagerDashboard() {
     const [tab, setTab] = useState("Overview");
     const [tables, setTables] = useState([]);
@@ -720,7 +727,7 @@ export default function ManagerDashboard() {
         }
     }, []);
 
-
+    // FETCH EMPLOYEES --------------------------
     useEffect(() => {
         const fetchEmployees = () => {
             fetch('http://127.0.0.1:8000/staff')
@@ -741,7 +748,8 @@ export default function ManagerDashboard() {
         return () => clearInterval(poll);
     }, []);
 
-    const [stock, setStock] = useState([]);
+
+    // FETCH STAFF INFO : FOR LOGGED-IN MANAGER --------------------------
     useEffect(() => {
         const staffId = location.state?.staff_id;
         if (!staffId) return;
@@ -758,8 +766,9 @@ export default function ManagerDashboard() {
             .catch(() => { });
     }, [location]);
 
+    // STOCK MANAGEMENT --------------------------
+    const [stock, setStock] = useState([]);
     const prevStockRef = useRef({});
-
     const fetchStock = () => {
         fetch('http://127.0.0.1:8000/stock')
             .then(r => r.json())
@@ -827,6 +836,8 @@ export default function ManagerDashboard() {
         const poll = setInterval(fetchStock, 3000);
         return () => clearInterval(poll);
     }, []);
+
+    // NOTIFS --------------------------
     const [notifications, setNotifications] = useState(() => {
         try { return JSON.parse(localStorage.getItem("oaxaca_manager_notifications") ?? "[]"); }
         catch { return []; }
@@ -836,6 +847,7 @@ export default function ManagerDashboard() {
     const [showAccount, setShowAccount] = useState(false);
     const [loggingOut, setLoggingOut] = useState(false);
 
+    // FETCH MENU FROM API --------------------------
     useEffect(() => {
     fetch('http://127.0.0.1:8000/menu_items')
         .then(r => r.json())
@@ -910,6 +922,7 @@ export default function ManagerDashboard() {
     }, [notifications]);
     useWaiterAlerts(setNotifications, addToast);
 
+    // UPDATE MENU
     useEffect(() => {
         const handler = (e) => {
             if (e.key !== 'oaxaca_menu_update') return;
@@ -933,6 +946,7 @@ export default function ManagerDashboard() {
     }, []);
 
     const unread = notifications.filter(n => !n.read).length;
+    
     return (
         <div style={{ fontFamily: "Jost, sans-serif", background: C.bg, color: C.text, minHeight: "100vh" }}>
             <style>{`
