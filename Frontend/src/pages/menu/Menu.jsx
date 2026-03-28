@@ -911,8 +911,9 @@ export default function App() {
     const { state } = useLocation();
 
     if (state?.cust_id) {
-    sessionStorage.setItem('cust_id', state.cust_id);
-    sessionStorage.setItem('table_id', state.table_id);
+        sessionStorage.setItem('cust_id', state.cust_id);
+        sessionStorage.setItem('table_id', state.table_id);
+    }
 
     const cust_id = state?.cust_id ?? sessionStorage.getItem('cust_id');
     const table_id = state?.table_id ?? sessionStorage.getItem('table_id');
@@ -1273,7 +1274,6 @@ useEffect(() => {
     }
 
     async function handlePlaceOrder() {
-        console.log('=== PLACING ORDER ===');
         console.log('cust_id:', cust_id);
         console.log('table_id:', table_id);
         console.log('Cart items:', cart);
@@ -1510,5 +1510,4 @@ useEffect(() => {
             {contactWaiterOpen && <ContactWaiterModal table_id={table_id} onClose={() => setContactWaiterOpen(false)} />}
         </div>
     );
-}
 }
