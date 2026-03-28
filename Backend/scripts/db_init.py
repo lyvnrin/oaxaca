@@ -29,11 +29,16 @@ conn.execute('''CREATE TABLE customers (
 )''')
 
 conn.execute('''CREATE TABLE menu_items (
-    item_id   INTEGER PRIMARY KEY AUTOINCREMENT,
-    item_name VARCHAR(100) NOT NULL,
-    price     DECIMAL(10,2) NOT NULL,
-    available INTEGER NOT NULL DEFAULT 1,
-    cogs      REAL NOT NULL DEFAULT 0,
+    item_id        INTEGER PRIMARY KEY AUTOINCREMENT,
+    item_name      VARCHAR(100) NOT NULL,
+    section        VARCHAR(50) NOT NULL DEFAULT 'Mains',
+    description    TEXT,
+    price          DECIMAL(10,2) NOT NULL,
+    dietary        TEXT,          
+    allergens      TEXT,          
+    calories       VARCHAR(50),
+    available      INTEGER NOT NULL DEFAULT 1,
+    cogs           REAL NOT NULL DEFAULT 0,
     prep_time_mins INTEGER NOT NULL DEFAULT 15
 )''')
 
