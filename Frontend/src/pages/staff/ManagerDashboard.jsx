@@ -10,24 +10,6 @@ const C = {
     text: "#2c1810", muted: "#7a5c44", border: "#d4b896",
 };
 
-const INIT_TABLES = [
-    { id: 1, status: "Ordering", bill: null, orders: [{ name: "Guacamole & Chips", qty: 1, price: 7.00 }, { name: "Ceviche Verde", qty: 1, price: 12.00 }, { name: "Mezcal Margarita", qty: 2, price: 11.00 }] },
-    { id: 2, status: "Bill Req.", bill: null, orders: [{ name: "Mole Negro Chicken", qty: 2, price: 18.00 }, { name: "Barbacoa Tacos", qty: 1, price: 16.00 }, { name: "Black Bean Pot", qty: 2, price: 4.00 }, { name: "Horchata", qty: 1, price: 4.50 }, { name: "Water", qty: 1, price: 2.50 }] },
-    { id: 3, status: "Bill Req.", bill: 62.00, orders: [{ name: "Tlayuda Tostada", qty: 2, price: 9.00 }, { name: "Snapper Veracruz", qty: 1, price: 22.00 }, { name: "Churro Sundae", qty: 1, price: 8.00 }, { name: "Mezcal Margarita", qty: 2, price: 11.00 }] },
-    { id: 4, status: "Free", bill: null, orders: [] },
-    { id: 5, status: "Preparing", bill: null, orders: [{ name: "Elote Esquites", qty: 1, price: 8.00 }, { name: "Portobello Enchiladas", qty: 1, price: 14.00 }] },
-    { id: 6, status: "Service", bill: null, orders: [] },
-    { id: 7, status: "Free", bill: null, orders: [] },
-    { id: 8, status: "Bill Req.", bill: null, orders: [{ name: "Barbacoa Tacos", qty: 2, price: 16.00 }, { name: "Mexican Rice", qty: 2, price: 4.00 }, { name: "Mango Sorbet", qty: 2, price: 6.00 }, { name: "Mexican Lager", qty: 2, price: 5.00 }] },
-    { id: 9, status: "Free", bill: null, orders: [] },
-    { id: 10, status: "Ordering", bill: null, orders: [{ name: "Guacamole & Chips", qty: 2, price: 7.00 }, { name: "Hibiscus Agua Fresca", qty: 2, price: 4.00 }] },
-    { id: 11, status: "Free", bill: null, orders: [] },
-    { id: 12, status: "Bill Req.", bill: null, orders: [{ name: "Mole Negro Chicken", qty: 1, price: 18.00 }, { name: "Snapper Veracruz", qty: 1, price: 22.00 }, { name: "Corn Tortillas", qty: 1, price: 3.00 }] },
-    { id: 13, status: "Free", bill: null, orders: [] },
-    { id: 14, status: "Preparing", bill: null, orders: [{ name: "Mezcal Flan", qty: 1, price: 7.00 }] },
-    { id: 15, status: "Free", bill: null, orders: [] },
-];
-
 const calcMargin = (cogs, price) => price > 0 ? Math.round((1 - cogs / price) * 100) : 0;
 const calcMinPrice = (cogs) => +(cogs / 0.4).toFixed(2);
 
@@ -701,27 +683,6 @@ function StockTab({ stock, fetchStock }) {
 }
 
 // CUSTOMER ASSISTANCE ALERT
-function useCustomerAlerts(setNotifications, addToast) {
-    const cbRef = useRef({ setNotifications, addToast });
-    useEffect(() => { cbRef.current = { setNotifications, addToast }; });
-
-    useEffect(() => {
-        const handler = (e) => {
-            if (e.key !== "oaxaca_customer_alert" || !e.newValue) return;
-            try {
-                const incoming = JSON.parse(e.newValue);
-                cbRef.current.setNotifications(prev => {
-                    if (prev.some(n => n.id === incoming.id)) return prev;
-                    return [incoming, ...prev];
-                });
-                addToast(`Table ${incoming.table} needs assistance!`);
-            } catch (_) { }
-        };
-        window.addEventListener("storage", handler);
-        return () => window.removeEventListener("storage", handler);
-    }, []);
-}
-
 function useWaiterAlerts(setNotifications, addToast) {
     const cbRef = useRef({ setNotifications, addToast });
     useEffect(() => { cbRef.current = { setNotifications, addToast }; });
@@ -746,7 +707,7 @@ function useWaiterAlerts(setNotifications, addToast) {
 
 export default function ManagerDashboard() {
     const [tab, setTab] = useState("Overview");
-    const [tables, setTables] = useState(INIT_TABLES);
+    const [tables, setTables] = useState([]);
     const [menu, setMenu] = useState([]);
     const [employees, setEmployees] = useState([]);
     const [staffInfo, setStaffInfo] = useState(null);
@@ -881,13 +842,14 @@ export default function ManagerDashboard() {
         .then(data => setMenu(data.map(item => ({
             id: item.item_id,
             name: item.item_name,
-            price: item.price,        
-            avail: item.available === 1,
+            price: item.price,
             cogs: item.cogs,
-            dietary: item.dietary ? item.dietary.split(',') : [], 
-            allergens: item.allergens ? item.allergens.split(',') : [],
-            calories: item.calories ?? "",
-            description: item.description ?? "",
+            section: item.section,
+            avail: item.available === 1,
+            dietary: item.dietary ? item.dietary.split(',').map(s => s.trim()) : [],
+            allergens: item.allergens ? item.allergens.split(',').map(s => s.trim()) : [],
+            calories: item.calories,
+            description: item.description,
         }))))
         .catch(() => { });
 }, []);

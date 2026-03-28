@@ -35,6 +35,7 @@ def place_order(payload: OrderIn):
                     detail="Item limit exceeded: cannot order more than 25 of the same item per table"
                 )
         total = sum(i["price"] * i["quantity"] for i in payload.items)
+        
         cursor.execute(
             "INSERT INTO orders (cust_id, table_id, total_cost, status) VALUES (?, ?, ?, ?)",
             (payload.cust_id, payload.table_id, total, "Pending"),

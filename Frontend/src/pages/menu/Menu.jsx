@@ -22,7 +22,7 @@ function CartIcon({ count, onClick }) {
 }
 
 // HEADER --------------------------
-function Header({ tableNumber, tableId, cartCount, onCartClick, onCloseTable, onContactWaiter }) {
+function Header({ tableNumber, table_id, cartCount, onCartClick, onCloseTable, onContactWaiter }) {
     const [menuOpen, setMenuOpen] = useState(false);
 
     const handleCloseTable = () => {
@@ -301,21 +301,21 @@ function MenuSection({ sectionName, items, isOpen, onToggle, matchesFilter, onCu
 }
 
 // CONTACT WAITER MODAL --------------------------
-function ContactWaiterModal({ tableId, onClose }) {
+function ContactWaiterModal({ table_id, onClose }) {
     const [message, setMessage] = useState("");
     const [sent, setSent] = useState(false);
 
     const handleSend = async () => {
         let assignedWaiter = null;
         try {
-            const res = await fetch(`http://127.0.0.1:8000/tables/${parseInt(tableId)}/waiter`);
+            const res = await fetch(`http://127.0.0.1:8000/tables/${parseInt(table_id)}/waiter`);
             const data = await res.json();
             assignedWaiter = data.assigned_waiter ?? null;
         } catch (_) { }
 
         localStorage.setItem("oaxaca_customer_alert", JSON.stringify({
             id: Date.now(),
-            table: parseInt(tableId),
+            table: parseInt(table_id),
             order: sessionStorage.getItem('liveOrderId') ?? "–",
             status: "Needs Assistance",
             type: "Help_Needed",
@@ -329,9 +329,9 @@ function ContactWaiterModal({ tableId, onClose }) {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    table_id: parseInt(tableId),
+                    table_id: parseInt(table_id),
                     raised_by: null,
-                    message: `Table ${tableId} needs assistance`,
+                    message: `Table ${table_id} needs assistance`,
                 }),
             });
         } catch (_) { }
@@ -909,14 +909,13 @@ export default function App() {
     const [excludedAllergens, setExcludedAllergens] = useState([]);
 
     const { state } = useLocation();
+
     if (state?.cust_id) {
-        sessionStorage.setItem('cust_id', state.cust_id);
-        sessionStorage.setItem('table_id', state.table_id);
-    }
+    sessionStorage.setItem('cust_id', state.cust_id);
+    sessionStorage.setItem('table_id', state.table_id);
 
     const cust_id = state?.cust_id ?? sessionStorage.getItem('cust_id');
     const table_id = state?.table_id ?? sessionStorage.getItem('table_id');
-
     const [cart, setCart] = useState({});
     const [cartOpen, setCartOpen] = useState(false);
     const [contactWaiterOpen, setContactWaiterOpen] = useState(false);
@@ -928,7 +927,6 @@ export default function App() {
     const orderPaidRef = useRef(false);
     const [isPaid, setIsPaid] = useState(false);
     const [unpaidModalOpen, setUnpaidModalOpen] = useState(false);
-    const [paymentConfirmed, setPaymentConfirmed] = useState(false);
     const [thankYouOpen, setThankYouOpen] = useState(false);
     const [estMins, setEstMins] = useState(null);
 
@@ -1091,6 +1089,8 @@ export default function App() {
                 .catch(() => { });
         });
 
+        let poll;
+
         const delay = setTimeout(() => {
             const poll = setInterval(async () => {
                 try {
@@ -1181,10 +1181,46 @@ export default function App() {
                     });
                 } catch (_) { }
             }, 8000);
-            return () => clearInterval(poll);
         }, 5000);
-        return () => clearTimeout(delay);
+        return () => { clearTimeout(delay); clearInterval(poll); };
     }, [liveOrderId]);
+
+    // CHECK IF CUSTOMER EXISTS BEFORE PLACING ORDERS
+useEffect(() => {
+    const ensureCustomerExists = async () => {
+        if (cust_id && table_id) {
+            try {
+                const response = await fetch(`http://127.0.0.1:8000/customers?table_id=${table_id}`);
+                const customers = await response.json();
+                const customerExists = customers.some(c => c.cust_id === parseInt(cust_id));
+                
+                if (!customerExists) {
+                    console.log('Customer not found, creating new customer...');
+                    const createResponse = await fetch('http://127.0.0.1:8000/customers', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            name: `Table ${table_id}`,
+                            table_id: parseInt(table_id)
+                        })
+                    });
+                    
+                    if (createResponse.ok) {
+                        const newCustomer = await createResponse.json();
+                        const newCustId = newCustomer.cust_id;
+                        
+                        sessionStorage.setItem('cust_id', newCustId);
+                        window.location.reload();
+                    }
+                }
+            } catch (error) {
+                console.error('Error ensuring customer exists:', error);
+            }
+        }
+    };
+    
+        ensureCustomerExists();
+    }, [cust_id, table_id]);
 
     // HANDLERS --------------------------
     function handleSectionToggle(sectionName) {
@@ -1237,6 +1273,17 @@ export default function App() {
     }
 
     async function handlePlaceOrder() {
+        console.log('=== PLACING ORDER ===');
+        console.log('cust_id:', cust_id);
+        console.log('table_id:', table_id);
+        console.log('Cart items:', cart);
+        
+        if (!cust_id || !table_id) {
+            console.error('Missing cust_id or table_id');
+            alert('Please refresh the page and try again. Missing customer information.');
+            return;
+        }
+        
         const items = Object.values(cart).map(({ item, qty }) => ({
             item_id: item.id,
             quantity: qty,
@@ -1246,20 +1293,32 @@ export default function App() {
             special_request: item.customization?.specialRequest || "",
         }));
 
+        console.log('Sending order payload:', { cust_id, table_id, items });
+
         try {
             const res = await fetch('http://127.0.0.1:8000/orders', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ cust_id, table_id, items }),
+                body: JSON.stringify({ cust_id: cust_id, table_id: table_id, items }),
             });
 
+            console.log('Response status:', res.status);
+            
             if (!res.ok) {
                 const err = await res.json();
-                if (err.detail?.includes("limit exceeded")) alert("You've reached the maximum of 25 for one or more items. Please adjust your order.");
+                console.error('Order failed:', err);
+                if (err.detail?.includes("limit exceeded")) {
+                    alert("You've reached the maximum of 25 for one or more items. Please adjust your order.");
+                } else if (err.detail?.includes("Customer")) {
+                    alert("Your session has expired. Please refresh the page.");
+                } else {
+                    alert(`Order failed: ${err.detail || 'Unknown error'}`);
+                }
                 return;
             }
 
             const data = await res.json();
+            console.log('Order placed successfully:', data);
             const newOrderId = String(data.order_id);
 
             setLiveOrderId(newOrderId);
@@ -1294,17 +1353,18 @@ export default function App() {
             });
             localStorage.setItem(`oaxaca_customisations_${newOrderId}`, JSON.stringify(customisations));
 
-        } catch (err) {
-            console.error('Could not reach server:', err);
-            return;
-        }
-
-        setHasActiveOrder(true);
-        setIsPaid(false);
-        setCartOpen(false);
-        setCart({});
-        setConfirmed(true);
-        setTimeout(() => { setConfirmed(false); }, 2500);
+            setHasActiveOrder(true);
+            setIsPaid(false);
+            setCartOpen(false);
+            setCart({});
+            setConfirmed(true);
+            setTimeout(() => { setConfirmed(false); }, 2500);
+            
+            } catch (err) {
+                console.error('Could not reach server:', err);
+                alert('Unable to connect to server. Please try again.');
+                return;
+            }
     }
 
     function handleCloseTable() {
@@ -1367,7 +1427,7 @@ export default function App() {
         <div className="app">
             <Header
                 tableNumber={table_id ? `Table ${table_id}` : "Table"}
-                tableId={table_id}
+                table_id={table_id}
                 cartCount={cartCount}
                 onCartClick={() => setCartOpen(true)}
                 onCloseTable={handleCloseTable}
@@ -1447,7 +1507,8 @@ export default function App() {
             {unpaidModalOpen && <UnpaidOrderModal total={allTotal} onClose={() => setUnpaidModalOpen(false)} onPayNow={() => { setUnpaidModalOpen(false); setPaymentOpen(true); }} />}
             {thankYouOpen && <ThankYouModal />}
             {orderCancelled && <CancelledOrderModal />}
-            {contactWaiterOpen && <ContactWaiterModal tableId={table_id} onClose={() => setContactWaiterOpen(false)} />}
+            {contactWaiterOpen && <ContactWaiterModal table_id={table_id} onClose={() => setContactWaiterOpen(false)} />}
         </div>
     );
+}
 }
