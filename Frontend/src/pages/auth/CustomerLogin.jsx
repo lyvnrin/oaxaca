@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Grainient from "../../components/Grainient";
 import "./CustomerLogin.css";
@@ -6,7 +6,6 @@ import "./CustomerLogin.css";
 function CustomerLogin() {
     // NAVIGATION --------------------------
     const navigate = useNavigate();
-    const goToMenu = () => navigate("/menu");
     const goToRoles = () => navigate("/");
 
     // STATE --------------------------
@@ -36,6 +35,8 @@ function CustomerLogin() {
         } else if (e.key === 'ArrowDown') {
             e.preventDefault();
             if (current > 1) setTableNumber(String(current - 1));
+        } else if (e.key === 'Enter' && isFormValid()) { 
+            handleContinue();
         }
         if (error) setError('');
     };
@@ -65,6 +66,7 @@ function CustomerLogin() {
                 setError(data.detail || 'Something went wrong');
                 return;
             }
+            sessionStorage.setItem('customer_session_active', 'true'); 
             const customer = await res.json();
             navigate('/menu', { 
                 state: { 
