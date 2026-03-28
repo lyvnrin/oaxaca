@@ -294,106 +294,106 @@ export const EXTRAS_BY_ID = {
 
     // STARTERS --------------------------
     "1": [ // Guacamole & Chips
-        {name: "Extra Avocado", price: 1.50},
-        {name: "Extra Tortilla Chips", price: 1.00},
+        {name: "Avocado", price: 1.50},
+        {name: "Tortilla Chips", price: 1.00},
     ],
 
     "2": [ // Tlayuda Tostada
-        {name: "Extra Quesillo Cheese", price: 1.50},
-        {name: "Extra Black Beans", price: 0.75},
+        {name: "Quesillo Cheese", price: 1.50},
+        {name: "Black Beans", price: 0.75},
     ],
 
     "3": [ // Ceviche Verde
-        {name: "Extra Sea Bass", price: 3.00},
-        {name: "Extra Tomatillo", price: 0.75},
+        {name: "Sea Bass", price: 3.00},
+        {name: "Tomatillo", price: 0.75},
     ],
 
     "4": [ // Elote Esquites
-        {name: "Extra Cotija Cheese", price: 1.00},
-        {name: "Extra Ancho Chilli", price: 0.25},
+        {name: "Cotija Cheese", price: 1.00},
+        {name: "Ancho Chilli", price: 0.25},
     ],
 
     // MAINS --------------------------
     "5": [ // Mole Negro Chicken
-        {name: "Extra Chicken Thigh", price: 3.00},
-        {name: "Extra Sesame Rice", price: 1.50}, 
+        {name: "Chicken Thigh", price: 3.00},
+        {name: "Sesame Rice", price: 1.50},
     ],
 
     "6": [ // Barbacoa Tacos
-        {name: "Extra Beef Cheek", price: 2.50},
-        {name: "Extra Taco (1 piece)", price: 3.50},
+        {name: "Beef Cheek", price: 2.50},
+        {name: "Taco (1 piece)", price: 3.50},
     ],
 
     "7": [ // Portobello Enchiladas
-        {name: "Extra Portobello", price: 2.00},
-        {name: "Extra Enchilada", price: 3.00},
+        {name: "Portobello", price: 2.00},
+        {name: "Enchilada", price: 3.00},
     ],
 
     "8": [ // Snapper Veracruz
-        {name: "Extra Snapper Fillet", price: 5.00},
-        {name: "Extra Tomato Broth", price: 1.00},
+        {name: "Snapper Fillet", price: 5.00},
+        {name: "Tomato Broth", price: 1.00},
     ],
 
     // DESSERTS --------------------------
     "9": [ // Churro Sundae
-        {name: "Extra Ice Cream", price: 1.50},
-        {name: "Extra Chocolate Mole Sauce", price: 0.75},
+        {name: "Ice Cream", price: 1.50},
+        {name: "Chocolate Mole Sauce", price: 0.75},
     ],
 
     "10": [ // Mezcal Flan
-        {name: "Extra Flan", price: 2.50},
-        {name: "Extra Mezcal Caramel", price: 0.75},
+        {name: "Flan", price: 2.50},
+        {name: "Mezcal Caramel", price: 0.75},
     ],
 
     "11": [ // Mango Sorbet
-        {name: "Extra Scoop", price: 1.50},
-        {name: "Extra Lime", price: 0.25},
+        {name: "Scoop", price: 1.50},
+        {name: "Lime", price: 0.25},
     ],
 
     // SIDES --------------------------
     "12": [ // Black Bean Pot
-        {name: "Extra Black Beans", price: 1.00},
-        {name: "Extra Lime Crema", price: 0.75},
+        {name: "Black Beans", price: 1.00},
+        {name: "Lime Crema", price: 0.75},
     ],
 
     "13": [ // Corn Tortillas
-        {name: "Extra Tortilla (1 pc)", price: 0.50},
-        {name: "Extra Tortillas (4 pcs)", price: 1.50},
+        {name: "Tortilla (1 pc)", price: 0.50},
+        {name: "Tortillas (4 pcs)", price: 1.50},
     ],
 
     "14": [ // Pickled Jalapeños
-        {name: "Extra Serving", price: 1.00},
-        {name: "Extra Fresh Jalapeños", price: 0.50},
+        {name: "Serving", price: 1.00},
+        {name: "Fresh Jalapeños", price: 0.50},
     ],
 
     "15": [ // Mexican Rice
-        {name: "Extra Rice", price: 1.50},
-        {name: "Add Black Beans", price: 1.00},
+        {name: "Rice", price: 1.50},
+        {name: "Black Beans", price: 1.00},
     ],
 
     // DRINKS --------------------------
     "16": [ // Hibiscus Agua Fresca
-        {name: "Extra Large Size", price: 1.50},
-        {name: "Add Sparkling Water", price: 0.50},
+        {name: "Large Size", price: 1.50},
+        {name: "Sparkling Water", price: 0.50},
     ],
 
     "17": [ // Mezcal Margarita
-        {name: "Extra Shot Mezcal", price: 3.00},
-        {name: "Extra Large Size", price: 2.00},
+        {name: "Shot Mezcal", price: 3.00},
+        {name: "Large Size", price: 2.00},
     ],
 
     "18": [ // Horchata
-        {name: "Add Coffee Shot", price: 1.00},
-        {name: "Add Rum Shot", price: 3.00},
+        {name: "Coffee Shot", price: 1.00},
+        {name: "Rum Shot", price: 3.00},
     ],
 
     "19": [ // Mexican Lager
-        {name: "Extra Lime Wedge", price: 0.25},
-        {name: "Add Tajín Rim", price: 0.50},
+        {name: "Lime Wedge", price: 0.25},
+        {name: "Tajín Rim", price: 0.50},
     ],
 
     "20": [ // Water
-        {name: "Add Lemon", price: 0.25},
-        {name: "Add Ice", price: 0.00},
+        {name: "Lemon", price: 0.25},
+        {name: "Ice", price: 0.00},
     ]
 };
