@@ -83,6 +83,9 @@ export const MENU_DATA = {
             dietary: ["Vegan"],
             allergens: [],
             calories: "400 kcal",
+            imageStyle: {
+               objectPosition: "center 20%",
+            }
         },
         {
             id: 8,
@@ -127,6 +130,9 @@ export const MENU_DATA = {
             dietary: ["Vegan", "Gluten-Free"],
             allergens: [],
             calories: "120 kcal",
+            imageStyle: {
+               objectPosition: "center 20%",
+            }
         },
     ],
 
@@ -161,6 +167,9 @@ export const MENU_DATA = {
             dietary: ["Vegan", "Gluten-Free"],
             allergens: [],
             calories: "5 kcal (per tbsp)",
+            imageStyle: {
+               objectPosition: "center 40%",
+            }
         },
         {
             id: 15,
@@ -171,6 +180,9 @@ export const MENU_DATA = {
             dietary: ["Vegan", "Gluten-Free"],
             allergens: [],
             calories: "200 kcal",
+            imageStyle: {
+               objectPosition: "center 20%",
+            }
         },
     ],
 
@@ -195,6 +207,9 @@ export const MENU_DATA = {
             dietary: ["Vegan", "Gluten-Free"],
             allergens: [],
             calories: "250 kcal",
+            imageStyle: {
+               objectPosition: "center 20%",
+            }
         },
         {
             id: 18,
@@ -205,6 +220,9 @@ export const MENU_DATA = {
             dietary: ["Vegan", "Gluten-Free"],
             allergens: ["Nuts"],
             calories: "150 kcal (per cup)",
+            imageStyle: {
+               objectPosition: "center 25%",
+            }
         },
         {
             id: 19,
@@ -215,6 +233,10 @@ export const MENU_DATA = {
             dietary: [],
             allergens: [],
             calories: "150 kcal (per 12 oz bottle)",
+            imageStyle: {
+               objectPosition: "center 35%",
+               scale: 1,
+            }
         },
         {
             id: 20,
@@ -225,6 +247,11 @@ export const MENU_DATA = {
             dietary: [],
             allergens: [],
             calories: "0 kcal",
+            imageStyle: {
+               objectPosition: "center 38%",
+               scale: 1,
+            }
+
         },
     ],
 };

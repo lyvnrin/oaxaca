@@ -244,7 +244,7 @@ function MenuItemCard({ item, dimmed, unavailable, lowStock, onCustomize }) {
         <div className={`menu-item-card ${dimmed ? "menu-item-card--dimmed" : ""} ${unavailable ? "menu-item-card--unavailable" : ""} ${lowStock ? "menu-item-card--unavailable" : ""}`}>
             <div className="card-image-placeholder">
                 {item.image
-                    ? <img src={item.image} alt={item.name} style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "inherit" }} />
+                    ? <img src={item.image} alt={item.name} style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "inherit", ...item.imageStyle }} />
                     : <span className="card-image-text">IMG</span>
                 }
             </div>
