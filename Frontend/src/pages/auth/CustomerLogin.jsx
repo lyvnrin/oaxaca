@@ -3,16 +3,46 @@ import { useNavigate } from "react-router-dom";
 import Grainient from "../../components/Grainient";
 import "./CustomerLogin.css";
 
+/**
+ * Customer Login Component
+ * 
+ * @module CustomerLogin
+ * @description Handles customer authentication by allowing users to select a table number (1-20) 
+ * and creates a new customer session in the backend. Upon successful authentication, 
+ * navigates to the menu page with customer context.
+ * 
+ * @component
+ * @returns {JSX.Element} A styled login form component with table number input and validation
+ * 
+ * @example
+ * // Usage in routing:
+ * <Route path="/customer-login" element={<CustomerLogin />} />
+ */
 function CustomerLogin() {
     // NAVIGATION --------------------------
     const navigate = useNavigate();
+    
+    /**
+     * Navigates back to the roles selection page
+     * @function goToRoles
+     */
     const goToRoles = () => navigate("/");
 
     // STATE --------------------------
+    /** @type {[string, Function]} Table number state (empty string or number 1-20 as string) */
     const [tableNumber, setTableNumber] = useState('');
+    
+    /** @type {[string, Function]} Error message state for validation and API errors */
     const [error, setError] = useState('');
 
-    // INPUT CHANGE HANDLER : valides range 1-20
+    /**
+     * Handles input changes for table number field
+     * Validates and strips the input to ensure only numbers 1-20 are accepted
+     * Automatically removes "Table" prefix if typed by user
+     * 
+     * @function handleChange
+     * @param {Event} e - Input change event from text field
+     */
     const handleChange = (e) => {
         const raw = e.target.value;
         const stripped = raw.replace(/^Table\s*/i, '').trim();
@@ -26,7 +56,16 @@ function CustomerLogin() {
         if (error) setError('');
     };
 
-    // KEYBOARD ARROW SUPPORT : for incrementing / decrementing table num.
+    /**
+     * Handles keyboard navigation for table number field
+     * Supports:
+     * - ArrowUp: Increment table number (max 20)
+     * - ArrowDown: Decrement table number (min 1)
+     * - Enter: Submit form if valid
+     * 
+     * @function handleKeyDown
+     * @param {KeyboardEvent} e - Keyboard event from input field
+     */
     const handleKeyDown = (e) => {
         const current = tableNumber === '' ? 0 : Number(tableNumber);
         if (e.key === 'ArrowUp') {
@@ -42,9 +81,45 @@ function CustomerLogin() {
     };
 
     // FORM VALIDATION --------------------------
+    /**
+     * Validates that a table number has been selected
+     * 
+     * @function isFormValid
+     * @returns {boolean} True if table number is not empty
+     */
     const isFormValid = () => tableNumber !== '';
 
     // CONTINUE BUTTON : POSTs new cust. to Backend; navs to Menu on success
+    /**
+     * Handles form submission to create a new customer session
+     * 
+     * Sends a POST request to create a new customer with the selected table number.
+     * On success:
+     * - Stores session flag in sessionStorage
+     * - Navigates to menu page with customer ID and table ID
+     * On failure:
+     * - Displays error message from backend or network error
+     * 
+     * @async
+     * @function handleContinue
+     * @throws {Error} When network request fails
+     * 
+     * @example
+     * // Successful request body:
+     * {
+     *   name: "Table 5",
+     *   table_id: 5
+     * }
+     * 
+     * @example
+     * // Navigation state on success:
+     * navigate('/menu', { 
+     *   state: { 
+     *     cust_id: 123, 
+     *     table_id: 5 
+     *   } 
+     * });
+     */
     const handleContinue = async () => {
         console.log("Sending:", { name: `Table ${tableNumber}`, table_id: parseInt(tableNumber) });
 
@@ -111,6 +186,8 @@ function CustomerLogin() {
                         onChange={handleChange}
                         onKeyDown={handleKeyDown}
                         placeholder="Enter table number"
+                        aria-label="Table number input"
+                        aria-invalid={!!error}
                     />
                     <div className="spinner-arrows">
                         <button
@@ -121,6 +198,7 @@ function CustomerLogin() {
                                 if (cur < 20) setTableNumber(String(cur + 1));
                                 if (error) setError('');
                             }}
+                            aria-label="Increase table number"
                         >▲</button>
                         <button
                             className="spinner-btn"
@@ -130,18 +208,20 @@ function CustomerLogin() {
                                 if (cur > 1) setTableNumber(String(cur - 1));
                                 if (error) setError('');
                             }}
+                            aria-label="Decrease table number"
                         >▼</button>
                     </div>
                 </div>
 
                 {/* ERROR MESSAGE */}
-                {error && <span className="error-message">{error}</span>}
+                {error && <span className="error-message" role="alert">{error}</span>}
 
                 {/* SUBMIT BTN */}
                 <button
                     className={`customer-button ${!isFormValid() ? 'customer-button-disabled' : ''}`}
                     onClick={handleContinue}
                     disabled={!isFormValid()}
+                    aria-disabled={!isFormValid()}
                 >
                     Continue
                 </button>
