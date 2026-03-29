@@ -6,7 +6,7 @@ You may edit it as you like, but please do not remove the default topics or the 
 
 ## Running the Project
 
-Everything runs from a single command — no need to manage multiple terminals.
+Everything runs from a single command, so there's no need in managing multiple terminals.
 
 ### First time / reset database
 
@@ -44,4 +44,25 @@ start.bat
 | API Docs | http://localhost:8000/docs |
 
 > **Mac/Linux:** Press `Ctrl+C` in the terminal to stop both servers.
+
 > **Windows:** Close the frontend and backend windows that opened.
+
+## Documentation
+
+Pre-generated docs are in `Frontend/docs/` and `Backend/docs/`. To regenerate:
+
+**Frontend (JSDoc):**
+```bash
+cd Frontend
+npm install -g jsdoc
+jsdoc src/ -r -d docs/
+```
+
+**Backend (pdoc):**
+```bash
+cd Backend
+pip install pdoc
+pdoc app/ -o docs/
+```
+
+Open `Frontend/docs/index.html` or `Backend/docs/index.html` in a browser to view.
