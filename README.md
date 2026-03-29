@@ -1,8 +1,15 @@
-# Team Project
+## Oaxaca Restaurant Management System
 
-This repository has been created to store your Team Project.
+A full-stack restaurant management system built as a team project of 9 developers. This repository is a personal portfolio mirror of the original GitLab project.
 
-You may edit it as you like, but please do not remove the default topics or the project members list. These need to stay as currently defined in order for your lecturer to be able to find and mark your work.
+## Tech Stack
+- **Frontend:** React
+- **Backend:** Python, FastAPI
+- **Database:** SQLite
+
+## Contributors
+
+This project was developed collaboratively. Some contributors are visible in the  commit history, cloned and migrated from the original GitLab repository.
 
 ## Running the Project
 
