@@ -4,10 +4,23 @@ import "./Menu.css";
 import { MENU_DATA, INGREDIENTS, EXTRAS_BY_ID } from "./menuData.js";
 
 // CONSTANTS --------------------------
+/** @constant {string[]} ALLERGEN_OPTIONS - Available allergen filtering options */
 const ALLERGEN_OPTIONS = ["Fish", "Soy", "Milk", "Nuts", "Eggs", "Wheat", "Sesame", "Shellfish"];
+
+/** @constant {string[]} DIET_FILTERS - Available dietary preference filters */
 const DIET_FILTERS = ["Vegetarian", "Gluten-Free", "Vegan"];
 
 // CART ICON --------------------------
+/**
+ * Cart Icon Component
+ * Displays shopping cart icon with item count badge
+ * 
+ * @component
+ * @param {Object} props - Component props
+ * @param {number} props.count - Number of items in cart
+ * @param {Function} props.onClick - Click handler for cart icon
+ * @returns {JSX.Element} Cart icon button with badge
+ */
 function CartIcon({ count, onClick }) {
     return (
         <button className="cart-icon" title="View cart" onClick={onClick}>
@@ -22,9 +35,27 @@ function CartIcon({ count, onClick }) {
 }
 
 // HEADER --------------------------
-function Header({ tableNumber, table_id, cartCount, onCartClick, onCloseTable, onContactWaiter }) {
+/**
+ * Header Component
+ * Displays restaurant header with table number, cart icon, and hamburger menu
+ * 
+ * @component
+ * @param {Object} props - Component props
+ * @param {string} props.tableNumber - Current table number display
+ * @param {number} props.table_id - Current table ID
+ * @param {number} props.cartCount - Number of items in cart
+ * @param {Function} props.onCartClick - Cart icon click handler
+ * @param {Function} props.onCloseTable - Close table handler
+ * @param {Function} props.onContactWaiter - Contact waiter handler
+ * @returns {JSX.Element} Header component
+ */
+function Header({ tableNumber, cartCount, onCartClick, onCloseTable, onContactWaiter }) {
     const [menuOpen, setMenuOpen] = useState(false);
 
+    /**
+     * Handles closing the table and closing the menu popup
+     * @function handleCloseTable
+     */
     const handleCloseTable = () => {
         setMenuOpen(false);
         onCloseTable();
@@ -73,6 +104,16 @@ function Header({ tableNumber, table_id, cartCount, onCartClick, onCloseTable, o
 }
 
 // ALLERGEN DROPDOWN --------------------------
+/**
+ * Allergen Filter Dropdown Component
+ * Allows users to select allergens to exclude from menu items
+ * 
+ * @component
+ * @param {Object} props - Component props
+ * @param {string[]} props.selected - Array of currently selected allergens
+ * @param {Function} props.onChange - Handler for allergen selection changes
+ * @returns {JSX.Element} Allergen filter dropdown
+ */
 function AllergenDropdown({ selected, onChange }) {
     const [open, setOpen] = useState(false);
 
@@ -106,6 +147,20 @@ function AllergenDropdown({ selected, onChange }) {
 }
 
 // FILTER BAR
+/**
+ * Filter Bar Component
+ * Contains dietary preference filters, allergen filters, and track order button
+ * 
+ * @component
+ * @param {Object} props - Component props
+ * @param {string[]} props.activeFilters - Currently active dietary filters
+ * @param {Function} props.onFilterToggle - Handler for toggling dietary filters
+ * @param {string[]} props.excludedAllergens - Currently excluded allergens
+ * @param {Function} props.onAllergenChange - Handler for allergen changes
+ * @param {Function} props.onTrackOrder - Handler for tracking order
+ * @param {boolean} props.hasActiveOrder - Whether there's an active order
+ * @returns {JSX.Element} Filter bar component
+ */
 function FilterBar({ activeFilters, onFilterToggle, excludedAllergens, onAllergenChange, onTrackOrder, hasActiveOrder }) {
     return (
         <div className="filter-bar">
@@ -139,6 +194,17 @@ function FilterBar({ activeFilters, onFilterToggle, excludedAllergens, onAllerge
 }
 
 // CUSTOMISATION --------------------------
+/**
+ * Customisation Popup Component
+ * Allows users to customize menu items (remove ingredients, add extras, special requests)
+ * 
+ * @component
+ * @param {Object} props - Component props
+ * @param {Object} props.item - Menu item being customized
+ * @param {Function} props.onClose - Close popup handler
+ * @param {Function} props.onAddToCart - Add to cart handler
+ * @returns {JSX.Element} Customisation modal
+ */
 function CustomizationPopup({ item, onClose, onAddToCart }) {
     const [removedIngredients, setRemovedIngredients] = useState([]);
     const [selectedExtras, setSelectedExtras] = useState([]);
@@ -147,14 +213,28 @@ function CustomizationPopup({ item, onClose, onAddToCart }) {
     const itemIngredients = INGREDIENTS[item.id] || ["Food1", "Food2", "Food3", "Food4", "Food5"];
     const itemExtras = EXTRAS_BY_ID[item.id] || [];
 
+    /**
+     * Toggles an ingredient in the removed list
+     * @function handleToggleIngredient
+     * @param {string} ingredient - Ingredient to toggle
+     */
     const handleToggleIngredient = (ingredient) => {
         setRemovedIngredients(prev => prev.includes(ingredient) ? prev.filter(i => i !== ingredient) : [...prev, ingredient]);
     };
 
+    /**
+     * Toggles an extra item in the selected extras list
+     * @function handleToggleExtra
+     * @param {Object} extra - Extra item to toggle
+     */
     const handleToggleExtra = (extra) => {
         setSelectedExtras(prev => prev.find(e => e.name === extra.name) ? prev.filter(e => e.name !== extra.name) : [...prev, extra]);
     };
 
+    /**
+     * Adds customised item to cart and closes popup
+     * @function handleAddToOrder
+     */
     const handleAddToOrder = () => {
         const customizedItem = {
             ...item,
@@ -239,6 +319,19 @@ function CustomizationPopup({ item, onClose, onAddToCart }) {
 }
 
 // MENU ITEM CARD --------------------------
+/**
+ * Menu Item Card Component
+ * Displays individual menu item with image, description, dietary info, and add to order button
+ * 
+ * @component
+ * @param {Object} props - Component props
+ * @param {Object} props.item - Menu item data
+ * @param {boolean} props.dimmed - Whether item should be dimmed (doesn't match filters)
+ * @param {boolean} props.unavailable - Whether item is unavailable
+ * @param {boolean} props.lowStock - Whether item has low stock
+ * @param {Function} props.onCustomize - Customization handler
+ * @returns {JSX.Element} Menu item card
+ */
 function MenuItemCard({ item, dimmed, unavailable, lowStock, onCustomize }) {
     return (
         <div className={`menu-item-card ${dimmed ? "menu-item-card--dimmed" : ""} ${unavailable ? "menu-item-card--unavailable" : ""} ${lowStock ? "menu-item-card--unavailable" : ""}`}>
@@ -275,6 +368,22 @@ function MenuItemCard({ item, dimmed, unavailable, lowStock, onCustomize }) {
 }
 
 // MENU SECTION --------------------------
+/**
+ * Menu Section Component
+ * Collapsible section containing menu items for a specific category
+ * 
+ * @component
+ * @param {Object} props - Component props
+ * @param {string} props.sectionName - Name of the menu section
+ * @param {Array} props.items - Array of menu items in this section
+ * @param {boolean} props.isOpen - Whether section is expanded
+ * @param {Function} props.onToggle - Section toggle handler
+ * @param {Function} props.matchesFilter - Filter matching function
+ * @param {Function} props.onCustomize - Customization handler
+ * @param {Set} props.unavailableIds - Set of unavailable item IDs
+ * @param {Set} props.lowStockDishes - Set of low stock dish names
+ * @returns {JSX.Element} Collapsible menu section
+ */
 function MenuSection({ sectionName, items, isOpen, onToggle, matchesFilter, onCustomize, unavailableIds, lowStockDishes }) {
     return (
         <div className={`menu-section ${isOpen ? "menu-section--open" : ""}`}>
@@ -301,10 +410,25 @@ function MenuSection({ sectionName, items, isOpen, onToggle, matchesFilter, onCu
 }
 
 // CONTACT WAITER MODAL --------------------------
+/**
+ * Contact Waiter Modal Component
+ * Allows customers to send messages to waitstaff
+ * 
+ * @component
+ * @param {Object} props - Component props
+ * @param {number} props.table_id - Current table ID
+ * @param {Function} props.onClose - Close modal handler
+ * @returns {JSX.Element} Contact waiter modal
+ */
 function ContactWaiterModal({ table_id, onClose }) {
     const [message, setMessage] = useState("");
     const [sent, setSent] = useState(false);
 
+    /**
+     * Sends waiter assistance request
+     * @async
+     * @function handleSend
+     */
     const handleSend = async () => {
         let assignedWaiter = null;
         try {
@@ -379,6 +503,19 @@ function ContactWaiterModal({ table_id, onClose }) {
 }
 
 // CART MODAL
+/**
+ * Cart Modal Component
+ * Displays current order items with quantity controls and total
+ * 
+ * @component
+ * @param {Object} props - Component props
+ * @param {Object} props.cart - Cart items object
+ * @param {Function} props.onClose - Close modal handler
+ * @param {Function} props.onUpdateQty - Update quantity handler
+ * @param {Function} props.onRemove - Remove item handler
+ * @param {Function} props.onPlaceOrder - Place order handler
+ * @returns {JSX.Element} Cart modal
+ */
 function CartModal({ cart, onClose, onUpdateQty, onRemove, onPlaceOrder }) {
     const entries = Object.entries(cart).map(([key, value]) => ({ key, ...value }));
     const total = entries.reduce((sum, { item, qty }) => {
@@ -387,6 +524,12 @@ function CartModal({ cart, onClose, onUpdateQty, onRemove, onPlaceOrder }) {
         return sum + (basePrice + extrasTotal) * qty;
     }, 0);
 
+    /**
+     * Formats customisations for display
+     * @function formatCustomizations
+     * @param {Object} item - Menu item with customisations
+     * @returns {string[]} Array of formatted customisation strings
+     */
     const formatCustomizations = (item) => {
         const parts = [];
         if (item.customization?.removedIngredients?.length > 0) parts.push(`No: ${item.customization.removedIngredients.join(', ')}`);
@@ -448,6 +591,12 @@ function CartModal({ cart, onClose, onUpdateQty, onRemove, onPlaceOrder }) {
 }
 
 // PAYMENT VALIDATION HELPERS --------------------------
+/**
+ * Validates card number format
+ * @function validateCardNumber
+ * @param {string} value - Card number to validate
+ * @returns {string|null} Error message or null if valid
+ */
 function validateCardNumber(value) {
     const digits = value.replace(/\s/g, '');
     if (!digits) return 'Card number is required';
@@ -456,6 +605,12 @@ function validateCardNumber(value) {
     return null;
 }
 
+/**
+ * Validates expiry date format
+ * @function validateExpiry
+ * @param {string} value - Expiry date (MM/YY)
+ * @returns {string|null} Error message or null if valid
+ */
 function validateExpiry(value) {
     if (!value) return 'Expiry date is required';
     const match = value.match(/^(\d{2})\/(\d{2})$/);
@@ -469,23 +624,47 @@ function validateExpiry(value) {
     return null;
 }
 
+/**
+ * Validates CVV format
+ * @function validateCVV
+ * @param {string} value - CVV code
+ * @returns {string|null} Error message or null if valid
+ */
 function validateCVV(value) {
     if (!value) return 'CVV is required';
     if (!/^\d{3}$/.test(value)) return 'CVV must be 3 digits';
     return null;
 }
 
+/**
+ * Validates cardholder name
+ * @function validateCardholderName
+ * @param {string} value - Cardholder name
+ * @returns {string|null} Error message or null if valid
+ */
 function validateCardholderName(value) {
     if (!value.trim()) return 'Cardholder name is required';
     if (value.trim().length < 2) return 'Please enter a valid name';
     return null;
 }
 
+/**
+ * Formats card number with spaces every 4 digits
+ * @function formatCardNumber
+ * @param {string} value - Raw card number
+ * @returns {string} Formatted card number
+ */
 function formatCardNumber(value) {
     const digits = value.replace(/\D/g, '').slice(0, 16);
     return digits.replace(/(.{4})/g, '$1 ').trim();
 }
 
+/**
+ * Formats expiry date as MM/YY
+ * @function formatExpiry
+ * @param {string} value - Raw expiry input
+ * @returns {string} Formatted expiry date
+ */
 function formatExpiry(value) {
     const digits = value.replace(/\D/g, '').slice(0, 4);
     if (digits.length >= 3) return `${digits.slice(0, 2)}/${digits.slice(2)}`;
@@ -493,6 +672,19 @@ function formatExpiry(value) {
 }
 
 // PAYMENT POPUP --------------------------
+/**
+ * Payment Popup Component
+ * Handles payment processing with card validation
+ * 
+ * @component
+ * @param {Object} props - Component props
+ * @param {number} props.orderId - Current order ID
+ * @param {string} props.tableNumber - Table number display
+ * @param {number} props.total - Total amount to pay
+ * @param {Function} props.onClose - Close modal handler
+ * @param {Function} props.onConfirm - Payment confirmation handler
+ * @returns {JSX.Element} Payment modal
+ */
 function PaymentPopup({ orderId, tableNumber, total, onClose, onConfirm }) {
     const [paymentMethod, setPaymentMethod] = useState('card');
     const [cardNumber, setCardNumber] = useState('');
@@ -504,11 +696,22 @@ function PaymentPopup({ orderId, tableNumber, total, onClose, onConfirm }) {
     const [backendError, setBackendError] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
 
+    /**
+     * Marks field as touched on blur
+     * @function handleBlur
+     * @param {string} field - Field name
+     */
     const handleBlur = (field) => {
         setTouched(prev => ({ ...prev, [field]: true }));
         validateField(field);
     };
 
+    /**
+     * Validates a specific field
+     * @function validateField
+     * @param {string} field - Field name to validate
+     * @returns {string|null} Error message or null
+     */
     const validateField = (field) => {
         let error = null;
         if (field === 'cardNumber') error = validateCardNumber(cardNumber);
@@ -519,29 +722,54 @@ function PaymentPopup({ orderId, tableNumber, total, onClose, onConfirm }) {
         return error;
     };
 
+    /**
+     * Handles card number input change
+     * @function handleCardNumberChange
+     * @param {Event} e - Input change event
+     */
     const handleCardNumberChange = (e) => {
         const formatted = formatCardNumber(e.target.value);
         setCardNumber(formatted);
         if (touched.cardNumber) setErrors(prev => ({ ...prev, cardNumber: validateCardNumber(formatted.replace(/\s/g, '')) }));
     };
 
+    /**
+     * Handles expiry date input change
+     * @function handleExpiryChange
+     * @param {Event} e - Input change event
+     */
     const handleExpiryChange = (e) => {
         const formatted = formatExpiry(e.target.value);
         setExpiry(formatted);
         if (touched.expiry) setErrors(prev => ({ ...prev, expiry: validateExpiry(formatted) }));
     };
-
+    
+    /**
+     * Handles CVV input change
+     * @function handleCVVChange
+     * @param {Event} e - Input change event
+     */
     const handleCVVChange = (e) => {
         const val = e.target.value.replace(/\D/g, '').slice(0, 3);
         setCvv(val);
         if (touched.cvv) setErrors(prev => ({ ...prev, cvv: validateCVV(val) }));
     };
 
+    /**
+     * Handles cardholder name change
+     * @function handleCardholderNameChange
+     * @param {Event} e - Input change event
+     */
     const handleCardholderNameChange = (e) => {
         setCardholderName(e.target.value);
         if (touched.cardholderName) setErrors(prev => ({ ...prev, cardholderName: validateCardholderName(e.target.value) }));
     };
 
+    /**
+     * Confirms payment and processes transaction
+     * @async
+     * @function handleConfirm
+     */
     const handleConfirm = async () => {
         setBackendError('');
         if (paymentMethod === 'card') {
@@ -652,6 +880,17 @@ function PaymentPopup({ orderId, tableNumber, total, onClose, onConfirm }) {
 }
 
 // UNPAID ORDER MODAL --------------------------
+/**
+ * Unpaid Order Modal Component
+ * Displays warning when trying to close table with unpaid orders
+ * 
+ * @component
+ * @param {Object} props - Component props
+ * @param {number} props.total - Outstanding total amount
+ * @param {Function} props.onClose - Close modal handler
+ * @param {Function} props.onPayNow - Pay now handler
+ * @returns {JSX.Element} Unpaid order warning modal
+ */
 function UnpaidOrderModal({ total, onClose, onPayNow }) {
     return (
         <div className="customization-overlay">
@@ -672,6 +911,13 @@ function UnpaidOrderModal({ total, onClose, onPayNow }) {
 }
 
 // ORDER CONFIRMATION MODAL --------------------------
+/**
+ * Order Confirmation Modal Component
+ * Displays success message after order is placed
+ * 
+ * @component
+ * @returns {JSX.Element} Order confirmation modal
+ */
 function OrderConfirmation() {
     return (
         <div className="customization-overlay">
@@ -688,6 +934,13 @@ function OrderConfirmation() {
 }
 
 // PAYMENT CONFIRMATION MODAL : "Thank You" to Customer
+/**
+ * Thank You Modal Component
+ * Displays thank you message after successful payment
+ * 
+ * @component
+ * @returns {JSX.Element} Thank you modal
+ */
 function ThankYouModal() {
     return (
         <div className="customization-overlay">
@@ -704,6 +957,13 @@ function ThankYouModal() {
 }
 
 // CANCELLED ORDER MODAL --------------------------
+/**
+ * Cancelled Order Modal Component
+ * Displays message when order is cancelled by staff
+ * 
+ * @component
+ * @returns {JSX.Element} Cancelled order modal
+ */
 function CancelledOrderModal() {
     return (
         <div className="customization-overlay">
@@ -721,6 +981,12 @@ function CancelledOrderModal() {
 }
 
 // ORDER AGE : related to Order Time Tracking
+/**
+ * Custom hook to track order age
+ * @function useOrderAge
+ * @param {string} createdAt - Order creation timestamp
+ * @returns {string} Formatted elapsed time string
+ */
 function useOrderAge(createdAt) {
     const [elapsed, setElapsed] = useState("");
     useEffect(() => {
@@ -739,6 +1005,16 @@ function useOrderAge(createdAt) {
 }
 
 // ORDER TIME BLOCK --------------------------
+/**
+ * Order Time Block Component
+ * Displays order placement time and elapsed time
+ * 
+ * @component
+ * @param {Object} props - Component props
+ * @param {number} props.orderId - Order ID
+ * @param {number} props.estMins - Estimated preparation minutes
+ * @returns {JSX.Element} Order time display component
+ */
 function OrderTimeBlock({ orderId, estMins }) {
     const [createdAt, setCreatedAt] = useState(null);
     const elapsed = useOrderAge(createdAt);
@@ -770,6 +1046,26 @@ function OrderTimeBlock({ orderId, estMins }) {
     );
 }
 // TRACKING POPUP --------------------------
+/**
+ * Tracking Popup Component
+ * Displays order progress with step-by-step status and summary
+ * 
+ * @component
+ * @param {Object} props - Component props
+ * @param {number} props.orderId - Order ID to track
+ * @param {string} props.tableNumber - Table number display
+ * @param {Object} props.orderItems - Current order items
+ * @param {number} props.total - Current order total
+ * @param {Function} props.onClose - Close modal handler
+ * @param {Function} props.onPaymentClick - Payment click handler
+ * @param {number} props.currentStep - Current order progress step (1-5)
+ * @param {number} props.estMins - Estimated preparation minutes
+ * @param {boolean} props.embedded - Whether tracking is embedded in another modal
+ * @param {boolean} props.allDelivered - Whether all orders are delivered
+ * @param {Object} props.allOrderItems - All order items across multiple orders
+ * @param {number} props.allTotal - Total across all orders
+ * @returns {JSX.Element} Order tracking popup
+ */
 function TrackingPopup({ orderId, tableNumber, orderItems, total, onClose, onPaymentClick, currentStep, estMins, embedded, allDelivered, allOrderItems, allTotal }) {
     const steps = [
         { id: 1, name: "Order Placed" },
@@ -903,6 +1199,17 @@ function TrackingPopup({ orderId, tableNumber, orderItems, total, onClose, onPay
 }
 
 // MAIN APP --------------------------
+/**
+ * Main Menu Application Component
+ * Handles customer ordering, cart management, order tracking, and payment processing
+ * 
+ * @module MenuApp
+ * @description Main component for customer menu interface with filtering, customization,
+ * cart management, order tracking, and payment processing functionality
+ * 
+ * @component
+ * @returns {JSX.Element} Complete menu application
+ */
 export default function App() {
     
     const [openSection, setOpenSection] = useState(null);
@@ -1196,57 +1503,78 @@ export default function App() {
     }, [liveOrderId]);
 
     // CHECK IF CUSTOMER EXISTS BEFORE PLACING ORDERS
-useEffect(() => {
-    const ensureCustomerExists = async () => {
-        if (cust_id && table_id) {
-            try {
-                const response = await fetch(`http://127.0.0.1:8000/customers?table_id=${table_id}`);
-                const customers = await response.json();
-                const customerExists = customers.some(c => c.cust_id === parseInt(cust_id));
-                
-                if (!customerExists) {
-                    console.log('Customer not found, creating new customer...');
-                    const createResponse = await fetch('http://127.0.0.1:8000/customers', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            name: `Table ${table_id}`,
-                            table_id: parseInt(table_id)
-                        })
-                    });
+    useEffect(() => {
+        const ensureCustomerExists = async () => {
+            if (cust_id && table_id) {
+                try {
+                    const response = await fetch(`http://127.0.0.1:8000/customers?table_id=${table_id}`);
+                    const customers = await response.json();
+                    const customerExists = customers.some(c => c.cust_id === parseInt(cust_id));
                     
-                    if (createResponse.ok) {
-                        const newCustomer = await createResponse.json();
-                        const newCustId = newCustomer.cust_id;
+                    if (!customerExists) {
+                        console.log('Customer not found, creating new customer...');
+                        const createResponse = await fetch('http://127.0.0.1:8000/customers', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                name: `Table ${table_id}`,
+                                table_id: parseInt(table_id)
+                            })
+                        });
                         
-                        sessionStorage.setItem('cust_id', newCustId);
-                        window.location.reload();
+                        if (createResponse.ok) {
+                            const newCustomer = await createResponse.json();
+                            const newCustId = newCustomer.cust_id;
+                            
+                            sessionStorage.setItem('cust_id', newCustId);
+                            window.location.reload();
+                        }
                     }
+                } catch (error) {
+                    console.error('Error ensuring customer exists:', error);
                 }
-            } catch (error) {
-                console.error('Error ensuring customer exists:', error);
             }
-        }
-    };
+        };
     
         ensureCustomerExists();
     }, [cust_id, table_id]);
 
     // HANDLERS --------------------------
+    /**
+     * Toggles menu section open/closed
+     * @function handleSectionToggle
+     * @param {string} sectionName - Name of section to toggle
+     */
     function handleSectionToggle(sectionName) {
         setOpenSection((prev) => (prev === sectionName ? null : sectionName));
     }
 
+    /**
+     * Toggles dietary filter on/off
+     * @function handleFilterToggle
+     * @param {string} filter - Filter to toggle
+     */
     function handleFilterToggle(filter) {
         setActiveFilters((prev) => prev.includes(filter) ? prev.filter((f) => f !== filter) : [...prev, filter]);
     }
 
+    /**
+     * Checks if menu item matches current filters
+     * @function matchesFilter
+     * @param {Object} item - Menu item to check
+     * @returns {boolean} True if item matches all active filters
+     */    
     function matchesFilter(item) {
         const passesDietary = activeFilters.length === 0 || activeFilters.every((f) => item.dietary.includes(f));
         const passesAllergens = excludedAllergens.length === 0 || excludedAllergens.every((a) => !item.allergens.includes(a));
         return passesDietary && passesAllergens;
     }
 
+    /**
+     * Adds item to cart with quantity limit validation
+     * @function handleAddToCart
+     * @param {Object} item - Item to add to cart (with customizations)
+     */
     function handleAddToCart(item) {
         const totalQtyForItem = Object.values(cart).filter(v => v.item.id === item.id).reduce((sum, v) => sum + v.qty, 0);
         if (totalQtyForItem >= 25) return;
@@ -1264,6 +1592,12 @@ useEffect(() => {
         }
     }
 
+    /**
+     * Updates quantity of cart item with limit validation
+     * @function handleUpdateQty
+     * @param {string} itemKey - Cart item key
+     * @param {number} newQty - New quantity
+     */
     function handleUpdateQty(itemKey, newQty) {
         if (newQty <= 0) { handleRemove(itemKey); return; }
         const itemId = cart[itemKey].item.id;
@@ -1272,16 +1606,32 @@ useEffect(() => {
         setCart((prev) => ({ ...prev, [itemKey]: { ...prev[itemKey], qty: newQty } }));
     }
 
+    /**
+     * Removes item from cart
+     * @function handleRemove
+     * @param {string} itemKey - Cart item key to remove
+     */
     function handleRemove(itemKey) {
         setCart((prev) => { const next = { ...prev }; delete next[itemKey]; return next; });
     }
 
+    /**
+     * Calculates item price including extras
+     * @function calculateItemPrice
+     * @param {Object} item - Menu item with customizations
+     * @returns {number} Total price for item
+     */
     function calculateItemPrice(item) {
         const base = parseFloat(item.price.replace("£", ""));
         const extras = item.customization?.selectedExtras?.reduce((s, e) => s + e.price, 0) || 0;
         return base + extras;
     }
 
+    /**
+     * Places order with backend API
+     * @async
+     * @function handlePlaceOrder
+     */
     async function handlePlaceOrder() {
         console.log('cust_id:', cust_id);
         console.log('table_id:', table_id);
@@ -1376,6 +1726,10 @@ useEffect(() => {
             }
     }
 
+    /**
+     * Handles table closure with payment validation
+     * @function handleCloseTable
+     */
     function handleCloseTable() {
         if (hasActiveOrder && !isPaid) {
             setUnpaidModalOpen(true);
@@ -1385,6 +1739,12 @@ useEffect(() => {
         }
     }
 
+    /**
+     * Confirms payment and processes cleanup
+     * @async
+     * @function handlePaymentConfirm
+     * @param {string} method - Payment method ('card')
+     */
     async function handlePaymentConfirm(method) {
         for (const oid of liveOrderIds) {
             try {

@@ -2,6 +2,25 @@ import { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from 'react-router-dom';
 
 // COLOUR PALETTE --------------------------
+/**
+ * Color palette constants for the kitchen dashboard UI
+ * @constant {Object} C
+ * @property {string} bg - Background color
+ * @property {string} panel - Panel background color
+ * @property {string} dark - Dark text color
+ * @property {string} mid - Medium brown color
+ * @property {string} warm - Warm orange color
+ * @property {string} light - Light beige color
+ * @property {string} pale - Pale beige color
+ * @property {string} green - Green color
+ * @property {string} greenL - Light green color
+ * @property {string} red - Red color
+ * @property {string} redL - Light red color
+ * @property {string} amber - Amber color
+ * @property {string} text - Text color
+ * @property {string} muted - Muted text color
+ * @property {string} border - Border color
+ */
 const C = {
   bg: "#f5f0e8", panel: "#faf7f2", dark: "#2D2218", mid: "#8b4513",
   warm: "#c4763a", light: "#e8d5b7", pale: "#f0e6d3",
@@ -11,9 +30,13 @@ const C = {
   text: "#2c1810", muted: "#7a5c44", border: "#d4b896",
 };
 
-const now = () => Date.now();
-
 // HOOKS --------------------------
+/**
+ * Custom hook to detect clicks outside a referenced element
+ * @function useOutsideClick
+ * @param {React.RefObject} ref - React ref of the element to watch
+ * @param {Function} cb - Callback function when click outside occurs
+ */
 function useOutsideClick(ref, cb) {
   useEffect(() => {
     const fn = e => { if (ref.current && !ref.current.contains(e.target)) cb(); };
@@ -23,6 +46,12 @@ function useOutsideClick(ref, cb) {
 }
 
 // ELASPED TIME HELPERS --------------------------
+/**
+ * Calculates elapsed time since order started
+ * @function getElapsed
+ * @param {number} startedAt - Timestamp when order started (ms)
+ * @returns {string} Formatted elapsed time string (e.g., "5 mins", "1h 23m")
+ */
 function getElapsed(startedAt) {
   const mins = Math.floor((Date.now() - startedAt) / 60000);
   if (mins < 1) return "< 1 min";
@@ -31,17 +60,34 @@ function getElapsed(startedAt) {
   return `${h}h ${m}m`;
 }
 
+/**
+ * Determines color for elapsed time based on urgency
+ * @function elapsedColor
+ * @param {number} startedAt - Timestamp when order started (ms)
+ * @returns {string} Color code (green for <10min, amber for 10-20min, red for >20min)
+ */
 function elapsedColor(startedAt) {
   const mins = Math.floor((Date.now() - startedAt) / 60000);
   return mins > 20 ? C.red : mins > 10 ? C.amber : C.green;
 }
 
 // ICONS --------------------------
+/**
+ * Clock Icon Component
+ * @component
+ * @returns {JSX.Element} Clock SVG icon
+ */
 const IconClock = () => (
   <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
     <circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" />
   </svg>
 );
+
+/**
+ * Door Icon Component (for logout)
+ * @component
+ * @returns {JSX.Element} Door SVG icon
+ */
 const IconDoor = () => (
   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={C.red} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" />
@@ -49,17 +95,54 @@ const IconDoor = () => (
 );
 
 // NOTIFICATIONS PANEL --------------------------
+/**
+ * Bell Icon Component
+ * @component
+ * @returns {JSX.Element} Bell SVG icon
+ */
 const IconBell = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 0 1-3.46 0" />
   </svg>
 );
 
+/**
+ * Notifications Panel Component
+ * Displays system alerts and customer assistance requests
+ * 
+ * @component
+ * @param {Object} props - Component props
+ * @param {Array} props.notifications - Array of notification objects
+ * @param {Function} props.setNotifications - State setter for notifications
+ * @returns {JSX.Element} Notifications dropdown panel
+ */
 function NotificationsPanel({ notifications, setNotifications }) {
   const unread = notifications.filter(n => !n.read).length;
+
+  /**
+   * Marks a notification as read
+   * @function markRead
+   * @param {number|string} id - Notification ID
+   */
   const markRead = id => setNotifications(p => p.map(n => n.id === id ? { ...n, read: true } : n));
+
+  /**
+   * Dismisses (removes) a notification
+   * @function dismiss
+   * @param {number|string} id - Notification ID
+   */
   const dismiss = id => setNotifications(p => p.filter(n => n.id !== id));
+
+  /**
+   * Marks all notifications as read
+   * @function markAll
+   */
   const markAll = () => setNotifications(p => p.map(n => ({ ...n, read: true })));
+
+  /**
+   * Clears all notifications
+   * @function clearAll
+   */
   const clearAll = () => setNotifications([]);
 
   const typeColor = { alert: C.red, customer: C.warm };
@@ -103,6 +186,17 @@ function NotificationsPanel({ notifications, setNotifications }) {
 }
 
 // ACCOUNT PANEL --------------------------
+/**
+ * Account Panel Component
+ * Displays staff information and logout option
+ * 
+ * @component
+ * @param {Object} props - Component props
+ * @param {Function} props.addToast - Toast notification handler
+ * @param {Object} props.staffInfo - Staff information object
+ * @param {Function} props.onLogout - Logout handler function
+ * @returns {JSX.Element} Account dropdown panel
+ */
 function AccountPanel({ addToast, staffInfo, onLogout }) {
   const initials = staffInfo?.name ? staffInfo.name.slice(0, 2).toUpperCase() : "??";
   const displayName = staffInfo?.name ?? "Unknown";
@@ -131,6 +225,18 @@ function AccountPanel({ addToast, staffInfo, onLogout }) {
 }
 
 // ORDER CARD --------------------------
+/**
+ * Order Card Component
+ * Displays individual order details with prep time and action buttons
+ * 
+ * @component
+ * @param {Object} props - Component props
+ * @param {Object} props.order - Order object containing items and metadata
+ * @param {string|null} props.btnLabel - Button label (null if no button)
+ * @param {string|null} props.btnColor - Button background color
+ * @param {Function|null} props.onAction - Action handler for button click
+ * @returns {JSX.Element} Order card component
+ */
 function OrderCard({ order, btnLabel, btnColor, onAction }) {
   const [, tick] = useState(0);
   useEffect(() => { const t = setInterval(() => tick(n => n + 1), 30000); return () => clearInterval(t); }, []);
@@ -189,28 +295,12 @@ function OrderCard({ order, btnLabel, btnColor, onAction }) {
   );
 }
 
-// CUSTOMER ASSISTANCE ALERT
-function useCustomerAlerts(setNotifications, addToast) {
-  const cbRef = useRef({ setNotifications, addToast });
-  useEffect(() => { cbRef.current = { setNotifications, addToast }; });
-
-  useEffect(() => {
-    const handler = (e) => {
-      if (e.key !== "oaxaca_customer_alert" || !e.newValue) return;
-      try {
-        const incoming = JSON.parse(e.newValue);
-        cbRef.current.setNotifications(prev => {
-          if (prev.some(n => n.id === incoming.id)) return prev;
-          return [incoming, ...prev];
-        });
-        addToast(`Table ${incoming.table} needs assistance!`);
-      } catch (_) { }
-    };
-    window.addEventListener("storage", handler);
-    return () => window.removeEventListener("storage", handler);
-  }, []);
-}
-
+/**
+ * Custom hook to listen for waiter assistance alerts from localStorage
+ * @function useWaiterAlerts
+ * @param {Function} setNotifications - State setter for notifications
+ * @param {Function} addToast - Toast notification handler
+ */
 function useWaiterAlerts(setNotifications, addToast) {
   const cbRef = useRef({ setNotifications, addToast });
   useEffect(() => { cbRef.current = { setNotifications, addToast }; });
@@ -234,6 +324,18 @@ function useWaiterAlerts(setNotifications, addToast) {
 
 
 // APP ROOT --------------------------
+/**
+ * Kitchen Dashboard Main Component
+ * Provides kitchen staff interface for managing orders with Kanban board,
+ * order confirmation, preparation tracking, and waiter notifications
+ * 
+ * @module KitchenDashboard
+ * @description Main component for kitchen staff to view and manage orders
+ * in a Kanban-style board with three columns: Pending, Preparing, and Ready
+ * 
+ * @component
+ * @returns {JSX.Element} Kitchen dashboard interface
+ */
 export default function App() {
   // AUTH GUARD --------------------------
   const location = useLocation();
@@ -250,11 +352,22 @@ export default function App() {
   const [preparing, setPreparing] = useState([]);
   const [ready, setReady] = useState([]);
 
+  /**
+   * Fetches orders from backend and updates Kanban columns
+   * @async
+   * @function fetchOrders
+   */
   useEffect(() => {
     const fetchOrders = async () => {
       const res = await fetch('http://127.0.0.1:8000/orders');
       const data = await res.json();
 
+      /**
+       * Maps order items with customizations from localStorage
+       * @function mapItems
+       * @param {Object} o - Order object
+       * @returns {Array} Mapped items with names, quantities, notes, and prep times
+       */
       const mapItems = (o) => o.items.map(i => {
         const mods = JSON.parse(
           localStorage.getItem(`oaxaca_customisations_${o.order_id}`) || '{}'
@@ -312,52 +425,25 @@ export default function App() {
   useOutsideClick(notifRef, () => setShowNotifs(false));
 
   // TOAST NOTIFS --------------------------
+  /**
+   * Adds a toast notification that auto-dismisses after 1.8 seconds
+   * @function addToast
+   * @param {string} msg - Toast message to display
+   */
   const addToast = msg => { const id = Date.now(); setToasts(p => [...p, { id, msg }]); setTimeout(() => setToasts(p => p.filter(t => t.id !== id)), 1800); };
   useEffect(() => {
     localStorage.setItem("oaxaca_kitchen_notifications", JSON.stringify(notifications));
   }, [notifications]);
   useWaiterAlerts(setNotifications, addToast);
 
-  const cancelOrder = async (id) => {
-    const order = pending.find(o => o.id === id) || preparing.find(o => o.id === id) || ready.find(o => o.id === id);
-    const wasConfirmed = preparing.find(o => o.id === id) || ready.find(o => o.id === id);
-
-    setPending(p => p.filter(o => o.id !== id));
-    setPreparing(p => p.filter(o => o.id !== id));
-    setReady(p => p.filter(o => o.id !== id));
-
-    await fetch(`http://127.0.0.1:8000/orders/${id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status: "Cancelled" }),
-    });
-
-    // only replenish if kitchen had already confirmed (stock was depleted)
-    if (wasConfirmed) {
-      try {
-        const fullOrderRes = await fetch('http://127.0.0.1:8000/orders');
-        const allOrders = await fullOrderRes.json();
-        const fullOrder = allOrders.find(o => String(o.order_id) === String(id));
-        if (fullOrder) {
-          await fetch('http://127.0.0.1:8000/stock/replenish', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              cust_id: fullOrder.cust_id,
-              table_id: fullOrder.table_id,
-              items: fullOrder.items.map(i => ({
-                item_id: i.item_id,
-                quantity: i.quantity,
-              })),
-            }),
-          });
-        }
-      } catch (_) { }
-    }
-
-    addToast(`Order cancelled`);
-  };
   // ORDER ACTIONS --------------------------
+  /**
+   * Confirms an order and moves it to Preparing column
+   * Depletes stock after confirmation
+   * @async
+   * @function confirmOrder
+   * @param {string} id - Order ID to confirm
+   */
   const confirmOrder = async (id) => {
     const order = pending.find(o => o.id === id);
     if (!order) return;
@@ -395,6 +481,12 @@ export default function App() {
     addToast(`${order.table} confirmed`);
   };
 
+  /**
+   * Notifies waiter that order is ready for collection
+   * @async
+   * @function notifyWaiter
+   * @param {string} id - Order ID to mark as ready
+   */
   const notifyWaiter = async (id) => {
     const order = preparing.find(o => o.id === id);
     if (!order) return;
@@ -428,6 +520,13 @@ export default function App() {
 
   // 3-COLUMN LAYOUT (KANBAN)
   const activeCount = pending.length + preparing.length + ready.length;
+
+  /**
+   * Notifies waiter that order is ready for collection
+   * @async
+   * @function notifyWaiter
+   * @param {string} id - Order ID to mark as ready
+   */
   const columns = [
     { title: "Pending Confirmation", accent: C.warm, orders: pending, btnLabel: "Confirm Order", btnColor: C.warm, onAction: confirmOrder, empty: "No pending orders" },
     { title: "Preparing", accent: C.amber, orders: preparing, btnLabel: "Notify Waiter", btnColor: C.green, onAction: notifyWaiter, empty: "Nothing being prepared" },

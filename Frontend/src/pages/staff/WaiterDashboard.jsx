@@ -2,6 +2,28 @@ import { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from 'react-router-dom';
 
 // STYLE CONSTANTS --------------------------
+/**
+ * Color palette constants for the waiter dashboard UI
+ * @constant {Object} C
+ * @property {string} bg - Background color
+ * @property {string} panel - Panel background color
+ * @property {string} dark - Dark text color
+ * @property {string} mid - Medium brown color
+ * @property {string} warm - Warm orange color
+ * @property {string} light - Light beige color
+ * @property {string} pale - Pale beige color
+ * @property {string} green - Green color
+ * @property {string} greenL - Light green color
+ * @property {string} red - Red color
+ * @property {string} redL - Light red color
+ * @property {string} amber - Amber color
+ * @property {string} amberL - Light amber color
+ * @property {string} blue - Blue color
+ * @property {string} blueL - Light blue color
+ * @property {string} text - Text color
+ * @property {string} muted - Muted text color
+ * @property {string} border - Border color
+ */
 const C = {
     bg: "#f5f0e8", panel: "#faf7f2", dark: "#2D2218", mid: "#8b4513",
     warm: "#c4763a", light: "#e8d5b7", pale: "#f0e6d3",
@@ -12,8 +34,22 @@ const C = {
     text: "#2c1810", muted: "#7a5c44", border: "#d4b896",
 };
 
+/**
+ * Order status options
+ * @constant {string[]} ORDER_STATUSES
+ */
 const ORDER_STATUSES = ["Pending", "Waiter Confirmed", "In Progress", "Ready", "Completed", "Cancelled"];
+
+/**
+ * Color mapping for notification types
+ * @constant {Object} notifColor
+ */
 const notifColor = { ready: C.green, alert: C.red, allergy: C.amber, Help_Needed: C.blue };
+
+/**
+ * Color mapping for order statuses
+ * @constant {Object} statusColor
+ */
 const statusColor = {
     "Pending": C.amber,
     "Waiter Confirmed": C.blue,
@@ -24,6 +60,12 @@ const statusColor = {
 };
 
 // CUSTOM HOOKS --------------------------
+/**
+ * Custom hook to detect clicks outside a referenced element
+ * @function useOutsideClick
+ * @param {React.RefObject} ref - React ref of the element to watch
+ * @param {Function} cb - Callback function when click outside occurs
+ */
 function useOutsideClick(ref, cb) {
     useEffect(() => {
         const fn = e => { if (ref.current && !ref.current.contains(e.target)) cb(); };
@@ -32,6 +74,12 @@ function useOutsideClick(ref, cb) {
     }, [ref, cb]);
 }
 
+/**
+ * Custom hook to calculate and update elapsed time for orders
+ * @function useElapsed
+ * @param {number} startedAt - Timestamp when order started (ms)
+ * @returns {string} Formatted elapsed time string
+ */
 function useElapsed(startedAt) {
     const [, tick] = useState(0);
     useEffect(() => { const t = setInterval(() => tick(n => n + 1), 30000); return () => clearInterval(t); }, []);
@@ -42,12 +90,26 @@ function useElapsed(startedAt) {
     return `${h}h ${m}m`;
 }
 
+/**
+ * Determines color for elapsed time based on urgency
+ * @function elapsedColor
+ * @param {number} startedAt - Timestamp when order started (ms)
+ * @returns {string} Color code (green for <10min, amber for 10-20min, red for >20min)
+ */
 function elapsedColor(startedAt) {
     const mins = Math.floor((Date.now() - startedAt) / 60000);
     return mins > 20 ? C.red : mins > 10 ? C.amber : C.green;
 }
 
 // HOOK : LISTENS FOR KITCHEN NOTIFS --------------------------
+/**
+ * Custom hook to listen for kitchen readiness notifications
+ * @function useKitchenNotifications
+ * @param {Function} setNotifications - State setter for notifications
+ * @param {Function} addToast - Toast notification handler
+ * @param {Function} onNewOrder - Callback for new order
+ * @param {number} staffId - Current staff ID
+ */
 function useKitchenNotifications(setNotifications, addToast, onNewOrder, staffId) {
     useEffect(() => {
         const handler = (e) => {
@@ -69,12 +131,43 @@ function useKitchenNotifications(setNotifications, addToast, onNewOrder, staffId
 }
 
 // ICON COMPONENTS --------------------------
+/**
+ * Alert Icon Component
+ * @component
+ * @returns {JSX.Element} Alert SVG icon
+ */
 const IconAlert = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></svg>;
+
+/**
+ * Bell Icon Component
+ * @component
+ * @returns {JSX.Element} Bell SVG icon
+ */
 const IconBell = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 0 1-3.46 0" /></svg>;
+
+/**
+ * Clock Icon Component
+ * @component
+ * @returns {JSX.Element} Clock SVG icon
+ */
 const IconClock = () => <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>;
+
+/**
+ * Door Icon Component (for logout)
+ * @component
+ * @returns {JSX.Element} Door SVG icon
+ */
 const IconDoor = () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={C.red} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></svg>;
 
 // NAVIGATION ICON --------------------------
+/**
+ * Dropdown Container Component
+ * @component
+ * @param {Object} props - Component props
+ * @param {React.ReactNode} props.children - Dropdown content
+ * @param {number} props.width - Width of dropdown (default: 360)
+ * @returns {JSX.Element} Dropdown container
+ */
 function Dropdown({ children, width = 360 }) {
     return (
         <div style={{ position: "absolute", top: "calc(100% + 10px)", right: 0, width, background: C.panel, border: `1.5px solid ${C.border}`, borderRadius: 10, boxShadow: "0 8px 32px rgba(0,0,0,.2)", zIndex: 900, animation: "dropIn .15s ease" }}>
@@ -83,6 +176,17 @@ function Dropdown({ children, width = 360 }) {
     );
 }
 
+/**
+ * Navigation Icon Component with badge
+ * @component
+ * @param {Object} props - Component props
+ * @param {React.ReactNode} props.icon - Icon element
+ * @param {Function} props.onClick - Click handler
+ * @param {boolean} props.active - Whether icon is active
+ * @param {number} props.badge - Badge count
+ * @param {string} props.badgeColor - Badge background color
+ * @returns {JSX.Element} Navigation icon button
+ */
 function NavIcon({ icon, onClick, active, badge, badgeColor }) {
     return (
         <div onClick={onClick}
@@ -96,6 +200,19 @@ function NavIcon({ icon, onClick, active, badge, badgeColor }) {
 }
 
 // SECTION CARD --------------------------
+/**
+ * Section Card Component
+ * Reusable card with accent color header
+ * 
+ * @component
+ * @param {Object} props - Component props
+ * @param {string} props.accentColor - Header accent color
+ * @param {string} props.title - Card title
+ * @param {React.ReactNode} props.badge - Optional badge element
+ * @param {React.ReactNode} props.children - Card content
+ * @param {React.ReactNode} props.action - Optional action button
+ * @returns {JSX.Element} Styled section card
+ */
 function SectionCard({ accentColor, title, badge, children, action }) {
     return (
         <div style={{ background: C.panel, border: `1.5px solid ${C.border}`, borderRadius: 10, overflow: "hidden" }}>
@@ -113,13 +230,46 @@ function SectionCard({ accentColor, title, badge, children, action }) {
 }
 
 // NOTIFS PANEL --------------------------
+/**
+ * Notifications Panel Component
+ * Displays system alerts, kitchen readiness, and assistance requests
+ * 
+ * @component
+ * @param {Object} props - Component props
+ * @param {Array} props.notifications - Array of notification objects
+ * @param {Function} props.setNotifications - State setter for notifications
+ * @returns {JSX.Element} Notifications dropdown panel
+ */
 function NotificationsPanel({ notifications, setNotifications }) {
     const [filter, setFilter] = useState("All");
     const unread = notifications.filter(n => !n.read).length;
+
+    /**
+     * Marks a notification as read
+     * @function markRead
+     * @param {number|string} id - Notification ID
+     */
     const markRead = id => setNotifications(p => p.map(n => n.id === id ? { ...n, read: true } : n));
+    
+    /**
+     * Dismisses (removes) a notification
+     * @function dismiss
+     * @param {number|string} id - Notification ID
+     */
     const dismiss = id => setNotifications(p => p.filter(n => n.id !== id));
+
+    /**
+     * Marks all notifications as read
+     * @function markAll
+     */
     const markAll = () => setNotifications(p => p.map(n => ({ ...n, read: true })));
+
+    /**
+     * Clears all notifications
+     * @function clearAll
+     */
     const clearAll = () => setNotifications([]);
+
     const filtered = notifications.filter(n =>
         filter === "Alerts" ? n.type === "alert" || n.type === "allergy" :
             filter === "Ready" ? n.type === "ready" : true
@@ -167,6 +317,17 @@ function NotificationsPanel({ notifications, setNotifications }) {
 }
 
 // ACCOUNT PANEL --------------------------
+/**
+ * Account Panel Component
+ * Displays staff information and logout option
+ * 
+ * @component
+ * @param {Object} props - Component props
+ * @param {Function} props.addToast - Toast notification handler
+ * @param {Object} props.staffInfo - Staff information object
+ * @param {Function} props.onLogout - Logout handler function
+ * @returns {JSX.Element} Account dropdown panel
+ */
 function AccountPanel({ addToast, staffInfo, onLogout }) {
     const initials = staffInfo?.name
         ? staffInfo.name.slice(0, 2).toUpperCase()
@@ -197,6 +358,19 @@ function AccountPanel({ addToast, staffInfo, onLogout }) {
 }
 
 // MODAL --------------------------
+/**
+ * Modal Component
+ * Reusable modal dialog with title and close button
+ * 
+ * @component
+ * @param {Object} props - Component props
+ * @param {string} props.title - Modal title
+ * @param {string} props.subtitle - Optional modal subtitle
+ * @param {Function} props.onClose - Close handler
+ * @param {React.ReactNode} props.children - Modal content
+ * @param {React.ReactNode} props.footer - Optional footer content
+ * @returns {JSX.Element} Modal dialog
+ */
 function Modal({ title, subtitle, onClose, children, footer }) {
     return (
         <>
@@ -217,6 +391,16 @@ function Modal({ title, subtitle, onClose, children, footer }) {
 }
 
 // UNPAID MODAL --------------------------
+/**
+ * Unpaid Modal Component
+ * Displays tables with unpaid balances
+ * 
+ * @component
+ * @param {Object} props - Component props
+ * @param {Array} props.unpaidTables - Array of unpaid table objects
+ * @param {Function} props.onClose - Close modal handler
+ * @returns {JSX.Element} Unpaid tables modal
+ */
 function UnpaidModal({ unpaidTables, onClose }) {
     return (
         <Modal title="Unpaid Tables" onClose={onClose}>
@@ -242,6 +426,18 @@ function UnpaidModal({ unpaidTables, onClose }) {
 }
 
 // ADD ITEMS MODAL --------------------------
+/**
+ * Add Items Modal Component
+ * Allows waiters to add items to existing orders
+ * 
+ * @component
+ * @param {Object} props - Component props
+ * @param {Object} props.order - Current order object
+ * @param {Array} props.menu - Available menu items
+ * @param {Function} props.onAdd - Add items handler
+ * @param {Function} props.onClose - Close modal handler
+ * @returns {JSX.Element} Add items modal
+ */
 function AddItemsModal({ order, menu, onAdd, onClose }) {
     const [selected, setSelected] = useState({});
     const [search, setSearch] = useState("");
@@ -250,6 +446,11 @@ function AddItemsModal({ order, menu, onAdd, onClose }) {
     const q = search.trim().toLowerCase();
     const filtered = q ? availMenu.filter(m => m.name.toLowerCase().includes(q) || m.section.toLowerCase().includes(q)) : availMenu;
 
+    /**
+     * Toggles item selection
+     * @function toggle
+     * @param {Object} item - Menu item to toggle
+     */
     const toggle = (item) => setSelected(p => {
         const n = { ...p };
         if (n[item.id]) { delete n[item.id]; return n; }
@@ -263,6 +464,13 @@ function AddItemsModal({ order, menu, onAdd, onClose }) {
         n[item.id] = { ...item, qty: 1 };
         return n;
     });
+
+     /**
+     * Changes quantity of selected item
+     * @function changeQty
+     * @param {number} id - Item ID
+     * @param {number} delta - Quantity change (+1 or -1)
+     */
     const changeQty = (id, delta) => setSelected(p => {
         const n = { ...p };
         if (!n[id]) return n;
@@ -275,7 +483,9 @@ function AddItemsModal({ order, menu, onAdd, onClose }) {
         n[id] = { ...n[id], qty: q };
         return n;
     });
+    
     const totalAdded = Object.values(selected).reduce((s, i) => s + i.price * i.qty, 0);
+
     const hasSelected = Object.keys(selected).length > 0;
 
     return (
@@ -337,6 +547,22 @@ function AddItemsModal({ order, menu, onAdd, onClose }) {
 }
 
 // ORDER CARD --------------------------
+/**
+ * Order Card Component
+ * Displays individual order details with status management and actions
+ * 
+ * @component
+ * @param {Object} props - Component props
+ * @param {Object} props.order - Order object
+ * @param {Function} props.onConfirm - Confirm order handler
+ * @param {Function} props.onCancel - Cancel order handler
+ * @param {Function} props.onDeliver - Mark delivered handler
+ * @param {Function} props.onAddItems - Add items handler
+ * @param {Function} props.onStatusChange - Status change handler
+ * @param {Function} props.onRemoveItem - Remove item handler
+ * @param {Array} props.myTables - Array of tables assigned to waiter
+ * @returns {JSX.Element} Order card component
+ */
 function OrderCard({ order, onConfirm, onCancel, onDeliver, onAddItems, onStatusChange, onRemoveItem, myTables }) {
     const [showStatusMenu, setShowStatusMenu] = useState(false);
     const elapsed = useElapsed(order.startedAt);
@@ -455,9 +681,29 @@ function OrderCard({ order, onConfirm, onCancel, onDeliver, onAddItems, onStatus
 }
 
 // ORDERS TAB --------------------------
+/**
+ * Orders Tab Component
+ * Manages orders with Kanban-style columns for Pending, Confirmed, and Ready
+ * 
+ * @component
+ * @param {Object} props - Component props
+ * @param {Array} props.orders - Array of orders
+ * @param {Function} props.setOrders - State setter for orders
+ * @param {Array} props.menu - Menu items for adding to orders
+ * @param {Function} props.addToast - Toast notification handler
+ * @param {number} props.staffId - Current staff ID
+ * @param {Array} props.myTables - Tables assigned to waiter
+ * @returns {JSX.Element} Orders management interface
+ */
 function OrdersTab({ orders, setOrders, menu, addToast, staffId, myTables }) {
     const [addItemsOrder, setAddItemsOrder] = useState(null);
 
+    /**
+     * Confirms an order (moves from Pending to Waiter Confirmed)
+     * @async
+     * @function confirmOrder
+     * @param {string} id - Order ID
+     */
     const confirmOrder = async (id) => {
         setOrders(p => p.map(o => o.id === id ? { ...o, status: "Waiter Confirmed" } : o));
         await fetch(`http://127.0.0.1:8000/orders/${id}`, {
@@ -468,6 +714,12 @@ function OrdersTab({ orders, setOrders, menu, addToast, staffId, myTables }) {
         addToast("Order confirmed ✓");
     };
 
+    /**
+     * Marks order as delivered
+     * @async
+     * @function deliverOrder
+     * @param {string} id - Order ID
+     */
     const deliverOrder = async (id) => {
         setOrders(p => p.map(o => o.id === id ? { ...o, status: "Completed" } : o));
         await fetch(`http://127.0.0.1:8000/orders/${id}`, {
@@ -478,6 +730,12 @@ function OrdersTab({ orders, setOrders, menu, addToast, staffId, myTables }) {
         addToast("Order marked as delivered");
     };
 
+    /**
+     * Cancels an order and replenishes stock if needed
+     * @async
+     * @function cancelOrder
+     * @param {string} id - Order ID
+     */
     const cancelOrder = async (id) => {
         const startTimes = JSON.parse(localStorage.getItem("oaxaca_order_start_times") ?? "{}");
         delete startTimes[String(id)];
@@ -521,6 +779,13 @@ function OrdersTab({ orders, setOrders, menu, addToast, staffId, myTables }) {
         }, 15000);
     };
 
+    /**
+     * Changes order status
+     * @async
+     * @function changeStatus
+     * @param {string} id - Order ID
+     * @param {string} status - New status
+     */
     const changeStatus = async (id, status) => {
         setOrders(p => p.map(o => o.id === id ? { ...o, status } : o));
 
@@ -532,7 +797,13 @@ function OrdersTab({ orders, setOrders, menu, addToast, staffId, myTables }) {
         addToast(`Status updated to "${status}"`);
     };
 
-
+    /**
+     * Removes an item from an order
+     * @async
+     * @function removeItem
+     * @param {string} orderId - Order ID
+     * @param {number} itemIndex - Index of item to remove
+     */
     const removeItem = async (orderId, itemIndex) => {
         const order = orders.find(o => o.id === orderId);
         setOrders(p => p.map(o => {
@@ -561,6 +832,13 @@ function OrdersTab({ orders, setOrders, menu, addToast, staffId, myTables }) {
         addToast("Item removed from order");
     };
 
+    /**
+     * Adds items to an existing order
+     * @async
+     * @function addItemsToOrder
+     * @param {string} orderId - Order ID
+     * @param {Array} newItems - Items to add
+     */
     const addItemsToOrder = async (orderId, newItems) => {
         setOrders(p => p.map(o => {
             if (o.id !== orderId) return o;
@@ -605,6 +883,7 @@ function OrdersTab({ orders, setOrders, menu, addToast, staffId, myTables }) {
     };
 
     const active = orders.filter(o => o.status !== "Completed" && o.status !== "Cancelled");
+
     const statCards = [
         { label: "Pending", value: orders.filter(o => o.status === "Pending").length, accent: C.amber },
         { label: "Confirmed", value: orders.filter(o => o.status === "Waiter Confirmed").length, accent: C.blue },
@@ -660,6 +939,19 @@ function OrdersTab({ orders, setOrders, menu, addToast, staffId, myTables }) {
 }
 
 // TABLES TAB --------------------------
+/**
+ * Tables Tab Component
+ * Manages assigned tables, team alerts, and unpaid table tracking
+ * 
+ * @component
+ * @param {Object} props - Component props
+ * @param {Array} props.unpaidTables - Tables with unpaid balances
+ * @param {Function} props.addToast - Toast notification handler
+ * @param {Function} props.raiseAlert - Alert raising handler
+ * @param {Function} props.onMarkPaid - Mark table as paid handler
+ * @param {Array} props.myTables - Tables assigned to waiter
+ * @returns {JSX.Element} Tables management interface
+ */
 function TablesTab({ unpaidTables, addToast, raiseAlert, onMarkPaid, myTables }) {
     const [showUnpaidModal, setShowUnpaidModal] = useState(false);
     const [alertTable, setAlertTable] = useState("");
@@ -762,7 +1054,25 @@ function TablesTab({ unpaidTables, addToast, raiseAlert, onMarkPaid, myTables })
 }
 
 // MENU TAB --------------------------
+/**
+ * Menu Tab Component
+ * Displays menu items with availability toggles and low stock warnings
+ * 
+ * @component
+ * @param {Object} props - Component props
+ * @param {Array} props.menu - Menu items array
+ * @param {Function} props.setMenu - State setter for menu
+ * @param {Function} props.addToast - Toast notification handler
+ * @param {Set} props.lowStockDishes - Set of low stock dish names
+ * @returns {JSX.Element} Menu view interface
+ */
 function MenuTab({ menu, setMenu, addToast, lowStockDishes }) {
+    /**
+     * Toggles item availability and syncs with backend
+     * @async
+     * @function toggleAvail
+     * @param {number} id - Menu item ID
+     */
     const toggleAvail = async (id) => {
         const item = menu.find(m => m.id === id);
         const newAvail = !item.avail;
@@ -839,6 +1149,13 @@ function MenuTab({ menu, setMenu, addToast, lowStockDishes }) {
 }
 
 // HOOK : CUSTOMER ASSISTANCE ALERT --------------------------
+/**
+ * Custom hook to listen for customer assistance alerts from localStorage
+ * @function useCustomerAlerts
+ * @param {Function} setNotifications - State setter for notifications
+ * @param {Function} addToast - Toast notification handler
+ * @param {number} staffId - Current staff ID
+ */
 function useCustomerAlerts(setNotifications, addToast, staffId) {
     const cbRef = useRef({ setNotifications, addToast, staffId });
     useEffect(() => { cbRef.current = { setNotifications, addToast, staffId }; });
@@ -862,6 +1179,12 @@ function useCustomerAlerts(setNotifications, addToast, staffId) {
 }
 
 // HOOK : WAITER ALERTS --------------------------
+/**
+ * Custom hook to listen for waiter team alerts from localStorage
+ * @function useWaiterAlerts
+ * @param {Function} setNotifications - State setter for notifications
+ * @param {Function} addToast - Toast notification handler
+ */
 function useWaiterAlerts(setNotifications, addToast) {
     const cbRef = useRef({ setNotifications, addToast });
     useEffect(() => { cbRef.current = { setNotifications, addToast }; });
@@ -884,6 +1207,10 @@ function useWaiterAlerts(setNotifications, addToast) {
 }
 
 // MENU METADATA --------------------------
+/**
+ * Menu metadata mapping for sections and dietary information
+ * @constant {Object} MENU_META
+ */
 const MENU_META = {
     1: { section: "Starters", dietary: ["Vegan", "Gluten-Free"], allergens: [], calories: "350" },
     2: { section: "Starters", dietary: ["Gluten-Free"], allergens: ["Milk", "Soy"], calories: "500" },
@@ -908,6 +1235,15 @@ const MENU_META = {
 };
 
 // MAIN APP COMPONENT --------------------------
+/**
+ * Waiter Dashboard Main Component
+ * Provides waiter interface for order management, table assignment,
+ * team alerts, and menu viewing
+ * 
+ * @module WaiterDashboard
+ * @component
+ * @returns {JSX.Element} Complete waiter dashboard
+ */
 export default function App() {
     
     // AUTH GUARD --------------------------
@@ -941,8 +1277,19 @@ export default function App() {
     }, [notifications]);
 
     // HELPER FUNCTIONS --------------------------
+    /**
+     * Adds a toast notification that auto-dismisses after 3 seconds
+     * @function addToast
+     * @param {string} msg - Toast message to display
+     */
     const addToast = msg => { const id = Date.now(); setToasts(p => [...p, { id, msg }]); setTimeout(() => setToasts(p => p.filter(t => t.id !== id)), 3000); };
     
+    /**
+     * Raises a team alert for a specific table
+     * @async
+     * @function raiseAlert
+     * @param {number} table - Table number to raise alert for
+     */
     const raiseAlert = async (table) => {
         const id = Date.now();
         const activeOrder = orders.find(o => o.table === table && o.status !== "Completed" && o.status !== "Cancelled");
@@ -1070,6 +1417,13 @@ export default function App() {
         return () => clearInterval(poll);
     }, []);
 
+    /**
+     * Marks tables as paid and clears orders
+     * @async
+     * @function markAsPaid
+     * @param {string} orderId - Order ID
+     * @param {Array} allOrderIds - All order IDs for the table
+     */
     const markAsPaid = async (orderId, allOrderIds) => {
         const ids = allOrderIds ?? [orderId];
         for (const id of ids) {
