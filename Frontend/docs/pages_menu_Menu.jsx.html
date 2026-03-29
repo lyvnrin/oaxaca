@@ -1,4 +1,32 @@
-import { useState, useEffect, useRef } from "react";
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: pages/menu/Menu.jsx</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: pages/menu/Menu.jsx</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from 'react-router-dom';
 import "./Menu.css";
 import { MENU_DATA, INGREDIENTS, EXTRAS_BY_ID } from "./menuData.js";
@@ -23,14 +51,14 @@ const DIET_FILTERS = ["Vegetarian", "Gluten-Free", "Vegan"];
  */
 function CartIcon({ count, onClick }) {
     return (
-        <button className="cart-icon" title="View cart" onClick={onClick}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="9" cy="21" r="1" />
-                <circle cx="20" cy="21" r="1" />
-                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
-            </svg>
-            {count > 0 && <span className="cart-badge">{count}</span>}
-        </button>
+        &lt;button className="cart-icon" title="View cart" onClick={onClick}>
+            &lt;svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                &lt;circle cx="9" cy="21" r="1" />
+                &lt;circle cx="20" cy="21" r="1" />
+                &lt;path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
+            &lt;/svg>
+            {count > 0 &amp;&amp; &lt;span className="cart-badge">{count}&lt;/span>}
+        &lt;/button>
     );
 }
 
@@ -62,44 +90,44 @@ function Header({ tableNumber, cartCount, onCartClick, onCloseTable, onContactWa
     };
 
     return (
-        <header className="header">
-            <span className="table-number">{tableNumber}</span>
-            <a href="/" style={{ textDecoration: 'none', color: 'inherit' }} className="no-style-link">
-                <h1 className="restaurant-title">OAXACA</h1>
-            </a>
-            <div className="header-right">
-                <CartIcon count={cartCount} onClick={onCartClick} />
-                <div className="hamburger-wrapper">
-                    <button className={`hamburger ${menuOpen ? "hamburger--open" : ""}`}
+        &lt;header className="header">
+            &lt;span className="table-number">{tableNumber}&lt;/span>
+            &lt;a href="/" style={{ textDecoration: 'none', color: 'inherit' }} className="no-style-link">
+                &lt;h1 className="restaurant-title">OAXACA&lt;/h1>
+            &lt;/a>
+            &lt;div className="header-right">
+                &lt;CartIcon count={cartCount} onClick={onCartClick} />
+                &lt;div className="hamburger-wrapper">
+                    &lt;button className={`hamburger ${menuOpen ? "hamburger--open" : ""}`}
                         aria-label="Open navigation menu" onClick={() => setMenuOpen((v) => !v)}>
-                        <span className="hamburger-bar" />
-                        <span className="hamburger-bar" />
-                        <span className="hamburger-bar" />
-                    </button>
-                    {menuOpen && (
-                        <>
-                            <div className="menu-popup-backdrop" onClick={() => setMenuOpen(false)} />
-                            <div className="menu-popup">
-                                <button className="menu-popup-item" onClick={() => { setMenuOpen(false); onContactWaiter(); }}>
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '8px', verticalAlign: 'middle' }}>
-                                        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 1.27h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.96a16 16 0 0 0 6 6l.92-.92a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7a2 2 0 0 1 1.72 2.02z" />
-                                    </svg>
+                        &lt;span className="hamburger-bar" />
+                        &lt;span className="hamburger-bar" />
+                        &lt;span className="hamburger-bar" />
+                    &lt;/button>
+                    {menuOpen &amp;&amp; (
+                        &lt;>
+                            &lt;div className="menu-popup-backdrop" onClick={() => setMenuOpen(false)} />
+                            &lt;div className="menu-popup">
+                                &lt;button className="menu-popup-item" onClick={() => { setMenuOpen(false); onContactWaiter(); }}>
+                                    &lt;svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '8px', verticalAlign: 'middle' }}>
+                                        &lt;path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 1.27h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.96a16 16 0 0 0 6 6l.92-.92a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7a2 2 0 0 1 1.72 2.02z" />
+                                    &lt;/svg>
                                     Contact Waiter
-                                </button>
-                                <button className="menu-popup-item menu-popup-item--danger" onClick={handleCloseTable}>
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '8px', verticalAlign: 'middle' }}>
-                                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                                        <polyline points="16 17 21 12 16 7" />
-                                        <line x1="21" y1="12" x2="9" y2="12" />
-                                    </svg>
+                                &lt;/button>
+                                &lt;button className="menu-popup-item menu-popup-item--danger" onClick={handleCloseTable}>
+                                    &lt;svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '8px', verticalAlign: 'middle' }}>
+                                        &lt;path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                                        &lt;polyline points="16 17 21 12 16 7" />
+                                        &lt;line x1="21" y1="12" x2="9" y2="12" />
+                                    &lt;/svg>
                                     Close Table
-                                </button>
-                            </div>
-                        </>
+                                &lt;/button>
+                            &lt;/div>
+                        &lt;/>
                     )}
-                </div>
-            </div>
-        </header>
+                &lt;/div>
+            &lt;/div>
+        &lt;/header>
     );
 }
 
@@ -126,23 +154,23 @@ function AllergenDropdown({ selected, onChange }) {
     }
 
     return (
-        <div className="allergen-wrapper">
-            <button className={`allergen-toggle ${selected.length > 0 ? "allergen-toggle--active" : ""}`} onClick={() => setOpen((v) => !v)}>
-                <span>Does Not Contain</span>
-                {selected.length > 0 && <span className="allergen-count">{selected.length}</span>}
-                <span className="dropdown-arrow">{open ? "▲" : "▼"}</span>
-            </button>
-            {open && (
-                <div className="allergen-list">
+        &lt;div className="allergen-wrapper">
+            &lt;button className={`allergen-toggle ${selected.length > 0 ? "allergen-toggle--active" : ""}`} onClick={() => setOpen((v) => !v)}>
+                &lt;span>Does Not Contain&lt;/span>
+                {selected.length > 0 &amp;&amp; &lt;span className="allergen-count">{selected.length}&lt;/span>}
+                &lt;span className="dropdown-arrow">{open ? "▲" : "▼"}&lt;/span>
+            &lt;/button>
+            {open &amp;&amp; (
+                &lt;div className="allergen-list">
                     {ALLERGEN_OPTIONS.map((allergen) => (
-                        <label key={allergen} className="allergen-option">
-                            <input type="checkbox" checked={selected.includes(allergen)} onChange={() => handleToggle(allergen)} />
+                        &lt;label key={allergen} className="allergen-option">
+                            &lt;input type="checkbox" checked={selected.includes(allergen)} onChange={() => handleToggle(allergen)} />
                             {allergen}
-                        </label>
+                        &lt;/label>
                     ))}
-                </div>
+                &lt;/div>
             )}
-        </div>
+        &lt;/div>
     );
 }
 
@@ -163,33 +191,33 @@ function AllergenDropdown({ selected, onChange }) {
  */
 function FilterBar({ activeFilters, onFilterToggle, excludedAllergens, onAllergenChange, onTrackOrder, hasActiveOrder }) {
     return (
-        <div className="filter-bar">
-            <div className="filter-row">
-                <span className="filter-label">Show me</span>
-                <div className="filter-buttons">
+        &lt;div className="filter-bar">
+            &lt;div className="filter-row">
+                &lt;span className="filter-label">Show me&lt;/span>
+                &lt;div className="filter-buttons">
                     {DIET_FILTERS.map((filter) => (
-                        <button key={filter} className={`filter-btn ${activeFilters.includes(filter) ? "filter-btn--active" : ""}`} onClick={() => onFilterToggle(filter)}>
+                        &lt;button key={filter} className={`filter-btn ${activeFilters.includes(filter) ? "filter-btn--active" : ""}`} onClick={() => onFilterToggle(filter)}>
                             {filter}
-                        </button>
+                        &lt;/button>
                     ))}
-                </div>
-                <AllergenDropdown selected={excludedAllergens} onChange={onAllergenChange} />
-                <button
+                &lt;/div>
+                &lt;AllergenDropdown selected={excludedAllergens} onChange={onAllergenChange} />
+                &lt;button
                     className={`track-order-btn ${hasActiveOrder ? 'track-order-btn--active' : 'track-order-btn--disabled'}`}
                     onClick={onTrackOrder}
                     disabled={!hasActiveOrder}
                 >
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '6px', verticalAlign: 'middle' }}>
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                        <polyline points="14 2 14 8 20 8" />
-                        <line x1="16" y1="13" x2="8" y2="13" />
-                        <line x1="16" y1="17" x2="8" y2="17" />
-                        <polyline points="10 9 9 9 8 9" />
-                    </svg>
+                    &lt;svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '6px', verticalAlign: 'middle' }}>
+                        &lt;path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                        &lt;polyline points="14 2 14 8 20 8" />
+                        &lt;line x1="16" y1="13" x2="8" y2="13" />
+                        &lt;line x1="16" y1="17" x2="8" y2="17" />
+                        &lt;polyline points="10 9 9 9 8 9" />
+                    &lt;/svg>
                     Track Order
-                </button>
-            </div>
-        </div>
+                &lt;/button>
+            &lt;/div>
+        &lt;/div>
     );
 }
 
@@ -249,72 +277,72 @@ function CustomizationPopup({ item, onClose, onAddToCart }) {
     const totalPrice = (basePrice + extrasTotal).toFixed(2);
 
     return (
-        <div className="customization-overlay" onClick={onClose}>
-            <div className="customization-modal" onClick={(e) => e.stopPropagation()}>
-                <div className="customization-header">
-                    <h2 className="customization-title">Customize {item.name}</h2>
-                    <button className="customization-close" onClick={onClose}>✕</button>
-                </div>
-                <div className="customization-content">
-                    <div className="customization-section">
-                        <h3 className="section-title">Remove Ingredients</h3>
-                        <div className="ingredients-grid">
+        &lt;div className="customization-overlay" onClick={onClose}>
+            &lt;div className="customization-modal" onClick={(e) => e.stopPropagation()}>
+                &lt;div className="customization-header">
+                    &lt;h2 className="customization-title">Customize {item.name}&lt;/h2>
+                    &lt;button className="customization-close" onClick={onClose}>✕&lt;/button>
+                &lt;/div>
+                &lt;div className="customization-content">
+                    &lt;div className="customization-section">
+                        &lt;h3 className="section-title">Remove Ingredients&lt;/h3>
+                        &lt;div className="ingredients-grid">
                             {itemIngredients.map((ingredient) => (
-                                <button key={ingredient}
+                                &lt;button key={ingredient}
                                     className={`ingredient-btn ${removedIngredients.includes(ingredient) ? 'ingredient-btn--removed' : ''}`}
                                     onClick={() => handleToggleIngredient(ingredient)}>
                                     {ingredient}
-                                    {removedIngredients.includes(ingredient) && <span className="remove-icon">✕</span>}
-                                </button>
+                                    {removedIngredients.includes(ingredient) &amp;&amp; &lt;span className="remove-icon">✕&lt;/span>}
+                                &lt;/button>
                             ))}
-                        </div>
-                    </div>
-                    {itemExtras.length > 0 && (
-                        <div className="customization-section">
-                            <h3 className="section-title">Extras</h3>
-                            <div className="extras-list">
+                        &lt;/div>
+                    &lt;/div>
+                    {itemExtras.length > 0 &amp;&amp; (
+                        &lt;div className="customization-section">
+                            &lt;h3 className="section-title">Extras&lt;/h3>
+                            &lt;div className="extras-list">
                                 {itemExtras.map((extra) => {
                                     const isSelected = selectedExtras.some(e => e.name === extra.name);
                                     return (
-                                        <button key={extra.name} className={`extra-item ${isSelected ? 'extra-item--selected' : ''}`} onClick={() => handleToggleExtra(extra)}>
-                                            <span className="extra-name">{extra.name}</span>
-                                            <span className="extra-price">£{extra.price.toFixed(2)}</span>
-                                            {isSelected && <span className="check-icon">✓</span>}
-                                        </button>
+                                        &lt;button key={extra.name} className={`extra-item ${isSelected ? 'extra-item--selected' : ''}`} onClick={() => handleToggleExtra(extra)}>
+                                            &lt;span className="extra-name">{extra.name}&lt;/span>
+                                            &lt;span className="extra-price">£{extra.price.toFixed(2)}&lt;/span>
+                                            {isSelected &amp;&amp; &lt;span className="check-icon">✓&lt;/span>}
+                                        &lt;/button>
                                     );
                                 })}
-                            </div>
-                        </div>
+                            &lt;/div>
+                        &lt;/div>
                     )}
-                    <div className="customization-section">
-                        <h3 className="section-title">Special Request</h3>
-                        <textarea className="special-request-input"
+                    &lt;div className="customization-section">
+                        &lt;h3 className="section-title">Special Request&lt;/h3>
+                        &lt;textarea className="special-request-input"
                             placeholder="Any special instructions? (allergies, cooking preferences, etc.)"
                             value={specialRequest} onChange={(e) => setSpecialRequest(e.target.value)} rows="3" />
-                    </div>
-                    <div className="customization-summary">
-                        <div className="price-breakdown">
-                            <span>Base price:</span>
-                            <span>{item.price}</span>
-                        </div>
-                        {selectedExtras.length > 0 && (
-                            <div className="price-breakdown">
-                                <span>Extras:</span>
-                                <span>£{extrasTotal.toFixed(2)}</span>
-                            </div>
+                    &lt;/div>
+                    &lt;div className="customization-summary">
+                        &lt;div className="price-breakdown">
+                            &lt;span>Base price:&lt;/span>
+                            &lt;span>{item.price}&lt;/span>
+                        &lt;/div>
+                        {selectedExtras.length > 0 &amp;&amp; (
+                            &lt;div className="price-breakdown">
+                                &lt;span>Extras:&lt;/span>
+                                &lt;span>£{extrasTotal.toFixed(2)}&lt;/span>
+                            &lt;/div>
                         )}
-                        <div className="total-price">
-                            <span>Total:</span>
-                            <span>£{totalPrice}</span>
-                        </div>
-                    </div>
-                </div>
-                <div className="customization-footer">
-                    <button className="cancel-btn" onClick={onClose}>Cancel</button>
-                    <button className="add-to-order-final-btn" onClick={handleAddToOrder}>Add to Order • £{totalPrice}</button>
-                </div>
-            </div>
-        </div>
+                        &lt;div className="total-price">
+                            &lt;span>Total:&lt;/span>
+                            &lt;span>£{totalPrice}&lt;/span>
+                        &lt;/div>
+                    &lt;/div>
+                &lt;/div>
+                &lt;div className="customization-footer">
+                    &lt;button className="cancel-btn" onClick={onClose}>Cancel&lt;/button>
+                    &lt;button className="add-to-order-final-btn" onClick={handleAddToOrder}>Add to Order • £{totalPrice}&lt;/button>
+                &lt;/div>
+            &lt;/div>
+        &lt;/div>
     );
 }
 
@@ -334,36 +362,36 @@ function CustomizationPopup({ item, onClose, onAddToCart }) {
  */
 function MenuItemCard({ item, dimmed, unavailable, lowStock, onCustomize }) {
     return (
-        <div className={`menu-item-card ${dimmed ? "menu-item-card--dimmed" : ""} ${unavailable ? "menu-item-card--unavailable" : ""} ${lowStock ? "menu-item-card--unavailable" : ""}`}>
-            <div className="card-image-placeholder">
+        &lt;div className={`menu-item-card ${dimmed ? "menu-item-card--dimmed" : ""} ${unavailable ? "menu-item-card--unavailable" : ""} ${lowStock ? "menu-item-card--unavailable" : ""}`}>
+            &lt;div className="card-image-placeholder">
                 {item.image
-                    ? <img src={item.image} alt={item.name} style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "inherit", ...item.imageStyle }} />
-                    : <span className="card-image-text">IMG</span>
+                    ? &lt;img src={item.image} alt={item.name} style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "inherit", ...item.imageStyle }} />
+                    : &lt;span className="card-image-text">IMG&lt;/span>
                 }
-            </div>
-            <div className="card-body">
-                <div className="card-top-row">
-                    <span className="card-name">{item.name}</span>
-                    <span className="card-price">{item.price}</span>
-                </div>
-                <p className="card-description">{item.description}</p>
-                <div className="card-footer">
-                    {item.dietary.length > 0 && (
-                        <div className="card-tags">
-                            {item.dietary.map((tag) => <span key={tag} className="diet-tag">{tag}</span>)}
-                        </div>
+            &lt;/div>
+            &lt;div className="card-body">
+                &lt;div className="card-top-row">
+                    &lt;span className="card-name">{item.name}&lt;/span>
+                    &lt;span className="card-price">{item.price}&lt;/span>
+                &lt;/div>
+                &lt;p className="card-description">{item.description}&lt;/p>
+                &lt;div className="card-footer">
+                    {item.dietary.length > 0 &amp;&amp; (
+                        &lt;div className="card-tags">
+                            {item.dietary.map((tag) => &lt;span key={tag} className="diet-tag">{tag}&lt;/span>)}
+                        &lt;/div>
                     )}
-                    {item.allergens.length > 0 && <p className="card-allergens">Contains: {item.allergens.join(", ")}</p>}
-                    <span className="card-calories">{item.calories}</span>
-                    {lowStock && !unavailable && <p style={{ fontSize: 10, color: "#c0392b", fontWeight: 700, marginTop: 4 }}>⚠ Low stock</p>}
-                </div>
-                <button className="add-to-order-btn"
-                    onClick={() => !dimmed && !unavailable && !lowStock && onCustomize(item)}
+                    {item.allergens.length > 0 &amp;&amp; &lt;p className="card-allergens">Contains: {item.allergens.join(", ")}&lt;/p>}
+                    &lt;span className="card-calories">{item.calories}&lt;/span>
+                    {lowStock &amp;&amp; !unavailable &amp;&amp; &lt;p style={{ fontSize: 10, color: "#c0392b", fontWeight: 700, marginTop: 4 }}>⚠ Low stock&lt;/p>}
+                &lt;/div>
+                &lt;button className="add-to-order-btn"
+                    onClick={() => !dimmed &amp;&amp; !unavailable &amp;&amp; !lowStock &amp;&amp; onCustomize(item)}
                     disabled={dimmed || unavailable || lowStock}>
                     {unavailable ? "Unavailable" : lowStock ? "Low Stock" : "+ Add to Order"}
-                </button>
-            </div>
-        </div>
+                &lt;/button>
+            &lt;/div>
+        &lt;/div>
     );
 }
 
@@ -386,26 +414,26 @@ function MenuItemCard({ item, dimmed, unavailable, lowStock, onCustomize }) {
  */
 function MenuSection({ sectionName, items, isOpen, onToggle, matchesFilter, onCustomize, unavailableIds, lowStockDishes }) {
     return (
-        <div className={`menu-section ${isOpen ? "menu-section--open" : ""}`}>
-            <button className="section-header" onClick={onToggle}>
-                <span className="section-name">{sectionName}</span>
-                <div className="section-header-right">
-                    <span className="section-count">{items.length} items</span>
-                    <span className="section-toggle-icon">{isOpen ? "−" : "+"}</span>
-                </div>
-            </button>
-            {isOpen && (
-                <div className="section-items">
+        &lt;div className={`menu-section ${isOpen ? "menu-section--open" : ""}`}>
+            &lt;button className="section-header" onClick={onToggle}>
+                &lt;span className="section-name">{sectionName}&lt;/span>
+                &lt;div className="section-header-right">
+                    &lt;span className="section-count">{items.length} items&lt;/span>
+                    &lt;span className="section-toggle-icon">{isOpen ? "−" : "+"}&lt;/span>
+                &lt;/div>
+            &lt;/button>
+            {isOpen &amp;&amp; (
+                &lt;div className="section-items">
                     {items.map((item) => (
-                        <MenuItemCard key={item.id} item={item}
+                        &lt;MenuItemCard key={item.id} item={item}
                             dimmed={!matchesFilter(item)}
                             unavailable={unavailableIds.has(item.id)}
                             lowStock={lowStockDishes.has(item.name)}
                             onCustomize={onCustomize} />
                     ))}
-                </div>
+                &lt;/div>
             )}
-        </div>
+        &lt;/div>
     );
 }
 
@@ -465,40 +493,40 @@ function ContactWaiterModal({ table_id, onClose }) {
     };
 
     return (
-        <div className="customization-overlay" onClick={onClose}>
-            <div className="customization-modal" style={{ maxWidth: 380 }} onClick={e => e.stopPropagation()}>
-                <div className="customization-header">
-                    <h2 className="customization-title">Contact Waiter</h2>
-                    <button className="customization-close" onClick={onClose}>✕</button>
-                </div>
-                <div className="customization-content">
+        &lt;div className="customization-overlay" onClick={onClose}>
+            &lt;div className="customization-modal" style={{ maxWidth: 380 }} onClick={e => e.stopPropagation()}>
+                &lt;div className="customization-header">
+                    &lt;h2 className="customization-title">Contact Waiter&lt;/h2>
+                    &lt;button className="customization-close" onClick={onClose}>✕&lt;/button>
+                &lt;/div>
+                &lt;div className="customization-content">
                     {sent ? (
-                        <div style={{ textAlign: "center", padding: "24px 0" }}>
-                            <div style={{ fontSize: 40, marginBottom: 12 }}>✓</div>
-                            <p style={{ fontWeight: 700, fontSize: 16 }}>Your waiter has been notified!</p>
-                            <p style={{ color: "#7a5c44", fontSize: 13, marginTop: 6 }}>Someone will be with you shortly.</p>
-                        </div>
+                        &lt;div style={{ textAlign: "center", padding: "24px 0" }}>
+                            &lt;div style={{ fontSize: 40, marginBottom: 12 }}>✓&lt;/div>
+                            &lt;p style={{ fontWeight: 700, fontSize: 16 }}>Your waiter has been notified!&lt;/p>
+                            &lt;p style={{ color: "#7a5c44", fontSize: 13, marginTop: 6 }}>Someone will be with you shortly.&lt;/p>
+                        &lt;/div>
                     ) : (
-                        <>
-                            <div className="customization-section">
-                                <h3 className="section-title">How can we help?</h3>
-                                <textarea
+                        &lt;>
+                            &lt;div className="customization-section">
+                                &lt;h3 className="section-title">How can we help?&lt;/h3>
+                                &lt;textarea
                                     className="special-request-input"
                                     placeholder="Optional: let us know what you need (e.g. extra napkins, allergy question…)"
                                     value={message}
                                     onChange={e => setMessage(e.target.value)}
                                     rows="4"
                                 />
-                            </div>
-                            <div className="customization-footer">
-                                <button className="cancel-btn" onClick={onClose}>Cancel</button>
-                                <button className="add-to-order-final-btn" onClick={handleSend}>Send to Waiter</button>
-                            </div>
-                        </>
+                            &lt;/div>
+                            &lt;div className="customization-footer">
+                                &lt;button className="cancel-btn" onClick={onClose}>Cancel&lt;/button>
+                                &lt;button className="add-to-order-final-btn" onClick={handleSend}>Send to Waiter&lt;/button>
+                            &lt;/div>
+                        &lt;/>
                     )}
-                </div>
-            </div>
-        </div>
+                &lt;/div>
+            &lt;/div>
+        &lt;/div>
     );
 }
 
@@ -539,54 +567,54 @@ function CartModal({ cart, onClose, onUpdateQty, onRemove, onPlaceOrder }) {
     };
 
     return (
-        <div className="modal-overlay" onClick={onClose}>
-            <div className="modal" onClick={(e) => e.stopPropagation()}>
-                <div className="modal-header">
-                    <h2 className="modal-title">Your Order</h2>
-                    <button className="modal-close" onClick={onClose}>✕</button>
-                </div>
+        &lt;div className="modal-overlay" onClick={onClose}>
+            &lt;div className="modal" onClick={(e) => e.stopPropagation()}>
+                &lt;div className="modal-header">
+                    &lt;h2 className="modal-title">Your Order&lt;/h2>
+                    &lt;button className="modal-close" onClick={onClose}>✕&lt;/button>
+                &lt;/div>
                 {entries.length === 0
-                    ? <p className="modal-empty">Your order is empty. Add some items from the menu!</p>
+                    ? &lt;p className="modal-empty">Your order is empty. Add some items from the menu!&lt;/p>
                     : (
-                        <>
-                            <div className="modal-items">
+                        &lt;>
+                            &lt;div className="modal-items">
                                 {entries.map(({ key, item, qty }) => {
                                     const basePrice = parseFloat(item.price.replace("£", ""));
                                     const extrasTotal = item.customization?.selectedExtras?.reduce((sum, extra) => sum + extra.price, 0) || 0;
                                     const linePrice = ((basePrice + extrasTotal) * qty).toFixed(2);
                                     const customizations = formatCustomizations(item);
                                     return (
-                                        <div key={key} className="modal-item">
-                                            <div className="modal-item-info">
-                                                <span className="modal-item-name">{item.name}</span>
-                                                <span className="modal-item-price">£{linePrice}</span>
-                                            </div>
-                                            {customizations.length > 0 && (
-                                                <div className="modal-item-customizations">
-                                                    {customizations.map((custom, idx) => <p key={idx} className="customization-text">{custom}</p>)}
-                                                </div>
+                                        &lt;div key={key} className="modal-item">
+                                            &lt;div className="modal-item-info">
+                                                &lt;span className="modal-item-name">{item.name}&lt;/span>
+                                                &lt;span className="modal-item-price">£{linePrice}&lt;/span>
+                                            &lt;/div>
+                                            {customizations.length > 0 &amp;&amp; (
+                                                &lt;div className="modal-item-customizations">
+                                                    {customizations.map((custom, idx) => &lt;p key={idx} className="customization-text">{custom}&lt;/p>)}
+                                                &lt;/div>
                                             )}
-                                            <div className="modal-item-controls">
-                                                <button className="qty-btn" onClick={() => onUpdateQty(key, qty - 1)}>−</button>
-                                                <span className="qty-value">{qty}</span>
-                                                <button className="qty-btn" onClick={() => onUpdateQty(key, qty + 1)}>+</button>
-                                                <button className="remove-btn" onClick={() => onRemove(key)}>✕</button>
-                                            </div>
-                                        </div>
+                                            &lt;div className="modal-item-controls">
+                                                &lt;button className="qty-btn" onClick={() => onUpdateQty(key, qty - 1)}>−&lt;/button>
+                                                &lt;span className="qty-value">{qty}&lt;/span>
+                                                &lt;button className="qty-btn" onClick={() => onUpdateQty(key, qty + 1)}>+&lt;/button>
+                                                &lt;button className="remove-btn" onClick={() => onRemove(key)}>✕&lt;/button>
+                                            &lt;/div>
+                                        &lt;/div>
                                     );
                                 })}
-                            </div>
-                            <div className="modal-footer">
-                                <div className="modal-total">
-                                    <span>Total</span>
-                                    <span>£{total.toFixed(2)}</span>
-                                </div>
-                                <button className="place-order-btn" onClick={onPlaceOrder}>Place Order</button>
-                            </div>
-                        </>
+                            &lt;/div>
+                            &lt;div className="modal-footer">
+                                &lt;div className="modal-total">
+                                    &lt;span>Total&lt;/span>
+                                    &lt;span>£{total.toFixed(2)}&lt;/span>
+                                &lt;/div>
+                                &lt;button className="place-order-btn" onClick={onPlaceOrder}>Place Order&lt;/button>
+                            &lt;/div>
+                        &lt;/>
                     )}
-            </div>
-        </div>
+            &lt;/div>
+        &lt;/div>
     );
 }
 
@@ -617,10 +645,10 @@ function validateExpiry(value) {
     if (!match) return 'Use MM/YY format';
     const month = parseInt(match[1], 10);
     const year = parseInt(match[2], 10) + 2000;
-    if (month < 1 || month > 12) return 'Invalid month';
+    if (month &lt; 1 || month > 12) return 'Invalid month';
     const now = new Date();
     const expiry = new Date(year, month - 1, 1);
-    if (expiry < new Date(now.getFullYear(), now.getMonth(), 1)) return 'Card has expired';
+    if (expiry &lt; new Date(now.getFullYear(), now.getMonth(), 1)) return 'Card has expired';
     return null;
 }
 
@@ -644,7 +672,7 @@ function validateCVV(value) {
  */
 function validateCardholderName(value) {
     if (!value.trim()) return 'Cardholder name is required';
-    if (value.trim().length < 2) return 'Please enter a valid name';
+    if (value.trim().length &lt; 2) return 'Please enter a valid name';
     return null;
 }
 
@@ -794,88 +822,88 @@ function PaymentPopup({ orderId, tableNumber, total, onClose, onConfirm }) {
     };
 
     return (
-        <div className="customization-overlay">
-            <div className="customization-modal payment-modal" onClick={(e) => e.stopPropagation()}>
-                <div className="customization-header">
-                    <h2 className="customization-title">Payment</h2>
-                    <button className="customization-close" onClick={onClose}>✕</button>
-                </div>
-                <div className="customization-content">
-                    <div className="order-info">
-                        <span className="table-number-display">Table: {tableNumber}</span>
-                        <span className="order-id-display">Order ID: #{orderId}</span>
-                    </div>
-                    {backendError && (
-                        <div className="payment-error-banner">
-                            <span className="payment-error-icon">⚠</span>
-                            <span>{backendError}</span>
-                        </div>
+        &lt;div className="customization-overlay">
+            &lt;div className="customization-modal payment-modal" onClick={(e) => e.stopPropagation()}>
+                &lt;div className="customization-header">
+                    &lt;h2 className="customization-title">Payment&lt;/h2>
+                    &lt;button className="customization-close" onClick={onClose}>✕&lt;/button>
+                &lt;/div>
+                &lt;div className="customization-content">
+                    &lt;div className="order-info">
+                        &lt;span className="table-number-display">Table: {tableNumber}&lt;/span>
+                        &lt;span className="order-id-display">Order ID: #{orderId}&lt;/span>
+                    &lt;/div>
+                    {backendError &amp;&amp; (
+                        &lt;div className="payment-error-banner">
+                            &lt;span className="payment-error-icon">⚠&lt;/span>
+                            &lt;span>{backendError}&lt;/span>
+                        &lt;/div>
                     )}
-                    <div className="payment-methods">
-                        <button className={`payment-method-btn ${paymentMethod === 'card' ? 'payment-method-selected' : ''}`} onClick={() => setPaymentMethod('card')}>
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginBottom: '4px' }}>
-                                <rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
-                                <line x1="1" y1="10" x2="23" y2="10" />
-                            </svg>
-                            <span>Card</span>
-                        </button>
-                    </div>
-                    {paymentMethod === 'card' && (
-                        <div className="card-fields">
-                            <div className="card-field-group">
-                                <label className="card-field-label">Cardholder Name</label>
-                                <input
-                                    className={`card-field-input ${touched.cardholderName && errors.cardholderName ? 'card-field-input--error' : ''}`}
+                    &lt;div className="payment-methods">
+                        &lt;button className={`payment-method-btn ${paymentMethod === 'card' ? 'payment-method-selected' : ''}`} onClick={() => setPaymentMethod('card')}>
+                            &lt;svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginBottom: '4px' }}>
+                                &lt;rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
+                                &lt;line x1="1" y1="10" x2="23" y2="10" />
+                            &lt;/svg>
+                            &lt;span>Card&lt;/span>
+                        &lt;/button>
+                    &lt;/div>
+                    {paymentMethod === 'card' &amp;&amp; (
+                        &lt;div className="card-fields">
+                            &lt;div className="card-field-group">
+                                &lt;label className="card-field-label">Cardholder Name&lt;/label>
+                                &lt;input
+                                    className={`card-field-input ${touched.cardholderName &amp;&amp; errors.cardholderName ? 'card-field-input--error' : ''}`}
                                     type="text" placeholder="Name as it appears on card"
                                     value={cardholderName} onChange={handleCardholderNameChange}
                                     onBlur={() => handleBlur('cardholderName')} autoComplete="cc-name"
                                 />
-                                {touched.cardholderName && errors.cardholderName && <span className="card-field-error">{errors.cardholderName}</span>}
-                            </div>
-                            <div className="card-field-group">
-                                <label className="card-field-label">Card Number</label>
-                                <input
-                                    className={`card-field-input card-field-input--mono ${touched.cardNumber && errors.cardNumber ? 'card-field-input--error' : ''}`}
+                                {touched.cardholderName &amp;&amp; errors.cardholderName &amp;&amp; &lt;span className="card-field-error">{errors.cardholderName}&lt;/span>}
+                            &lt;/div>
+                            &lt;div className="card-field-group">
+                                &lt;label className="card-field-label">Card Number&lt;/label>
+                                &lt;input
+                                    className={`card-field-input card-field-input--mono ${touched.cardNumber &amp;&amp; errors.cardNumber ? 'card-field-input--error' : ''}`}
                                     type="text" inputMode="numeric" placeholder="0000 0000 0000 0000"
                                     value={cardNumber} onChange={handleCardNumberChange}
                                     onBlur={() => handleBlur('cardNumber')} maxLength={19} autoComplete="cc-number"
                                 />
-                                {touched.cardNumber && errors.cardNumber && <span className="card-field-error">{errors.cardNumber}</span>}
-                            </div>
-                            <div className="card-field-row">
-                                <div className="card-field-group">
-                                    <label className="card-field-label">Expiry Date</label>
-                                    <input
-                                        className={`card-field-input card-field-input--mono ${touched.expiry && errors.expiry ? 'card-field-input--error' : ''}`}
+                                {touched.cardNumber &amp;&amp; errors.cardNumber &amp;&amp; &lt;span className="card-field-error">{errors.cardNumber}&lt;/span>}
+                            &lt;/div>
+                            &lt;div className="card-field-row">
+                                &lt;div className="card-field-group">
+                                    &lt;label className="card-field-label">Expiry Date&lt;/label>
+                                    &lt;input
+                                        className={`card-field-input card-field-input--mono ${touched.expiry &amp;&amp; errors.expiry ? 'card-field-input--error' : ''}`}
                                         type="text" inputMode="numeric" placeholder="MM/YY"
                                         value={expiry} onChange={handleExpiryChange}
                                         onBlur={() => handleBlur('expiry')} maxLength={5} autoComplete="cc-exp"
                                     />
-                                    {touched.expiry && errors.expiry && <span className="card-field-error">{errors.expiry}</span>}
-                                </div>
-                                <div className="card-field-group">
-                                    <label className="card-field-label">CVV</label>
-                                    <input
-                                        className={`card-field-input card-field-input--mono ${touched.cvv && errors.cvv ? 'card-field-input--error' : ''}`}
+                                    {touched.expiry &amp;&amp; errors.expiry &amp;&amp; &lt;span className="card-field-error">{errors.expiry}&lt;/span>}
+                                &lt;/div>
+                                &lt;div className="card-field-group">
+                                    &lt;label className="card-field-label">CVV&lt;/label>
+                                    &lt;input
+                                        className={`card-field-input card-field-input--mono ${touched.cvv &amp;&amp; errors.cvv ? 'card-field-input--error' : ''}`}
                                         type="text" inputMode="numeric" placeholder="123"
                                         value={cvv} onChange={handleCVVChange}
                                         onBlur={() => handleBlur('cvv')} maxLength={3} autoComplete="cc-csc"
                                     />
-                                    {touched.cvv && errors.cvv && <span className="card-field-error">{errors.cvv}</span>}
-                                </div>
-                            </div>
-                        </div>
+                                    {touched.cvv &amp;&amp; errors.cvv &amp;&amp; &lt;span className="card-field-error">{errors.cvv}&lt;/span>}
+                                &lt;/div>
+                            &lt;/div>
+                        &lt;/div>
                     )}
-                    <div className="payment-total-due">
-                        <span>Total Due</span>
-                        <span>£{total.toFixed(2)}</span>
-                    </div>
-                    <button className={`confirm-payment-btn ${isSubmitting ? 'confirm-payment-btn--loading' : ''}`} onClick={handleConfirm} disabled={isSubmitting}>
+                    &lt;div className="payment-total-due">
+                        &lt;span>Total Due&lt;/span>
+                        &lt;span>£{total.toFixed(2)}&lt;/span>
+                    &lt;/div>
+                    &lt;button className={`confirm-payment-btn ${isSubmitting ? 'confirm-payment-btn--loading' : ''}`} onClick={handleConfirm} disabled={isSubmitting}>
                         {isSubmitting ? 'Processing...' : 'Confirm Payment'}
-                    </button>
-                </div>
-            </div>
-        </div>
+                    &lt;/button>
+                &lt;/div>
+            &lt;/div>
+        &lt;/div>
     );
 }
 
@@ -893,20 +921,20 @@ function PaymentPopup({ orderId, tableNumber, total, onClose, onConfirm }) {
  */
 function UnpaidOrderModal({ total, onClose, onPayNow }) {
     return (
-        <div className="customization-overlay">
-            <div className="customization-modal unpaid-modal">
-                <div className="unpaid-modal-icon">!</div>
-                <h2 className="unpaid-modal-title">Outstanding Balance</h2>
-                <p className="unpaid-modal-message">
-                    You have an unpaid order of <strong>£{total.toFixed(2)}</strong>.<br />
+        &lt;div className="customization-overlay">
+            &lt;div className="customization-modal unpaid-modal">
+                &lt;div className="unpaid-modal-icon">!&lt;/div>
+                &lt;h2 className="unpaid-modal-title">Outstanding Balance&lt;/h2>
+                &lt;p className="unpaid-modal-message">
+                    You have an unpaid order of &lt;strong>£{total.toFixed(2)}&lt;/strong>.&lt;br />
                     Please complete payment before closing your table.
-                </p>
-                <div className="unpaid-modal-actions">
-                    <button className="unpaid-dismiss-btn" onClick={onClose}>Go Back</button>
-                    <button className="unpaid-pay-btn" onClick={onPayNow}>Pay Now</button>
-                </div>
-            </div>
-        </div>
+                &lt;/p>
+                &lt;div className="unpaid-modal-actions">
+                    &lt;button className="unpaid-dismiss-btn" onClick={onClose}>Go Back&lt;/button>
+                    &lt;button className="unpaid-pay-btn" onClick={onPayNow}>Pay Now&lt;/button>
+                &lt;/div>
+            &lt;/div>
+        &lt;/div>
     );
 }
 
@@ -920,16 +948,16 @@ function UnpaidOrderModal({ total, onClose, onPayNow }) {
  */
 function OrderConfirmation() {
     return (
-        <div className="customization-overlay">
-            <div className="customization-modal confirmation-modal">
-                <div className="confirmation-icon">✓</div>
-                <h2 className="confirmation-title">Order Placed!</h2>
-                <p className="confirmation-msg">
-                    Your order has been sent to the kitchen.<br />Your waiter will be with you shortly.
-                </p>
-                <p className="confirmation-redirect">Returning you home...</p>
-            </div>
-        </div>
+        &lt;div className="customization-overlay">
+            &lt;div className="customization-modal confirmation-modal">
+                &lt;div className="confirmation-icon">✓&lt;/div>
+                &lt;h2 className="confirmation-title">Order Placed!&lt;/h2>
+                &lt;p className="confirmation-msg">
+                    Your order has been sent to the kitchen.&lt;br />Your waiter will be with you shortly.
+                &lt;/p>
+                &lt;p className="confirmation-redirect">Returning you home...&lt;/p>
+            &lt;/div>
+        &lt;/div>
     );
 }
 
@@ -943,16 +971,16 @@ function OrderConfirmation() {
  */
 function ThankYouModal() {
     return (
-        <div className="customization-overlay">
-            <div className="customization-modal confirmation-modal">
-                <div className="confirmation-icon">✓</div>
-                <h2 className="confirmation-title">Thank You!</h2>
-                <p className="confirmation-msg">
-                    Thank you for dining with us at Oaxaca.<br />We hope to see you again soon!
-                </p>
-                <p className="confirmation-redirect">Returning you home...</p>
-            </div>
-        </div>
+        &lt;div className="customization-overlay">
+            &lt;div className="customization-modal confirmation-modal">
+                &lt;div className="confirmation-icon">✓&lt;/div>
+                &lt;h2 className="confirmation-title">Thank You!&lt;/h2>
+                &lt;p className="confirmation-msg">
+                    Thank you for dining with us at Oaxaca.&lt;br />We hope to see you again soon!
+                &lt;/p>
+                &lt;p className="confirmation-redirect">Returning you home...&lt;/p>
+            &lt;/div>
+        &lt;/div>
     );
 }
 
@@ -966,17 +994,17 @@ function ThankYouModal() {
  */
 function CancelledOrderModal() {
     return (
-        <div className="customization-overlay">
-            <div className="customization-modal confirmation-modal">
-                <div className="confirmation-icon" style={{ background: "#fde8e6", color: "#c0392b" }}>✕</div>
-                <h2 className="confirmation-title">Order Cancelled</h2>
-                <p className="confirmation-msg">
-                    We're sorry, your order was cancelled by a staff member.<br />
+        &lt;div className="customization-overlay">
+            &lt;div className="customization-modal confirmation-modal">
+                &lt;div className="confirmation-icon" style={{ background: "#fde8e6", color: "#c0392b" }}>✕&lt;/div>
+                &lt;h2 className="confirmation-title">Order Cancelled&lt;/h2>
+                &lt;p className="confirmation-msg">
+                    We're sorry, your order was cancelled by a staff member.&lt;br />
                     Please speak to your waiter if you have any questions.
-                </p>
-                <p className="confirmation-redirect">Returning you home...</p>
-            </div>
-        </div>
+                &lt;/p>
+                &lt;p className="confirmation-redirect">Returning you home...&lt;/p>
+            &lt;/div>
+        &lt;/div>
     );
 }
 
@@ -993,8 +1021,8 @@ function useOrderAge(createdAt) {
         if (!createdAt) return;
         const update = () => {
             const secs = Math.floor((Date.now() - new Date(createdAt).getTime()) / 1000);
-            if (secs < 60) setElapsed(`${secs}s`);
-            else if (secs < 3600) setElapsed(`${Math.floor(secs / 60)}m ${secs % 60}s`);
+            if (secs &lt; 60) setElapsed(`${secs}s`);
+            else if (secs &lt; 3600) setElapsed(`${Math.floor(secs / 60)}m ${secs % 60}s`);
             else setElapsed(`${Math.floor(secs / 3600)}h ${Math.floor((secs % 3600) / 60)}m`);
         };
         update();
@@ -1030,19 +1058,19 @@ function OrderTimeBlock({ orderId, estMins }) {
     if (!createdAt) return null;
 
     return (
-        <div style={{ background: "#f0f7f2", border: "1px solid #b8d4c0", borderRadius: 8, padding: "10px 14px", marginTop: 8, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <div>
-                <div style={{ fontSize: 11, color: "#7a5c44", marginBottom: 2 }}>Order placed at</div>
-                <div style={{ fontSize: 13, fontWeight: 700, color: "#2D2218" }}>
+        &lt;div style={{ background: "#f0f7f2", border: "1px solid #b8d4c0", borderRadius: 8, padding: "10px 14px", marginTop: 8, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            &lt;div>
+                &lt;div style={{ fontSize: 11, color: "#7a5c44", marginBottom: 2 }}>Order placed at&lt;/div>
+                &lt;div style={{ fontSize: 13, fontWeight: 700, color: "#2D2218" }}>
                     {new Date(createdAt).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}
-                </div>
-                {estMins && <div style={{ fontSize: 11, color: "#4a7c59", fontWeight: 600, marginTop: 2 }}>Est. prep: ~{estMins} mins</div>}
-            </div>
-            <div style={{ textAlign: "right" }}>
-                <div style={{ fontSize: 11, color: "#7a5c44", marginBottom: 2 }}>Time elapsed</div>
-                <div style={{ fontSize: 13, fontWeight: 700, color: "#4a7c59" }}>⏱ {elapsed}</div>
-            </div>
-        </div>
+                &lt;/div>
+                {estMins &amp;&amp; &lt;div style={{ fontSize: 11, color: "#4a7c59", fontWeight: 600, marginTop: 2 }}>Est. prep: ~{estMins} mins&lt;/div>}
+            &lt;/div>
+            &lt;div style={{ textAlign: "right" }}>
+                &lt;div style={{ fontSize: 11, color: "#7a5c44", marginBottom: 2 }}>Time elapsed&lt;/div>
+                &lt;div style={{ fontSize: 13, fontWeight: 700, color: "#4a7c59" }}>⏱ {elapsed}&lt;/div>
+            &lt;/div>
+        &lt;/div>
     );
 }
 // TRACKING POPUP --------------------------
@@ -1090,111 +1118,111 @@ function TrackingPopup({ orderId, tableNumber, orderItems, total, onClose, onPay
     };
 
     const summaryBlock = (
-        <div className="tracking-order-summary">
-            <h3 className="summary-title">{allDelivered ? "Full Order Summary" : "Order Summary"}</h3>
-            <div className="summary-items">
+        &lt;div className="tracking-order-summary">
+            &lt;h3 className="summary-title">{allDelivered ? "Full Order Summary" : "Order Summary"}&lt;/h3>
+            &lt;div className="summary-items">
                 {entries.length === 0
-                    ? <p style={{ fontSize: 12, color: "#7a5c44", fontStyle: "italic" }}>No items</p>
+                    ? &lt;p style={{ fontSize: 12, color: "#7a5c44", fontStyle: "italic" }}>No items&lt;/p>
                     : entries.map(({ key, item, qty }) => {
                         const basePrice = parseFloat(item.price.replace("£", ""));
                         const extrasTotal = item.customization?.selectedExtras?.reduce((sum, extra) => sum + extra.price, 0) || 0;
                         const linePrice = ((basePrice + extrasTotal) * qty).toFixed(2);
                         const customizations = formatCustomizations(item);
                         return (
-                            <div key={key} className="summary-item">
-                                <div className="summary-item-header">
-                                    <span className="summary-item-name">{item.name} ×{qty}</span>
-                                    <span className="summary-item-price">£{linePrice}</span>
-                                </div>
-                                {customizations.length > 0 && (
-                                    <div className="summary-item-customizations">
+                            &lt;div key={key} className="summary-item">
+                                &lt;div className="summary-item-header">
+                                    &lt;span className="summary-item-name">{item.name} ×{qty}&lt;/span>
+                                    &lt;span className="summary-item-price">£{linePrice}&lt;/span>
+                                &lt;/div>
+                                {customizations.length > 0 &amp;&amp; (
+                                    &lt;div className="summary-item-customizations">
                                         {customizations.map((custom, idx) => {
                                             let customClass = "summary-custom-text";
                                             if (custom.startsWith('No:')) customClass += " customization-removed";
                                             else if (custom.startsWith('Extra:')) customClass += " customization-extra";
                                             else if (custom.startsWith('Note:')) customClass += " customization-note";
-                                            return <p key={idx} className={customClass}>{custom}</p>;
+                                            return &lt;p key={idx} className={customClass}>{custom}&lt;/p>;
                                         })}
-                                    </div>
+                                    &lt;/div>
                                 )}
-                            </div>
+                            &lt;/div>
                         );
                     })}
-            </div>
-            <div className="summary-total">
-                <span>Total Amount</span>
-                <span>£{displayTotal.toFixed(2)}</span>
-            </div>
-        </div>
+            &lt;/div>
+            &lt;div className="summary-total">
+                &lt;span>Total Amount&lt;/span>
+                &lt;span>£{displayTotal.toFixed(2)}&lt;/span>
+            &lt;/div>
+        &lt;/div>
     );
 
     const payButton = allDelivered
-        ? <button className="pay-now-tracking-btn" onClick={() => { onClose(); onPaymentClick(); }}>PAY NOW • £{displayTotal.toFixed(2)}</button>
-        : <p className="payment-message">Payment will be available once all your orders have been delivered</p>;
+        ? &lt;button className="pay-now-tracking-btn" onClick={() => { onClose(); onPaymentClick(); }}>PAY NOW • £{displayTotal.toFixed(2)}&lt;/button>
+        : &lt;p className="payment-message">Payment will be available once all your orders have been delivered&lt;/p>;
 
     if (embedded) {
         return (
-            <div className="customization-content">
-                {!allDelivered && (
-                    <>
-                        <div className="order-info">
-                            <span className="table-number-display">Table: {tableNumber}</span>
-                            <span className="order-id-display">Order ID: #{orderId}</span>
-                        </div>
-                        <OrderTimeBlock orderId={orderId} estMins={estMins} />
-                        <div className="progress-steps">
+            &lt;div className="customization-content">
+                {!allDelivered &amp;&amp; (
+                    &lt;>
+                        &lt;div className="order-info">
+                            &lt;span className="table-number-display">Table: {tableNumber}&lt;/span>
+                            &lt;span className="order-id-display">Order ID: #{orderId}&lt;/span>
+                        &lt;/div>
+                        &lt;OrderTimeBlock orderId={orderId} estMins={estMins} />
+                        &lt;div className="progress-steps">
                             {steps.map(step => (
-                                <div key={step.id} className={`step-item ${currentStep >= step.id ? 'step-completed' : ''} ${currentStep === step.id ? 'step-current' : ''}`}>
-                                    <div className="step-indicator">{currentStep > step.id ? '✓' : step.id}</div>
-                                    <div className="step-content">
-                                        <span className="step-name">{step.name}</span>
-                                        <span className="step-status">{currentStep > step.id ? 'Completed' : currentStep === step.id ? 'In Progress' : 'Pending'}</span>
-                                    </div>
-                                </div>
+                                &lt;div key={step.id} className={`step-item ${currentStep >= step.id ? 'step-completed' : ''} ${currentStep === step.id ? 'step-current' : ''}`}>
+                                    &lt;div className="step-indicator">{currentStep > step.id ? '✓' : step.id}&lt;/div>
+                                    &lt;div className="step-content">
+                                        &lt;span className="step-name">{step.name}&lt;/span>
+                                        &lt;span className="step-status">{currentStep > step.id ? 'Completed' : currentStep === step.id ? 'In Progress' : 'Pending'}&lt;/span>
+                                    &lt;/div>
+                                &lt;/div>
                             ))}
-                        </div>
-                    </>
+                        &lt;/div>
+                    &lt;/>
                 )}
-                {allDelivered && (
-                    <div style={{ textAlign: "center", padding: "16px 0 8px", color: "#4a7c59", fontWeight: 700, fontSize: 15 }}>
+                {allDelivered &amp;&amp; (
+                    &lt;div style={{ textAlign: "center", padding: "16px 0 8px", color: "#4a7c59", fontWeight: 700, fontSize: 15 }}>
                         ✓ All orders delivered — ready to pay
-                    </div>
+                    &lt;/div>
                 )}
                 {summaryBlock}
                 {payButton}
-            </div>
+            &lt;/div>
         );
     }
 
     return (
-        <div className="customization-overlay" onClick={onClose}>
-            <div className="customization-modal tracking-modal" onClick={(e) => e.stopPropagation()}>
-                <div className="customization-header">
-                    <h2 className="customization-title">Order Progress</h2>
-                    <button className="customization-close" onClick={onClose}>✕</button>
-                </div>
-                <div className="customization-content">
-                    <div className="order-info">
-                        <span className="table-number-display">Table: {tableNumber}</span>
-                        <span className="order-id-display">Order ID: #{orderId}</span>
-                    </div>
-                    <OrderTimeBlock orderId={orderId} estMins={estMins} />
-                    <div className="progress-steps">
+        &lt;div className="customization-overlay" onClick={onClose}>
+            &lt;div className="customization-modal tracking-modal" onClick={(e) => e.stopPropagation()}>
+                &lt;div className="customization-header">
+                    &lt;h2 className="customization-title">Order Progress&lt;/h2>
+                    &lt;button className="customization-close" onClick={onClose}>✕&lt;/button>
+                &lt;/div>
+                &lt;div className="customization-content">
+                    &lt;div className="order-info">
+                        &lt;span className="table-number-display">Table: {tableNumber}&lt;/span>
+                        &lt;span className="order-id-display">Order ID: #{orderId}&lt;/span>
+                    &lt;/div>
+                    &lt;OrderTimeBlock orderId={orderId} estMins={estMins} />
+                    &lt;div className="progress-steps">
                         {steps.map((step) => (
-                            <div key={step.id} className={`step-item ${currentStep >= step.id ? 'step-completed' : ''} ${currentStep === step.id ? 'step-current' : ''}`}>
-                                <div className="step-indicator">{currentStep > step.id ? '✓' : step.id}</div>
-                                <div className="step-content">
-                                    <span className="step-name">{step.name}</span>
-                                    <span className="step-status">{currentStep > step.id ? 'Completed' : currentStep === step.id ? 'In Progress' : 'Pending'}</span>
-                                </div>
-                            </div>
+                            &lt;div key={step.id} className={`step-item ${currentStep >= step.id ? 'step-completed' : ''} ${currentStep === step.id ? 'step-current' : ''}`}>
+                                &lt;div className="step-indicator">{currentStep > step.id ? '✓' : step.id}&lt;/div>
+                                &lt;div className="step-content">
+                                    &lt;span className="step-name">{step.name}&lt;/span>
+                                    &lt;span className="step-status">{currentStep > step.id ? 'Completed' : currentStep === step.id ? 'In Progress' : 'Pending'}&lt;/span>
+                                &lt;/div>
+                            &lt;/div>
                         ))}
-                    </div>
+                    &lt;/div>
                     {summaryBlock}
                     {payButton}
-                </div>
-            </div>
-        </div>
+                &lt;/div>
+            &lt;/div>
+        &lt;/div>
     );
 }
 
@@ -1374,7 +1402,7 @@ export default function App() {
                 .then(r => r.json())
                 .then(data => {
                     const low = new Set();
-                    data.forEach(s => { if (s.level < 10) s.used_in.split(', ').forEach(d => low.add(d)); });
+                    data.forEach(s => { if (s.level &lt; 10) s.used_in.split(', ').forEach(d => low.add(d)); });
                     setLowStockDishes(low);
                 })
                 .catch(() => { });
@@ -1418,7 +1446,7 @@ export default function App() {
                         try {
                             const allRes = await fetch(`http://127.0.0.1:8000/orders?table_id=${table_id}`);
                             const allOrders = await allRes.json();
-                            const active = allOrders.filter(o => o.status !== "Cancelled" && o.status !== "Paid");
+                            const active = allOrders.filter(o => o.status !== "Cancelled" &amp;&amp; o.status !== "Paid");
                             if (active.length > 0) {
                                 const latest = active[active.length - 1];
                                 const newId = String(latest.order_id);
@@ -1457,7 +1485,7 @@ export default function App() {
                         try {
                             const allRes = await fetch(`http://127.0.0.1:8000/orders?table_id=${table_id}`);
                             const allOrders = await allRes.json();
-                            const active = allOrders.filter(o => o.status !== "Cancelled" && o.status !== "Paid");
+                            const active = allOrders.filter(o => o.status !== "Cancelled" &amp;&amp; o.status !== "Paid");
                             if (active.length > 0) {
                                 const latest = active[active.length - 1];
                                 const newId = String(latest.order_id);
@@ -1505,7 +1533,7 @@ export default function App() {
     // CHECK IF CUSTOMER EXISTS BEFORE PLACING ORDERS
     useEffect(() => {
         const ensureCustomerExists = async () => {
-            if (cust_id && table_id) {
+            if (cust_id &amp;&amp; table_id) {
                 try {
                     const response = await fetch(`http://127.0.0.1:8000/customers?table_id=${table_id}`);
                     const customers = await response.json();
@@ -1567,7 +1595,7 @@ export default function App() {
     function matchesFilter(item) {
         const passesDietary = activeFilters.length === 0 || activeFilters.every((f) => item.dietary.includes(f));
         const passesAllergens = excludedAllergens.length === 0 || excludedAllergens.every((a) => !item.allergens.includes(a));
-        return passesDietary && passesAllergens;
+        return passesDietary &amp;&amp; passesAllergens;
     }
 
     /**
@@ -1580,7 +1608,7 @@ export default function App() {
         if (totalQtyForItem >= 25) return;
         const existingItemKey = Object.keys(cart).find(key => {
             const cartItem = cart[key].item;
-            if (item.customization) return cartItem.id === item.id && JSON.stringify(cartItem.customization) === JSON.stringify(item.customization);
+            if (item.customization) return cartItem.id === item.id &amp;&amp; JSON.stringify(cartItem.customization) === JSON.stringify(item.customization);
             return false;
         });
 
@@ -1599,7 +1627,7 @@ export default function App() {
      * @param {number} newQty - New quantity
      */
     function handleUpdateQty(itemKey, newQty) {
-        if (newQty <= 0) { handleRemove(itemKey); return; }
+        if (newQty &lt;= 0) { handleRemove(itemKey); return; }
         const itemId = cart[itemKey].item.id;
         const otherQty = Object.entries(cart).filter(([k]) => k !== itemKey).reduce((sum, [, v]) => v.item.id === itemId ? sum + v.qty : sum, 0);
         if (otherQty + newQty > 25) return;
@@ -1731,7 +1759,7 @@ export default function App() {
      * @function handleCloseTable
      */
     function handleCloseTable() {
-        if (hasActiveOrder && !isPaid) {
+        if (hasActiveOrder &amp;&amp; !isPaid) {
             setUnpaidModalOpen(true);
         } else {
             sessionStorage.clear();
@@ -1789,12 +1817,12 @@ export default function App() {
         return sum + (basePrice + extrasTotal) * qty;
     }, 0);
 
-    const allDelivered = liveOrderIds.length > 0 && liveOrderIds.every(oid => (liveSteps[String(oid)] ?? liveSteps[Number(oid)] ?? 1) >= 5);
+    const allDelivered = liveOrderIds.length > 0 &amp;&amp; liveOrderIds.every(oid => (liveSteps[String(oid)] ?? liveSteps[Number(oid)] ?? 1) >= 5);
 
     // RENDER --------------------------
     return (
-        <div className="app">
-            <Header
+        &lt;div className="app">
+            &lt;Header
                 tableNumber={table_id ? `Table ${table_id}` : "Table"}
                 table_id={table_id}
                 cartCount={cartCount}
@@ -1803,8 +1831,8 @@ export default function App() {
                 onContactWaiter={() => setContactWaiterOpen(true)}
             />
 
-            <main className="main-content">
-                <FilterBar
+            &lt;main className="main-content">
+                &lt;FilterBar
                     activeFilters={activeFilters}
                     onFilterToggle={handleFilterToggle}
                     excludedAllergens={excludedAllergens}
@@ -1812,9 +1840,9 @@ export default function App() {
                     onTrackOrder={() => setTrackingOpen(true)}
                     hasActiveOrder={hasActiveOrder}
                 />
-                <div className="menu-sections">
+                &lt;div className="menu-sections">
                     {Object.entries(MENU_DATA).map(([sectionName, items]) => (
-                        <MenuSection
+                        &lt;MenuSection
                             key={sectionName}
                             sectionName={sectionName}
                             items={items.map(item => ({
@@ -1829,31 +1857,31 @@ export default function App() {
                             lowStockDishes={lowStockDishes}
                         />
                     ))}
-                </div>
-            </main>
+                &lt;/div>
+            &lt;/main>
 
-            {cartOpen && <CartModal cart={cart} onClose={() => setCartOpen(false)} onUpdateQty={handleUpdateQty} onRemove={handleRemove} onPlaceOrder={handlePlaceOrder} />}
-            {confirmed && <OrderConfirmation />}
-            {customizingItem && <CustomizationPopup item={customizingItem} onClose={() => setCustomizingItem(null)} onAddToCart={handleAddToCart} />}
+            {cartOpen &amp;&amp; &lt;CartModal cart={cart} onClose={() => setCartOpen(false)} onUpdateQty={handleUpdateQty} onRemove={handleRemove} onPlaceOrder={handlePlaceOrder} />}
+            {confirmed &amp;&amp; &lt;OrderConfirmation />}
+            {customizingItem &amp;&amp; &lt;CustomizationPopup item={customizingItem} onClose={() => setCustomizingItem(null)} onAddToCart={handleAddToCart} />}
 
-            {trackingOpen && hasActiveOrder && (
-                <div className="customization-overlay" onClick={() => setTrackingOpen(false)}>
-                    <div className="customization-modal tracking-modal" onClick={e => e.stopPropagation()}>
-                        <div className="customization-header">
-                            <h2 className="customization-title">Order Progress</h2>
-                            <button className="customization-close" onClick={() => setTrackingOpen(false)}>✕</button>
-                        </div>
-                        {!allDelivered && liveOrderIds.length > 1 && (
-                            <div style={{ display: "flex", gap: 6, padding: "10px 20px 0", overflowX: "auto" }}>
+            {trackingOpen &amp;&amp; hasActiveOrder &amp;&amp; (
+                &lt;div className="customization-overlay" onClick={() => setTrackingOpen(false)}>
+                    &lt;div className="customization-modal tracking-modal" onClick={e => e.stopPropagation()}>
+                        &lt;div className="customization-header">
+                            &lt;h2 className="customization-title">Order Progress&lt;/h2>
+                            &lt;button className="customization-close" onClick={() => setTrackingOpen(false)}>✕&lt;/button>
+                        &lt;/div>
+                        {!allDelivered &amp;&amp; liveOrderIds.length > 1 &amp;&amp; (
+                            &lt;div style={{ display: "flex", gap: 6, padding: "10px 20px 0", overflowX: "auto" }}>
                                 {liveOrderIds.map((oid, idx) => (
-                                    <button key={oid} onClick={() => setActiveOrderTab(idx)}
+                                    &lt;button key={oid} onClick={() => setActiveOrderTab(idx)}
                                         style={{ padding: "5px 14px", borderRadius: 20, border: "none", cursor: "pointer", fontFamily: "Jost, sans-serif", fontSize: 11, fontWeight: 600, background: activeOrderTab === idx ? "#2D2218" : "#f0e6d3", color: activeOrderTab === idx ? "#f5f0e8" : "#7a5c44", whiteSpace: "nowrap", flexShrink: 0 }}>
                                         Order #{oid}
-                                    </button>
+                                    &lt;/button>
                                 ))}
-                            </div>
+                            &lt;/div>
                         )}
-                        <TrackingPopup
+                        &lt;TrackingPopup
                             orderId={currentTabOrderId}
                             tableNumber={table_id ? `Table ${table_id}` : "Table"}
                             orderItems={currentTabItems}
@@ -1868,15 +1896,37 @@ export default function App() {
                             allOrderItems={allOrderItems}
                             allTotal={allTotal}
                         />
-                    </div>
-                </div>
+                    &lt;/div>
+                &lt;/div>
             )}
 
-            {paymentOpen && <PaymentPopup orderId={liveOrderId} tableNumber={table_id ? `Table ${table_id}` : "Table"} total={allTotal} onClose={() => setPaymentOpen(false)} onConfirm={handlePaymentConfirm} />}
-            {unpaidModalOpen && <UnpaidOrderModal total={allTotal} onClose={() => setUnpaidModalOpen(false)} onPayNow={() => { setUnpaidModalOpen(false); setPaymentOpen(true); }} />}
-            {thankYouOpen && <ThankYouModal />}
-            {orderCancelled && <CancelledOrderModal />}
-            {contactWaiterOpen && <ContactWaiterModal table_id={table_id} onClose={() => setContactWaiterOpen(false)} />}
-        </div>
+            {paymentOpen &amp;&amp; &lt;PaymentPopup orderId={liveOrderId} tableNumber={table_id ? `Table ${table_id}` : "Table"} total={allTotal} onClose={() => setPaymentOpen(false)} onConfirm={handlePaymentConfirm} />}
+            {unpaidModalOpen &amp;&amp; &lt;UnpaidOrderModal total={allTotal} onClose={() => setUnpaidModalOpen(false)} onPayNow={() => { setUnpaidModalOpen(false); setPaymentOpen(true); }} />}
+            {thankYouOpen &amp;&amp; &lt;ThankYouModal />}
+            {orderCancelled &amp;&amp; &lt;CancelledOrderModal />}
+            {contactWaiterOpen &amp;&amp; &lt;ContactWaiterModal table_id={table_id} onClose={() => setContactWaiterOpen(false)} />}
+        &lt;/div>
     );
-}
+}</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-App.html">App</a></li><li><a href="module-KitchenDashboard.html">KitchenDashboard</a></li><li><a href="module-KitchenLogin.html">KitchenLogin</a></li><li><a href="module-ManagerDashboard.html">ManagerDashboard</a></li><li><a href="module-MenuApp.html">MenuApp</a></li><li><a href="module-WaiterDashboard.html">WaiterDashboard</a></li></ul><h3>Global</h3><ul><li><a href="global.html#ALLERGEN_OPTIONS">ALLERGEN_OPTIONS</a></li><li><a href="global.html#AccountPanel">AccountPanel</a></li><li><a href="global.html#AddItemsModal">AddItemsModal</a></li><li><a href="global.html#AllergenDropdown">AllergenDropdown</a></li><li><a href="global.html#C">C</a></li><li><a href="global.html#CancelledOrderModal">CancelledOrderModal</a></li><li><a href="global.html#CartIcon">CartIcon</a></li><li><a href="global.html#CartModal">CartModal</a></li><li><a href="global.html#ContactWaiterModal">ContactWaiterModal</a></li><li><a href="global.html#CustomerLogin">CustomerLogin</a></li><li><a href="global.html#CustomizationPopup">CustomizationPopup</a></li><li><a href="global.html#DIET_FILTERS">DIET_FILTERS</a></li><li><a href="global.html#Dropdown">Dropdown</a></li><li><a href="global.html#EmployeesTab">EmployeesTab</a></li><li><a href="global.html#FilterBar">FilterBar</a></li><li><a href="global.html#Header">Header</a></li><li><a href="global.html#IconAlert">IconAlert</a></li><li><a href="global.html#IconBell">IconBell</a></li><li><a href="global.html#IconClock">IconClock</a></li><li><a href="global.html#IconDoor">IconDoor</a></li><li><a href="global.html#MENU_META">MENU_META</a></li><li><a href="global.html#MenuItemCard">MenuItemCard</a></li><li><a href="global.html#MenuSection">MenuSection</a></li><li><a href="global.html#MenuTab">MenuTab</a></li><li><a href="global.html#Modal">Modal</a></li><li><a href="global.html#NavIcon">NavIcon</a></li><li><a href="global.html#NotificationsPanel">NotificationsPanel</a></li><li><a href="global.html#ORDER_STATUSES">ORDER_STATUSES</a></li><li><a href="global.html#OrderCard">OrderCard</a></li><li><a href="global.html#OrderConfirmation">OrderConfirmation</a></li><li><a href="global.html#OrderTimeBlock">OrderTimeBlock</a></li><li><a href="global.html#OrdersTab">OrdersTab</a></li><li><a href="global.html#OverviewTab">OverviewTab</a></li><li><a href="global.html#PaymentPopup">PaymentPopup</a></li><li><a href="global.html#SectionCard">SectionCard</a></li><li><a href="global.html#StockInput">StockInput</a></li><li><a href="global.html#StockTab">StockTab</a></li><li><a href="global.html#TablesTab">TablesTab</a></li><li><a href="global.html#ThankYouModal">ThankYouModal</a></li><li><a href="global.html#TrackingPopup">TrackingPopup</a></li><li><a href="global.html#UnpaidModal">UnpaidModal</a></li><li><a href="global.html#UnpaidOrderModal">UnpaidOrderModal</a></li><li><a href="global.html#addItemsToOrder">addItemsToOrder</a></li><li><a href="global.html#cancelOrder">cancelOrder</a></li><li><a href="global.html#changeQty">changeQty</a></li><li><a href="global.html#changeStatus">changeStatus</a></li><li><a href="global.html#clearAll">clearAll</a></li><li><a href="global.html#confirmOrder">confirmOrder</a></li><li><a href="global.html#deliverOrder">deliverOrder</a></li><li><a href="global.html#dismiss">dismiss</a></li><li><a href="global.html#elapsedColor">elapsedColor</a></li><li><a href="global.html#formatCardNumber">formatCardNumber</a></li><li><a href="global.html#formatCustomizations">formatCustomizations</a></li><li><a href="global.html#formatExpiry">formatExpiry</a></li><li><a href="global.html#getElapsed">getElapsed</a></li><li><a href="global.html#goToRoles">goToRoles</a></li><li><a href="global.html#handleAddToOrder">handleAddToOrder</a></li><li><a href="global.html#handleBlur">handleBlur</a></li><li><a href="global.html#handleCVVChange">handleCVVChange</a></li><li><a href="global.html#handleCardNumberChange">handleCardNumberChange</a></li><li><a href="global.html#handleCardholderNameChange">handleCardholderNameChange</a></li><li><a href="global.html#handleChange">handleChange</a></li><li><a href="global.html#handleCloseTable">handleCloseTable</a></li><li><a href="global.html#handleConfirm">handleConfirm</a></li><li><a href="global.html#handleContinue">handleContinue</a></li><li><a href="global.html#handleExpiryChange">handleExpiryChange</a></li><li><a href="global.html#handleKeyDown">handleKeyDown</a></li><li><a href="global.html#handleSend">handleSend</a></li><li><a href="global.html#handleToggleExtra">handleToggleExtra</a></li><li><a href="global.html#handleToggleIngredient">handleToggleIngredient</a></li><li><a href="global.html#isFormValid">isFormValid</a></li><li><a href="global.html#marginColor">marginColor</a></li><li><a href="global.html#markAll">markAll</a></li><li><a href="global.html#markRead">markRead</a></li><li><a href="global.html#notifColor">notifColor</a></li><li><a href="global.html#removeItem">removeItem</a></li><li><a href="global.html#restock">restock</a></li><li><a href="global.html#savePrice">savePrice</a></li><li><a href="global.html#startEditPrice">startEditPrice</a></li><li><a href="global.html#statusColor">statusColor</a></li><li><a href="global.html#stockStatus">stockStatus</a></li><li><a href="global.html#tileColors">tileColors</a></li><li><a href="global.html#toggle">toggle</a></li><li><a href="global.html#toggleAvail">toggleAvail</a></li><li><a href="global.html#useCustomerAlerts">useCustomerAlerts</a></li><li><a href="global.html#useElapsed">useElapsed</a></li><li><a href="global.html#useKitchenNotifications">useKitchenNotifications</a></li><li><a href="global.html#useOrderAge">useOrderAge</a></li><li><a href="global.html#useOutsideClick">useOutsideClick</a></li><li><a href="global.html#useWaiterAlerts">useWaiterAlerts</a></li><li><a href="global.html#validateCVV">validateCVV</a></li><li><a href="global.html#validateCardNumber">validateCardNumber</a></li><li><a href="global.html#validateCardholderName">validateCardholderName</a></li><li><a href="global.html#validateExpiry">validateExpiry</a></li><li><a href="global.html#validateField">validateField</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.5</a> on Sun Mar 29 2026 00:44:39 GMT+0000 (Greenwich Mean Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

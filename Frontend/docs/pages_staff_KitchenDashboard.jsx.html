@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: pages/staff/KitchenDashboard.jsx</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: pages/staff/KitchenDashboard.jsx</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import { useState, useEffect, useRef } from "react";
+import { useLocation, useNavigate } from 'react-router-dom';
+
+// COLOUR PALETTE --------------------------
+/**
+ * Color palette constants for the kitchen dashboard UI
+ * @constant {Object} C
+ * @property {string} bg - Background color
+ * @property {string} panel - Panel background color
+ * @property {string} dark - Dark text color
+ * @property {string} mid - Medium brown color
+ * @property {string} warm - Warm orange color
+ * @property {string} light - Light beige color
+ * @property {string} pale - Pale beige color
+ * @property {string} green - Green color
+ * @property {string} greenL - Light green color
+ * @property {string} red - Red color
+ * @property {string} redL - Light red color
+ * @property {string} amber - Amber color
+ * @property {string} text - Text color
+ * @property {string} muted - Muted text color
+ * @property {string} border - Border color
+ */
+const C = {
+  bg: "#f5f0e8", panel: "#faf7f2", dark: "#2D2218", mid: "#8b4513",
+  warm: "#c4763a", light: "#e8d5b7", pale: "#f0e6d3",
+  green: "#4a7c59", greenL: "#d4edda",
+  red: "#c0392b", redL: "#fde8e6",
+  amber: "#d4870e",
+  text: "#2c1810", muted: "#7a5c44", border: "#d4b896",
+};
+
+// HOOKS --------------------------
+/**
+ * Custom hook to detect clicks outside a referenced element
+ * @function useOutsideClick
+ * @param {React.RefObject} ref - React ref of the element to watch
+ * @param {Function} cb - Callback function when click outside occurs
+ */
+function useOutsideClick(ref, cb) {
+  useEffect(() => {
+    const fn = e => { if (ref.current &amp;&amp; !ref.current.contains(e.target)) cb(); };
+    document.addEventListener("mousedown", fn);
+    return () => document.removeEventListener("mousedown", fn);
+  }, [ref, cb]);
+}
+
+// ELASPED TIME HELPERS --------------------------
+/**
+ * Calculates elapsed time since order started
+ * @function getElapsed
+ * @param {number} startedAt - Timestamp when order started (ms)
+ * @returns {string} Formatted elapsed time string (e.g., "5 mins", "1h 23m")
+ */
+function getElapsed(startedAt) {
+  const mins = Math.floor((Date.now() - startedAt) / 60000);
+  if (mins &lt; 1) return "&lt; 1 min";
+  if (mins &lt; 60) return `${mins} min${mins !== 1 ? "s" : ""}`;
+  const h = Math.floor(mins / 60), m = mins % 60;
+  return `${h}h ${m}m`;
+}
+
+/**
+ * Determines color for elapsed time based on urgency
+ * @function elapsedColor
+ * @param {number} startedAt - Timestamp when order started (ms)
+ * @returns {string} Color code (green for &lt;10min, amber for 10-20min, red for >20min)
+ */
+function elapsedColor(startedAt) {
+  const mins = Math.floor((Date.now() - startedAt) / 60000);
+  return mins > 20 ? C.red : mins > 10 ? C.amber : C.green;
+}
+
+// ICONS --------------------------
+/**
+ * Clock Icon Component
+ * @component
+ * @returns {JSX.Element} Clock SVG icon
+ */
+const IconClock = () => (
+  &lt;svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+    &lt;circle cx="12" cy="12" r="10" />&lt;polyline points="12 6 12 12 16 14" />
+  &lt;/svg>
+);
+
+/**
+ * Door Icon Component (for logout)
+ * @component
+ * @returns {JSX.Element} Door SVG icon
+ */
+const IconDoor = () => (
+  &lt;svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={C.red} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    &lt;path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />&lt;polyline points="16 17 21 12 16 7" />&lt;line x1="21" y1="12" x2="9" y2="12" />
+  &lt;/svg>
+);
+
+// NOTIFICATIONS PANEL --------------------------
+/**
+ * Bell Icon Component
+ * @component
+ * @returns {JSX.Element} Bell SVG icon
+ */
+const IconBell = () => (
+  &lt;svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    &lt;path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />&lt;path d="M13.73 21a2 2 0 0 1-3.46 0" />
+  &lt;/svg>
+);
+
+/**
+ * Notifications Panel Component
+ * Displays system alerts and customer assistance requests
+ * 
+ * @component
+ * @param {Object} props - Component props
+ * @param {Array} props.notifications - Array of notification objects
+ * @param {Function} props.setNotifications - State setter for notifications
+ * @returns {JSX.Element} Notifications dropdown panel
+ */
+function NotificationsPanel({ notifications, setNotifications }) {
+  const unread = notifications.filter(n => !n.read).length;
+
+  /**
+   * Marks a notification as read
+   * @function markRead
+   * @param {number|string} id - Notification ID
+   */
+  const markRead = id => setNotifications(p => p.map(n => n.id === id ? { ...n, read: true } : n));
+
+  /**
+   * Dismisses (removes) a notification
+   * @function dismiss
+   * @param {number|string} id - Notification ID
+   */
+  const dismiss = id => setNotifications(p => p.filter(n => n.id !== id));
+
+  /**
+   * Marks all notifications as read
+   * @function markAll
+   */
+  const markAll = () => setNotifications(p => p.map(n => ({ ...n, read: true })));
+
+  /**
+   * Clears all notifications
+   * @function clearAll
+   */
+  const clearAll = () => setNotifications([]);
+
+  const typeColor = { alert: C.red, customer: C.warm };
+
+  return (
+    &lt;div style={{ position: "absolute", top: "calc(100% + 10px)", right: 0, width: 360, background: C.panel, border: `1.5px solid ${C.border}`, borderRadius: 10, boxShadow: "0 8px 32px rgba(0,0,0,.2)", zIndex: 900, animation: "dropIn .15s ease" }}>
+      &lt;div style={{ padding: "13px 16px 10px", borderBottom: `1px solid ${C.border}`, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        &lt;div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          &lt;span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 17, fontWeight: 700, color: C.dark }}>Alerts&lt;/span>
+          {unread > 0 &amp;&amp; &lt;span style={{ background: C.red, color: "white", fontSize: 10, fontWeight: 700, padding: "1px 7px", borderRadius: 10 }}>{unread}&lt;/span>}
+        &lt;/div>
+        &lt;div style={{ display: "flex", gap: 10 }}>
+          {unread > 0 &amp;&amp; &lt;button onClick={markAll} style={{ fontSize: 10, color: C.mid, background: "none", border: "none", cursor: "pointer", fontFamily: "Jost, sans-serif", fontWeight: 600 }}>Mark all read&lt;/button>}
+          {notifications.length > 0 &amp;&amp; &lt;button onClick={clearAll} style={{ fontSize: 10, color: C.muted, background: "none", border: "none", cursor: "pointer", fontFamily: "Jost, sans-serif" }}>Clear all&lt;/button>}
+        &lt;/div>
+      &lt;/div>
+      &lt;div style={{ maxHeight: 340, overflowY: "auto" }}>
+        {notifications.length === 0 &amp;&amp; (
+          &lt;div style={{ padding: "28px 16px", textAlign: "center", color: C.muted, fontSize: 13 }}>No alerts&lt;/div>
+        )}
+        {notifications.map(n => (
+          &lt;div key={n.id} onClick={() => markRead(n.id)}
+            style={{ padding: "11px 16px", borderBottom: `1px solid ${C.pale}`, display: "flex", gap: 10, cursor: "pointer", background: n.read ? "transparent" : "rgba(196,118,58,.04)" }}
+            onMouseEnter={e => e.currentTarget.style.background = C.pale}
+            onMouseLeave={e => e.currentTarget.style.background = n.read ? "transparent" : "rgba(196,118,58,.04)"}>
+            &lt;div style={{ width: 3, borderRadius: 2, background: typeColor[n.type] ?? C.warm, flexShrink: 0, alignSelf: "stretch" }} />
+            &lt;div style={{ flex: 1 }}>
+              &lt;div style={{ fontSize: 12, fontWeight: n.read ? 400 : 700, color: C.text }}>Table {n.table}{n.order &amp;&amp; n.order !== "–" ? ` — Order #${n.order}` : ""}&lt;/div>
+              &lt;p style={{ fontSize: 11, color: typeColor[n.type] ?? C.warm, marginTop: 3, fontWeight: 600 }}>{n.status}&lt;/p>
+              {n.customerMessage &amp;&amp; (
+                &lt;p style={{ fontSize: 11, color: C.muted, marginTop: 3, fontStyle: "italic" }}>"{n.customerMessage}"&lt;/p>
+              )}
+            &lt;/div>
+            {!n.read &amp;&amp; &lt;div style={{ width: 6, height: 6, borderRadius: "50%", background: C.warm, flexShrink: 0, marginTop: 4 }} />}
+            &lt;button onClick={e => { e.stopPropagation(); dismiss(n.id); }} style={{ background: "none", border: "none", color: C.muted, cursor: "pointer", fontSize: 14, flexShrink: 0 }}>✕&lt;/button>
+          &lt;/div>
+        ))}
+      &lt;/div>
+    &lt;/div>
+  );
+}
+
+// ACCOUNT PANEL --------------------------
+/**
+ * Account Panel Component
+ * Displays staff information and logout option
+ * 
+ * @component
+ * @param {Object} props - Component props
+ * @param {Function} props.addToast - Toast notification handler
+ * @param {Object} props.staffInfo - Staff information object
+ * @param {Function} props.onLogout - Logout handler function
+ * @returns {JSX.Element} Account dropdown panel
+ */
+function AccountPanel({ addToast, staffInfo, onLogout }) {
+  const initials = staffInfo?.name ? staffInfo.name.slice(0, 2).toUpperCase() : "??";
+  const displayName = staffInfo?.name ?? "Unknown";
+  const role = staffInfo?.role ?? "Kitchen Staff";
+
+  return (
+    &lt;div style={{ position: "absolute", top: "calc(100% + 10px)", right: 0, width: 240, background: C.panel, border: `1.5px solid ${C.border}`, borderRadius: 10, boxShadow: "0 8px 32px rgba(0,0,0,.2)", zIndex: 900, animation: "dropIn .15s ease" }}>
+      &lt;div style={{ padding: "14px 16px", display: "flex", alignItems: "center", gap: 12, borderBottom: `1px solid ${C.border}` }}>
+        &lt;div style={{ width: 42, height: 42, borderRadius: "50%", background: C.green, display: "grid", placeItems: "center", color: "white", fontSize: 13, fontWeight: 700, flexShrink: 0 }}>{initials}&lt;/div>
+        &lt;div>
+          &lt;div style={{ fontSize: 13, fontWeight: 600, color: C.text }}>{displayName}&lt;/div>
+          &lt;div style={{ fontSize: 11, color: C.muted }}>{staffInfo?.username ?? displayName.toLowerCase()}@oaxaca.com&lt;/div>
+          &lt;div style={{ fontSize: 10, fontWeight: 600, letterSpacing: ".08em", textTransform: "uppercase", color: C.mid, marginTop: 2 }}>{role}&lt;/div>
+        &lt;/div>
+      &lt;/div>
+      &lt;div onClick={async () => {
+        onLogout();
+      }}
+        style={{ padding: "13px 16px", display: "flex", alignItems: "center", gap: 10, cursor: "pointer", transition: "background .15s", borderRadius: "0 0 10px 10px" }}
+        onMouseEnter={e => e.currentTarget.style.background = C.redL}
+        onMouseLeave={e => e.currentTarget.style.background = "transparent"}>
+        &lt;IconDoor />&lt;span style={{ fontSize: 13, fontWeight: 600, color: C.red }}>Sign Out&lt;/span>
+      &lt;/div>
+    &lt;/div>
+  );
+}
+
+// ORDER CARD --------------------------
+/**
+ * Order Card Component
+ * Displays individual order details with prep time and action buttons
+ * 
+ * @component
+ * @param {Object} props - Component props
+ * @param {Object} props.order - Order object containing items and metadata
+ * @param {string|null} props.btnLabel - Button label (null if no button)
+ * @param {string|null} props.btnColor - Button background color
+ * @param {Function|null} props.onAction - Action handler for button click
+ * @returns {JSX.Element} Order card component
+ */
+function OrderCard({ order, btnLabel, btnColor, onAction }) {
+  const [, tick] = useState(0);
+  useEffect(() => { const t = setInterval(() => tick(n => n + 1), 30000); return () => clearInterval(t); }, []);
+
+  const elapsedMins = Math.floor((Date.now() - order.startedAt) / 60000);
+  const remaining = Math.max(0, (order.estMins ?? 15) - elapsedMins);
+  const overdue = elapsedMins > (order.estMins ?? 15);
+
+  return (
+    &lt;div style={{ background: C.bg, border: `1.5px solid ${C.border}`, borderRadius: 8, padding: "12px 14px", marginBottom: 10, transition: "box-shadow .15s" }}
+      onMouseEnter={e => e.currentTarget.style.boxShadow = "0 3px 12px rgba(0,0,0,.08)"}
+      onMouseLeave={e => e.currentTarget.style.boxShadow = ""}>
+      &lt;div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+        &lt;span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 17, fontWeight: 700, color: C.dark }}>{order.table}&lt;/span>
+        &lt;span style={{ fontSize: 11, fontWeight: 700, color: elapsedColor(order.startedAt), display: "flex", alignItems: "center", gap: 3 }}>
+          &lt;IconClock />{getElapsed(order.startedAt)}
+        &lt;/span>
+      &lt;/div>
+
+      {/* PREP TIME INDICATOR */}
+      &lt;div style={{
+        fontSize: 10, fontWeight: 600, marginBottom: 8,
+        color: overdue ? C.red : remaining &lt;= 5 ? C.amber : C.green,
+      }}>
+        {overdue ? `⚠ ${elapsedMins - order.estMins}m overdue (est. ${order.estMins}m)` : `~${remaining}m remaining · est. ${order.estMins}m total`}
+      &lt;/div>
+
+      {order.items.map((it, i) => (
+        &lt;div key={i} style={{ padding: "6px 0", borderBottom: `1px solid ${C.pale}`, fontSize: 12 }}>
+          &lt;div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+            &lt;span style={{ color: C.text }}>{it.name}&lt;/span>
+            &lt;span style={{ fontWeight: 600, color: C.muted, fontSize: 11 }}>×{it.qty}&lt;/span>
+          &lt;/div>
+          {it.note &amp;&amp; (
+            &lt;p style={{ marginTop: 4, fontSize: 11, color: C.amber, fontStyle: "italic" }}>
+              {it.note}
+            &lt;/p>
+          )}
+        &lt;/div>
+      ))}
+
+      {btnLabel &amp;&amp; (
+        &lt;button onClick={() => onAction(order.id)}
+          style={{ marginTop: 10, width: "100%", padding: "8px 12px", border: "none", borderRadius: 6, background: btnColor, color: "white", fontFamily: "Jost, sans-serif", fontSize: 11, fontWeight: 600, letterSpacing: ".08em", textTransform: "uppercase", cursor: "pointer", transition: "opacity .15s" }}
+          onMouseEnter={e => e.currentTarget.style.opacity = ".85"}
+          onMouseLeave={e => e.currentTarget.style.opacity = "1"}>
+          {btnLabel}
+        &lt;/button>
+      )}
+      {!btnLabel &amp;&amp; (
+        &lt;div style={{ marginTop: 10, fontSize: 10, fontWeight: 700, letterSpacing: ".08em", textTransform: "uppercase", color: C.green, textAlign: "center", padding: "6px 0" }}>
+          Awaiting collection by waiter
+        &lt;/div>
+      )}
+    &lt;/div>
+  );
+}
+
+/**
+ * Custom hook to listen for waiter assistance alerts from localStorage
+ * @function useWaiterAlerts
+ * @param {Function} setNotifications - State setter for notifications
+ * @param {Function} addToast - Toast notification handler
+ */
+function useWaiterAlerts(setNotifications, addToast) {
+  const cbRef = useRef({ setNotifications, addToast });
+  useEffect(() => { cbRef.current = { setNotifications, addToast }; });
+
+  useEffect(() => {
+    const handler = (e) => {
+      if (e.key !== "oaxaca_waiter_alert" || !e.newValue) return;
+      try {
+        const incoming = JSON.parse(e.newValue);
+        cbRef.current.setNotifications(prev => {
+          if (prev.some(n => n.id === incoming.id)) return prev;
+          return [incoming, ...prev];
+        });
+        cbRef.current.addToast(`🚨 Table ${incoming.table} — ${incoming.raisedBy ?? "A waiter"} needs team assistance!`);
+      } catch (_) { }
+    };
+    window.addEventListener("storage", handler);
+    return () => window.removeEventListener("storage", handler);
+  }, []);
+}
+
+
+// APP ROOT --------------------------
+/**
+ * Kitchen Dashboard Main Component
+ * Provides kitchen staff interface for managing orders with Kanban board,
+ * order confirmation, preparation tracking, and waiter notifications
+ * 
+ * @module KitchenDashboard
+ * @description Main component for kitchen staff to view and manage orders
+ * in a Kanban-style board with three columns: Pending, Preparing, and Ready
+ * 
+ * @component
+ * @returns {JSX.Element} Kitchen dashboard interface
+ */
+export default function App() {
+  // AUTH GUARD --------------------------
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (location.state?.role !== 'kitchen' &amp;&amp; sessionStorage.getItem('role') !== 'kitchen') {
+      navigate('/');
+    }
+  }, []);
+
+  // DB CONNECTIONS + POLLING --------------------------
+  const [pending, setPending] = useState([]);
+  const [preparing, setPreparing] = useState([]);
+  const [ready, setReady] = useState([]);
+
+  /**
+   * Fetches orders from backend and updates Kanban columns
+   * @async
+   * @function fetchOrders
+   */
+  useEffect(() => {
+    const fetchOrders = async () => {
+      const res = await fetch('http://127.0.0.1:8000/orders');
+      const data = await res.json();
+
+      /**
+       * Maps order items with customizations from localStorage
+       * @function mapItems
+       * @param {Object} o - Order object
+       * @returns {Array} Mapped items with names, quantities, notes, and prep times
+       */
+      const mapItems = (o) => o.items.map(i => {
+        const mods = JSON.parse(
+          localStorage.getItem(`oaxaca_customisations_${o.order_id}`) || '{}'
+        );
+        return {
+          name: i.item_name,
+          qty: i.quantity,
+          price: i.price,
+          note: mods[i.item_name] || null,
+          prepTime: i.prep_time_mins,
+        };
+      });
+
+      setPending(data.filter(o => o.status === "Waiter Confirmed").map(o => ({
+        id: String(o.order_id),
+        table: `Table ${o.table_id}`,
+        startedAt: o.created_at ? new Date(o.created_at).getTime() : Date.now(),
+        estMins: o.est_mins ?? 15,
+        items: mapItems(o),
+      })));
+
+      setPreparing(data.filter(o => o.status === "In Progress").map(o => ({
+        id: String(o.order_id),
+        table: `Table ${o.table_id}`,
+        startedAt: o.created_at ? new Date(o.created_at).getTime() : Date.now(),
+        estMins: o.est_mins ?? 15,
+        items: mapItems(o),
+      })));
+
+      setReady(data.filter(o => o.status === "Ready").map(o => ({
+        id: String(o.order_id),
+        table: `Table ${o.table_id}`,
+        startedAt: o.created_at ? new Date(o.created_at).getTime() : Date.now(),
+        estMins: o.est_mins ?? 15,
+        items: mapItems(o),
+      })));
+    };
+    fetchOrders();
+    const poll = setInterval(fetchOrders, 3000);
+    return () => clearInterval(poll);
+  }, []);
+
+  // UI STATE --------------------------
+  const [toasts, setToasts] = useState([]);
+  const [loggingOut, setLoggingOut] = useState(false);
+  const [notifications, setNotifications] = useState(() => {
+    try { return JSON.parse(localStorage.getItem("oaxaca_kitchen_notifications") ?? "[]"); }
+    catch { return []; }
+  });
+  const [showNotifs, setShowNotifs] = useState(false);
+  const [showAccount, setShowAccount] = useState(false);
+  const accountRef = useRef(null);
+  const notifRef = useRef(null);
+  useOutsideClick(accountRef, () => setShowAccount(false));
+  useOutsideClick(notifRef, () => setShowNotifs(false));
+
+  // TOAST NOTIFS --------------------------
+  /**
+   * Adds a toast notification that auto-dismisses after 1.8 seconds
+   * @function addToast
+   * @param {string} msg - Toast message to display
+   */
+  const addToast = msg => { const id = Date.now(); setToasts(p => [...p, { id, msg }]); setTimeout(() => setToasts(p => p.filter(t => t.id !== id)), 1800); };
+  useEffect(() => {
+    localStorage.setItem("oaxaca_kitchen_notifications", JSON.stringify(notifications));
+  }, [notifications]);
+  useWaiterAlerts(setNotifications, addToast);
+
+  // ORDER ACTIONS --------------------------
+  /**
+   * Confirms an order and moves it to Preparing column
+   * Depletes stock after confirmation
+   * @async
+   * @function confirmOrder
+   * @param {string} id - Order ID to confirm
+   */
+  const confirmOrder = async (id) => {
+    const order = pending.find(o => o.id === id);
+    if (!order) return;
+    setPending(p => p.filter(o => o.id !== id));
+    setPreparing(p => [order, ...p]);
+    await fetch(`http://127.0.0.1:8000/orders/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: "In Progress" }),
+    });
+
+    // deplete stock now that kitchen has confirmed — waiter edits are done
+    try {
+      const orderRes = await fetch(`http://127.0.0.1:8000/orders/${id}`);
+      const orderData = await orderRes.json();
+      const fullOrderRes = await fetch('http://127.0.0.1:8000/orders');
+      const allOrders = await fullOrderRes.json();
+      const fullOrder = allOrders.find(o => String(o.order_id) === String(id));
+      if (fullOrder) {
+        await fetch('http://127.0.0.1:8000/stock/deplete', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            cust_id: fullOrder.cust_id,
+            table_id: fullOrder.table_id,
+            items: fullOrder.items.map(i => ({
+              item_id: i.item_id,
+              quantity: i.quantity,
+            })),
+          }),
+        });
+      }
+    } catch (_) { }
+
+    addToast(`${order.table} confirmed`);
+  };
+
+  /**
+   * Notifies waiter that order is ready for collection
+   * @async
+   * @function notifyWaiter
+   * @param {string} id - Order ID to mark as ready
+   */
+  const notifyWaiter = async (id) => {
+    const order = preparing.find(o => o.id === id);
+    if (!order) return;
+    setPreparing(p => p.filter(o => o.id !== id));
+    setReady(p => [order, ...p]);
+    await fetch(`http://127.0.0.1:8000/orders/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: "Ready" }),
+    });
+
+    const tableNum = parseInt(order.table.replace("Table ", ""));
+    let assignedWaiter = null;
+    try {
+      const res = await fetch(`http://127.0.0.1:8000/tables/${tableNum}/waiter`);
+      const data = await res.json();
+      assignedWaiter = data.assigned_waiter ?? null;
+    } catch (_) { }
+
+    localStorage.setItem("oaxaca_kitchen_notify", JSON.stringify({
+      id: Date.now(),
+      order: id,
+      table: tableNum,
+      status: "Ready for Collection",
+      type: "ready",
+      read: false,
+      assigned_waiter: assignedWaiter,
+    }));
+    addToast(`${order.table} — waiter notified`);
+  };
+
+  // 3-COLUMN LAYOUT (KANBAN)
+  const activeCount = pending.length + preparing.length + ready.length;
+
+  /**
+   * Notifies waiter that order is ready for collection
+   * @async
+   * @function notifyWaiter
+   * @param {string} id - Order ID to mark as ready
+   */
+  const columns = [
+    { title: "Pending Confirmation", accent: C.warm, orders: pending, btnLabel: "Confirm Order", btnColor: C.warm, onAction: confirmOrder, empty: "No pending orders" },
+    { title: "Preparing", accent: C.amber, orders: preparing, btnLabel: "Notify Waiter", btnColor: C.green, onAction: notifyWaiter, empty: "Nothing being prepared" },
+    { title: "Ready for Service", accent: C.green, orders: ready, btnLabel: null, btnColor: null, onAction: null, empty: "Nothing ready yet" },
+  ];
+
+  // LOGIN VALIDATION
+  const [staffInfo, setStaffInfo] = useState(null);
+  const staffId = location.state?.staff_id ?? sessionStorage.getItem('staff_id');
+
+  useEffect(() => {
+    if (!staffId) return;
+    fetch(`http://127.0.0.1:8000/staff/${staffId}`)
+      .then(r => r.json())
+      .then(data => {
+        const raw = data.name ?? "";
+        const formatted = raw
+          .replace(/([A-Z])/g, ' $1')
+          .trim()
+          .replace(/^./, c => c.toUpperCase());
+        setStaffInfo({ ...data, name: formatted, username: data.name });
+      })
+      .catch(() => { });
+  }, []);
+
+  return (
+    &lt;div style={{ fontFamily: "Jost, sans-serif", background: C.bg, color: C.text, height: "100vh", display: "flex", flexDirection: "column", overflow: "hidden" }}>
+      &lt;style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&amp;family=Jost:wght@300;400;500;600&amp;display=swap');
+        @keyframes fadeInUp { from{opacity:0;transform:translateY(8px)}  to{opacity:1;transform:translateY(0)} }
+        @keyframes dropIn   { from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:translateY(0)} }
+        @keyframes pulse    { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(1.3)} }
+        * { box-sizing:border-box; margin:0; padding:0; }
+        ::-webkit-scrollbar { width:4px; } ::-webkit-scrollbar-track { background:#f0e6d3; } ::-webkit-scrollbar-thumb { background:#e8d5b7; border-radius:2px; }
+      `}&lt;/style>
+
+      {/* NAV */}
+      &lt;nav style={{ background: C.dark, height: 56, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 28px", position: "relative", zIndex: 800 }}>
+        &lt;span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 22, fontWeight: 600, letterSpacing: ".25em", color: C.bg }}>OAXACA&lt;/span>
+        &lt;div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          &lt;span style={{ fontSize: 11, letterSpacing: ".1em", textTransform: "uppercase", color: "rgba(245,240,232,.5)", fontWeight: 500 }}>Kitchen View&lt;/span>
+
+          &lt;div ref={notifRef} style={{ position: "relative" }}>
+            &lt;div onClick={() => { setShowNotifs(v => !v); setShowAccount(false); }}
+              style={{ width: 36, height: 36, borderRadius: "50%", border: `1.5px solid ${showNotifs ? C.warm : "rgba(245,240,232,.3)"}`, background: showNotifs ? "rgba(196,118,58,.3)" : "rgba(245,240,232,.08)", display: "grid", placeItems: "center", cursor: "pointer", color: "rgba(245,240,232,.85)", position: "relative", transition: "all .15s", userSelect: "none" }}>
+              &lt;IconBell />
+              {notifications.filter(n => !n.read).length > 0 &amp;&amp; (
+                &lt;div style={{ position: "absolute", top: -3, right: -3, minWidth: 16, height: 16, borderRadius: 8, background: C.red, border: `2px solid ${C.dark}`, display: "grid", placeItems: "center", fontSize: 8, fontWeight: 700, color: "white", padding: "0 3px" }}>
+                  {notifications.filter(n => !n.read).length > 9 ? "9+" : notifications.filter(n => !n.read).length}
+                &lt;/div>
+              )}
+            &lt;/div>
+            {showNotifs &amp;&amp; &lt;NotificationsPanel notifications={notifications} setNotifications={setNotifications} />}
+          &lt;/div>
+
+          &lt;div ref={accountRef} style={{ position: "relative" }}>
+            &lt;div onClick={() => { setShowAccount(v => !v); setShowNotifs(false); }}
+              style={{ width: 36, height: 36, borderRadius: "50%", background: showAccount ? C.mid : C.green, display: "grid", placeItems: "center", cursor: "pointer", color: "white", fontSize: 11, fontWeight: 700, border: `2px solid ${showAccount ? C.light : "transparent"}`, transition: "all .15s", userSelect: "none" }}>
+              {staffInfo?.name ? staffInfo.name.slice(0, 2).toUpperCase() : "??"}
+            &lt;/div>
+            {showAccount &amp;&amp; &lt;AccountPanel addToast={addToast} staffInfo={staffInfo} onLogout={async () => {
+              if (staffInfo?.staff_id) {
+                await fetch(`http://127.0.0.1:8000/auth/logout/${staffInfo.staff_id}`, { method: 'POST' }).catch(() => { });
+              }
+              localStorage.removeItem("oaxaca_kitchen_notifications");
+              setShowAccount(false);
+              setLoggingOut(true);
+              setTimeout(() => { window.location.href = "/"; }, 2500);
+            }} />}
+          &lt;/div>
+        &lt;/div>
+      &lt;/nav>
+
+      {notifications.filter(n => !n.read).length > 0 &amp;&amp; (
+        &lt;div style={{ background: "#c4763a", color: "white", padding: "9px 28px", display: "flex", alignItems: "center", gap: 10, fontSize: 12, fontWeight: 600, letterSpacing: ".04em", flexShrink: 0 }}>
+          &lt;div style={{ width: 8, height: 8, borderRadius: "50%", background: "white", animation: "pulse 1.4s infinite", flexShrink: 0 }} />
+          {notifications.filter(n => !n.read).length} unread notification{notifications.filter(n => !n.read).length > 1 ? "s" : ""} — check alerts
+        &lt;/div>
+      )}
+
+      {/* PAGE HEADER */}
+      &lt;div style={{ padding: "18px 28px 0", display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0 }}>
+        &lt;div>
+          &lt;h1 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 28, fontWeight: 700, color: C.dark }}>Kitchen Dashboard&lt;/h1>
+          &lt;p style={{ fontSize: 12, color: C.muted, marginTop: 2, letterSpacing: ".05em" }}>
+            {new Date().toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" })}
+          &lt;/p>
+        &lt;/div>
+        &lt;div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+          &lt;div style={{ background: C.panel, border: `1.5px solid ${C.border}`, borderRadius: 8, padding: "8px 18px", textAlign: "center" }}>
+            &lt;div style={{ fontSize: 9, letterSpacing: ".12em", textTransform: "uppercase", color: C.muted, fontWeight: 600 }}>Active Orders&lt;/div>
+            &lt;div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 26, fontWeight: 700, color: C.dark, lineHeight: 1.2 }}>{activeCount}&lt;/div>
+          &lt;/div>
+          &lt;div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11, letterSpacing: ".1em", textTransform: "uppercase", color: C.green, fontWeight: 600, background: C.greenL, padding: "5px 12px", borderRadius: 20 }}>
+            &lt;div style={{ width: 7, height: 7, borderRadius: "50%", background: C.green, animation: "pulse 1.6s infinite" }} />
+            Live
+          &lt;/div>
+        &lt;/div>
+      &lt;/div>
+
+      {/* KANBAN BOARD */}
+      &lt;div style={{ flex: 1, display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16, padding: "16px 28px 24px", overflow: "hidden", minHeight: 0 }}>
+        {columns.map(col => (
+          &lt;div key={col.title} style={{ background: C.panel, border: `1.5px solid ${C.border}`, borderRadius: 10, display: "flex", flexDirection: "column", overflow: "hidden" }}>
+            &lt;div style={{ height: 3, background: col.accent, flexShrink: 0 }} />
+            &lt;div style={{ padding: "14px 16px 10px", borderBottom: `1.5px solid ${C.border}`, flexShrink: 0, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              &lt;span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 17, fontWeight: 700, color: C.dark }}>{col.title}&lt;/span>
+              &lt;span style={{ fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 10, background: col.orders.length > 0 ? C.pale : C.greenL, color: col.orders.length > 0 ? C.muted : C.green }}>
+                {col.orders.length} {col.orders.length === 1 ? "order" : "orders"}
+              &lt;/span>
+            &lt;/div>
+            &lt;div style={{ flex: 1, overflowY: "auto", padding: "12px 14px" }}>
+              {col.orders.length === 0
+                ? &lt;div style={{ textAlign: "center", padding: "32px 8px", color: C.muted, fontSize: 12 }}>{col.empty}&lt;/div>
+                : col.orders.map(order => (
+                  &lt;OrderCard key={order.id} order={order} btnLabel={col.btnLabel} btnColor={col.btnColor} onAction={col.onAction} />
+                ))
+              }
+            &lt;/div>
+          &lt;/div>
+        ))}
+      &lt;/div>
+
+      {/* NOTIFICATIONS */}
+      &lt;div style={{ position: "fixed", bottom: 24, right: 24, display: "flex", flexDirection: "column", gap: 8, zIndex: 9999, pointerEvents: "none" }}>
+        {toasts.map(t => (
+          &lt;div key={t.id} style={{ background: C.dark, color: C.bg, padding: "10px 18px", borderRadius: 6, fontSize: 12, fontWeight: 500, boxShadow: "0 4px 16px rgba(0,0,0,.25)", animation: "fadeInUp .2s ease" }}>
+            {t.msg}
+          &lt;/div>
+        ))}
+      &lt;/div>
+      {loggingOut &amp;&amp; (
+        &lt;div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.5)", zIndex: 9999, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          &lt;div style={{ background: "#faf7f2", border: "1.5px solid #d4b896", borderRadius: 12, padding: "40px 48px", textAlign: "center", boxShadow: "0 12px 40px rgba(0,0,0,.25)", animation: "dropIn .2s ease" }}>
+            &lt;div style={{ width: 56, height: 56, borderRadius: "50%", background: "#d4edda", display: "grid", placeItems: "center", margin: "0 auto 16px" }}>
+              &lt;svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#4a7c59" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                &lt;circle cx="12" cy="12" r="10" />
+                &lt;path d="M8 14s1.5 2 4 2 4-2 4-2" />
+                &lt;line x1="9" y1="9" x2="9.01" y2="9" strokeWidth="3" />
+                &lt;line x1="15" y1="9" x2="15.01" y2="9" strokeWidth="3" />
+              &lt;/svg>
+            &lt;/div>
+            &lt;h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 24, fontWeight: 700, color: "#2D2218", marginBottom: 8 }}>See you soon!&lt;/h2>
+            &lt;p style={{ fontSize: 13, color: "#7a5c44", marginBottom: 6 }}>You have been signed out successfully.&lt;/p>
+            &lt;p style={{ fontSize: 11, color: "#8b4513" }}>Returning to home...&lt;/p>
+          &lt;/div>
+        &lt;/div>
+      )}
+    &lt;/div>
+  );
+}</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-App.html">App</a></li><li><a href="module-KitchenDashboard.html">KitchenDashboard</a></li><li><a href="module-KitchenLogin.html">KitchenLogin</a></li><li><a href="module-ManagerDashboard.html">ManagerDashboard</a></li><li><a href="module-MenuApp.html">MenuApp</a></li><li><a href="module-WaiterDashboard.html">WaiterDashboard</a></li></ul><h3>Global</h3><ul><li><a href="global.html#ALLERGEN_OPTIONS">ALLERGEN_OPTIONS</a></li><li><a href="global.html#AccountPanel">AccountPanel</a></li><li><a href="global.html#AddItemsModal">AddItemsModal</a></li><li><a href="global.html#AllergenDropdown">AllergenDropdown</a></li><li><a href="global.html#C">C</a></li><li><a href="global.html#CancelledOrderModal">CancelledOrderModal</a></li><li><a href="global.html#CartIcon">CartIcon</a></li><li><a href="global.html#CartModal">CartModal</a></li><li><a href="global.html#ContactWaiterModal">ContactWaiterModal</a></li><li><a href="global.html#CustomerLogin">CustomerLogin</a></li><li><a href="global.html#CustomizationPopup">CustomizationPopup</a></li><li><a href="global.html#DIET_FILTERS">DIET_FILTERS</a></li><li><a href="global.html#Dropdown">Dropdown</a></li><li><a href="global.html#EmployeesTab">EmployeesTab</a></li><li><a href="global.html#FilterBar">FilterBar</a></li><li><a href="global.html#Header">Header</a></li><li><a href="global.html#IconAlert">IconAlert</a></li><li><a href="global.html#IconBell">IconBell</a></li><li><a href="global.html#IconClock">IconClock</a></li><li><a href="global.html#IconDoor">IconDoor</a></li><li><a href="global.html#MENU_META">MENU_META</a></li><li><a href="global.html#MenuItemCard">MenuItemCard</a></li><li><a href="global.html#MenuSection">MenuSection</a></li><li><a href="global.html#MenuTab">MenuTab</a></li><li><a href="global.html#Modal">Modal</a></li><li><a href="global.html#NavIcon">NavIcon</a></li><li><a href="global.html#NotificationsPanel">NotificationsPanel</a></li><li><a href="global.html#ORDER_STATUSES">ORDER_STATUSES</a></li><li><a href="global.html#OrderCard">OrderCard</a></li><li><a href="global.html#OrderConfirmation">OrderConfirmation</a></li><li><a href="global.html#OrderTimeBlock">OrderTimeBlock</a></li><li><a href="global.html#OrdersTab">OrdersTab</a></li><li><a href="global.html#OverviewTab">OverviewTab</a></li><li><a href="global.html#PaymentPopup">PaymentPopup</a></li><li><a href="global.html#SectionCard">SectionCard</a></li><li><a href="global.html#StockInput">StockInput</a></li><li><a href="global.html#StockTab">StockTab</a></li><li><a href="global.html#TablesTab">TablesTab</a></li><li><a href="global.html#ThankYouModal">ThankYouModal</a></li><li><a href="global.html#TrackingPopup">TrackingPopup</a></li><li><a href="global.html#UnpaidModal">UnpaidModal</a></li><li><a href="global.html#UnpaidOrderModal">UnpaidOrderModal</a></li><li><a href="global.html#addItemsToOrder">addItemsToOrder</a></li><li><a href="global.html#cancelOrder">cancelOrder</a></li><li><a href="global.html#changeQty">changeQty</a></li><li><a href="global.html#changeStatus">changeStatus</a></li><li><a href="global.html#clearAll">clearAll</a></li><li><a href="global.html#confirmOrder">confirmOrder</a></li><li><a href="global.html#deliverOrder">deliverOrder</a></li><li><a href="global.html#dismiss">dismiss</a></li><li><a href="global.html#elapsedColor">elapsedColor</a></li><li><a href="global.html#formatCardNumber">formatCardNumber</a></li><li><a href="global.html#formatCustomizations">formatCustomizations</a></li><li><a href="global.html#formatExpiry">formatExpiry</a></li><li><a href="global.html#getElapsed">getElapsed</a></li><li><a href="global.html#goToRoles">goToRoles</a></li><li><a href="global.html#handleAddToOrder">handleAddToOrder</a></li><li><a href="global.html#handleBlur">handleBlur</a></li><li><a href="global.html#handleCVVChange">handleCVVChange</a></li><li><a href="global.html#handleCardNumberChange">handleCardNumberChange</a></li><li><a href="global.html#handleCardholderNameChange">handleCardholderNameChange</a></li><li><a href="global.html#handleChange">handleChange</a></li><li><a href="global.html#handleCloseTable">handleCloseTable</a></li><li><a href="global.html#handleConfirm">handleConfirm</a></li><li><a href="global.html#handleContinue">handleContinue</a></li><li><a href="global.html#handleExpiryChange">handleExpiryChange</a></li><li><a href="global.html#handleKeyDown">handleKeyDown</a></li><li><a href="global.html#handleSend">handleSend</a></li><li><a href="global.html#handleToggleExtra">handleToggleExtra</a></li><li><a href="global.html#handleToggleIngredient">handleToggleIngredient</a></li><li><a href="global.html#isFormValid">isFormValid</a></li><li><a href="global.html#marginColor">marginColor</a></li><li><a href="global.html#markAll">markAll</a></li><li><a href="global.html#markRead">markRead</a></li><li><a href="global.html#notifColor">notifColor</a></li><li><a href="global.html#removeItem">removeItem</a></li><li><a href="global.html#restock">restock</a></li><li><a href="global.html#savePrice">savePrice</a></li><li><a href="global.html#startEditPrice">startEditPrice</a></li><li><a href="global.html#statusColor">statusColor</a></li><li><a href="global.html#stockStatus">stockStatus</a></li><li><a href="global.html#tileColors">tileColors</a></li><li><a href="global.html#toggle">toggle</a></li><li><a href="global.html#toggleAvail">toggleAvail</a></li><li><a href="global.html#useCustomerAlerts">useCustomerAlerts</a></li><li><a href="global.html#useElapsed">useElapsed</a></li><li><a href="global.html#useKitchenNotifications">useKitchenNotifications</a></li><li><a href="global.html#useOrderAge">useOrderAge</a></li><li><a href="global.html#useOutsideClick">useOutsideClick</a></li><li><a href="global.html#useWaiterAlerts">useWaiterAlerts</a></li><li><a href="global.html#validateCVV">validateCVV</a></li><li><a href="global.html#validateCardNumber">validateCardNumber</a></li><li><a href="global.html#validateCardholderName">validateCardholderName</a></li><li><a href="global.html#validateExpiry">validateExpiry</a></li><li><a href="global.html#validateField">validateField</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.5</a> on Sun Mar 29 2026 00:44:39 GMT+0000 (Greenwich Mean Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

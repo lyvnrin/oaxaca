@@ -4,8 +4,14 @@ from ..database import get_conn
 
 router = APIRouter(tags=["staff"])
 
-
 class LoginIn(BaseModel):
+    """Login request model for staff authentication.
+    
+    Attributes:
+        username: Staff member's username (name field in DB)
+        password: Staff member's password
+        role: Staff role (Waiter/Kitchen Staff/Manager)
+    """
     username: str
     password: str
     role: str
@@ -13,6 +19,11 @@ class LoginIn(BaseModel):
 
 @router.get("/staff")
 def get_staff():
+    """Retrieve all staff members.
+    
+    Returns:
+        List of all staff records from the database
+    """
     conn = get_conn()
     rows = conn.execute("SELECT * FROM staff").fetchall()
     conn.close()
@@ -21,6 +32,17 @@ def get_staff():
 
 @router.get("/staff/{staff_id}")
 def get_staff_member(staff_id: int):
+    """Get a single staff member by ID.
+    
+    Args:
+        staff_id: Staff member ID to retrieve
+    
+    Returns:
+        Staff member record
+    
+    Raises:
+        HTTPException 404: If staff member not found
+    """
     conn = get_conn()
     row = conn.execute(
         "SELECT * FROM staff WHERE staff_id = ?", (staff_id,)
@@ -33,6 +55,11 @@ def get_staff_member(staff_id: int):
 
 @router.get("/tables")
 def get_tables():
+    """Retrieve all tables.
+    
+    Returns:
+        List of all table records ordered by table_id
+    """
     conn = get_conn()
     rows = conn.execute("SELECT * FROM tables ORDER BY table_id").fetchall()
     conn.close()
@@ -41,6 +68,14 @@ def get_tables():
 
 @router.get("/staff/{staff_id}/tables")
 def get_assigned_tables(staff_id: int):
+    """Get table IDs assigned to a specific waiter.
+    
+    Args:
+        staff_id: Waiter's staff ID
+    
+    Returns:
+        List of table IDs assigned to the waiter
+    """
     conn = get_conn()
     rows = conn.execute(
         "SELECT table_id FROM tables WHERE assigned_waiter = ?", (staff_id,)
@@ -51,6 +86,20 @@ def get_assigned_tables(staff_id: int):
 
 @router.post("/auth/login")
 def login(payload: LoginIn):
+    """Authenticate staff member and start shift.
+    
+    Validates credentials, marks staff as on_shift, and automatically
+    assigns unassigned occupied tables to waiters using load balancing.
+    
+    Args:
+        payload: Login credentials with username, password, and role
+    
+    Returns:
+        Dict with staff_id, name, and role
+    
+    Raises:
+        HTTPException 401: If credentials are invalid
+    """
     conn = get_conn()
     row = conn.execute(
         "SELECT * FROM staff WHERE name = ? AND password = ? AND role = ?",
@@ -89,6 +138,17 @@ def login(payload: LoginIn):
 
 @router.post("/auth/logout/{staff_id}")
 def logout(staff_id: int):
+    """End staff shift and mark as off_shift.
+    
+    Args:
+        staff_id: Staff member ID to log out
+    
+    Returns:
+        Dict with staff_id and on_shift status (0)
+    
+    Raises:
+        HTTPException 404: If staff member not found
+    """
     conn = get_conn()
     row = conn.execute(
         "SELECT * FROM staff WHERE staff_id = ?", (staff_id,)

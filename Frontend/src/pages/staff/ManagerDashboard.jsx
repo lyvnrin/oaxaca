@@ -2,6 +2,26 @@ import { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
 // STYLE CONSTANTS --------------------------
+/**
+ * Color palette constants for the manager dashboard UI
+ * @constant {Object} C
+ * @property {string} bg - Background color
+ * @property {string} panel - Panel background color
+ * @property {string} dark - Dark text color
+ * @property {string} mid - Medium brown color
+ * @property {string} warm - Warm orange color
+ * @property {string} light - Light beige color
+ * @property {string} pale - Pale beige color
+ * @property {string} green - Green color
+ * @property {string} greenL - Light green color
+ * @property {string} red - Red color
+ * @property {string} redL - Light red color
+ * @property {string} amber - Amber color
+ * @property {string} amberL - Light amber color
+ * @property {string} text - Text color
+ * @property {string} muted - Muted text color
+ * @property {string} border - Border color
+ */
 const C = {
     bg: "#f5f0e8", panel: "#faf7f2", dark: "#2D2218", mid: "#8b4513",
     warm: "#c4763a", light: "#e8d5b7", pale: "#f0e6d3",
@@ -11,6 +31,12 @@ const C = {
     text: "#2c1810", muted: "#7a5c44", border: "#d4b896",
 };
 
+/**
+ * Returns color scheme for table status tiles
+ * @function tileColors
+ * @param {string} status - Table status (Free, Ordering, Preparing, Bill Req., Service)
+ * @returns {Object} Color scheme with bg, border, num, label colors
+ */
 const tileColors = (status) => ({
     "Free": { bg: "#f0f7f2", border: "#b8d4c0", num: "#4a7c59", label: "#4a7c59" },
     "Ordering": { bg: "#fff8f0", border: "#f0c97a", num: "#d4870e", label: "#d4870e" },
@@ -20,9 +46,21 @@ const tileColors = (status) => ({
 }[status] || { bg: "#f0f7f2", border: "#b8d4c0", num: C.green, label: C.green });
 
 // HELPER FUNCTIONS --------------------------
+/**
+ * Returns color scheme for table status tiles
+ * @function tileColors
+ * @param {string} status - Table status (Free, Ordering, Preparing, Bill Req., Service)
+ * @returns {Object} Color scheme with bg, border, num, label colors
+ */
 const calcMargin = (cogs, price) => price > 0 ? Math.round((1 - cogs / price) * 100) : 0;
 const calcMinPrice = (cogs) => +(cogs / 0.4).toFixed(2);
 
+/**
+ * Returns color scheme and label for margin percentage
+ * @function marginColor
+ * @param {number} m - Margin percentage
+ * @returns {Object} Color scheme with bg, text, and label
+ */
 const marginColor = (m) => {
     if (m >= 60) return { bg: C.greenL, text: C.green, label: `${m}%` };
     if (m >= 50) return { bg: C.amberL, text: C.amber, label: `${m}% !` };
@@ -30,6 +68,12 @@ const marginColor = (m) => {
 };
 
 // CUSTOM HOOK : CLICK OUTSIDE --------------------------
+/**
+ * Custom hook to detect clicks outside a referenced element
+ * @function useOutsideClick
+ * @param {React.RefObject} ref - React ref of the element to watch
+ * @param {Function} cb - Callback function when click outside occurs
+ */
 function useOutsideClick(ref, cb) {
     useEffect(() => {
         const fn = (e) => { if (ref.current && !ref.current.contains(e.target)) cb(); };
@@ -39,10 +83,32 @@ function useOutsideClick(ref, cb) {
 }
 
 // ICONS --------------------------
+/**
+ * Bell Icon Component
+ * @component
+ * @returns {JSX.Element} Bell SVG icon
+ */
 const IconBell = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 0 1-3.46 0" /></svg>;
+
+/**
+ * Door Icon Component (for logout)
+ * @component
+ * @returns {JSX.Element} Door SVG icon
+ */
 const IconDoor = () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={C.red} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></svg>;
 
 // MODAL --------------------------
+/**
+ * Modal Component
+ * Reusable modal dialog with title and close button
+ * 
+ * @component
+ * @param {Object} props - Component props
+ * @param {string} props.title - Modal title
+ * @param {Function} props.onClose - Close handler
+ * @param {React.ReactNode} props.children - Modal content
+ * @returns {JSX.Element} Modal dialog
+ */
 function Modal({ title, onClose, children }) {
     return (
         <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.45)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 600 }} onClick={onClose}>
@@ -58,13 +124,46 @@ function Modal({ title, onClose, children }) {
 }
 
 // NOTIFS PANEL --------------------------
+/**
+ * Notifications Panel Component
+ * Displays system alerts, stock warnings, and waiter assistance requests
+ * 
+ * @component
+ * @param {Object} props - Component props
+ * @param {Array} props.notifications - Array of notification objects
+ * @param {Function} props.setNotifications - State setter for notifications
+ * @returns {JSX.Element} Notifications dropdown panel
+ */
 function NotificationsPanel({ notifications, setNotifications }) {
     const [filter, setFilter] = useState("All");
     const unread = notifications.filter(n => !n.read).length;
+
+    /**
+     * Marks a notification as read
+     * @function markRead
+     * @param {number|string} id - Notification ID
+     */
     const markRead = (id) => setNotifications(p => p.map(n => n.id === id ? { ...n, read: true } : n));
+
+    /**
+     * Dismisses (removes) a notification
+     * @function dismiss
+     * @param {number|string} id - Notification ID
+     */
     const dismiss = (id) => setNotifications(p => p.filter(n => n.id !== id));
+
+    /**
+     * Marks all notifications as read
+     * @function markAll
+     */
     const markAll = () => setNotifications(p => p.map(n => ({ ...n, read: true })));
+
+    /**
+     * Clears all notifications
+     * @function clearAll
+     */
     const clearAll = () => setNotifications([]);
+
     const notifTypeColor = { urgent: C.red, warn: C.amber, info: C.green, alert: C.red };
     const filtered = notifications.filter(n =>
         filter === "Urgent" ? n.type === "urgent" : filter === "Unread" ? !n.read : true
@@ -127,6 +226,16 @@ function NotificationsPanel({ notifications, setNotifications }) {
 }
 
 // ACCOUNT PANEL --------------------------
+/**
+ * Account Panel Component
+ * Displays manager information and logout option
+ * 
+ * @component
+ * @param {Object} props - Component props
+ * @param {Object} props.staffInfo - Staff information object
+ * @param {Function} props.onLogout - Logout handler function
+ * @returns {JSX.Element} Account dropdown panel
+ */
 function AccountPanel({ staffInfo, onLogout }) {
     const initials = staffInfo?.name ? staffInfo.name.slice(0, 2).toUpperCase() : "??";
     const displayName = staffInfo?.name ?? "Unknown";
@@ -155,6 +264,15 @@ function AccountPanel({ staffInfo, onLogout }) {
 }
 
 // OVERVIEW TAB --------------------------
+/**
+ * Overview Tab Component
+ * Displays table status dashboard with occupancy metrics and table details
+ * 
+ * @component
+ * @param {Object} props - Component props
+ * @param {Array} props.tables - Array of table objects with status and orders
+ * @returns {JSX.Element} Overview dashboard with table grid
+ */
 function OverviewTab({ tables }) {
     const occupied = tables.filter(t => t.status !== "Free").length;
     const [selectedTable, setSelectedTable] = useState(null);
@@ -253,6 +371,18 @@ function OverviewTab({ tables }) {
 }
 
 // MENU TAB --------------------------
+/**
+ * Menu Tab Component
+ * Manages menu items with availability toggles, price editing, and margin tracking
+ * 
+ * @component
+ * @param {Object} props - Component props
+ * @param {Array} props.menu - Menu items array
+ * @param {Function} props.setMenu - State setter for menu
+ * @param {Function} props.addToast - Toast notification handler
+ * @param {Array} props.stock - Stock data for low stock warnings
+ * @returns {JSX.Element} Menu management interface
+ */
 function MenuTab({ menu, setMenu, addToast, stock }) {
     const sections = ["Starters", "Mains", "Desserts", "Sides", "Drinks"];
     const available = menu.filter(m => m.avail).length;
@@ -262,6 +392,12 @@ function MenuTab({ menu, setMenu, addToast, stock }) {
     const [priceInput, setPriceInput] = useState("");
     const [priceError, setPriceError] = useState("");
 
+    /**
+     * Toggles item availability and syncs with backend
+     * @async
+     * @function toggleAvail
+     * @param {number} id - Menu item ID
+     */
     const toggleAvail = async (id) => {
         const item = menu.find(m => m.id === id);
         const newAvail = !item.avail;
@@ -275,12 +411,23 @@ function MenuTab({ menu, setMenu, addToast, stock }) {
         addToast(`${item.name} marked ${newAvail ? "available" : "unavailable"} ✓`);
     };
 
+    /**
+     * Starts price editing for a menu item
+     * @function startEditPrice
+     * @param {Object} item - Menu item to edit
+     */
     const startEditPrice = (item) => {
         setEditingPrice(item.id);
         setPriceInput(item.price.toFixed(2));
         setPriceError("");
     };
 
+    /**
+     * Saves updated price with margin validation
+     * @async
+     * @function savePrice
+     * @param {Object} item - Menu item to update
+     */
     const savePrice = async (item) => {
         const newPrice = parseFloat(priceInput);
         const minPrice = calcMinPrice(item.cogs);
@@ -407,6 +554,15 @@ function MenuTab({ menu, setMenu, addToast, stock }) {
 }
 
 // EMPLOYEES TAB --------------------------
+/**
+ * Employees Tab Component
+ * Displays staff information with shift status, orders handled, and sales data
+ * 
+ * @component
+ * @param {Object} props - Component props
+ * @param {Array} props.employees - Array of employee objects
+ * @returns {JSX.Element} Employee management dashboard
+ */
 function EmployeesTab({ employees }) {
     const roleStyle = {
         "Waiter": { bg: "#cce3f5", color: "#2e6da4" },
@@ -421,6 +577,13 @@ function EmployeesTab({ employees }) {
     const totalSales = waiters.reduce((a, e) => a + (e.sales || 0), 0);
     const totalOrders = waiters.reduce((a, e) => a + (e.orders || 0), 0);
 
+    /**
+     * Shift Badge Component
+     * @component
+     * @param {Object} props - Component props
+     * @param {boolean} props.onShift - Whether employee is on shift
+     * @returns {JSX.Element} Shift status badge
+     */
     const ShiftBadge = ({ onShift }) => (
         <span style={{
             fontSize: 9, fontWeight: 700, padding: "2px 8px", borderRadius: 10,
@@ -432,6 +595,13 @@ function EmployeesTab({ employees }) {
         </span>
     );
 
+    /**
+     * Waiter Table Component with sales and orders metrics
+     * @component
+     * @param {Object} props - Component props
+     * @param {Array} props.rows - Waiter employee data
+     * @returns {JSX.Element} Table of waiters with metrics
+     */
     const WaiterTable = ({ rows }) => (
         <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12, tableLayout: "fixed" }}>
             <thead>
@@ -471,6 +641,13 @@ function EmployeesTab({ employees }) {
         </table>
     );
 
+    /**
+     * Basic Table Component for non-waiter staff
+     * @component
+     * @param {Object} props - Component props
+     * @param {Array} props.rows - Employee data for kitchen or managers
+     * @returns {JSX.Element} Basic employee table
+     */
     const BasicTable = ({ rows }) => (
         <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12, tableLayout: "fixed" }}>
             <thead>
@@ -544,11 +721,27 @@ function EmployeesTab({ employees }) {
 }
 
 // STOCK INPUT --------------------------
+/**
+ * Returns stock status based on level percentage
+ * @function stockStatus
+ * @param {number} level - Stock level percentage (0-100)
+ * @returns {Object} Status with color, background, and label
+ */
 const stockStatus = (level) =>
     level >= 50 ? { color: C.green, bg: C.greenL, label: "Good" }
         : level >= 25 ? { color: C.amber, bg: C.amberL, label: "Low" }
             : { color: C.red, bg: C.redL, label: "Critical" };
 
+/**
+ * Stock Input Component
+ * Editable input for updating stock levels
+ * 
+ * @component
+ * @param {Object} props - Component props
+ * @param {number} props.level - Current stock level
+ * @param {Function} props.onRestock - Restock handler
+ * @returns {JSX.Element} Stock level input field
+ */            
 function StockInput({ level, onRestock }) {
     const [val, setVal] = useState(Math.round(level));
 
@@ -572,8 +765,26 @@ function StockInput({ level, onRestock }) {
     );
 }
 
+/**
+ * Stock Tab Component
+ * Manages inventory levels with real-time monitoring and restocking
+ * 
+ * @component
+ * @param {Object} props - Component props
+ * @param {Array} props.stock - Stock items array
+ * @param {Function} props.fetchStock - Function to refresh stock data
+ * @returns {JSX.Element} Stock management dashboard
+ */
 function StockTab({ stock, fetchStock }) {
     const [search, setSearch] = useState("");
+
+    /**
+     * Updates stock level for an ingredient
+     * @async
+     * @function restock
+     * @param {number} stockId - Stock item ID
+     * @param {number} level - New stock level
+     */
     const restock = async (stockId, level) => {
         try {
             const response = await fetch('http://127.0.0.1:8000/stock/restock', {
@@ -690,6 +901,12 @@ function StockTab({ stock, fetchStock }) {
 }
 
 // WAITER ASSISTANCE ALERT --------------------------
+/**
+ * Custom hook to listen for waiter assistance alerts from localStorage
+ * @function useWaiterAlerts
+ * @param {Function} setNotifications - State setter for notifications
+ * @param {Function} addToast - Toast notification handler
+ */
 function useWaiterAlerts(setNotifications, addToast) {
     const cbRef = useRef({ setNotifications, addToast });
     useEffect(() => { cbRef.current = { setNotifications, addToast }; });
@@ -712,6 +929,18 @@ function useWaiterAlerts(setNotifications, addToast) {
 }
 
 // MAIN DASHBOARD --------------------------
+/**
+ * Manager Dashboard Main Component
+ * Provides comprehensive management interface with tabs for:
+ * - Table Overview: Real-time table status and occupancy
+ * - Menu Management: Item availability, pricing, margin tracking
+ * - Employee Management: Staff shifts, performance metrics
+ * - Stock Management: Inventory levels, restocking, alerts
+ * 
+ * @module ManagerDashboard
+ * @component
+ * @returns {JSX.Element} Complete manager dashboard with all management tools
+ */
 export default function ManagerDashboard() {
     const [tab, setTab] = useState("Overview");
     const [tables, setTables] = useState([]);
@@ -769,6 +998,12 @@ export default function ManagerDashboard() {
     // STOCK MANAGEMENT --------------------------
     const [stock, setStock] = useState([]);
     const prevStockRef = useRef({});
+
+    /**
+     * Fetches stock data from backend and triggers alerts for low stock
+     * @async
+     * @function fetchStock
+     */
     const fetchStock = () => {
         fetch('http://127.0.0.1:8000/stock')
             .then(r => r.json())
@@ -912,6 +1147,11 @@ export default function ManagerDashboard() {
     useOutsideClick(notifRef, () => setShowNotifs(false));
     useOutsideClick(accountRef, () => setShowAccount(false));
 
+    /**
+     * Adds a toast notification that auto-dismisses
+     * @function addToast
+     * @param {string} msg - Toast message
+     */
     const addToast = (msg) => {
         const id = Date.now();
         setToasts(p => [...p, { id, msg }]);

@@ -1,0 +1,1531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Module: MenuApp</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Module: MenuApp</h1>
+
+    
+
+
+
+
+<section>
+
+<header>
+    
+        
+            
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+            <div class="description">Main component for customer menu interface with filtering, customization,
+cart management, order tracking, and payment processing functionality</div>
+        
+
+        
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="pages_menu_Menu.jsx.html">pages/menu/Menu.jsx</a>, <a href="pages_menu_Menu.jsx.html#line1202">line 1202</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    Complete menu application
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">JSX.Element</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+    
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <h3 class="subsection-title">Methods</h3>
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="~calculateItemPrice"><span class="type-signature">(inner) </span>calculateItemPrice<span class="signature">(item)</span><span class="type-signature"> &rarr; {number}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Calculates item price including extras
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>item</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Menu item with customizations</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="pages_menu_Menu.jsx.html">pages/menu/Menu.jsx</a>, <a href="pages_menu_Menu.jsx.html#line1618">line 1618</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    Total price for item
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">number</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="~handleAddToCart"><span class="type-signature">(inner) </span>handleAddToCart<span class="signature">(item)</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Adds item to cart with quantity limit validation
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>item</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Item to add to cart (with customizations)</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="pages_menu_Menu.jsx.html">pages/menu/Menu.jsx</a>, <a href="pages_menu_Menu.jsx.html#line1573">line 1573</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="~handleCloseTable"><span class="type-signature">(inner) </span>handleCloseTable<span class="signature">()</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Handles table closure with payment validation
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="pages_menu_Menu.jsx.html">pages/menu/Menu.jsx</a>, <a href="pages_menu_Menu.jsx.html#line1729">line 1729</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="~handleFilterToggle"><span class="type-signature">(inner) </span>handleFilterToggle<span class="signature">(filter)</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Toggles dietary filter on/off
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>filter</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Filter to toggle</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="pages_menu_Menu.jsx.html">pages/menu/Menu.jsx</a>, <a href="pages_menu_Menu.jsx.html#line1552">line 1552</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="~handlePaymentConfirm"><span class="type-signature">(async, inner) </span>handlePaymentConfirm<span class="signature">(method)</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Confirms payment and processes cleanup
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>method</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Payment method ('card')</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="pages_menu_Menu.jsx.html">pages/menu/Menu.jsx</a>, <a href="pages_menu_Menu.jsx.html#line1742">line 1742</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="~handlePlaceOrder"><span class="type-signature">(async, inner) </span>handlePlaceOrder<span class="signature">()</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Places order with backend API
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="pages_menu_Menu.jsx.html">pages/menu/Menu.jsx</a>, <a href="pages_menu_Menu.jsx.html#line1630">line 1630</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="~handleRemove"><span class="type-signature">(inner) </span>handleRemove<span class="signature">(itemKey)</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Removes item from cart
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>itemKey</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Cart item key to remove</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="pages_menu_Menu.jsx.html">pages/menu/Menu.jsx</a>, <a href="pages_menu_Menu.jsx.html#line1609">line 1609</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="~handleSectionToggle"><span class="type-signature">(inner) </span>handleSectionToggle<span class="signature">(sectionName)</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Toggles menu section open/closed
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>sectionName</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Name of section to toggle</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="pages_menu_Menu.jsx.html">pages/menu/Menu.jsx</a>, <a href="pages_menu_Menu.jsx.html#line1543">line 1543</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="~handleUpdateQty"><span class="type-signature">(inner) </span>handleUpdateQty<span class="signature">(itemKey, newQty)</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Updates quantity of cart item with limit validation
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>itemKey</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Cart item key</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>newQty</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">New quantity</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="pages_menu_Menu.jsx.html">pages/menu/Menu.jsx</a>, <a href="pages_menu_Menu.jsx.html#line1595">line 1595</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="~matchesFilter"><span class="type-signature">(inner) </span>matchesFilter<span class="signature">(item)</span><span class="type-signature"> &rarr; {boolean}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Checks if menu item matches current filters
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>item</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Menu item to check</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="pages_menu_Menu.jsx.html">pages/menu/Menu.jsx</a>, <a href="pages_menu_Menu.jsx.html#line1561">line 1561</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    True if item matches all active filters
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">boolean</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-App.html">App</a></li><li><a href="module-KitchenDashboard.html">KitchenDashboard</a></li><li><a href="module-KitchenLogin.html">KitchenLogin</a></li><li><a href="module-ManagerDashboard.html">ManagerDashboard</a></li><li><a href="module-MenuApp.html">MenuApp</a></li><li><a href="module-WaiterDashboard.html">WaiterDashboard</a></li></ul><h3>Global</h3><ul><li><a href="global.html#ALLERGEN_OPTIONS">ALLERGEN_OPTIONS</a></li><li><a href="global.html#AccountPanel">AccountPanel</a></li><li><a href="global.html#AddItemsModal">AddItemsModal</a></li><li><a href="global.html#AllergenDropdown">AllergenDropdown</a></li><li><a href="global.html#C">C</a></li><li><a href="global.html#CancelledOrderModal">CancelledOrderModal</a></li><li><a href="global.html#CartIcon">CartIcon</a></li><li><a href="global.html#CartModal">CartModal</a></li><li><a href="global.html#ContactWaiterModal">ContactWaiterModal</a></li><li><a href="global.html#CustomerLogin">CustomerLogin</a></li><li><a href="global.html#CustomizationPopup">CustomizationPopup</a></li><li><a href="global.html#DIET_FILTERS">DIET_FILTERS</a></li><li><a href="global.html#Dropdown">Dropdown</a></li><li><a href="global.html#EmployeesTab">EmployeesTab</a></li><li><a href="global.html#FilterBar">FilterBar</a></li><li><a href="global.html#Header">Header</a></li><li><a href="global.html#IconAlert">IconAlert</a></li><li><a href="global.html#IconBell">IconBell</a></li><li><a href="global.html#IconClock">IconClock</a></li><li><a href="global.html#IconDoor">IconDoor</a></li><li><a href="global.html#MENU_META">MENU_META</a></li><li><a href="global.html#MenuItemCard">MenuItemCard</a></li><li><a href="global.html#MenuSection">MenuSection</a></li><li><a href="global.html#MenuTab">MenuTab</a></li><li><a href="global.html#Modal">Modal</a></li><li><a href="global.html#NavIcon">NavIcon</a></li><li><a href="global.html#NotificationsPanel">NotificationsPanel</a></li><li><a href="global.html#ORDER_STATUSES">ORDER_STATUSES</a></li><li><a href="global.html#OrderCard">OrderCard</a></li><li><a href="global.html#OrderConfirmation">OrderConfirmation</a></li><li><a href="global.html#OrderTimeBlock">OrderTimeBlock</a></li><li><a href="global.html#OrdersTab">OrdersTab</a></li><li><a href="global.html#OverviewTab">OverviewTab</a></li><li><a href="global.html#PaymentPopup">PaymentPopup</a></li><li><a href="global.html#SectionCard">SectionCard</a></li><li><a href="global.html#StockInput">StockInput</a></li><li><a href="global.html#StockTab">StockTab</a></li><li><a href="global.html#TablesTab">TablesTab</a></li><li><a href="global.html#ThankYouModal">ThankYouModal</a></li><li><a href="global.html#TrackingPopup">TrackingPopup</a></li><li><a href="global.html#UnpaidModal">UnpaidModal</a></li><li><a href="global.html#UnpaidOrderModal">UnpaidOrderModal</a></li><li><a href="global.html#addItemsToOrder">addItemsToOrder</a></li><li><a href="global.html#cancelOrder">cancelOrder</a></li><li><a href="global.html#changeQty">changeQty</a></li><li><a href="global.html#changeStatus">changeStatus</a></li><li><a href="global.html#clearAll">clearAll</a></li><li><a href="global.html#confirmOrder">confirmOrder</a></li><li><a href="global.html#deliverOrder">deliverOrder</a></li><li><a href="global.html#dismiss">dismiss</a></li><li><a href="global.html#elapsedColor">elapsedColor</a></li><li><a href="global.html#formatCardNumber">formatCardNumber</a></li><li><a href="global.html#formatCustomizations">formatCustomizations</a></li><li><a href="global.html#formatExpiry">formatExpiry</a></li><li><a href="global.html#getElapsed">getElapsed</a></li><li><a href="global.html#goToRoles">goToRoles</a></li><li><a href="global.html#handleAddToOrder">handleAddToOrder</a></li><li><a href="global.html#handleBlur">handleBlur</a></li><li><a href="global.html#handleCVVChange">handleCVVChange</a></li><li><a href="global.html#handleCardNumberChange">handleCardNumberChange</a></li><li><a href="global.html#handleCardholderNameChange">handleCardholderNameChange</a></li><li><a href="global.html#handleChange">handleChange</a></li><li><a href="global.html#handleCloseTable">handleCloseTable</a></li><li><a href="global.html#handleConfirm">handleConfirm</a></li><li><a href="global.html#handleContinue">handleContinue</a></li><li><a href="global.html#handleExpiryChange">handleExpiryChange</a></li><li><a href="global.html#handleKeyDown">handleKeyDown</a></li><li><a href="global.html#handleSend">handleSend</a></li><li><a href="global.html#handleToggleExtra">handleToggleExtra</a></li><li><a href="global.html#handleToggleIngredient">handleToggleIngredient</a></li><li><a href="global.html#isFormValid">isFormValid</a></li><li><a href="global.html#marginColor">marginColor</a></li><li><a href="global.html#markAll">markAll</a></li><li><a href="global.html#markRead">markRead</a></li><li><a href="global.html#notifColor">notifColor</a></li><li><a href="global.html#removeItem">removeItem</a></li><li><a href="global.html#restock">restock</a></li><li><a href="global.html#savePrice">savePrice</a></li><li><a href="global.html#startEditPrice">startEditPrice</a></li><li><a href="global.html#statusColor">statusColor</a></li><li><a href="global.html#stockStatus">stockStatus</a></li><li><a href="global.html#tileColors">tileColors</a></li><li><a href="global.html#toggle">toggle</a></li><li><a href="global.html#toggleAvail">toggleAvail</a></li><li><a href="global.html#useCustomerAlerts">useCustomerAlerts</a></li><li><a href="global.html#useElapsed">useElapsed</a></li><li><a href="global.html#useKitchenNotifications">useKitchenNotifications</a></li><li><a href="global.html#useOrderAge">useOrderAge</a></li><li><a href="global.html#useOutsideClick">useOutsideClick</a></li><li><a href="global.html#useWaiterAlerts">useWaiterAlerts</a></li><li><a href="global.html#validateCVV">validateCVV</a></li><li><a href="global.html#validateCardNumber">validateCardNumber</a></li><li><a href="global.html#validateCardholderName">validateCardholderName</a></li><li><a href="global.html#validateExpiry">validateExpiry</a></li><li><a href="global.html#validateField">validateField</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.5</a> on Sun Mar 29 2026 00:44:39 GMT+0000 (Greenwich Mean Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

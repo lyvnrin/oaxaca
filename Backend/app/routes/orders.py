@@ -6,18 +6,59 @@ router = APIRouter(tags=["orders"])
 
 
 class OrderIn(BaseModel):
+    """Request model for placing a new order.
+    
+    Attributes:
+        cust_id: Customer ID placing the order
+        table_id: Table number for the order
+        items: List of item dicts with item_id, quantity, price
+    """
     cust_id: int
     table_id: int
     items: list[dict]
 
 
 class OrderStatusUpdate(BaseModel):
+    """Request model for updating order status.
+    
+    Attributes:
+        status: New status (Pending/Waiter Confirmed/In Progress/Ready/Completed/Cancelled/Paid)
+        waiter_id: Waiter ID (required when marking as Completed)
+    """
     status: str
     waiter_id: int | None = None
+
+class OrderItemAdd(BaseModel):
+    """Request model for adding an item to existing order.
+    
+    Attributes:
+        item_id: Menu item ID
+        quantity: Number of items to add
+        price: Unit price
+        name: Item name for reference
+    """
+    item_id: int
+    quantity: int
+    price: float
+    name: str
 
 
 @router.post("/orders", status_code=201)
 def place_order(payload: OrderIn):
+    """Create a new order with multiple items.
+    
+    Validates item quantity limits (max 25 per item per table), calculates total,
+    and inserts order with status "Pending".
+    
+    Args:
+        payload: OrderIn object with customer, table, and items
+    
+    Returns:
+        Dict with order_id and total_cost
+    
+    Raises:
+        HTTPException 400: If item quantity exceeds 25 limit
+    """
     conn = get_conn()
     try:
         cursor = conn.cursor()
@@ -53,6 +94,15 @@ def place_order(payload: OrderIn):
 
 @router.get("/orders")
 def get_orders(waiter_id: int | None = Query(default=None), table_id: int | None = Query(default=None)):
+    """Retrieve orders with optional filtering.
+    
+    Args:
+        waiter_id: Filter orders assigned to specific waiter
+        table_id: Filter orders for specific table
+    
+    Returns:
+        List of orders with embedded items array and estimated prep time
+    """
     conn = get_conn()
     try:
         if waiter_id is not None:
@@ -87,6 +137,17 @@ def get_orders(waiter_id: int | None = Query(default=None), table_id: int | None
 
 @router.get("/orders/{order_id}")
 def get_order(order_id: int):
+    """Get a single order by ID.
+    
+    Args:
+        order_id: Order ID to retrieve
+    
+    Returns:
+        Order object
+    
+    Raises:
+        HTTPException 404: If order not found
+    """
     conn = get_conn()
     try:
         order = conn.execute(
@@ -101,6 +162,17 @@ def get_order(order_id: int):
 
 @router.patch("/orders/{order_id}")
 def update_order_status(order_id: int, payload: OrderStatusUpdate):
+    """Update order status.
+    
+    When status is "Completed", optionally records waiter_id for staff metrics.
+    
+    Args:
+        order_id: Order ID to update
+        payload: New status and optional waiter_id
+    
+    Returns:
+        Dict with order_id and updated status
+    """
     conn = get_conn()
     try:
         if payload.waiter_id and payload.status == "Completed":
@@ -121,6 +193,20 @@ def update_order_status(order_id: int, payload: OrderStatusUpdate):
 
 @router.post("/orders/{order_id}/pay", status_code=200)
 def pay_order(order_id: int):
+    """Mark an order as paid and update waiter metrics.
+    
+    Updates waiter's orders_handled and total_sales when payment is completed.
+    
+    Args:
+        order_id: Order ID to mark as paid
+    
+    Returns:
+        Dict with order_id and new status
+    
+    Raises:
+        HTTPException 400: If order already paid
+        HTTPException 404: If order not found
+    """
     conn = get_conn()
     try:
         row = conn.execute(
@@ -143,16 +229,23 @@ def pay_order(order_id: int):
     finally:
         conn.close()
 
-
-class OrderItemAdd(BaseModel):
-    item_id: int
-    quantity: int
-    price: float
-    name: str
-
-
 @router.post("/orders/{order_id}/items", status_code=201)
 def add_item_to_order(order_id: int, payload: OrderItemAdd):
+    """Add an item to an existing order.
+    
+    Validates quantity limits, updates or inserts item, and recalculates order total.
+    
+    Args:
+        order_id: Order ID to add item to
+        payload: Item details (item_id, quantity, price, name)
+    
+    Returns:
+        Dict with order_id and new total_cost
+    
+    Raises:
+        HTTPException 400: If item quantity exceeds 25 limit
+        HTTPException 404: If order not found
+    """
     conn = get_conn()
     try:
         row = conn.execute(
@@ -202,6 +295,20 @@ def add_item_to_order(order_id: int, payload: OrderItemAdd):
 
 @router.delete("/orders/{order_id}/items/{item_index}", status_code=200)
 def remove_item_from_order(order_id: int, item_index: int):
+    """Remove an item from an order by its position index.
+    
+    Deletes the item and recalculates order total.
+    
+    Args:
+        order_id: Order ID
+        item_index: Zero-based index of item in order
+    
+    Returns:
+        Dict with order_id and new total_cost
+    
+    Raises:
+        HTTPException 404: If item index out of range
+    """
     conn = get_conn()
     try:
         items = conn.execute(
@@ -230,6 +337,16 @@ def remove_item_from_order(order_id: int, item_index: int):
 
 @router.delete("/orders/{order_id}/cleanup")
 def cleanup_single_order(order_id: int):
+    """Delete a paid or cancelled order and its items.
+    
+    Performs cleanup of order data after payment or cancellation.
+    
+    Args:
+        order_id: Order ID to clean up
+    
+    Returns:
+        Confirmation message
+    """
     conn = get_conn()
     try:
         conn.execute("DELETE FROM order_item WHERE order_id = ?", (order_id,))
