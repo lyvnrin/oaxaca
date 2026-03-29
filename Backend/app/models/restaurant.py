@@ -1,13 +1,14 @@
 from enum import Enum
 from datetime import datetime
 
-
 class PaymentStatus(Enum):
+    """Payment status enumeration."""
     UNPAID = 'unpaid'
     PAID = 'paid'
 
 
 class OrderStatus(Enum):
+    """Order status tracking enumeration."""
     PENDING = "Pending"
     IN_PROGRESS = "In Progress"
     READY = "Ready"
@@ -16,17 +17,20 @@ class OrderStatus(Enum):
 
 
 class Role(Enum):
+    """Staff role enumeration."""
     WAITER = "Waiter"
     KITCHEN_STAFF = "Kitchen_Staff"
 
 
 class AlertType(Enum):
+    """Alert type enumeration for customer/staff notifications."""
     HELP_NEEDED = "Help_Needed"
     ORDER_READY = "Order_Ready"
     PAYMENT_REQUEST = "Payment_Request"
 
 
 class menuItem:
+    """Represents a single menu item with its properties."""
     def __init__(self, item_id: int,
                  name: str,
                  description: str,
@@ -37,6 +41,20 @@ class menuItem:
                  gluten_free: bool,
                  available: bool = True,
                  category: str = "mains"):
+        """Initialise a menu item.
+        
+        Args:
+            item_id: Unique identifier for the item
+            name: Display name of the item
+            description: Item description for menu
+            price: Price in GBP
+            calories: Calorie count
+            allergens: List of allergens present
+            vegetarian: Whether item is vegetarian
+            gluten_free: Whether item is gluten-free
+            available: Current availability status
+            category: Menu section (starters/mains/desserts/sides/drinks)
+        """
         self.item_id = item_id
         self.name = name
         self.description = description
@@ -49,6 +67,11 @@ class menuItem:
         self.category = category
 
     def to_dict(self):  # converts the menu item to a dictionary
+        """Convert menu item to dictionary for JSON serialisation.
+        
+        Returns:
+            Dict with camelCase keys for frontend compatibility
+        """
         return {
             "id": self.item_id,
             "name": self.name,
@@ -75,16 +98,25 @@ class menuItem:
 
 
 class menu:
+    """Manages collection of menu items."""
     def __init__(self):
+        """Initialise empty menu."""
         self.items: list[menuItem] = []  # list to store menu items
 
     def add_item(self, item: menuItem):
+        """Add a new item to the menu."""
         self.items.append(item)
 
     def remove_item(self, name: str):
+        """Remove an item by name."""
         self.items = [item for item in self.items if item.name != name]
 
     def get_item_by_id(self, item_id: int):  # returns a menu item based on its ID, if not found returns None
+        """Retrieve item by ID.
+        
+        Returns:
+            menuItem or None if not found
+        """
         for item in self.items:
             if item.item_id == item_id:
                 return item
@@ -92,6 +124,11 @@ class menu:
 
     def set_availability(self, item_id: int,
                          available: bool):  # sets the availability of a menu item based on its name, returns True if successful, False if item not found
+        """Update item availability.
+        
+        Returns:
+            True if item found and updated, False otherwise
+        """
         item = self.get_item_by_id(item_id)
         if item is None:
             return False
@@ -99,9 +136,16 @@ class menu:
         return True
 
     def get_available_items(self):
+        """Get all available menu items."""
         return [item for item in self.items if item.available]  # returns a list of available items
 
     def filter_items(self, vegetarian=None, gluten_free=None):
+        """Filter available items by dietary preferences.
+        
+        Args:
+            vegetarian: Filter by vegetarian status
+            gluten_free: Filter by gluten-free status
+        """
         filtered = self.get_available_items()
         if vegetarian is not None:
             filtered = [i for i in filtered if i.vegetarian == vegetarian]
@@ -110,6 +154,11 @@ class menu:
         return filtered
 
     def update_item(self, name: str, price: float):
+        """Update item price by name.
+        
+        Returns:
+            Updated menuItem or None if not found
+        """
         for item in self.items:
             if item.name == name:
                 item.price = price
@@ -118,16 +167,32 @@ class menu:
 
 
 class OrderItem:
+    """Represents a single item within an order."""
     def __init__(self, item, qty=1):
+        """Initialise order item.
+        
+        Args:
+            item: menuItem object
+            qty: Quantity ordered
+        """
         self.item = item
         self.qty = qty
 
     def line_total(self):
+        """Calculate total for this line item."""
         return self.item.price * self.qty
 
 
 class Order:
+    """Represents a customer order with status tracking."""
     def __init__(self, order_id, table_number, items):
+        """Initialise a new order.
+        
+        Args:
+            order_id: Unique order identifier
+            table_number: Table number for the order
+            items: List of OrderItem objects
+        """
         self.order_id = order_id
         self.table_number = table_number
         self.items = items
@@ -146,29 +211,49 @@ class Order:
         self.payment = None
 
     def age_seconds(self):  # used to track how long the order has been active for, used for tracking order progress
+        """Calculate how long the order has been active in seconds."""
         return (datetime.now() - self.created_at).total_seconds()
 
     def total_price(
             self):  # calculates the total price of a order by summing each item in the order and multiplying by the quantity of that item
+        """Calculate total order price."""
         return sum(item.line_total() for item in self.items)
 
     def is_paid(self):
+        """Check if order has been paid."""
         return self.payment is not None and self.payment.status == PaymentStatus.PAID
 
 
 class Payment:
+    """Represents a payment transaction for an order."""
+
     def __init__(self, order_id: int, amount: float):
+        """Initialise payment.
+        
+        Args:
+            order_id: ID of order being paid
+            amount: Payment amount
+        """
         self.order_id = order_id
         self.amount = amount
         self.status = PaymentStatus.UNPAID
 
     def process(self):
+        """Process the payment, marking as paid."""
         self.status = PaymentStatus.PAID
         return self
 
 
 class Restaurant:
+    """Main restaurant class managing menu, orders, and staff."""
+
     def __init__(self, name: str, location: str):
+        """Initialise restaurant.
+        
+        Args:
+            name: Restaurant name
+            location: Restaurant location/address
+        """
         self.name = name
         self.location = location
         self.menu = menu()
@@ -177,6 +262,18 @@ class Restaurant:
         self._next_order_id = 1  # assigns a unique ID to each order, starts at 1 and increments for each new order
 
     def place_order(self, table_number, items):
+        """Place a new order.
+        
+        Args:
+            table_number: Table placing the order
+            items: List of (item_id, quantity) tuples
+        
+        Returns:
+            New Order object
+        
+        Raises:
+            ValueError: If item not found, unavailable, or invalid quantity
+        """
         order_items = []
         for item_id, qty in items:  # search the menu for item id and quantity. if id doesn't match or not available return error
             mi = self.menu.get_item_by_id(item_id)
@@ -199,17 +296,35 @@ class Restaurant:
         return order
 
     def get_order(self, order_id):  # returns an order based on its ID, if not found returns None
+        """Retrieve order by ID.
+        
+        Returns:
+            Order object or None if not found
+        """
         for o in self.orders:
             if o.order_id == order_id:
                 return o
         return None
 
-        # ADD STAFF MEMBERS
-
     def add_staff(self, staff_member: 'Staff'):
+        """Retrieve order by ID.
+        
+        Returns:
+            Order object or None if not found
+        """
         self.staff.append(staff_member)  # adds a staff member to the restaurant's staff list
 
     def create_staff(self, username, password, role):
+        """Create and add a new staff member.
+        
+        Args:
+            username: Staff username
+            password: Staff password
+            role: Role enum value
+        
+        Returns:
+            New Staff/Waiter/KitchenStaff instance
+        """
         staff_id = Staff._next_id
         Staff._next_id += 1
 
@@ -224,9 +339,21 @@ class Restaurant:
         return staff_member
 
     def get_staff_by_role(self, role: Role):
+        """Get all staff members with specified role."""
         return [s for s in self.staff if s.role == role]  # returns a list of staff members with the specified role
 
     def process_payment(self, order_id: int):
+        """Process payment for an order.
+        
+        Args:
+            order_id: ID of order to process payment for
+        
+        Returns:
+            Payment object
+        
+        Raises:
+            ValueError: If order not found, cancelled, or already paid
+        """
         order = self.get_order(order_id)
         if order is None:
             raise ValueError(f"Order {order_id} not found.")
@@ -252,9 +379,19 @@ class Restaurant:
 
 
 class Staff:
+    """Base class for all staff members."""
+
     _next_id = 1
 
     def __init__(self, username: str, password: str, staff_id: int, role: Role):
+        """Initialise staff member.
+        
+        Args:
+            username: Staff username
+            password: Staff password
+            staff_id: Unique staff identifier
+            role: Staff role
+        """
         self.staff_id = staff_id
         self.username = username
         self.password = password
@@ -266,18 +403,34 @@ class Staff:
     def __repr__(self):
         return self.__str__()
 
-
 class Waiter(Staff):
+    """Waiter staff with order management capabilities."""
+
     def __init__(self, username: str, password: str, staff_id: int):
+        """Initialise waiter."""
         super().__init__(username, password, staff_id, Role.WAITER)
 
     def update_menu_price(self, r, name, new_price):  # waiter can update the price of a menu item
+        """Update menu item price."""
         return r.menu.update_item(name, new_price)
 
     def set_item_availability(self, r, item_id, available):  # waiter can set the availability of a menu item
+        """Set menu item availability."""
         return r.menu.set_availability(item_id, available)
 
     def confirm_order(self, r, order_id):
+        """Confirm and start preparing an order.
+        
+        Args:
+            r: Restaurant instance
+            order_id: ID of order to confirm
+        
+        Returns:
+            Updated Order object
+        
+        Raises:
+            ValueError: If order not found or cannot be confirmed
+        """
         order = r.get_order(order_id)
         if order is None:
             raise ValueError(f"Order {order_id} was not found")
@@ -291,6 +444,18 @@ class Waiter(Staff):
         return order  # implemented order confirmation
 
     def cancel_order(self, r, order_id):
+        """Cancel an order.
+        
+        Args:
+            r: Restaurant instance
+            order_id: ID of order to cancel
+        
+        Returns:
+            Updated Order object
+        
+        Raises:
+            ValueError: If order not found or cannot be cancelled
+        """
         order = r.get_order(order_id)
         if order is None:
             raise ValueError(f"Order {order_id} was not found")
@@ -304,6 +469,15 @@ class Waiter(Staff):
         return order  # implemented order cancellation
 
     def mark_completed(self, r, order_id):
+        """Mark order as completed (delivered).
+        
+        Args:
+            r: Restaurant instance
+            order_id: ID of order to complete
+        
+        Returns:
+            Updated Order object
+        """
         order = r.get_order(order_id)
         if order is None:
             raise ValueError(f"Order {order_id} was not found")
@@ -317,6 +491,11 @@ class Waiter(Staff):
         return order  # implemented marking order as completed
 
     def get_order_time_info(self, r, order_id):
+        """Get timing information for an order.
+        
+        Returns:
+            Dict with created_at, started_at, ready_at, completed_at, cancelled_at
+        """
         order = r.get_order(order_id)
         if order is None:
             raise ValueError(f"Order {order_id} was not found")
@@ -341,10 +520,21 @@ class Waiter(Staff):
 
 
 class KitchenStaff(Staff):
+    """Kitchen staff with food preparation management."""
     def __init__(self, username: str, password: str, staff_id: int):
+        """Initialize kitchen staff."""
         super().__init__(username, password, staff_id, Role.KITCHEN_STAFF)
 
     def mark_in_progress(self, r, order_id):
+        """Mark order as being prepared.
+        
+        Args:
+            r: Restaurant instance
+            order_id: ID of order to start
+        
+        Returns:
+            Updated Order object
+        """
         order = r.get_order(order_id)
         if order is None:
             raise ValueError(f"Order {order_id} was not found")
@@ -358,6 +548,15 @@ class KitchenStaff(Staff):
         return order  # implemented marking order as in progress
 
     def mark_ready(self, r, order_id):
+        """Mark order as ready for service.
+        
+        Args:
+            r: Restaurant instance
+            order_id: ID of order to mark ready
+        
+        Returns:
+            Updated Order object
+        """
         order = r.get_order(order_id)
         if order is None:
             raise ValueError(f"Order {order_id} was not found")
@@ -371,6 +570,11 @@ class KitchenStaff(Staff):
         return order  # implemented marking order as ready
 
     def get_kitchen_queue(self, r):
+        """Get current kitchen queue with waiting times.
+        
+        Returns:
+            List of order info dicts for pending/in-progress orders
+        """
         order_queue = []
 
         for i in r.orders:
@@ -390,19 +594,37 @@ class KitchenStaff(Staff):
 
 
 class Table:
+    """Represents a physical table in the restaurant."""
+
     def __init__(self, table_number: int, capacity: int):
+        """Initialise table.
+        
+        Args:
+            table_number: Table identifier
+            capacity: Number of seats
+        """
         self.table_number = table_number
         self.capacity = capacity
         self.occupied = False
         self.current_customer = None
 
     def assign_customer(self, customer):
+        """Assign a customer to the table.
+        
+        Raises:
+            ValueError: If table is already occupied
+        """
         if self.occupied:
             raise ValueError(f"Table {self.table_number} is already occupied.")
         self.current_customer = customer  # assigns a customer to a table
         self.occupied = True  # sets table as occupied
 
     def clear_table(self):
+        """Clear the table for next customer.
+        
+        Raises:
+            ValueError: If order hasn't been paid
+        """
         if self.current_customer and self.current_customer.current_order:
             order = self.current_customer.current_order
             if not order.is_paid():
@@ -420,19 +642,41 @@ class Table:
 
 
 class Customer:
+    """Represents a customer dining at the restaurant."""
+
     def __init__(self, name: str, table_number: int):
+        """Initialise customer.
+        
+        Args:
+            name: Customer name/identifier
+            table_number: Assigned table number
+        """
         self.name = name
         self.table_number = table_number
         self.current_order = None
 
     # customer can place orders and assigns it to a customer
     def place_order(self, r, items):
+        """Place an order for this customer.
+        
+        Args:
+            r: Restaurant instance
+            items: List of (item_id, quantity) tuples
+        
+        Returns:
+            Order object
+        """
         order = r.place_order(self.table_number, items)
         self.current_order = order
         return order
 
     # customer calling the waiter for help changes the status
     def call_Waiter(self):
+        """Request waiter assistance.
+        
+        Returns:
+            Alert dict with table number and type
+        """
         return {
             "table": self.table_number,
             "type": AlertType.HELP_NEEDED
@@ -441,6 +685,14 @@ class Customer:
     # customer can request payment which will trigger a payment request
     # will be used for payment implementation
     def request_payment(self):
+        """Request payment for the current order.
+        
+        Returns:
+            Alert dict with table number, type, and order_id
+        
+        Raises:
+            ValueError: If no order has been placed
+        """
         if self.current_order is None:
             raise ValueError("Customer has not placed an order yet.")
         return {
