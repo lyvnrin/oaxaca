@@ -1,0 +1,1932 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: pages/menu/Menu.jsx</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: pages/menu/Menu.jsx</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import { useState, useEffect, useRef } from "react";
+import { useLocation, useNavigate } from 'react-router-dom';
+import "./Menu.css";
+import { MENU_DATA, INGREDIENTS, EXTRAS_BY_ID } from "./menuData.js";
+
+// CONSTANTS --------------------------
+/** @constant {string[]} ALLERGEN_OPTIONS - Available allergen filtering options */
+const ALLERGEN_OPTIONS = ["Fish", "Soy", "Milk", "Nuts", "Eggs", "Wheat", "Sesame", "Shellfish"];
+
+/** @constant {string[]} DIET_FILTERS - Available dietary preference filters */
+const DIET_FILTERS = ["Vegetarian", "Gluten-Free", "Vegan"];
+
+// CART ICON --------------------------
+/**
+ * Cart Icon Component
+ * Displays shopping cart icon with item count badge
+ * 
+ * @component
+ * @param {Object} props - Component props
+ * @param {number} props.count - Number of items in cart
+ * @param {Function} props.onClick - Click handler for cart icon
+ * @returns {JSX.Element} Cart icon button with badge
+ */
+function CartIcon({ count, onClick }) {
+    return (
+        &lt;button className="cart-icon" title="View cart" onClick={onClick}>
+            &lt;svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                &lt;circle cx="9" cy="21" r="1" />
+                &lt;circle cx="20" cy="21" r="1" />
+                &lt;path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
+            &lt;/svg>
+            {count > 0 &amp;&amp; &lt;span className="cart-badge">{count}&lt;/span>}
+        &lt;/button>
+    );
+}
+
+// HEADER --------------------------
+/**
+ * Header Component
+ * Displays restaurant header with table number, cart icon, and hamburger menu
+ * 
+ * @component
+ * @param {Object} props - Component props
+ * @param {string} props.tableNumber - Current table number display
+ * @param {number} props.table_id - Current table ID
+ * @param {number} props.cartCount - Number of items in cart
+ * @param {Function} props.onCartClick - Cart icon click handler
+ * @param {Function} props.onCloseTable - Close table handler
+ * @param {Function} props.onContactWaiter - Contact waiter handler
+ * @returns {JSX.Element} Header component
+ */
+function Header({ tableNumber, cartCount, onCartClick, onCloseTable, onContactWaiter }) {
+    const [menuOpen, setMenuOpen] = useState(false);
+
+    /**
+     * Handles closing the table and closing the menu popup
+     * @function handleCloseTable
+     */
+    const handleCloseTable = () => {
+        setMenuOpen(false);
+        onCloseTable();
+    };
+
+    return (
+        &lt;header className="header">
+            &lt;span className="table-number">{tableNumber}&lt;/span>
+            &lt;a href="/" style={{ textDecoration: 'none', color: 'inherit' }} className="no-style-link">
+                &lt;h1 className="restaurant-title">OAXACA&lt;/h1>
+            &lt;/a>
+            &lt;div className="header-right">
+                &lt;CartIcon count={cartCount} onClick={onCartClick} />
+                &lt;div className="hamburger-wrapper">
+                    &lt;button className={`hamburger ${menuOpen ? "hamburger--open" : ""}`}
+                        aria-label="Open navigation menu" onClick={() => setMenuOpen((v) => !v)}>
+                        &lt;span className="hamburger-bar" />
+                        &lt;span className="hamburger-bar" />
+                        &lt;span className="hamburger-bar" />
+                    &lt;/button>
+                    {menuOpen &amp;&amp; (
+                        &lt;>
+                            &lt;div className="menu-popup-backdrop" onClick={() => setMenuOpen(false)} />
+                            &lt;div className="menu-popup">
+                                &lt;button className="menu-popup-item" onClick={() => { setMenuOpen(false); onContactWaiter(); }}>
+                                    &lt;svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '8px', verticalAlign: 'middle' }}>
+                                        &lt;path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 1.27h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.96a16 16 0 0 0 6 6l.92-.92a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7a2 2 0 0 1 1.72 2.02z" />
+                                    &lt;/svg>
+                                    Contact Waiter
+                                &lt;/button>
+                                &lt;button className="menu-popup-item menu-popup-item--danger" onClick={handleCloseTable}>
+                                    &lt;svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '8px', verticalAlign: 'middle' }}>
+                                        &lt;path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                                        &lt;polyline points="16 17 21 12 16 7" />
+                                        &lt;line x1="21" y1="12" x2="9" y2="12" />
+                                    &lt;/svg>
+                                    Close Table
+                                &lt;/button>
+                            &lt;/div>
+                        &lt;/>
+                    )}
+                &lt;/div>
+            &lt;/div>
+        &lt;/header>
+    );
+}
+
+// ALLERGEN DROPDOWN --------------------------
+/**
+ * Allergen Filter Dropdown Component
+ * Allows users to select allergens to exclude from menu items
+ * 
+ * @component
+ * @param {Object} props - Component props
+ * @param {string[]} props.selected - Array of currently selected allergens
+ * @param {Function} props.onChange - Handler for allergen selection changes
+ * @returns {JSX.Element} Allergen filter dropdown
+ */
+function AllergenDropdown({ selected, onChange }) {
+    const [open, setOpen] = useState(false);
+
+    function handleToggle(allergen) {
+        if (selected.includes(allergen)) {
+            onChange(selected.filter((a) => a !== allergen));
+        } else {
+            onChange([...selected, allergen]);
+        }
+    }
+
+    return (
+        &lt;div className="allergen-wrapper">
+            &lt;button className={`allergen-toggle ${selected.length > 0 ? "allergen-toggle--active" : ""}`} onClick={() => setOpen((v) => !v)}>
+                &lt;span>Does Not Contain&lt;/span>
+                {selected.length > 0 &amp;&amp; &lt;span className="allergen-count">{selected.length}&lt;/span>}
+                &lt;span className="dropdown-arrow">{open ? "▲" : "▼"}&lt;/span>
+            &lt;/button>
+            {open &amp;&amp; (
+                &lt;div className="allergen-list">
+                    {ALLERGEN_OPTIONS.map((allergen) => (
+                        &lt;label key={allergen} className="allergen-option">
+                            &lt;input type="checkbox" checked={selected.includes(allergen)} onChange={() => handleToggle(allergen)} />
+                            {allergen}
+                        &lt;/label>
+                    ))}
+                &lt;/div>
+            )}
+        &lt;/div>
+    );
+}
+
+// FILTER BAR
+/**
+ * Filter Bar Component
+ * Contains dietary preference filters, allergen filters, and track order button
+ * 
+ * @component
+ * @param {Object} props - Component props
+ * @param {string[]} props.activeFilters - Currently active dietary filters
+ * @param {Function} props.onFilterToggle - Handler for toggling dietary filters
+ * @param {string[]} props.excludedAllergens - Currently excluded allergens
+ * @param {Function} props.onAllergenChange - Handler for allergen changes
+ * @param {Function} props.onTrackOrder - Handler for tracking order
+ * @param {boolean} props.hasActiveOrder - Whether there's an active order
+ * @returns {JSX.Element} Filter bar component
+ */
+function FilterBar({ activeFilters, onFilterToggle, excludedAllergens, onAllergenChange, onTrackOrder, hasActiveOrder }) {
+    return (
+        &lt;div className="filter-bar">
+            &lt;div className="filter-row">
+                &lt;span className="filter-label">Show me&lt;/span>
+                &lt;div className="filter-buttons">
+                    {DIET_FILTERS.map((filter) => (
+                        &lt;button key={filter} className={`filter-btn ${activeFilters.includes(filter) ? "filter-btn--active" : ""}`} onClick={() => onFilterToggle(filter)}>
+                            {filter}
+                        &lt;/button>
+                    ))}
+                &lt;/div>
+                &lt;AllergenDropdown selected={excludedAllergens} onChange={onAllergenChange} />
+                &lt;button
+                    className={`track-order-btn ${hasActiveOrder ? 'track-order-btn--active' : 'track-order-btn--disabled'}`}
+                    onClick={onTrackOrder}
+                    disabled={!hasActiveOrder}
+                >
+                    &lt;svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '6px', verticalAlign: 'middle' }}>
+                        &lt;path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                        &lt;polyline points="14 2 14 8 20 8" />
+                        &lt;line x1="16" y1="13" x2="8" y2="13" />
+                        &lt;line x1="16" y1="17" x2="8" y2="17" />
+                        &lt;polyline points="10 9 9 9 8 9" />
+                    &lt;/svg>
+                    Track Order
+                &lt;/button>
+            &lt;/div>
+        &lt;/div>
+    );
+}
+
+// CUSTOMISATION --------------------------
+/**
+ * Customisation Popup Component
+ * Allows users to customize menu items (remove ingredients, add extras, special requests)
+ * 
+ * @component
+ * @param {Object} props - Component props
+ * @param {Object} props.item - Menu item being customized
+ * @param {Function} props.onClose - Close popup handler
+ * @param {Function} props.onAddToCart - Add to cart handler
+ * @returns {JSX.Element} Customisation modal
+ */
+function CustomizationPopup({ item, onClose, onAddToCart }) {
+    const [removedIngredients, setRemovedIngredients] = useState([]);
+    const [selectedExtras, setSelectedExtras] = useState([]);
+    const [specialRequest, setSpecialRequest] = useState('');
+
+    const itemIngredients = INGREDIENTS[item.id] || ["Food1", "Food2", "Food3", "Food4", "Food5"];
+    const itemExtras = EXTRAS_BY_ID[item.id] || [];
+
+    /**
+     * Toggles an ingredient in the removed list
+     * @function handleToggleIngredient
+     * @param {string} ingredient - Ingredient to toggle
+     */
+    const handleToggleIngredient = (ingredient) => {
+        setRemovedIngredients(prev => prev.includes(ingredient) ? prev.filter(i => i !== ingredient) : [...prev, ingredient]);
+    };
+
+    /**
+     * Toggles an extra item in the selected extras list
+     * @function handleToggleExtra
+     * @param {Object} extra - Extra item to toggle
+     */
+    const handleToggleExtra = (extra) => {
+        setSelectedExtras(prev => prev.find(e => e.name === extra.name) ? prev.filter(e => e.name !== extra.name) : [...prev, extra]);
+    };
+
+    /**
+     * Adds customised item to cart and closes popup
+     * @function handleAddToOrder
+     */
+    const handleAddToOrder = () => {
+        const customizedItem = {
+            ...item,
+            customization: { removedIngredients, selectedExtras, specialRequest: specialRequest.trim() }
+        };
+        onAddToCart(customizedItem);
+        onClose();
+    };
+
+    const extrasTotal = selectedExtras.reduce((sum, extra) => sum + extra.price, 0);
+    const basePrice = parseFloat(item.price.replace("£", ""));
+    const totalPrice = (basePrice + extrasTotal).toFixed(2);
+
+    return (
+        &lt;div className="customization-overlay" onClick={onClose}>
+            &lt;div className="customization-modal" onClick={(e) => e.stopPropagation()}>
+                &lt;div className="customization-header">
+                    &lt;h2 className="customization-title">Customize {item.name}&lt;/h2>
+                    &lt;button className="customization-close" onClick={onClose}>✕&lt;/button>
+                &lt;/div>
+                &lt;div className="customization-content">
+                    &lt;div className="customization-section">
+                        &lt;h3 className="section-title">Remove Ingredients&lt;/h3>
+                        &lt;div className="ingredients-grid">
+                            {itemIngredients.map((ingredient) => (
+                                &lt;button key={ingredient}
+                                    className={`ingredient-btn ${removedIngredients.includes(ingredient) ? 'ingredient-btn--removed' : ''}`}
+                                    onClick={() => handleToggleIngredient(ingredient)}>
+                                    {ingredient}
+                                    {removedIngredients.includes(ingredient) &amp;&amp; &lt;span className="remove-icon">✕&lt;/span>}
+                                &lt;/button>
+                            ))}
+                        &lt;/div>
+                    &lt;/div>
+                    {itemExtras.length > 0 &amp;&amp; (
+                        &lt;div className="customization-section">
+                            &lt;h3 className="section-title">Extras&lt;/h3>
+                            &lt;div className="extras-list">
+                                {itemExtras.map((extra) => {
+                                    const isSelected = selectedExtras.some(e => e.name === extra.name);
+                                    return (
+                                        &lt;button key={extra.name} className={`extra-item ${isSelected ? 'extra-item--selected' : ''}`} onClick={() => handleToggleExtra(extra)}>
+                                            &lt;span className="extra-name">{extra.name}&lt;/span>
+                                            &lt;span className="extra-price">£{extra.price.toFixed(2)}&lt;/span>
+                                            {isSelected &amp;&amp; &lt;span className="check-icon">✓&lt;/span>}
+                                        &lt;/button>
+                                    );
+                                })}
+                            &lt;/div>
+                        &lt;/div>
+                    )}
+                    &lt;div className="customization-section">
+                        &lt;h3 className="section-title">Special Request&lt;/h3>
+                        &lt;textarea className="special-request-input"
+                            placeholder="Any special instructions? (allergies, cooking preferences, etc.)"
+                            value={specialRequest} onChange={(e) => setSpecialRequest(e.target.value)} rows="3" />
+                    &lt;/div>
+                    &lt;div className="customization-summary">
+                        &lt;div className="price-breakdown">
+                            &lt;span>Base price:&lt;/span>
+                            &lt;span>{item.price}&lt;/span>
+                        &lt;/div>
+                        {selectedExtras.length > 0 &amp;&amp; (
+                            &lt;div className="price-breakdown">
+                                &lt;span>Extras:&lt;/span>
+                                &lt;span>£{extrasTotal.toFixed(2)}&lt;/span>
+                            &lt;/div>
+                        )}
+                        &lt;div className="total-price">
+                            &lt;span>Total:&lt;/span>
+                            &lt;span>£{totalPrice}&lt;/span>
+                        &lt;/div>
+                    &lt;/div>
+                &lt;/div>
+                &lt;div className="customization-footer">
+                    &lt;button className="cancel-btn" onClick={onClose}>Cancel&lt;/button>
+                    &lt;button className="add-to-order-final-btn" onClick={handleAddToOrder}>Add to Order • £{totalPrice}&lt;/button>
+                &lt;/div>
+            &lt;/div>
+        &lt;/div>
+    );
+}
+
+// MENU ITEM CARD --------------------------
+/**
+ * Menu Item Card Component
+ * Displays individual menu item with image, description, dietary info, and add to order button
+ * 
+ * @component
+ * @param {Object} props - Component props
+ * @param {Object} props.item - Menu item data
+ * @param {boolean} props.dimmed - Whether item should be dimmed (doesn't match filters)
+ * @param {boolean} props.unavailable - Whether item is unavailable
+ * @param {boolean} props.lowStock - Whether item has low stock
+ * @param {Function} props.onCustomize - Customization handler
+ * @returns {JSX.Element} Menu item card
+ */
+function MenuItemCard({ item, dimmed, unavailable, lowStock, onCustomize }) {
+    return (
+        &lt;div className={`menu-item-card ${dimmed ? "menu-item-card--dimmed" : ""} ${unavailable ? "menu-item-card--unavailable" : ""} ${lowStock ? "menu-item-card--unavailable" : ""}`}>
+            &lt;div className="card-image-placeholder">
+                {item.image
+                    ? &lt;img src={item.image} alt={item.name} style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "inherit", ...item.imageStyle }} />
+                    : &lt;span className="card-image-text">IMG&lt;/span>
+                }
+            &lt;/div>
+            &lt;div className="card-body">
+                &lt;div className="card-top-row">
+                    &lt;span className="card-name">{item.name}&lt;/span>
+                    &lt;span className="card-price">{item.price}&lt;/span>
+                &lt;/div>
+                &lt;p className="card-description">{item.description}&lt;/p>
+                &lt;div className="card-footer">
+                    {item.dietary.length > 0 &amp;&amp; (
+                        &lt;div className="card-tags">
+                            {item.dietary.map((tag) => &lt;span key={tag} className="diet-tag">{tag}&lt;/span>)}
+                        &lt;/div>
+                    )}
+                    {item.allergens.length > 0 &amp;&amp; &lt;p className="card-allergens">Contains: {item.allergens.join(", ")}&lt;/p>}
+                    &lt;span className="card-calories">{item.calories}&lt;/span>
+                    {lowStock &amp;&amp; !unavailable &amp;&amp; &lt;p style={{ fontSize: 10, color: "#c0392b", fontWeight: 700, marginTop: 4 }}>⚠ Low stock&lt;/p>}
+                &lt;/div>
+                &lt;button className="add-to-order-btn"
+                    onClick={() => !dimmed &amp;&amp; !unavailable &amp;&amp; !lowStock &amp;&amp; onCustomize(item)}
+                    disabled={dimmed || unavailable || lowStock}>
+                    {unavailable ? "Unavailable" : lowStock ? "Low Stock" : "+ Add to Order"}
+                &lt;/button>
+            &lt;/div>
+        &lt;/div>
+    );
+}
+
+// MENU SECTION --------------------------
+/**
+ * Menu Section Component
+ * Collapsible section containing menu items for a specific category
+ * 
+ * @component
+ * @param {Object} props - Component props
+ * @param {string} props.sectionName - Name of the menu section
+ * @param {Array} props.items - Array of menu items in this section
+ * @param {boolean} props.isOpen - Whether section is expanded
+ * @param {Function} props.onToggle - Section toggle handler
+ * @param {Function} props.matchesFilter - Filter matching function
+ * @param {Function} props.onCustomize - Customization handler
+ * @param {Set} props.unavailableIds - Set of unavailable item IDs
+ * @param {Set} props.lowStockDishes - Set of low stock dish names
+ * @returns {JSX.Element} Collapsible menu section
+ */
+function MenuSection({ sectionName, items, isOpen, onToggle, matchesFilter, onCustomize, unavailableIds, lowStockDishes }) {
+    return (
+        &lt;div className={`menu-section ${isOpen ? "menu-section--open" : ""}`}>
+            &lt;button className="section-header" onClick={onToggle}>
+                &lt;span className="section-name">{sectionName}&lt;/span>
+                &lt;div className="section-header-right">
+                    &lt;span className="section-count">{items.length} items&lt;/span>
+                    &lt;span className="section-toggle-icon">{isOpen ? "−" : "+"}&lt;/span>
+                &lt;/div>
+            &lt;/button>
+            {isOpen &amp;&amp; (
+                &lt;div className="section-items">
+                    {items.map((item) => (
+                        &lt;MenuItemCard key={item.id} item={item}
+                            dimmed={!matchesFilter(item)}
+                            unavailable={unavailableIds.has(item.id)}
+                            lowStock={lowStockDishes.has(item.name)}
+                            onCustomize={onCustomize} />
+                    ))}
+                &lt;/div>
+            )}
+        &lt;/div>
+    );
+}
+
+// CONTACT WAITER MODAL --------------------------
+/**
+ * Contact Waiter Modal Component
+ * Allows customers to send messages to waitstaff
+ * 
+ * @component
+ * @param {Object} props - Component props
+ * @param {number} props.table_id - Current table ID
+ * @param {Function} props.onClose - Close modal handler
+ * @returns {JSX.Element} Contact waiter modal
+ */
+function ContactWaiterModal({ table_id, onClose }) {
+    const [message, setMessage] = useState("");
+    const [sent, setSent] = useState(false);
+
+    /**
+     * Sends waiter assistance request
+     * @async
+     * @function handleSend
+     */
+    const handleSend = async () => {
+        let assignedWaiter = null;
+        try {
+            const res = await fetch(`http://127.0.0.1:8000/tables/${parseInt(table_id)}/waiter`);
+            const data = await res.json();
+            assignedWaiter = data.assigned_waiter ?? null;
+        } catch (_) { }
+
+        localStorage.setItem("oaxaca_customer_alert", JSON.stringify({
+            id: Date.now(),
+            table: parseInt(table_id),
+            order: sessionStorage.getItem('liveOrderId') ?? "–",
+            status: "Needs Assistance",
+            type: "Help_Needed",
+            read: false,
+            customerMessage: message.trim() || null,
+            assigned_waiter: assignedWaiter,
+        }));
+
+        try {
+            await fetch("http://127.0.0.1:8000/alerts", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    table_id: parseInt(table_id),
+                    raised_by: null,
+                    message: `Table ${table_id} needs assistance`,
+                }),
+            });
+        } catch (_) { }
+
+        setSent(true);
+        setTimeout(onClose, 2000);
+    };
+
+    return (
+        &lt;div className="customization-overlay" onClick={onClose}>
+            &lt;div className="customization-modal" style={{ maxWidth: 380 }} onClick={e => e.stopPropagation()}>
+                &lt;div className="customization-header">
+                    &lt;h2 className="customization-title">Contact Waiter&lt;/h2>
+                    &lt;button className="customization-close" onClick={onClose}>✕&lt;/button>
+                &lt;/div>
+                &lt;div className="customization-content">
+                    {sent ? (
+                        &lt;div style={{ textAlign: "center", padding: "24px 0" }}>
+                            &lt;div style={{ fontSize: 40, marginBottom: 12 }}>✓&lt;/div>
+                            &lt;p style={{ fontWeight: 700, fontSize: 16 }}>Your waiter has been notified!&lt;/p>
+                            &lt;p style={{ color: "#7a5c44", fontSize: 13, marginTop: 6 }}>Someone will be with you shortly.&lt;/p>
+                        &lt;/div>
+                    ) : (
+                        &lt;>
+                            &lt;div className="customization-section">
+                                &lt;h3 className="section-title">How can we help?&lt;/h3>
+                                &lt;textarea
+                                    className="special-request-input"
+                                    placeholder="Optional: let us know what you need (e.g. extra napkins, allergy question…)"
+                                    value={message}
+                                    onChange={e => setMessage(e.target.value)}
+                                    rows="4"
+                                />
+                            &lt;/div>
+                            &lt;div className="customization-footer">
+                                &lt;button className="cancel-btn" onClick={onClose}>Cancel&lt;/button>
+                                &lt;button className="add-to-order-final-btn" onClick={handleSend}>Send to Waiter&lt;/button>
+                            &lt;/div>
+                        &lt;/>
+                    )}
+                &lt;/div>
+            &lt;/div>
+        &lt;/div>
+    );
+}
+
+// CART MODAL
+/**
+ * Cart Modal Component
+ * Displays current order items with quantity controls and total
+ * 
+ * @component
+ * @param {Object} props - Component props
+ * @param {Object} props.cart - Cart items object
+ * @param {Function} props.onClose - Close modal handler
+ * @param {Function} props.onUpdateQty - Update quantity handler
+ * @param {Function} props.onRemove - Remove item handler
+ * @param {Function} props.onPlaceOrder - Place order handler
+ * @returns {JSX.Element} Cart modal
+ */
+function CartModal({ cart, onClose, onUpdateQty, onRemove, onPlaceOrder }) {
+    const entries = Object.entries(cart).map(([key, value]) => ({ key, ...value }));
+    const total = entries.reduce((sum, { item, qty }) => {
+        const basePrice = parseFloat(item.price.replace("£", ""));
+        const extrasTotal = item.customization?.selectedExtras?.reduce((sum, extra) => sum + extra.price, 0) || 0;
+        return sum + (basePrice + extrasTotal) * qty;
+    }, 0);
+
+    /**
+     * Formats customisations for display
+     * @function formatCustomizations
+     * @param {Object} item - Menu item with customisations
+     * @returns {string[]} Array of formatted customisation strings
+     */
+    const formatCustomizations = (item) => {
+        const parts = [];
+        if (item.customization?.removedIngredients?.length > 0) parts.push(`No: ${item.customization.removedIngredients.join(', ')}`);
+        if (item.customization?.selectedExtras?.length > 0) parts.push(`Extra: ${item.customization.selectedExtras.map(e => e.name).join(', ')}`);
+        if (item.customization?.specialRequest) parts.push(`Note: ${item.customization.specialRequest}`);
+        return parts;
+    };
+
+    return (
+        &lt;div className="modal-overlay" onClick={onClose}>
+            &lt;div className="modal" onClick={(e) => e.stopPropagation()}>
+                &lt;div className="modal-header">
+                    &lt;h2 className="modal-title">Your Order&lt;/h2>
+                    &lt;button className="modal-close" onClick={onClose}>✕&lt;/button>
+                &lt;/div>
+                {entries.length === 0
+                    ? &lt;p className="modal-empty">Your order is empty. Add some items from the menu!&lt;/p>
+                    : (
+                        &lt;>
+                            &lt;div className="modal-items">
+                                {entries.map(({ key, item, qty }) => {
+                                    const basePrice = parseFloat(item.price.replace("£", ""));
+                                    const extrasTotal = item.customization?.selectedExtras?.reduce((sum, extra) => sum + extra.price, 0) || 0;
+                                    const linePrice = ((basePrice + extrasTotal) * qty).toFixed(2);
+                                    const customizations = formatCustomizations(item);
+                                    return (
+                                        &lt;div key={key} className="modal-item">
+                                            &lt;div className="modal-item-info">
+                                                &lt;span className="modal-item-name">{item.name}&lt;/span>
+                                                &lt;span className="modal-item-price">£{linePrice}&lt;/span>
+                                            &lt;/div>
+                                            {customizations.length > 0 &amp;&amp; (
+                                                &lt;div className="modal-item-customizations">
+                                                    {customizations.map((custom, idx) => &lt;p key={idx} className="customization-text">{custom}&lt;/p>)}
+                                                &lt;/div>
+                                            )}
+                                            &lt;div className="modal-item-controls">
+                                                &lt;button className="qty-btn" onClick={() => onUpdateQty(key, qty - 1)}>−&lt;/button>
+                                                &lt;span className="qty-value">{qty}&lt;/span>
+                                                &lt;button className="qty-btn" onClick={() => onUpdateQty(key, qty + 1)}>+&lt;/button>
+                                                &lt;button className="remove-btn" onClick={() => onRemove(key)}>✕&lt;/button>
+                                            &lt;/div>
+                                        &lt;/div>
+                                    );
+                                })}
+                            &lt;/div>
+                            &lt;div className="modal-footer">
+                                &lt;div className="modal-total">
+                                    &lt;span>Total&lt;/span>
+                                    &lt;span>£{total.toFixed(2)}&lt;/span>
+                                &lt;/div>
+                                &lt;button className="place-order-btn" onClick={onPlaceOrder}>Place Order&lt;/button>
+                            &lt;/div>
+                        &lt;/>
+                    )}
+            &lt;/div>
+        &lt;/div>
+    );
+}
+
+// PAYMENT VALIDATION HELPERS --------------------------
+/**
+ * Validates card number format
+ * @function validateCardNumber
+ * @param {string} value - Card number to validate
+ * @returns {string|null} Error message or null if valid
+ */
+function validateCardNumber(value) {
+    const digits = value.replace(/\s/g, '');
+    if (!digits) return 'Card number is required';
+    if (!/^\d+$/.test(digits)) return 'Card number must contain only digits';
+    if (digits.length !== 16) return 'Card number must be 16 digits';
+    return null;
+}
+
+/**
+ * Validates expiry date format
+ * @function validateExpiry
+ * @param {string} value - Expiry date (MM/YY)
+ * @returns {string|null} Error message or null if valid
+ */
+function validateExpiry(value) {
+    if (!value) return 'Expiry date is required';
+    const match = value.match(/^(\d{2})\/(\d{2})$/);
+    if (!match) return 'Use MM/YY format';
+    const month = parseInt(match[1], 10);
+    const year = parseInt(match[2], 10) + 2000;
+    if (month &lt; 1 || month > 12) return 'Invalid month';
+    const now = new Date();
+    const expiry = new Date(year, month - 1, 1);
+    if (expiry &lt; new Date(now.getFullYear(), now.getMonth(), 1)) return 'Card has expired';
+    return null;
+}
+
+/**
+ * Validates CVV format
+ * @function validateCVV
+ * @param {string} value - CVV code
+ * @returns {string|null} Error message or null if valid
+ */
+function validateCVV(value) {
+    if (!value) return 'CVV is required';
+    if (!/^\d{3}$/.test(value)) return 'CVV must be 3 digits';
+    return null;
+}
+
+/**
+ * Validates cardholder name
+ * @function validateCardholderName
+ * @param {string} value - Cardholder name
+ * @returns {string|null} Error message or null if valid
+ */
+function validateCardholderName(value) {
+    if (!value.trim()) return 'Cardholder name is required';
+    if (value.trim().length &lt; 2) return 'Please enter a valid name';
+    return null;
+}
+
+/**
+ * Formats card number with spaces every 4 digits
+ * @function formatCardNumber
+ * @param {string} value - Raw card number
+ * @returns {string} Formatted card number
+ */
+function formatCardNumber(value) {
+    const digits = value.replace(/\D/g, '').slice(0, 16);
+    return digits.replace(/(.{4})/g, '$1 ').trim();
+}
+
+/**
+ * Formats expiry date as MM/YY
+ * @function formatExpiry
+ * @param {string} value - Raw expiry input
+ * @returns {string} Formatted expiry date
+ */
+function formatExpiry(value) {
+    const digits = value.replace(/\D/g, '').slice(0, 4);
+    if (digits.length >= 3) return `${digits.slice(0, 2)}/${digits.slice(2)}`;
+    return digits;
+}
+
+// PAYMENT POPUP --------------------------
+/**
+ * Payment Popup Component
+ * Handles payment processing with card validation
+ * 
+ * @component
+ * @param {Object} props - Component props
+ * @param {number} props.orderId - Current order ID
+ * @param {string} props.tableNumber - Table number display
+ * @param {number} props.total - Total amount to pay
+ * @param {Function} props.onClose - Close modal handler
+ * @param {Function} props.onConfirm - Payment confirmation handler
+ * @returns {JSX.Element} Payment modal
+ */
+function PaymentPopup({ orderId, tableNumber, total, onClose, onConfirm }) {
+    const [paymentMethod, setPaymentMethod] = useState('card');
+    const [cardNumber, setCardNumber] = useState('');
+    const [expiry, setExpiry] = useState('');
+    const [cvv, setCvv] = useState('');
+    const [cardholderName, setCardholderName] = useState('');
+    const [errors, setErrors] = useState({});
+    const [touched, setTouched] = useState({});
+    const [backendError, setBackendError] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    /**
+     * Marks field as touched on blur
+     * @function handleBlur
+     * @param {string} field - Field name
+     */
+    const handleBlur = (field) => {
+        setTouched(prev => ({ ...prev, [field]: true }));
+        validateField(field);
+    };
+
+    /**
+     * Validates a specific field
+     * @function validateField
+     * @param {string} field - Field name to validate
+     * @returns {string|null} Error message or null
+     */
+    const validateField = (field) => {
+        let error = null;
+        if (field === 'cardNumber') error = validateCardNumber(cardNumber);
+        if (field === 'expiry') error = validateExpiry(expiry);
+        if (field === 'cvv') error = validateCVV(cvv);
+        if (field === 'cardholderName') error = validateCardholderName(cardholderName);
+        setErrors(prev => ({ ...prev, [field]: error }));
+        return error;
+    };
+
+    /**
+     * Handles card number input change
+     * @function handleCardNumberChange
+     * @param {Event} e - Input change event
+     */
+    const handleCardNumberChange = (e) => {
+        const formatted = formatCardNumber(e.target.value);
+        setCardNumber(formatted);
+        if (touched.cardNumber) setErrors(prev => ({ ...prev, cardNumber: validateCardNumber(formatted.replace(/\s/g, '')) }));
+    };
+
+    /**
+     * Handles expiry date input change
+     * @function handleExpiryChange
+     * @param {Event} e - Input change event
+     */
+    const handleExpiryChange = (e) => {
+        const formatted = formatExpiry(e.target.value);
+        setExpiry(formatted);
+        if (touched.expiry) setErrors(prev => ({ ...prev, expiry: validateExpiry(formatted) }));
+    };
+    
+    /**
+     * Handles CVV input change
+     * @function handleCVVChange
+     * @param {Event} e - Input change event
+     */
+    const handleCVVChange = (e) => {
+        const val = e.target.value.replace(/\D/g, '').slice(0, 3);
+        setCvv(val);
+        if (touched.cvv) setErrors(prev => ({ ...prev, cvv: validateCVV(val) }));
+    };
+
+    /**
+     * Handles cardholder name change
+     * @function handleCardholderNameChange
+     * @param {Event} e - Input change event
+     */
+    const handleCardholderNameChange = (e) => {
+        setCardholderName(e.target.value);
+        if (touched.cardholderName) setErrors(prev => ({ ...prev, cardholderName: validateCardholderName(e.target.value) }));
+    };
+
+    /**
+     * Confirms payment and processes transaction
+     * @async
+     * @function handleConfirm
+     */
+    const handleConfirm = async () => {
+        setBackendError('');
+        if (paymentMethod === 'card') {
+            setTouched({ cardNumber: true, expiry: true, cvv: true, cardholderName: true });
+            const newErrors = {
+                cardNumber: validateCardNumber(cardNumber),
+                expiry: validateExpiry(expiry),
+                cvv: validateCVV(cvv),
+                cardholderName: validateCardholderName(cardholderName),
+            };
+            setErrors(newErrors);
+            if (Object.values(newErrors).some(e => e !== null)) return;
+        }
+        setIsSubmitting(true);
+        try {
+            await onConfirm(paymentMethod);
+        } catch (err) {
+            setBackendError(err.message || 'Payment could not be processed. Please try again.');
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    return (
+        &lt;div className="customization-overlay">
+            &lt;div className="customization-modal payment-modal" onClick={(e) => e.stopPropagation()}>
+                &lt;div className="customization-header">
+                    &lt;h2 className="customization-title">Payment&lt;/h2>
+                    &lt;button className="customization-close" onClick={onClose}>✕&lt;/button>
+                &lt;/div>
+                &lt;div className="customization-content">
+                    &lt;div className="order-info">
+                        &lt;span className="table-number-display">Table: {tableNumber}&lt;/span>
+                        &lt;span className="order-id-display">Order ID: #{orderId}&lt;/span>
+                    &lt;/div>
+                    {backendError &amp;&amp; (
+                        &lt;div className="payment-error-banner">
+                            &lt;span className="payment-error-icon">⚠&lt;/span>
+                            &lt;span>{backendError}&lt;/span>
+                        &lt;/div>
+                    )}
+                    &lt;div className="payment-methods">
+                        &lt;button className={`payment-method-btn ${paymentMethod === 'card' ? 'payment-method-selected' : ''}`} onClick={() => setPaymentMethod('card')}>
+                            &lt;svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginBottom: '4px' }}>
+                                &lt;rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
+                                &lt;line x1="1" y1="10" x2="23" y2="10" />
+                            &lt;/svg>
+                            &lt;span>Card&lt;/span>
+                        &lt;/button>
+                    &lt;/div>
+                    {paymentMethod === 'card' &amp;&amp; (
+                        &lt;div className="card-fields">
+                            &lt;div className="card-field-group">
+                                &lt;label className="card-field-label">Cardholder Name&lt;/label>
+                                &lt;input
+                                    className={`card-field-input ${touched.cardholderName &amp;&amp; errors.cardholderName ? 'card-field-input--error' : ''}`}
+                                    type="text" placeholder="Name as it appears on card"
+                                    value={cardholderName} onChange={handleCardholderNameChange}
+                                    onBlur={() => handleBlur('cardholderName')} autoComplete="cc-name"
+                                />
+                                {touched.cardholderName &amp;&amp; errors.cardholderName &amp;&amp; &lt;span className="card-field-error">{errors.cardholderName}&lt;/span>}
+                            &lt;/div>
+                            &lt;div className="card-field-group">
+                                &lt;label className="card-field-label">Card Number&lt;/label>
+                                &lt;input
+                                    className={`card-field-input card-field-input--mono ${touched.cardNumber &amp;&amp; errors.cardNumber ? 'card-field-input--error' : ''}`}
+                                    type="text" inputMode="numeric" placeholder="0000 0000 0000 0000"
+                                    value={cardNumber} onChange={handleCardNumberChange}
+                                    onBlur={() => handleBlur('cardNumber')} maxLength={19} autoComplete="cc-number"
+                                />
+                                {touched.cardNumber &amp;&amp; errors.cardNumber &amp;&amp; &lt;span className="card-field-error">{errors.cardNumber}&lt;/span>}
+                            &lt;/div>
+                            &lt;div className="card-field-row">
+                                &lt;div className="card-field-group">
+                                    &lt;label className="card-field-label">Expiry Date&lt;/label>
+                                    &lt;input
+                                        className={`card-field-input card-field-input--mono ${touched.expiry &amp;&amp; errors.expiry ? 'card-field-input--error' : ''}`}
+                                        type="text" inputMode="numeric" placeholder="MM/YY"
+                                        value={expiry} onChange={handleExpiryChange}
+                                        onBlur={() => handleBlur('expiry')} maxLength={5} autoComplete="cc-exp"
+                                    />
+                                    {touched.expiry &amp;&amp; errors.expiry &amp;&amp; &lt;span className="card-field-error">{errors.expiry}&lt;/span>}
+                                &lt;/div>
+                                &lt;div className="card-field-group">
+                                    &lt;label className="card-field-label">CVV&lt;/label>
+                                    &lt;input
+                                        className={`card-field-input card-field-input--mono ${touched.cvv &amp;&amp; errors.cvv ? 'card-field-input--error' : ''}`}
+                                        type="text" inputMode="numeric" placeholder="123"
+                                        value={cvv} onChange={handleCVVChange}
+                                        onBlur={() => handleBlur('cvv')} maxLength={3} autoComplete="cc-csc"
+                                    />
+                                    {touched.cvv &amp;&amp; errors.cvv &amp;&amp; &lt;span className="card-field-error">{errors.cvv}&lt;/span>}
+                                &lt;/div>
+                            &lt;/div>
+                        &lt;/div>
+                    )}
+                    &lt;div className="payment-total-due">
+                        &lt;span>Total Due&lt;/span>
+                        &lt;span>£{total.toFixed(2)}&lt;/span>
+                    &lt;/div>
+                    &lt;button className={`confirm-payment-btn ${isSubmitting ? 'confirm-payment-btn--loading' : ''}`} onClick={handleConfirm} disabled={isSubmitting}>
+                        {isSubmitting ? 'Processing...' : 'Confirm Payment'}
+                    &lt;/button>
+                &lt;/div>
+            &lt;/div>
+        &lt;/div>
+    );
+}
+
+// UNPAID ORDER MODAL --------------------------
+/**
+ * Unpaid Order Modal Component
+ * Displays warning when trying to close table with unpaid orders
+ * 
+ * @component
+ * @param {Object} props - Component props
+ * @param {number} props.total - Outstanding total amount
+ * @param {Function} props.onClose - Close modal handler
+ * @param {Function} props.onPayNow - Pay now handler
+ * @returns {JSX.Element} Unpaid order warning modal
+ */
+function UnpaidOrderModal({ total, onClose, onPayNow }) {
+    return (
+        &lt;div className="customization-overlay">
+            &lt;div className="customization-modal unpaid-modal">
+                &lt;div className="unpaid-modal-icon">!&lt;/div>
+                &lt;h2 className="unpaid-modal-title">Outstanding Balance&lt;/h2>
+                &lt;p className="unpaid-modal-message">
+                    You have an unpaid order of &lt;strong>£{total.toFixed(2)}&lt;/strong>.&lt;br />
+                    Please complete payment before closing your table.
+                &lt;/p>
+                &lt;div className="unpaid-modal-actions">
+                    &lt;button className="unpaid-dismiss-btn" onClick={onClose}>Go Back&lt;/button>
+                    &lt;button className="unpaid-pay-btn" onClick={onPayNow}>Pay Now&lt;/button>
+                &lt;/div>
+            &lt;/div>
+        &lt;/div>
+    );
+}
+
+// ORDER CONFIRMATION MODAL --------------------------
+/**
+ * Order Confirmation Modal Component
+ * Displays success message after order is placed
+ * 
+ * @component
+ * @returns {JSX.Element} Order confirmation modal
+ */
+function OrderConfirmation() {
+    return (
+        &lt;div className="customization-overlay">
+            &lt;div className="customization-modal confirmation-modal">
+                &lt;div className="confirmation-icon">✓&lt;/div>
+                &lt;h2 className="confirmation-title">Order Placed!&lt;/h2>
+                &lt;p className="confirmation-msg">
+                    Your order has been sent to the kitchen.&lt;br />Your waiter will be with you shortly.
+                &lt;/p>
+                &lt;p className="confirmation-redirect">Returning you home...&lt;/p>
+            &lt;/div>
+        &lt;/div>
+    );
+}
+
+// PAYMENT CONFIRMATION MODAL : "Thank You" to Customer
+/**
+ * Thank You Modal Component
+ * Displays thank you message after successful payment
+ * 
+ * @component
+ * @returns {JSX.Element} Thank you modal
+ */
+function ThankYouModal() {
+    return (
+        &lt;div className="customization-overlay">
+            &lt;div className="customization-modal confirmation-modal">
+                &lt;div className="confirmation-icon">✓&lt;/div>
+                &lt;h2 className="confirmation-title">Thank You!&lt;/h2>
+                &lt;p className="confirmation-msg">
+                    Thank you for dining with us at Oaxaca.&lt;br />We hope to see you again soon!
+                &lt;/p>
+                &lt;p className="confirmation-redirect">Returning you home...&lt;/p>
+            &lt;/div>
+        &lt;/div>
+    );
+}
+
+// CANCELLED ORDER MODAL --------------------------
+/**
+ * Cancelled Order Modal Component
+ * Displays message when order is cancelled by staff
+ * 
+ * @component
+ * @returns {JSX.Element} Cancelled order modal
+ */
+function CancelledOrderModal() {
+    return (
+        &lt;div className="customization-overlay">
+            &lt;div className="customization-modal confirmation-modal">
+                &lt;div className="confirmation-icon" style={{ background: "#fde8e6", color: "#c0392b" }}>✕&lt;/div>
+                &lt;h2 className="confirmation-title">Order Cancelled&lt;/h2>
+                &lt;p className="confirmation-msg">
+                    We're sorry, your order was cancelled by a staff member.&lt;br />
+                    Please speak to your waiter if you have any questions.
+                &lt;/p>
+                &lt;p className="confirmation-redirect">Returning you home...&lt;/p>
+            &lt;/div>
+        &lt;/div>
+    );
+}
+
+// ORDER AGE : related to Order Time Tracking
+/**
+ * Custom hook to track order age
+ * @function useOrderAge
+ * @param {string} createdAt - Order creation timestamp
+ * @returns {string} Formatted elapsed time string
+ */
+function useOrderAge(createdAt) {
+    const [elapsed, setElapsed] = useState("");
+    useEffect(() => {
+        if (!createdAt) return;
+        const update = () => {
+            const secs = Math.floor((Date.now() - new Date(createdAt).getTime()) / 1000);
+            if (secs &lt; 60) setElapsed(`${secs}s`);
+            else if (secs &lt; 3600) setElapsed(`${Math.floor(secs / 60)}m ${secs % 60}s`);
+            else setElapsed(`${Math.floor(secs / 3600)}h ${Math.floor((secs % 3600) / 60)}m`);
+        };
+        update();
+        const t = setInterval(update, 1000);
+        return () => clearInterval(t);
+    }, [createdAt]);
+    return elapsed;
+}
+
+// ORDER TIME BLOCK --------------------------
+/**
+ * Order Time Block Component
+ * Displays order placement time and elapsed time
+ * 
+ * @component
+ * @param {Object} props - Component props
+ * @param {number} props.orderId - Order ID
+ * @param {number} props.estMins - Estimated preparation minutes
+ * @returns {JSX.Element} Order time display component
+ */
+function OrderTimeBlock({ orderId, estMins }) {
+    const [createdAt, setCreatedAt] = useState(null);
+    const elapsed = useOrderAge(createdAt);
+
+    useEffect(() => {
+        if (!orderId) return;
+        fetch(`http://127.0.0.1:8000/orders/${orderId}`)
+            .then(r => r.ok ? r.json() : null)
+            .then(data => { if (data?.created_at) setCreatedAt(data.created_at); })
+            .catch(() => { });
+    }, [orderId]);
+
+    if (!createdAt) return null;
+
+    return (
+        &lt;div style={{ background: "#f0f7f2", border: "1px solid #b8d4c0", borderRadius: 8, padding: "10px 14px", marginTop: 8, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            &lt;div>
+                &lt;div style={{ fontSize: 11, color: "#7a5c44", marginBottom: 2 }}>Order placed at&lt;/div>
+                &lt;div style={{ fontSize: 13, fontWeight: 700, color: "#2D2218" }}>
+                    {new Date(createdAt).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}
+                &lt;/div>
+                {estMins &amp;&amp; &lt;div style={{ fontSize: 11, color: "#4a7c59", fontWeight: 600, marginTop: 2 }}>Est. prep: ~{estMins} mins&lt;/div>}
+            &lt;/div>
+            &lt;div style={{ textAlign: "right" }}>
+                &lt;div style={{ fontSize: 11, color: "#7a5c44", marginBottom: 2 }}>Time elapsed&lt;/div>
+                &lt;div style={{ fontSize: 13, fontWeight: 700, color: "#4a7c59" }}>⏱ {elapsed}&lt;/div>
+            &lt;/div>
+        &lt;/div>
+    );
+}
+// TRACKING POPUP --------------------------
+/**
+ * Tracking Popup Component
+ * Displays order progress with step-by-step status and summary
+ * 
+ * @component
+ * @param {Object} props - Component props
+ * @param {number} props.orderId - Order ID to track
+ * @param {string} props.tableNumber - Table number display
+ * @param {Object} props.orderItems - Current order items
+ * @param {number} props.total - Current order total
+ * @param {Function} props.onClose - Close modal handler
+ * @param {Function} props.onPaymentClick - Payment click handler
+ * @param {number} props.currentStep - Current order progress step (1-5)
+ * @param {number} props.estMins - Estimated preparation minutes
+ * @param {boolean} props.embedded - Whether tracking is embedded in another modal
+ * @param {boolean} props.allDelivered - Whether all orders are delivered
+ * @param {Object} props.allOrderItems - All order items across multiple orders
+ * @param {number} props.allTotal - Total across all orders
+ * @returns {JSX.Element} Order tracking popup
+ */
+function TrackingPopup({ orderId, tableNumber, orderItems, total, onClose, onPaymentClick, currentStep, estMins, embedded, allDelivered, allOrderItems, allTotal }) {
+    const steps = [
+        { id: 1, name: "Order Placed" },
+        { id: 2, name: "Confirmed by Waiter" },
+        { id: 3, name: "Being Prepared" },
+        { id: 4, name: "Ready for Service" },
+        { id: 5, name: "Delivered" },
+    ];
+
+    const displayItems = allDelivered ? allOrderItems : orderItems;
+    const displayTotal = allDelivered ? allTotal : total;
+    const entries = Object.entries(displayItems).map(([key, value]) => ({ key, ...value }));
+
+    const formatCustomizations = (item) => {
+        const parts = [];
+        if (item.customization?.removedIngredients?.length > 0) parts.push(`No: ${item.customization.removedIngredients.join(', ')}`);
+        if (item.customization?.selectedExtras?.length > 0) {
+            parts.push(`Extra: ${item.customization.selectedExtras.map(extra => `${extra.name} (+£${extra.price.toFixed(2)})`).join(', ')}`);
+        }
+        if (item.customization?.specialRequest) parts.push(`Note: "${item.customization.specialRequest}"`);
+        return parts;
+    };
+
+    const summaryBlock = (
+        &lt;div className="tracking-order-summary">
+            &lt;h3 className="summary-title">{allDelivered ? "Full Order Summary" : "Order Summary"}&lt;/h3>
+            &lt;div className="summary-items">
+                {entries.length === 0
+                    ? &lt;p style={{ fontSize: 12, color: "#7a5c44", fontStyle: "italic" }}>No items&lt;/p>
+                    : entries.map(({ key, item, qty }) => {
+                        const basePrice = parseFloat(item.price.replace("£", ""));
+                        const extrasTotal = item.customization?.selectedExtras?.reduce((sum, extra) => sum + extra.price, 0) || 0;
+                        const linePrice = ((basePrice + extrasTotal) * qty).toFixed(2);
+                        const customizations = formatCustomizations(item);
+                        return (
+                            &lt;div key={key} className="summary-item">
+                                &lt;div className="summary-item-header">
+                                    &lt;span className="summary-item-name">{item.name} ×{qty}&lt;/span>
+                                    &lt;span className="summary-item-price">£{linePrice}&lt;/span>
+                                &lt;/div>
+                                {customizations.length > 0 &amp;&amp; (
+                                    &lt;div className="summary-item-customizations">
+                                        {customizations.map((custom, idx) => {
+                                            let customClass = "summary-custom-text";
+                                            if (custom.startsWith('No:')) customClass += " customization-removed";
+                                            else if (custom.startsWith('Extra:')) customClass += " customization-extra";
+                                            else if (custom.startsWith('Note:')) customClass += " customization-note";
+                                            return &lt;p key={idx} className={customClass}>{custom}&lt;/p>;
+                                        })}
+                                    &lt;/div>
+                                )}
+                            &lt;/div>
+                        );
+                    })}
+            &lt;/div>
+            &lt;div className="summary-total">
+                &lt;span>Total Amount&lt;/span>
+                &lt;span>£{displayTotal.toFixed(2)}&lt;/span>
+            &lt;/div>
+        &lt;/div>
+    );
+
+    const payButton = allDelivered
+        ? &lt;button className="pay-now-tracking-btn" onClick={() => { onClose(); onPaymentClick(); }}>PAY NOW • £{displayTotal.toFixed(2)}&lt;/button>
+        : &lt;p className="payment-message">Payment will be available once all your orders have been delivered&lt;/p>;
+
+    if (embedded) {
+        return (
+            &lt;div className="customization-content">
+                {!allDelivered &amp;&amp; (
+                    &lt;>
+                        &lt;div className="order-info">
+                            &lt;span className="table-number-display">Table: {tableNumber}&lt;/span>
+                            &lt;span className="order-id-display">Order ID: #{orderId}&lt;/span>
+                        &lt;/div>
+                        &lt;OrderTimeBlock orderId={orderId} estMins={estMins} />
+                        &lt;div className="progress-steps">
+                            {steps.map(step => (
+                                &lt;div key={step.id} className={`step-item ${currentStep >= step.id ? 'step-completed' : ''} ${currentStep === step.id ? 'step-current' : ''}`}>
+                                    &lt;div className="step-indicator">{currentStep > step.id ? '✓' : step.id}&lt;/div>
+                                    &lt;div className="step-content">
+                                        &lt;span className="step-name">{step.name}&lt;/span>
+                                        &lt;span className="step-status">{currentStep > step.id ? 'Completed' : currentStep === step.id ? 'In Progress' : 'Pending'}&lt;/span>
+                                    &lt;/div>
+                                &lt;/div>
+                            ))}
+                        &lt;/div>
+                    &lt;/>
+                )}
+                {allDelivered &amp;&amp; (
+                    &lt;div style={{ textAlign: "center", padding: "16px 0 8px", color: "#4a7c59", fontWeight: 700, fontSize: 15 }}>
+                        ✓ All orders delivered — ready to pay
+                    &lt;/div>
+                )}
+                {summaryBlock}
+                {payButton}
+            &lt;/div>
+        );
+    }
+
+    return (
+        &lt;div className="customization-overlay" onClick={onClose}>
+            &lt;div className="customization-modal tracking-modal" onClick={(e) => e.stopPropagation()}>
+                &lt;div className="customization-header">
+                    &lt;h2 className="customization-title">Order Progress&lt;/h2>
+                    &lt;button className="customization-close" onClick={onClose}>✕&lt;/button>
+                &lt;/div>
+                &lt;div className="customization-content">
+                    &lt;div className="order-info">
+                        &lt;span className="table-number-display">Table: {tableNumber}&lt;/span>
+                        &lt;span className="order-id-display">Order ID: #{orderId}&lt;/span>
+                    &lt;/div>
+                    &lt;OrderTimeBlock orderId={orderId} estMins={estMins} />
+                    &lt;div className="progress-steps">
+                        {steps.map((step) => (
+                            &lt;div key={step.id} className={`step-item ${currentStep >= step.id ? 'step-completed' : ''} ${currentStep === step.id ? 'step-current' : ''}`}>
+                                &lt;div className="step-indicator">{currentStep > step.id ? '✓' : step.id}&lt;/div>
+                                &lt;div className="step-content">
+                                    &lt;span className="step-name">{step.name}&lt;/span>
+                                    &lt;span className="step-status">{currentStep > step.id ? 'Completed' : currentStep === step.id ? 'In Progress' : 'Pending'}&lt;/span>
+                                &lt;/div>
+                            &lt;/div>
+                        ))}
+                    &lt;/div>
+                    {summaryBlock}
+                    {payButton}
+                &lt;/div>
+            &lt;/div>
+        &lt;/div>
+    );
+}
+
+// MAIN APP --------------------------
+/**
+ * Main Menu Application Component
+ * Handles customer ordering, cart management, order tracking, and payment processing
+ * 
+ * @module MenuApp
+ * @description Main component for customer menu interface with filtering, customization,
+ * cart management, order tracking, and payment processing functionality
+ * 
+ * @component
+ * @returns {JSX.Element} Complete menu application
+ */
+export default function App() {
+    
+    const [openSection, setOpenSection] = useState(null);
+    const [activeFilters, setActiveFilters] = useState([]);
+    const [excludedAllergens, setExcludedAllergens] = useState([]);
+
+    const { state } = useLocation();
+    const navigate = useNavigate();
+
+    if (state?.cust_id) {
+        sessionStorage.setItem('cust_id', state.cust_id);
+        sessionStorage.setItem('table_id', state.table_id);
+    }
+
+    const cust_id = state?.cust_id ?? sessionStorage.getItem('cust_id', true);
+    const table_id = state?.table_id ?? sessionStorage.getItem('table_id');
+
+    // URL AUTH GUARD --------------------------  
+    if (!cust_id || !table_id || !sessionStorage.getItem('customer_session_active')) {
+        window.location.href = '/';
+        return null;
+    }
+    
+    const [cart, setCart] = useState({});
+    const [cartOpen, setCartOpen] = useState(false);
+    const [contactWaiterOpen, setContactWaiterOpen] = useState(false);
+    const [confirmed, setConfirmed] = useState(false);
+    const [customizingItem, setCustomizingItem] = useState(null);
+    const [trackingOpen, setTrackingOpen] = useState(false);
+    const [paymentOpen, setPaymentOpen] = useState(false);
+    const [orderCancelled, setOrderCancelled] = useState(false);
+    const orderPaidRef = useRef(false);
+    const [isPaid, setIsPaid] = useState(false);
+    const [unpaidModalOpen, setUnpaidModalOpen] = useState(false);
+    const [thankYouOpen, setThankYouOpen] = useState(false);
+    const [estMins, setEstMins] = useState(null);
+
+    // PRE-ORDER ITEMS : stored as { orderId: { key: {item, qty} } }
+    const [orderItemsMap, setOrderItemsMap] = useState(() => {
+        try { return JSON.parse(sessionStorage.getItem("oaxaca_order_items_map") ?? "{}"); }
+        catch { return {}; }
+    });
+
+    const [liveOrderId, setLiveOrderId] = useState(() => sessionStorage.getItem('liveOrderId') ?? null);
+    const [liveOrderIds, setLiveOrderIds] = useState(() => {
+        try { return JSON.parse(sessionStorage.getItem('liveOrderIds') ?? "[]"); }
+        catch { return []; }
+    });
+    const [activeOrderTab, setActiveOrderTab] = useState(0);
+    const [hasActiveOrder, setHasActiveOrder] = useState(() => !!sessionStorage.getItem('liveOrderId'));
+    const [liveSteps, setLiveSteps] = useState(() => {
+        try { return JSON.parse(sessionStorage.getItem("oaxaca_live_steps") ?? "{}"); }
+        catch { return {}; }
+    });
+
+    const [unavailableIds, setUnavailableIds] = useState(new Set());
+    const [livePrices, setLivePrices] = useState({});
+    const [lowStockDishes, setLowStockDishes] = useState(new Set());
+
+    // EFFECTS --------------------------
+    // CLEARS ONLY ON FRESH LOGIN --------------------------
+    useEffect(() => {
+        if (state?.cust_id) {
+            const existingCustId = sessionStorage.getItem('cust_id');
+            const isNewCustomer = !existingCustId || existingCustId !== String(state.cust_id);
+            if (isNewCustomer) {
+                sessionStorage.removeItem('oaxaca_order_items_map');
+                sessionStorage.removeItem('liveOrderId');
+                sessionStorage.removeItem('liveOrderIds');
+                sessionStorage.removeItem('oaxaca_live_steps');
+                localStorage.removeItem('oaxaca_placed_order');
+                setOrderItemsMap({});
+                setLiveOrderId(null);
+                setLiveOrderIds([]);
+                setLiveSteps({});
+                setHasActiveOrder(false);
+            }
+        }
+    }, []);
+
+    // STORAGE EVENT LISTEN FOR TABLE PAID STATUS --------------------------
+    useEffect(() => {
+        const handler = (e) => {
+            if (e.key !== "oaxaca_table_paid" || !e.newValue) return;
+            try {
+                const { ids } = JSON.parse(e.newValue);
+                const myOrders = JSON.parse(sessionStorage.getItem('liveOrderIds') ?? "[]");
+                const affected = myOrders.some(id => ids.map(String).includes(String(id)));
+                if (!affected) return;
+                orderPaidRef.current = true;
+                setThankYouOpen(true);
+                setHasActiveOrder(false);
+                setOrderItemsMap({});
+                setLiveOrderId(null);
+                setLiveOrderIds([]);
+                setLiveSteps({});
+                localStorage.removeItem('oaxaca_placed_order');
+                sessionStorage.clear();
+                setTimeout(() => { setThankYouOpen(false); window.location.href = '/'; }, 3000);
+            } catch (_) { }
+        };
+        window.addEventListener("storage", handler);
+        return () => window.removeEventListener("storage", handler);
+    }, []);
+    
+    useEffect(() => {
+        const handler = (e) => {
+            if (e.key !== "oaxaca_placed_order") return;
+            try {
+                const updated = e.newValue ? JSON.parse(e.newValue) : {};
+                setOrderItemsMap(prev => {
+                    if (!liveOrderId) return prev;
+                    const merged = { ...(prev[liveOrderId] ?? {}), ...updated };
+                    const next = { ...prev, [liveOrderId]: merged };
+                    sessionStorage.setItem("oaxaca_order_items_map", JSON.stringify(next));
+                    return next;
+                });
+            } catch (_) { }
+        };
+
+        window.addEventListener("storage", handler);
+        const poll = setInterval(() => {
+            try {
+                const stored = localStorage.getItem("oaxaca_placed_order");
+                if (!stored || !liveOrderId) return;
+                const updated = JSON.parse(stored);
+                setOrderItemsMap(prev => {
+                    const existing = JSON.stringify(prev[liveOrderId] ?? {});
+                    const incoming = JSON.stringify(updated);
+                    if (existing === incoming) return prev;
+                    const next = { ...prev, [liveOrderId]: updated };
+                    sessionStorage.setItem("oaxaca_order_items_map", JSON.stringify(next));
+                    return next;
+                });
+            } catch (_) { }
+        }, 2000);
+        return () => { window.removeEventListener("storage", handler); clearInterval(poll); };
+    }, [liveOrderId]);
+
+    // FETCHES MENU AVAILABILITY --------------------------
+    useEffect(() => {
+        const fetchAvailability = () => {
+            fetch('http://127.0.0.1:8000/menu_items')
+                .then(r => r.json())
+                .then(data => {
+                    const ids = new Set(data.filter(i => i.available === 0).map(i => i.item_id));
+                    setUnavailableIds(ids);
+                    const prices = {};
+                    data.forEach(i => { prices[i.item_id] = i.price; });
+                    setLivePrices(prices);
+                });
+        };
+        fetchAvailability();
+        const poll = setInterval(fetchAvailability, 500);
+        return () => clearInterval(poll);
+    }, []);
+
+    // FETCHES STOCK LEVELS --------------------------
+    useEffect(() => {
+        const fetchStock = () => {
+            fetch('http://127.0.0.1:8000/stock')
+                .then(r => r.json())
+                .then(data => {
+                    const low = new Set();
+                    data.forEach(s => { if (s.level &lt; 10) s.used_in.split(', ').forEach(d => low.add(d)); });
+                    setLowStockDishes(low);
+                })
+                .catch(() => { });
+        };
+        fetchStock();
+        const poll = setInterval(fetchStock, 500);
+        return () => clearInterval(poll);
+    }, []);
+
+    // ORDER STATUS POLLING
+    useEffect(() => {
+        if (!liveOrderId) return;
+        const statusToStep = { "Pending": 2, "In Progress": 3, "Ready": 4, "Completed": 5 };
+        const ids = JSON.parse(sessionStorage.getItem('liveOrderIds') ?? "[]");
+        const allIds = [...new Set([...ids, String(liveOrderId)])];
+        
+        allIds.forEach(oid => {
+            fetch(`http://127.0.0.1:8000/orders/${oid}`)
+                .then(r => r.ok ? r.json() : null)
+                .then(data => {
+                    if (data?.status) {
+                        setLiveSteps(prev => {
+                            const updated = { ...prev, [oid]: statusToStep[data.status] ?? 1 };
+                            sessionStorage.setItem("oaxaca_live_steps", JSON.stringify(updated));
+                            return updated;
+                        });
+                    }
+                })
+                .catch(() => { });
+        });
+
+        let poll;
+
+        const delay = setTimeout(() => {
+            const poll = setInterval(async () => {
+                try {
+                    const res = await fetch(`http://127.0.0.1:8000/orders/${liveOrderId}`);
+                    if (!res.ok) {
+                        clearInterval(poll);
+                        if (orderPaidRef.current) return;
+                        try {
+                            const allRes = await fetch(`http://127.0.0.1:8000/orders?table_id=${table_id}`);
+                            const allOrders = await allRes.json();
+                            const active = allOrders.filter(o => o.status !== "Cancelled" &amp;&amp; o.status !== "Paid");
+                            if (active.length > 0) {
+                                const latest = active[active.length - 1];
+                                const newId = String(latest.order_id);
+                                setLiveOrderIds(prev => {
+                                    const updated = prev.filter(id => String(id) !== String(liveOrderId));
+                                    sessionStorage.setItem('liveOrderIds', JSON.stringify(updated));
+                                    return updated;
+                                });
+                                setOrderItemsMap(prev => {
+                                    const next = { ...prev };
+                                    delete next[String(liveOrderId)];
+                                    sessionStorage.setItem('oaxaca_order_items_map', JSON.stringify(next));
+                                    return next;
+                                });
+                                setLiveOrderId(newId);
+                                sessionStorage.setItem('liveOrderId', newId);
+                                return;
+                            }
+                        } catch (_) { }
+                        setOrderCancelled(true);
+                        setHasActiveOrder(false);
+                        setLiveOrderId(null);
+                        setLiveOrderIds([]);
+                        setOrderItemsMap({});
+                        sessionStorage.removeItem('liveOrderId');
+                        sessionStorage.removeItem('liveOrderIds');
+                        sessionStorage.removeItem('oaxaca_order_items_map');
+                        setTimeout(() => { setOrderCancelled(false); window.location.href = '/'; }, 3000);
+                        return;
+                    }
+
+                    const data = await res.json();
+                    if (data.status === "Cancelled") {
+                        clearInterval(poll);
+                        if (orderPaidRef.current) return;
+                        try {
+                            const allRes = await fetch(`http://127.0.0.1:8000/orders?table_id=${table_id}`);
+                            const allOrders = await allRes.json();
+                            const active = allOrders.filter(o => o.status !== "Cancelled" &amp;&amp; o.status !== "Paid");
+                            if (active.length > 0) {
+                                const latest = active[active.length - 1];
+                                const newId = String(latest.order_id);
+                                
+                                setLiveOrderIds(prev => {
+                                    const updated = prev.filter(id => String(id) !== String(liveOrderId));
+                                    sessionStorage.setItem('liveOrderIds', JSON.stringify(updated));
+                                    return updated;
+                                });
+                                setOrderItemsMap(prev => {
+                                    const next = { ...prev };
+                                    delete next[String(liveOrderId)];
+                                    sessionStorage.setItem('oaxaca_order_items_map', JSON.stringify(next));
+                                    return next;
+                                });
+                                setLiveOrderId(newId);
+                                sessionStorage.setItem('liveOrderId', newId);
+                                return;
+                            }
+                        } catch (_) { }
+                        // all orders cancelled
+                        setOrderCancelled(true);
+                        setHasActiveOrder(false);
+                        setLiveOrderId(null);
+                        setLiveOrderIds([]);
+                        setOrderItemsMap({});
+                        sessionStorage.removeItem('liveOrderId');
+                        sessionStorage.removeItem('liveOrderIds');
+                        sessionStorage.removeItem('oaxaca_order_items_map');
+                        setTimeout(() => { setOrderCancelled(false); window.location.href = '/'; }, 2000);
+                        return;
+                    }
+                    const step = statusToStep[data.status] ?? 1;
+                    setLiveSteps(prev => {
+                        const updated = { ...prev, [liveOrderId]: step };
+                        sessionStorage.setItem("oaxaca_live_steps", JSON.stringify(updated));
+                        return updated;
+                    });
+                } catch (_) { }
+            }, 8000);
+        }, 5000);
+        return () => { clearTimeout(delay); clearInterval(poll); };
+    }, [liveOrderId]);
+
+    // CHECK IF CUSTOMER EXISTS BEFORE PLACING ORDERS
+    useEffect(() => {
+        const ensureCustomerExists = async () => {
+            if (cust_id &amp;&amp; table_id) {
+                try {
+                    const response = await fetch(`http://127.0.0.1:8000/customers?table_id=${table_id}`);
+                    const customers = await response.json();
+                    const customerExists = customers.some(c => c.cust_id === parseInt(cust_id));
+                    
+                    if (!customerExists) {
+                        console.log('Customer not found, creating new customer...');
+                        const createResponse = await fetch('http://127.0.0.1:8000/customers', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                name: `Table ${table_id}`,
+                                table_id: parseInt(table_id)
+                            })
+                        });
+                        
+                        if (createResponse.ok) {
+                            const newCustomer = await createResponse.json();
+                            const newCustId = newCustomer.cust_id;
+                            
+                            sessionStorage.setItem('cust_id', newCustId);
+                            window.location.reload();
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error ensuring customer exists:', error);
+                }
+            }
+        };
+    
+        ensureCustomerExists();
+    }, [cust_id, table_id]);
+
+    // HANDLERS --------------------------
+    /**
+     * Toggles menu section open/closed
+     * @function handleSectionToggle
+     * @param {string} sectionName - Name of section to toggle
+     */
+    function handleSectionToggle(sectionName) {
+        setOpenSection((prev) => (prev === sectionName ? null : sectionName));
+    }
+
+    /**
+     * Toggles dietary filter on/off
+     * @function handleFilterToggle
+     * @param {string} filter - Filter to toggle
+     */
+    function handleFilterToggle(filter) {
+        setActiveFilters((prev) => prev.includes(filter) ? prev.filter((f) => f !== filter) : [...prev, filter]);
+    }
+
+    /**
+     * Checks if menu item matches current filters
+     * @function matchesFilter
+     * @param {Object} item - Menu item to check
+     * @returns {boolean} True if item matches all active filters
+     */    
+    function matchesFilter(item) {
+        const passesDietary = activeFilters.length === 0 || activeFilters.every((f) => item.dietary.includes(f));
+        const passesAllergens = excludedAllergens.length === 0 || excludedAllergens.every((a) => !item.allergens.includes(a));
+        return passesDietary &amp;&amp; passesAllergens;
+    }
+
+    /**
+     * Adds item to cart with quantity limit validation
+     * @function handleAddToCart
+     * @param {Object} item - Item to add to cart (with customizations)
+     */
+    function handleAddToCart(item) {
+        const totalQtyForItem = Object.values(cart).filter(v => v.item.id === item.id).reduce((sum, v) => sum + v.qty, 0);
+        if (totalQtyForItem >= 25) return;
+        const existingItemKey = Object.keys(cart).find(key => {
+            const cartItem = cart[key].item;
+            if (item.customization) return cartItem.id === item.id &amp;&amp; JSON.stringify(cartItem.customization) === JSON.stringify(item.customization);
+            return false;
+        });
+
+        if (existingItemKey) {
+            setCart((prev) => ({ ...prev, [existingItemKey]: { ...prev[existingItemKey], qty: prev[existingItemKey].qty + 1 } }));
+        } else {
+            const uniqueId = item.customization ? `${item.id}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}` : item.id;
+            setCart((prev) => ({ ...prev, [uniqueId]: { item, qty: 1 } }));
+        }
+    }
+
+    /**
+     * Updates quantity of cart item with limit validation
+     * @function handleUpdateQty
+     * @param {string} itemKey - Cart item key
+     * @param {number} newQty - New quantity
+     */
+    function handleUpdateQty(itemKey, newQty) {
+        if (newQty &lt;= 0) { handleRemove(itemKey); return; }
+        const itemId = cart[itemKey].item.id;
+        const otherQty = Object.entries(cart).filter(([k]) => k !== itemKey).reduce((sum, [, v]) => v.item.id === itemId ? sum + v.qty : sum, 0);
+        if (otherQty + newQty > 25) return;
+        setCart((prev) => ({ ...prev, [itemKey]: { ...prev[itemKey], qty: newQty } }));
+    }
+
+    /**
+     * Removes item from cart
+     * @function handleRemove
+     * @param {string} itemKey - Cart item key to remove
+     */
+    function handleRemove(itemKey) {
+        setCart((prev) => { const next = { ...prev }; delete next[itemKey]; return next; });
+    }
+
+    /**
+     * Calculates item price including extras
+     * @function calculateItemPrice
+     * @param {Object} item - Menu item with customizations
+     * @returns {number} Total price for item
+     */
+    function calculateItemPrice(item) {
+        const base = parseFloat(item.price.replace("£", ""));
+        const extras = item.customization?.selectedExtras?.reduce((s, e) => s + e.price, 0) || 0;
+        return base + extras;
+    }
+
+    /**
+     * Places order with backend API
+     * @async
+     * @function handlePlaceOrder
+     */
+    async function handlePlaceOrder() {
+        console.log('cust_id:', cust_id);
+        console.log('table_id:', table_id);
+        console.log('Cart items:', cart);
+        
+        if (!cust_id || !table_id) {
+            console.error('Missing cust_id or table_id');
+            alert('Please refresh the page and try again. Missing customer information.');
+            return;
+        }
+        
+        const items = Object.values(cart).map(({ item, qty }) => ({
+            item_id: item.id,
+            quantity: qty,
+            price: calculateItemPrice(item),
+            removed_ingredients: item.customization?.removedIngredients || [],
+            extras: item.customization?.selectedExtras?.map(e => ({ name: e.name, price: e.price })) || [],
+            special_request: item.customization?.specialRequest || "",
+        }));
+
+        console.log('Sending order payload:', { cust_id, table_id, items });
+
+        try {
+            const res = await fetch('http://127.0.0.1:8000/orders', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ cust_id: cust_id, table_id: table_id, items }),
+            });
+
+            console.log('Response status:', res.status);
+            
+            if (!res.ok) {
+                const err = await res.json();
+                console.error('Order failed:', err);
+                if (err.detail?.includes("limit exceeded")) {
+                    alert("You've reached the maximum of 25 for one or more items. Please adjust your order.");
+                } else if (err.detail?.includes("Customer")) {
+                    alert("Your session has expired. Please refresh the page.");
+                } else {
+                    alert(`Order failed: ${err.detail || 'Unknown error'}`);
+                }
+                return;
+            }
+
+            const data = await res.json();
+            console.log('Order placed successfully:', data);
+            const newOrderId = String(data.order_id);
+
+            setLiveOrderId(newOrderId);
+            sessionStorage.setItem('liveOrderId', newOrderId);
+
+            const newOrderItems = {};
+            Object.entries(cart).forEach(([key, value]) => { newOrderItems[key] = value; });
+
+            setOrderItemsMap(prev => {
+                const next = { ...prev, [newOrderId]: newOrderItems };
+                sessionStorage.setItem("oaxaca_order_items_map", JSON.stringify(next));
+                return next;
+            });
+
+            localStorage.setItem("oaxaca_placed_order", JSON.stringify(newOrderItems));
+
+            setLiveOrderIds(prev => {
+                const updated = prev.includes(newOrderId) ? prev : [...prev, newOrderId];
+                sessionStorage.setItem('liveOrderIds', JSON.stringify(updated));
+                return updated;
+            });
+
+            setEstMins(data.est_mins ?? 15);
+
+            const customisations = {};
+            Object.values(cart).forEach(({ item }) => {
+                const parts = [];
+                if (item.customization?.removedIngredients?.length > 0) parts.push(`No: ${item.customization.removedIngredients.join(', ')}`);
+                if (item.customization?.selectedExtras?.length > 0) parts.push(`Extras: ${item.customization.selectedExtras.map(e => e.name).join(', ')}`);
+                if (item.customization?.specialRequest) parts.push(`Note: ${item.customization.specialRequest}`);
+                if (parts.length > 0) customisations[item.name] = parts.join(' · ');
+            });
+            localStorage.setItem(`oaxaca_customisations_${newOrderId}`, JSON.stringify(customisations));
+
+            setHasActiveOrder(true);
+            setIsPaid(false);
+            setCartOpen(false);
+            setCart({});
+            setConfirmed(true);
+            setTimeout(() => { setConfirmed(false); }, 2500);
+            
+            } catch (err) {
+                console.error('Could not reach server:', err);
+                alert('Unable to connect to server. Please try again.');
+                return;
+            }
+    }
+
+    /**
+     * Handles table closure with payment validation
+     * @function handleCloseTable
+     */
+    function handleCloseTable() {
+        if (hasActiveOrder &amp;&amp; !isPaid) {
+            setUnpaidModalOpen(true);
+        } else {
+            sessionStorage.clear();
+            window.location.href = '/';
+        }
+    }
+
+    /**
+     * Confirms payment and processes cleanup
+     * @async
+     * @function handlePaymentConfirm
+     * @param {string} method - Payment method ('card')
+     */
+    async function handlePaymentConfirm(method) {
+        for (const oid of liveOrderIds) {
+            try {
+                await fetch(`http://127.0.0.1:8000/orders/${oid}/pay`, { method: 'POST', headers: { 'Content-Type': 'application/json' } });
+                await fetch(`http://127.0.0.1:8000/orders/${oid}/cleanup`, { method: 'DELETE' });
+            } catch (_) { }
+        }
+        await fetch(`http://127.0.0.1:8000/customers/${cust_id}`, { method: 'DELETE' });
+
+        orderPaidRef.current = true;
+        setIsPaid(true);
+        setPaymentOpen(false);
+        setHasActiveOrder(false);
+        setOrderItemsMap({});
+        setLiveOrderId(null);
+        setLiveOrderIds([]);
+        setLiveSteps({});
+        setActiveOrderTab(0);
+        localStorage.removeItem('oaxaca_placed_order');
+        sessionStorage.clear();
+
+        setThankYouOpen(true);
+        setTimeout(() => { setThankYouOpen(false); window.location.href = '/'; }, 3000);
+    }
+
+    // COMPUTED VALUES --------------------------
+    const cartCount = Object.values(cart).reduce((sum, { qty }) => sum + qty, 0);
+
+    // ORDER PROGRESS POPUP : Combined total across all orders
+    const allOrderItems = Object.values(orderItemsMap).reduce((acc, orderItems) => ({ ...acc, ...orderItems }), {});
+    const allTotal = Object.values(allOrderItems).reduce((sum, { item, qty }) => {
+        const basePrice = parseFloat(item.price.replace("£", ""));
+        const extrasTotal = item.customization?.selectedExtras?.reduce((s, e) => s + e.price, 0) || 0;
+        return sum + (basePrice + extrasTotal) * qty;
+    }, 0);
+
+    const currentTabOrderId = String(liveOrderIds[activeOrderTab] ?? liveOrderId ?? "");
+    const currentTabItems = orderItemsMap[currentTabOrderId] ?? {};
+    const currentTabTotal = Object.values(currentTabItems).reduce((sum, { item, qty }) => {
+        const basePrice = parseFloat(item.price.replace("£", ""));
+        const extrasTotal = item.customization?.selectedExtras?.reduce((s, e) => s + e.price, 0) || 0;
+        return sum + (basePrice + extrasTotal) * qty;
+    }, 0);
+
+    const allDelivered = liveOrderIds.length > 0 &amp;&amp; liveOrderIds.every(oid => (liveSteps[String(oid)] ?? liveSteps[Number(oid)] ?? 1) >= 5);
+
+    // RENDER --------------------------
+    return (
+        &lt;div className="app">
+            &lt;Header
+                tableNumber={table_id ? `Table ${table_id}` : "Table"}
+                table_id={table_id}
+                cartCount={cartCount}
+                onCartClick={() => setCartOpen(true)}
+                onCloseTable={handleCloseTable}
+                onContactWaiter={() => setContactWaiterOpen(true)}
+            />
+
+            &lt;main className="main-content">
+                &lt;FilterBar
+                    activeFilters={activeFilters}
+                    onFilterToggle={handleFilterToggle}
+                    excludedAllergens={excludedAllergens}
+                    onAllergenChange={setExcludedAllergens}
+                    onTrackOrder={() => setTrackingOpen(true)}
+                    hasActiveOrder={hasActiveOrder}
+                />
+                &lt;div className="menu-sections">
+                    {Object.entries(MENU_DATA).map(([sectionName, items]) => (
+                        &lt;MenuSection
+                            key={sectionName}
+                            sectionName={sectionName}
+                            items={items.map(item => ({
+                                ...item,
+                                price: livePrices[item.id] ? `£${livePrices[item.id].toFixed(2)}` : item.price
+                            }))}
+                            isOpen={openSection === sectionName}
+                            onToggle={() => handleSectionToggle(sectionName)}
+                            matchesFilter={matchesFilter}
+                            onCustomize={setCustomizingItem}
+                            unavailableIds={unavailableIds}
+                            lowStockDishes={lowStockDishes}
+                        />
+                    ))}
+                &lt;/div>
+            &lt;/main>
+
+            {cartOpen &amp;&amp; &lt;CartModal cart={cart} onClose={() => setCartOpen(false)} onUpdateQty={handleUpdateQty} onRemove={handleRemove} onPlaceOrder={handlePlaceOrder} />}
+            {confirmed &amp;&amp; &lt;OrderConfirmation />}
+            {customizingItem &amp;&amp; &lt;CustomizationPopup item={customizingItem} onClose={() => setCustomizingItem(null)} onAddToCart={handleAddToCart} />}
+
+            {trackingOpen &amp;&amp; hasActiveOrder &amp;&amp; (
+                &lt;div className="customization-overlay" onClick={() => setTrackingOpen(false)}>
+                    &lt;div className="customization-modal tracking-modal" onClick={e => e.stopPropagation()}>
+                        &lt;div className="customization-header">
+                            &lt;h2 className="customization-title">Order Progress&lt;/h2>
+                            &lt;button className="customization-close" onClick={() => setTrackingOpen(false)}>✕&lt;/button>
+                        &lt;/div>
+                        {!allDelivered &amp;&amp; liveOrderIds.length > 1 &amp;&amp; (
+                            &lt;div style={{ display: "flex", gap: 6, padding: "10px 20px 0", overflowX: "auto" }}>
+                                {liveOrderIds.map((oid, idx) => (
+                                    &lt;button key={oid} onClick={() => setActiveOrderTab(idx)}
+                                        style={{ padding: "5px 14px", borderRadius: 20, border: "none", cursor: "pointer", fontFamily: "Jost, sans-serif", fontSize: 11, fontWeight: 600, background: activeOrderTab === idx ? "#2D2218" : "#f0e6d3", color: activeOrderTab === idx ? "#f5f0e8" : "#7a5c44", whiteSpace: "nowrap", flexShrink: 0 }}>
+                                        Order #{oid}
+                                    &lt;/button>
+                                ))}
+                            &lt;/div>
+                        )}
+                        &lt;TrackingPopup
+                            orderId={currentTabOrderId}
+                            tableNumber={table_id ? `Table ${table_id}` : "Table"}
+                            orderItems={currentTabItems}
+                            total={currentTabTotal}
+                            onClose={() => setTrackingOpen(false)}
+                            onPaymentClick={() => setPaymentOpen(true)}
+                            currentStep={liveSteps[currentTabOrderId] ?? 1}
+                            onStepClick={() => { }}
+                            estMins={estMins}
+                            embedded={true}
+                            allDelivered={allDelivered}
+                            allOrderItems={allOrderItems}
+                            allTotal={allTotal}
+                        />
+                    &lt;/div>
+                &lt;/div>
+            )}
+
+            {paymentOpen &amp;&amp; &lt;PaymentPopup orderId={liveOrderId} tableNumber={table_id ? `Table ${table_id}` : "Table"} total={allTotal} onClose={() => setPaymentOpen(false)} onConfirm={handlePaymentConfirm} />}
+            {unpaidModalOpen &amp;&amp; &lt;UnpaidOrderModal total={allTotal} onClose={() => setUnpaidModalOpen(false)} onPayNow={() => { setUnpaidModalOpen(false); setPaymentOpen(true); }} />}
+            {thankYouOpen &amp;&amp; &lt;ThankYouModal />}
+            {orderCancelled &amp;&amp; &lt;CancelledOrderModal />}
+            {contactWaiterOpen &amp;&amp; &lt;ContactWaiterModal table_id={table_id} onClose={() => setContactWaiterOpen(false)} />}
+        &lt;/div>
+    );
+}</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-App.html">App</a></li><li><a href="module-KitchenDashboard.html">KitchenDashboard</a></li><li><a href="module-KitchenLogin.html">KitchenLogin</a></li><li><a href="module-ManagerDashboard.html">ManagerDashboard</a></li><li><a href="module-MenuApp.html">MenuApp</a></li><li><a href="module-WaiterDashboard.html">WaiterDashboard</a></li></ul><h3>Global</h3><ul><li><a href="global.html#ALLERGEN_OPTIONS">ALLERGEN_OPTIONS</a></li><li><a href="global.html#AccountPanel">AccountPanel</a></li><li><a href="global.html#AddItemsModal">AddItemsModal</a></li><li><a href="global.html#AllergenDropdown">AllergenDropdown</a></li><li><a href="global.html#C">C</a></li><li><a href="global.html#CancelledOrderModal">CancelledOrderModal</a></li><li><a href="global.html#CartIcon">CartIcon</a></li><li><a href="global.html#CartModal">CartModal</a></li><li><a href="global.html#ContactWaiterModal">ContactWaiterModal</a></li><li><a href="global.html#CustomerLogin">CustomerLogin</a></li><li><a href="global.html#CustomizationPopup">CustomizationPopup</a></li><li><a href="global.html#DIET_FILTERS">DIET_FILTERS</a></li><li><a href="global.html#Dropdown">Dropdown</a></li><li><a href="global.html#EmployeesTab">EmployeesTab</a></li><li><a href="global.html#FilterBar">FilterBar</a></li><li><a href="global.html#Header">Header</a></li><li><a href="global.html#IconAlert">IconAlert</a></li><li><a href="global.html#IconBell">IconBell</a></li><li><a href="global.html#IconClock">IconClock</a></li><li><a href="global.html#IconDoor">IconDoor</a></li><li><a href="global.html#MENU_META">MENU_META</a></li><li><a href="global.html#MenuItemCard">MenuItemCard</a></li><li><a href="global.html#MenuSection">MenuSection</a></li><li><a href="global.html#MenuTab">MenuTab</a></li><li><a href="global.html#Modal">Modal</a></li><li><a href="global.html#NavIcon">NavIcon</a></li><li><a href="global.html#NotificationsPanel">NotificationsPanel</a></li><li><a href="global.html#ORDER_STATUSES">ORDER_STATUSES</a></li><li><a href="global.html#OrderCard">OrderCard</a></li><li><a href="global.html#OrderConfirmation">OrderConfirmation</a></li><li><a href="global.html#OrderTimeBlock">OrderTimeBlock</a></li><li><a href="global.html#OrdersTab">OrdersTab</a></li><li><a href="global.html#OverviewTab">OverviewTab</a></li><li><a href="global.html#PaymentPopup">PaymentPopup</a></li><li><a href="global.html#SectionCard">SectionCard</a></li><li><a href="global.html#StockInput">StockInput</a></li><li><a href="global.html#StockTab">StockTab</a></li><li><a href="global.html#TablesTab">TablesTab</a></li><li><a href="global.html#ThankYouModal">ThankYouModal</a></li><li><a href="global.html#TrackingPopup">TrackingPopup</a></li><li><a href="global.html#UnpaidModal">UnpaidModal</a></li><li><a href="global.html#UnpaidOrderModal">UnpaidOrderModal</a></li><li><a href="global.html#addItemsToOrder">addItemsToOrder</a></li><li><a href="global.html#cancelOrder">cancelOrder</a></li><li><a href="global.html#changeQty">changeQty</a></li><li><a href="global.html#changeStatus">changeStatus</a></li><li><a href="global.html#clearAll">clearAll</a></li><li><a href="global.html#confirmOrder">confirmOrder</a></li><li><a href="global.html#deliverOrder">deliverOrder</a></li><li><a href="global.html#dismiss">dismiss</a></li><li><a href="global.html#elapsedColor">elapsedColor</a></li><li><a href="global.html#formatCardNumber">formatCardNumber</a></li><li><a href="global.html#formatCustomizations">formatCustomizations</a></li><li><a href="global.html#formatExpiry">formatExpiry</a></li><li><a href="global.html#getElapsed">getElapsed</a></li><li><a href="global.html#goToRoles">goToRoles</a></li><li><a href="global.html#handleAddToOrder">handleAddToOrder</a></li><li><a href="global.html#handleBlur">handleBlur</a></li><li><a href="global.html#handleCVVChange">handleCVVChange</a></li><li><a href="global.html#handleCardNumberChange">handleCardNumberChange</a></li><li><a href="global.html#handleCardholderNameChange">handleCardholderNameChange</a></li><li><a href="global.html#handleChange">handleChange</a></li><li><a href="global.html#handleCloseTable">handleCloseTable</a></li><li><a href="global.html#handleConfirm">handleConfirm</a></li><li><a href="global.html#handleContinue">handleContinue</a></li><li><a href="global.html#handleExpiryChange">handleExpiryChange</a></li><li><a href="global.html#handleKeyDown">handleKeyDown</a></li><li><a href="global.html#handleSend">handleSend</a></li><li><a href="global.html#handleToggleExtra">handleToggleExtra</a></li><li><a href="global.html#handleToggleIngredient">handleToggleIngredient</a></li><li><a href="global.html#isFormValid">isFormValid</a></li><li><a href="global.html#marginColor">marginColor</a></li><li><a href="global.html#markAll">markAll</a></li><li><a href="global.html#markRead">markRead</a></li><li><a href="global.html#notifColor">notifColor</a></li><li><a href="global.html#removeItem">removeItem</a></li><li><a href="global.html#restock">restock</a></li><li><a href="global.html#savePrice">savePrice</a></li><li><a href="global.html#startEditPrice">startEditPrice</a></li><li><a href="global.html#statusColor">statusColor</a></li><li><a href="global.html#stockStatus">stockStatus</a></li><li><a href="global.html#tileColors">tileColors</a></li><li><a href="global.html#toggle">toggle</a></li><li><a href="global.html#toggleAvail">toggleAvail</a></li><li><a href="global.html#useCustomerAlerts">useCustomerAlerts</a></li><li><a href="global.html#useElapsed">useElapsed</a></li><li><a href="global.html#useKitchenNotifications">useKitchenNotifications</a></li><li><a href="global.html#useOrderAge">useOrderAge</a></li><li><a href="global.html#useOutsideClick">useOutsideClick</a></li><li><a href="global.html#useWaiterAlerts">useWaiterAlerts</a></li><li><a href="global.html#validateCVV">validateCVV</a></li><li><a href="global.html#validateCardNumber">validateCardNumber</a></li><li><a href="global.html#validateCardholderName">validateCardholderName</a></li><li><a href="global.html#validateExpiry">validateExpiry</a></li><li><a href="global.html#validateField">validateField</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.5</a> on Sun Mar 29 2026 00:44:39 GMT+0000 (Greenwich Mean Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

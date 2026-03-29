@@ -31,7 +31,7 @@ function KitchenLogin() {
     // STATE --------------------------
     /**
      * Form data state for username and password fields
-     * @type {[Object, Function]}
+     * @type {Object}
      * @property {string} username - Kitchen staff username
      * @property {string} password - Kitchen staff password
      */
@@ -39,7 +39,7 @@ function KitchenLogin() {
     
     /**
      * Error messages state for form validation
-     * @type {[Object, Function]}
+     * @type {Object}
      * @property {string} username - Error message for username field
      * @property {string} password - Error message for password field
      */
@@ -47,7 +47,7 @@ function KitchenLogin() {
     
     /**
      * Controls password visibility toggle
-     * @type {[boolean, Function]}
+     * @type {boolean}
      */
     const [flashPassword, setFlashPassword] = useState(false);
 

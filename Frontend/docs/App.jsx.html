@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: App.jsx</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: App.jsx</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { CustomerLogin, WaiterLogin, KitchenLogin, Landing, StaffLanding, ManagerLogin } from "./pages/auth";
+import { KitchenDashboard, WaiterDashboard, ManagerDashboard } from "./pages/staff";
+import Menu from "./pages/menu/Menu";
+
+/**
+ * Main Application Component
+ * 
+ * @module App
+ * @description Root component that sets up the application routing structure.
+ * Provides navigation between landing pages, authentication pages, staff dashboards,
+ * and the customer menu interface.
+ * 
+ * @component
+ * @returns {JSX.Element} The application with configured routes
+ * 
+ * @example
+ * // Usage in main.jsx:
+ * import React from 'react';
+ * import ReactDOM from 'react-dom/client';
+ * import App from './App';
+ * 
+ * ReactDOM.createRoot(document.getElementById('root')).render(
+ *   &lt;React.StrictMode>
+ *     &lt;App />
+ *   &lt;/React.StrictMode>
+ * );
+ * 
+ * @example
+ * // Route structure:
+ * // - Landing pages: "/" (public landing), "/staff" (staff role selection)
+ * // - Authentication: "/customer-login", "/waiter-login", "/kitchen-login", "/manager-login"
+ * // - Staff dashboards: "/waiter-dashboard", "/kitchen-dashboard", "/manager-dashboard"
+ * // - Customer menu: "/menu"
+ */
+function App() {
+    return (
+        &lt;BrowserRouter>
+            &lt;Routes>
+                {/* LANDING PAGES */}
+                /**
+                 * Public landing page route
+                 * @route GET /
+                 * @description Displays the main restaurant landing page
+                 */
+                &lt;Route path="/" element={&lt;Landing />} />
+
+                /**
+                 * Staff role selection landing page
+                 * @route GET /staff
+                 * @description Displays options for staff to choose their role (Waiter/Kitchen/Manager)
+                 */
+                &lt;Route path="/staff" element={&lt;StaffLanding />} />
+
+                {/* AUTHORISATION PAGES */}
+                /**
+                 * Customer login page
+                 * @route GET /customer-login
+                 * @description Customer authentication page where customers enter table number
+                 */
+                &lt;Route path="/customer-login" element={&lt;CustomerLogin />} />
+
+                /**
+                 * Waiter login page
+                 * @route GET /waiter-login
+                 * @description Waiter authentication page with username/password validation
+                 */
+                &lt;Route path="/waiter-login" element={&lt;WaiterLogin />} />
+
+                /**
+                 * Kitchen staff login page
+                 * @route GET /kitchen-login
+                 * @description Kitchen staff authentication page with role validation
+                 */
+                &lt;Route path="/kitchen-login" element={&lt;KitchenLogin />} />
+
+                /**
+                 * Manager login page
+                 * @route GET /manager-login
+                 * @description Manager authentication page with elevated privileges
+                 */
+                &lt;Route path="/manager-login" element={&lt;ManagerLogin />} />
+
+                {/* STAFF DASHBOARD PAGES */}
+                /**
+                 * Waiter dashboard route
+                 * @route GET /waiter-dashboard
+                 * @description Protected route for waiters to manage orders and tables
+                 * @requires Authentication - Redirects to login if not authenticated
+                 */
+                &lt;Route path="/waiter-dashboard" element={&lt;WaiterDashboard />} />
+
+                **
+                 * Kitchen dashboard route
+                 * @route GET /kitchen-dashboard
+                 * @description Protected route for kitchen staff to manage food preparation
+                 * @requires Authentication - Redirects to login if not authenticated
+                 */
+                &lt;Route path="/kitchen-dashboard" element={&lt;KitchenDashboard />} />
+
+                /**
+                 * Manager dashboard route
+                 * @route GET /manager-dashboard
+                 * @description Protected route for managers to oversee operations
+                 * @requires Authentication - Redirects to login if not authenticated
+                 */
+                &lt;Route path="/manager-dashboard" element={&lt;ManagerDashboard />} />
+
+                {/* MENU PAGE */}
+                /**
+                 * Customer menu page
+                 * @route GET /menu
+                 * @description Customer ordering interface with menu items, customization, and cart
+                 * @requires Customer authentication via session storage (cust_id, table_id)
+                 */
+                &lt;Route path="/menu" element={&lt;Menu />} />
+
+            &lt;/Routes>
+        &lt;/BrowserRouter>
+    );
+}
+
+export default App;</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-App.html">App</a></li><li><a href="module-KitchenDashboard.html">KitchenDashboard</a></li><li><a href="module-KitchenLogin.html">KitchenLogin</a></li><li><a href="module-ManagerDashboard.html">ManagerDashboard</a></li><li><a href="module-MenuApp.html">MenuApp</a></li><li><a href="module-WaiterDashboard.html">WaiterDashboard</a></li></ul><h3>Global</h3><ul><li><a href="global.html#ALLERGEN_OPTIONS">ALLERGEN_OPTIONS</a></li><li><a href="global.html#AccountPanel">AccountPanel</a></li><li><a href="global.html#AddItemsModal">AddItemsModal</a></li><li><a href="global.html#AllergenDropdown">AllergenDropdown</a></li><li><a href="global.html#C">C</a></li><li><a href="global.html#CancelledOrderModal">CancelledOrderModal</a></li><li><a href="global.html#CartIcon">CartIcon</a></li><li><a href="global.html#CartModal">CartModal</a></li><li><a href="global.html#ContactWaiterModal">ContactWaiterModal</a></li><li><a href="global.html#CustomerLogin">CustomerLogin</a></li><li><a href="global.html#CustomizationPopup">CustomizationPopup</a></li><li><a href="global.html#DIET_FILTERS">DIET_FILTERS</a></li><li><a href="global.html#Dropdown">Dropdown</a></li><li><a href="global.html#EmployeesTab">EmployeesTab</a></li><li><a href="global.html#FilterBar">FilterBar</a></li><li><a href="global.html#Header">Header</a></li><li><a href="global.html#IconAlert">IconAlert</a></li><li><a href="global.html#IconBell">IconBell</a></li><li><a href="global.html#IconClock">IconClock</a></li><li><a href="global.html#IconDoor">IconDoor</a></li><li><a href="global.html#MENU_META">MENU_META</a></li><li><a href="global.html#MenuItemCard">MenuItemCard</a></li><li><a href="global.html#MenuSection">MenuSection</a></li><li><a href="global.html#MenuTab">MenuTab</a></li><li><a href="global.html#Modal">Modal</a></li><li><a href="global.html#NavIcon">NavIcon</a></li><li><a href="global.html#NotificationsPanel">NotificationsPanel</a></li><li><a href="global.html#ORDER_STATUSES">ORDER_STATUSES</a></li><li><a href="global.html#OrderCard">OrderCard</a></li><li><a href="global.html#OrderConfirmation">OrderConfirmation</a></li><li><a href="global.html#OrderTimeBlock">OrderTimeBlock</a></li><li><a href="global.html#OrdersTab">OrdersTab</a></li><li><a href="global.html#OverviewTab">OverviewTab</a></li><li><a href="global.html#PaymentPopup">PaymentPopup</a></li><li><a href="global.html#SectionCard">SectionCard</a></li><li><a href="global.html#StockInput">StockInput</a></li><li><a href="global.html#StockTab">StockTab</a></li><li><a href="global.html#TablesTab">TablesTab</a></li><li><a href="global.html#ThankYouModal">ThankYouModal</a></li><li><a href="global.html#TrackingPopup">TrackingPopup</a></li><li><a href="global.html#UnpaidModal">UnpaidModal</a></li><li><a href="global.html#UnpaidOrderModal">UnpaidOrderModal</a></li><li><a href="global.html#addItemsToOrder">addItemsToOrder</a></li><li><a href="global.html#cancelOrder">cancelOrder</a></li><li><a href="global.html#changeQty">changeQty</a></li><li><a href="global.html#changeStatus">changeStatus</a></li><li><a href="global.html#clearAll">clearAll</a></li><li><a href="global.html#confirmOrder">confirmOrder</a></li><li><a href="global.html#deliverOrder">deliverOrder</a></li><li><a href="global.html#dismiss">dismiss</a></li><li><a href="global.html#elapsedColor">elapsedColor</a></li><li><a href="global.html#formatCardNumber">formatCardNumber</a></li><li><a href="global.html#formatCustomizations">formatCustomizations</a></li><li><a href="global.html#formatExpiry">formatExpiry</a></li><li><a href="global.html#getElapsed">getElapsed</a></li><li><a href="global.html#goToRoles">goToRoles</a></li><li><a href="global.html#handleAddToOrder">handleAddToOrder</a></li><li><a href="global.html#handleBlur">handleBlur</a></li><li><a href="global.html#handleCVVChange">handleCVVChange</a></li><li><a href="global.html#handleCardNumberChange">handleCardNumberChange</a></li><li><a href="global.html#handleCardholderNameChange">handleCardholderNameChange</a></li><li><a href="global.html#handleChange">handleChange</a></li><li><a href="global.html#handleCloseTable">handleCloseTable</a></li><li><a href="global.html#handleConfirm">handleConfirm</a></li><li><a href="global.html#handleContinue">handleContinue</a></li><li><a href="global.html#handleExpiryChange">handleExpiryChange</a></li><li><a href="global.html#handleKeyDown">handleKeyDown</a></li><li><a href="global.html#handleSend">handleSend</a></li><li><a href="global.html#handleToggleExtra">handleToggleExtra</a></li><li><a href="global.html#handleToggleIngredient">handleToggleIngredient</a></li><li><a href="global.html#isFormValid">isFormValid</a></li><li><a href="global.html#marginColor">marginColor</a></li><li><a href="global.html#markAll">markAll</a></li><li><a href="global.html#markRead">markRead</a></li><li><a href="global.html#notifColor">notifColor</a></li><li><a href="global.html#removeItem">removeItem</a></li><li><a href="global.html#restock">restock</a></li><li><a href="global.html#savePrice">savePrice</a></li><li><a href="global.html#startEditPrice">startEditPrice</a></li><li><a href="global.html#statusColor">statusColor</a></li><li><a href="global.html#stockStatus">stockStatus</a></li><li><a href="global.html#tileColors">tileColors</a></li><li><a href="global.html#toggle">toggle</a></li><li><a href="global.html#toggleAvail">toggleAvail</a></li><li><a href="global.html#useCustomerAlerts">useCustomerAlerts</a></li><li><a href="global.html#useElapsed">useElapsed</a></li><li><a href="global.html#useKitchenNotifications">useKitchenNotifications</a></li><li><a href="global.html#useOrderAge">useOrderAge</a></li><li><a href="global.html#useOutsideClick">useOutsideClick</a></li><li><a href="global.html#useWaiterAlerts">useWaiterAlerts</a></li><li><a href="global.html#validateCVV">validateCVV</a></li><li><a href="global.html#validateCardNumber">validateCardNumber</a></li><li><a href="global.html#validateCardholderName">validateCardholderName</a></li><li><a href="global.html#validateExpiry">validateExpiry</a></li><li><a href="global.html#validateField">validateField</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.5</a> on Sun Mar 29 2026 00:44:39 GMT+0000 (Greenwich Mean Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

@@ -6,7 +6,6 @@ import "./CustomerLogin.css";
 /**
  * Customer Login Component
  * 
- * @module CustomerLogin
  * @description Handles customer authentication by allowing users to select a table number (1-20) 
  * and creates a new customer session in the backend. Upon successful authentication, 
  * navigates to the menu page with customer context.
@@ -29,10 +28,13 @@ function CustomerLogin() {
     const goToRoles = () => navigate("/");
 
     // STATE --------------------------
-    /** @type {[string, Function]} Table number state (empty string or number 1-20 as string) */
+    /** 
+     * Table number state (empty string or number 1-20 as string)
+     * @type {string} 
+     */
     const [tableNumber, setTableNumber] = useState('');
     
-    /** @type {[string, Function]} Error message state for validation and API errors */
+    /** @type {string} Error message state for validation and API errors */
     const [error, setError] = useState('');
 
     /**
