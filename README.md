@@ -54,6 +54,13 @@ start.bat
 
 > **Windows:** Close the frontend and backend windows that opened.
 
+## Staff Login
+
+**Involving**: Kitchen Staff, Manager, Waiter
+
+Staff accounts are pre-seeded into the database on first run. Login credentials for all staff members can be found in `Backend/data/staff.csv`.
+Staff are already logged in by default when the application starts, so no manual login step is required during a demo or first use.
+
 ## Documentation
 
 Pre-generated docs are in `Frontend/docs/` and `Backend/docs/`. To regenerate:
