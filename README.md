@@ -1,6 +1,6 @@
 ## Oaxaca Restaurant Management System
 
-A full-stack restaurant management system built as a team project of 9 developers. This repository is a personal portfolio mirror of the original GitLab project, which was cloned separately.
+A full-stack restaurant management system built as a team project. This repository is a personal portfolio mirror of the original GitLab project, which was cloned separately.
 
 ## Tech Stack
 - **Frontend:** React
